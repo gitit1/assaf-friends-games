@@ -5,7 +5,7 @@ import { friendMaxDim } from '../components/FriendArt'
 import type { GameProps } from './registry'
 import { playFriend, playNudge, playSuccess, playWin, unlockAudio } from '../audio'
 import { speak } from '../speech'
-import { friendSay } from '../friends'
+import { FRIENDS, friendSay } from '../friends'
 import { numberWord, randInt, shuffle } from './util'
 
 // "Missing friend in the sequence" — show a run of friends in order with one
@@ -13,7 +13,7 @@ import { numberWord, randInt, shuffle } from './util'
 // wrong picks give a gentle nudge with no penalty. Tap any friend to hear its
 // number + name.
 const LEN = 4 // how many friends in the run
-const MAXN = 20
+const MAXN = FRIENDS.length // grows automatically as more friends are added
 
 type Round = { start: number; gapPos: number; choices: number[] }
 
