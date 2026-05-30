@@ -3221,6 +3221,59 @@ button {
   flex: none;
 }
 
+/* ---------- bigger or smaller? ---------- */
+.bs-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 480px;
+  margin: 0 auto 4px;
+}
+.bs-prompt {
+  font-family: 'Fredoka', 'Heebo', sans-serif;
+  font-weight: 800;
+  font-size: 1.6rem;
+}
+.bs-score {
+  font-family: 'Fredoka', 'Heebo', sans-serif;
+  font-weight: 800;
+  font-size: 1.4rem;
+}
+.bs-say {
+  display: block;
+  margin: 0 auto 18px;
+}
+.bs-pair {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 9%;
+  min-height: 240px;
+  max-width: 540px;
+  margin: 0 auto;
+}
+.bs-choice {
+  background: none;
+  border: none;
+  padding: 10px;
+  border-radius: 24px;
+  display: flex;
+  align-items: flex-end;
+  transition: transform 0.12s ease;
+}
+.bs-choice:active {
+  transform: scale(0.96);
+}
+.bs-choice:disabled {
+  opacity: 1;
+}
+.bs-choice.is-wrong {
+  animation: shake 0.4s ease;
+}
+.bs-choice.is-win {
+  background: rgba(134, 245, 196, 0.18);
+}
+
 /* ---------- pop friends ---------- */
 .pop-head {
   display: flex;

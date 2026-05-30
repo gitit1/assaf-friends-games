@@ -6,14 +6,16 @@ import CatchFriend from './CatchFriend'
 import CalcFriends from './CalcFriends'
 import MathRace from './MathRace'
 import PopFriends from './PopFriends'
+import BigSmall from './BigSmall'
 
 // Every game gets a callback to return to the home screen.
 export type GameProps = {
   onExit: () => void
 }
 
-// Sections shown on the home screen.
-export type CategoryId = 'friends' | 'more'
+// Home-screen sections. Games are grouped so the home screen stays tidy as the
+// roster of games grows. Empty categories are simply not shown.
+export type CategoryId = 'numbers' | 'thinking' | 'fun' | 'letters'
 
 export type Category = {
   id: CategoryId
@@ -21,8 +23,10 @@ export type Category = {
 }
 
 export const CATEGORIES: Category[] = [
-  { id: 'friends', title: 'החברים' },
-  { id: 'more', title: 'עוד' },
+  { id: 'numbers', title: '🔢 מספרים' },
+  { id: 'thinking', title: '🧠 חשיבה' },
+  { id: 'fun', title: '🎉 כיף' },
+  { id: 'letters', title: '🔤 אותיות' },
 ]
 
 export type GameDef = {
@@ -42,7 +46,7 @@ export const GAMES: GameDef[] = [
     title: 'סופרים',
     emoji: '🔢',
     color: 'linear-gradient(160deg, #8b5cf6, #6d28d9)',
-    category: 'friends',
+    category: 'numbers',
     Component: CountGame,
   },
   {
@@ -50,31 +54,23 @@ export const GAMES: GameDef[] = [
     title: 'מוסיפים',
     emoji: '➕',
     color: 'linear-gradient(160deg, #ec4899, #be185d)',
-    category: 'friends',
+    category: 'numbers',
     Component: AddGame,
   },
   {
-    id: 'memory',
-    title: 'זיכרון חברים',
-    emoji: '🧠',
-    color: 'linear-gradient(160deg, #3ba1dc, #1d5f8c)',
-    category: 'friends',
-    Component: MemoryGame,
-  },
-  {
-    id: 'catch',
-    title: 'תופסים חבר',
-    emoji: '🎯',
-    color: 'linear-gradient(160deg, #f59f00, #d8632f)',
-    category: 'friends',
-    Component: CatchFriend,
+    id: 'bigsmall',
+    title: 'גדול או קטן?',
+    emoji: '⚖️',
+    color: 'linear-gradient(160deg, #34d399, #059669)',
+    category: 'numbers',
+    Component: BigSmall,
   },
   {
     id: 'calc',
     title: 'מחשבון',
     emoji: '🧮',
     color: 'linear-gradient(160deg, #14b8a6, #0f766e)',
-    category: 'friends',
+    category: 'numbers',
     Component: CalcFriends,
   },
   {
@@ -82,15 +78,31 @@ export const GAMES: GameDef[] = [
     title: 'מירוץ חשבון',
     emoji: '🏁',
     color: 'linear-gradient(160deg, #f43f5e, #be123c)',
-    category: 'friends',
+    category: 'numbers',
     Component: MathRace,
+  },
+  {
+    id: 'memory',
+    title: 'זיכרון חברים',
+    emoji: '🧠',
+    color: 'linear-gradient(160deg, #3ba1dc, #1d5f8c)',
+    category: 'thinking',
+    Component: MemoryGame,
+  },
+  {
+    id: 'catch',
+    title: 'תופסים חבר',
+    emoji: '🎯',
+    color: 'linear-gradient(160deg, #f59f00, #d8632f)',
+    category: 'fun',
+    Component: CatchFriend,
   },
   {
     id: 'pop',
     title: 'פיצוץ חברים',
     emoji: '🎈',
     color: 'linear-gradient(160deg, #fbbf24, #d97706)',
-    category: 'friends',
+    category: 'fun',
     Component: PopFriends,
   },
 ]
