@@ -3,6 +3,7 @@ import MemoryGame from './MemoryGame'
 import CountGame from './CountGame'
 import AddGame from './AddGame'
 import CatchFriend from './CatchFriend'
+import CalcFriends from './CalcFriends'
 
 // Every game gets a callback to return to the home screen.
 export type GameProps = {
@@ -65,6 +66,14 @@ export const GAMES: GameDef[] = [
     color: 'linear-gradient(160deg, #f59f00, #d8632f)',
     category: 'friends',
     Component: CatchFriend,
+  },
+  {
+    id: 'calc',
+    title: 'מחשבון',
+    emoji: '🧮',
+    color: 'linear-gradient(160deg, #14b8a6, #0f766e)',
+    category: 'friends',
+    Component: CalcFriends,
   },
 ]
 
