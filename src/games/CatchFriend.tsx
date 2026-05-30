@@ -9,8 +9,9 @@ import { useSettings } from '../settings'
 import { randInt, shuffle } from './util'
 
 const COUNT = 10 // friend identities (indices 0..9)
-const BOARD = 8 // friends visible at once
-const MIN_TARGETS = 2 // always keep at least this many catchable targets
+const BOARD = 9 // friends visible at once
+const WANT_TARGETS = 3 // targets placed at the start and on each switch (≈ 1 : 2 vs decoys)
+const FLOOR_TARGETS = 1 // never let the board run out of catchable friends
 
 type Card = { id: number; index: number; x: number; y: number; popping: boolean }
 
@@ -43,7 +44,7 @@ export default function CatchFriend({ onExit }: GameProps) {
   const [target, setTarget] = useState(() => randInt(0, COUNT - 1))
   const [cards, setCards] = useState<Card[]>(() => {
     const arr = Array.from({ length: BOARD }, () => makeCard(randInt(0, COUNT - 1)))
-    return ensureTargets(arr, target, MIN_TARGETS)
+    return ensureTargets(arr, target, WANT_TARGETS)
   })
   const [score, setScore] = useState(0)
   const [wrongId, setWrongId] = useState<number | null>(null)
@@ -73,7 +74,7 @@ export default function CatchFriend({ onExit }: GameProps) {
   // Announce the new target and make sure enough catchable ones are present.
   useEffect(() => {
     speak(`תפסו את ${friendSay(target)}`)
-    setCards((cs) => ensureTargets(cs, target, MIN_TARGETS))
+    setCards((cs) => ensureTargets(cs, target, WANT_TARGETS))
   }, [target])
 
   function tap(card: Card) {
@@ -95,7 +96,7 @@ export default function CatchFriend({ onExit }: GameProps) {
           // not the target) — that's the variety. Catchability is kept by
           // topping the board back up to MIN_TARGETS elsewhere if needed.
           const withNew = [...remaining, makeCard(randInt(0, COUNT - 1))]
-          return ensureTargets(withNew, targetRef.current, MIN_TARGETS)
+          return ensureTargets(withNew, targetRef.current, FLOOR_TARGETS)
         })
       }, 430)
       timers.current.push(t)
