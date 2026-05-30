@@ -3242,7 +3242,10 @@ button {
 .pop-board {
   display: grid;
   grid-template-columns: repeat(var(--cols, 6), 1fr);
-  gap: 4px;
+  gap: 0;
+  /* force LTR so cell index order matches the left-based hit-test math
+     (the app is RTL, which would otherwise mirror the columns) */
+  direction: ltr;
   max-width: 420px;
   margin: 0 auto;
   touch-action: none;
@@ -3255,6 +3258,8 @@ button {
   align-items: center;
   justify-content: center;
   border-radius: 14px;
+  /* visual spacing comes from the friend being smaller than the cell, so the
+     cells tile exactly and the hit-test stays accurate */
   transition: transform 0.12s ease;
 }
 .pop-cell.is-picked {
