@@ -3221,6 +3221,98 @@ button {
   flex: none;
 }
 
+/* ---------- who's missing? ---------- */
+.who-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  max-width: 520px;
+  margin: 0 auto 14px;
+}
+.who-levels {
+  display: flex;
+  gap: 8px;
+}
+.who-score {
+  font-family: 'Fredoka', 'Heebo', sans-serif;
+  font-weight: 800;
+  font-size: 1.4rem;
+}
+.who-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  align-items: flex-end;
+  justify-content: center;
+  min-height: 150px;
+  max-width: 560px;
+  margin: 0 auto 16px;
+}
+.who-item {
+  display: flex;
+  align-items: flex-end;
+}
+.who-cover,
+.who-gap {
+  width: 72px;
+  height: 72px;
+  border-radius: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.who-cover {
+  font-size: 2.2rem;
+  background: var(--accent);
+  box-shadow: var(--shadow);
+}
+.who-gap {
+  border: 3px dashed var(--line);
+  font-family: 'Fredoka', 'Heebo', sans-serif;
+  font-weight: 800;
+  font-size: 2rem;
+  color: var(--text-soft);
+}
+.who-cta {
+  display: block;
+  margin: 8px auto 0;
+}
+.who-prompt {
+  text-align: center;
+  font-family: 'Fredoka', 'Heebo', sans-serif;
+  font-weight: 800;
+  font-size: 1.6rem;
+  margin: 4px 0 14px;
+}
+.who-choices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  justify-content: center;
+  max-width: 480px;
+  margin: 0 auto;
+}
+.who-choice {
+  background: none;
+  border: none;
+  padding: 8px;
+  border-radius: 20px;
+  display: flex;
+  align-items: flex-end;
+  transition: transform 0.12s ease;
+}
+.who-choice:active {
+  transform: scale(0.95);
+}
+.who-choice:disabled {
+  opacity: 1;
+}
+.who-choice.is-wrong {
+  animation: shake 0.4s ease;
+}
+
 /* ---------- match number to quantity ---------- */
 .qty-head {
   display: flex;

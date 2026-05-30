@@ -10,6 +10,7 @@ import BigSmall from './BigSmall'
 import SeqGame from './SeqGame'
 import QtyMatch from './QtyMatch'
 import MathChallenge from './MathChallenge'
+import WhoGame from './WhoGame'
 
 // Every game gets a callback to return to the home screen.
 export type GameProps = {
@@ -118,6 +119,14 @@ export const GAMES: GameDef[] = [
     color: 'linear-gradient(160deg, #3ba1dc, #1d5f8c)',
     category: 'thinking',
     Component: MemoryGame,
+  },
+  {
+    id: 'who',
+    title: 'מי נעלם?',
+    emoji: '🙈',
+    color: 'linear-gradient(160deg, #c084fc, #7e22ce)',
+    category: 'thinking',
+    Component: WhoGame,
   },
   {
     id: 'catch',
