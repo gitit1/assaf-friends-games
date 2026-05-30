@@ -13,6 +13,17 @@ export type FriendKind =
   | 'dudi'
   | 'zuzu'
   | 'koko'
+  // 11–20 — the bigger friends (built from rows of bumps)
+  | 'toto'
+  | 'lili'
+  | 'momo'
+  | 'riki'
+  | 'shushu'
+  | 'gili'
+  | 'roni'
+  | 'yoyo'
+  | 'sofi'
+  | 'kiki'
 
 // Friend index (0-based) → kind. Friend #1 (לולו) is index 0.
 export const FRIEND_KINDS: FriendKind[] = [
@@ -26,7 +37,67 @@ export const FRIEND_KINDS: FriendKind[] = [
   'dudi',
   'zuzu',
   'koko',
+  'toto',
+  'lili',
+  'momo',
+  'riki',
+  'shushu',
+  'gili',
+  'roni',
+  'yoyo',
+  'sofi',
+  'kiki',
 ]
+
+// ---- 11–20: the bigger friends ----
+// Each is built from rows of bumps (the silhouette reveals the number), with a
+// single identity colour, a face, and a persona accessory. The same FriendArt
+// below renders them — it's just data-driven from here.
+export const BIG_KINDS = [
+  'toto', 'lili', 'momo', 'riki', 'shushu',
+  'gili', 'roni', 'yoyo', 'sofi', 'kiki',
+] as const
+type BigKind = (typeof BIG_KINDS)[number]
+export type BigAccessory =
+  | 'cone' | 'bow' | 'glasses' | 'cap' | 'flower'
+  | 'star' | 'earmuffs' | 'propeller' | 'tiara' | 'crown'
+
+const BU = 46 // bump size (px) for big friends — keep in sync with .gal-big --u
+const H_OVER = 0.16 // horizontal overlap of bumps within a row
+const V_OVER = 0.26 // vertical overlap between rows
+
+export const BIG: Record<BigKind, {
+  rows: number[] // bumps per row, top → bottom (centred); the sum is the number
+  bc: string // identity colour
+  shoe: string
+  acc: BigAccessory
+  face: 'plain' | 'girl'
+}> = {
+  toto:   { rows: [3, 5, 3],       bc: '#e11d48', shoe: '#1e3a8a', acc: 'cone',      face: 'plain' }, // 11
+  lili:   { rows: [2, 4, 4, 2],    bc: '#ea580c', shoe: '#1e3a8a', acc: 'bow',       face: 'girl' }, // 12
+  momo:   { rows: [4, 5, 4],       bc: '#ca8a04', shoe: '#0e7490', acc: 'glasses',   face: 'plain' }, // 13
+  riki:   { rows: [3, 4, 4, 3],    bc: '#65a30d', shoe: '#b91c1c', acc: 'cap',       face: 'plain' }, // 14
+  shushu: { rows: [1, 2, 3, 4, 5], bc: '#0d9488', shoe: '#db2777', acc: 'flower',    face: 'girl' }, // 15 ▲
+  gili:   { rows: [4, 4, 4, 4],    bc: '#0891b2', shoe: '#f59e0b', acc: 'star',      face: 'plain' }, // 16 ■
+  roni:   { rows: [1, 4, 4, 4, 4], bc: '#2563eb', shoe: '#f43f5e', acc: 'earmuffs',  face: 'plain' }, // 17 house
+  yoyo:   { rows: [3, 4, 4, 4, 3], bc: '#7c3aed', shoe: '#22c55e', acc: 'propeller', face: 'plain' }, // 18
+  sofi:   { rows: [3, 4, 5, 4, 3], bc: '#c026d3', shoe: '#f59e0b', acc: 'tiara',     face: 'girl' }, // 19 ◆
+  kiki:   { rows: [5, 5, 5, 5],    bc: '#be123c', shoe: '#1e3a8a', acc: 'crown',     face: 'girl' }, // 20
+}
+
+const bigNatural = Object.fromEntries(
+  BIG_KINDS.map((k) => {
+    const rows = BIG[k].rows
+    const cols = Math.max(...rows)
+    const w = Math.round(BU * (1 + (cols - 1) * (1 - H_OVER))) + 30
+    const h = Math.round(BU * (1 + (rows.length - 1) * (1 - V_OVER))) + 26
+    return [k, { w, h }]
+  }),
+) as Record<BigKind, { w: number; h: number }>
+
+const bigOrder = Object.fromEntries(
+  BIG_KINDS.map((k) => [k, BIG[k].rows.flatMap((c) => Array.from({ length: c }, () => 'bump'))]),
+) as Record<BigKind, string[]>
 
 // Natural design box (matches the px sizes in app.css), used for scaling.
 export const FRIEND_NATURAL: Record<FriendKind, { w: number; h: number }> = {
@@ -40,6 +111,7 @@ export const FRIEND_NATURAL: Record<FriendKind, { w: number; h: number }> = {
   dudi: { w: 242, h: 138 },
   zuzu: { w: 208, h: 206 },
   koko: { w: 278, h: 130 },
+  ...bigNatural,
 }
 
 // Each friend's coloured parts, listed in COUNT ORDER (bottom-up, left→right),
@@ -66,6 +138,7 @@ const PART_ORDER: Record<FriendKind, string[]> = {
     'bump m4',
     'bump m5',
   ],
+  ...bigOrder,
 }
 
 export function friendKindForIndex(index: number) {
@@ -86,6 +159,87 @@ type Props = {
   showHalo?: boolean
   /** How many parts are lit (coloured). The rest are faint outlines. Default = all. */
   litUnits?: number
+}
+
+// The persona accessory worn by each big friend (11–20). Anchored at the top
+// of the head (or, for glasses, on the face) by the .acc2 rules in app.css.
+function bigAccessory(acc: BigAccessory) {
+  switch (acc) {
+    case 'cone':
+      return (
+        <span className="acc2 acc2-cone">
+          <i className="pom" />
+        </span>
+      )
+    case 'bow':
+      return (
+        <span className="acc2 acc2-bow">
+          <i className="l" />
+          <i className="r" />
+          <i className="k" />
+        </span>
+      )
+    case 'glasses':
+      return (
+        <span className="acc2 acc2-glasses">
+          <i className="l" />
+          <i className="b" />
+          <i className="r" />
+        </span>
+      )
+    case 'cap':
+      return (
+        <span className="acc2 acc2-cap">
+          <i className="brim" />
+        </span>
+      )
+    case 'flower':
+      return (
+        <span className="acc2 acc2-flower">
+          <i />
+          <i />
+          <i />
+          <i />
+          <i />
+          <b />
+        </span>
+      )
+    case 'star':
+      return <span className="acc2 acc2-star" />
+    case 'earmuffs':
+      return (
+        <span className="acc2 acc2-earmuffs">
+          <i className="l" />
+          <i className="r" />
+        </span>
+      )
+    case 'propeller':
+      return (
+        <span className="acc2 acc2-propeller">
+          <i className="l" />
+          <i className="r" />
+          <b />
+        </span>
+      )
+    case 'tiara':
+      return (
+        <span className="acc2 acc2-tiara">
+          <i />
+          <i />
+          <i />
+        </span>
+      )
+    case 'crown':
+      return (
+        <span className="acc2 acc2-crown">
+          <i />
+          <i />
+          <i />
+        </span>
+      )
+    default:
+      return null
+  }
 }
 
 export default function FriendArt({ kind, number, showHalo = false, litUnits }: Props) {
@@ -129,8 +283,42 @@ export default function FriendArt({ kind, number, showHalo = false, litUnits }: 
     </span>
   )
 
+  const isBig = (BIG_KINDS as readonly string[]).includes(kind)
+
   let design: React.ReactElement
-  if (kind === 'lulu') {
+  if (isBig) {
+    const spec = BIG[kind as BigKind]
+    let n = 0
+    const rows = spec.rows.map((count, r) => (
+      <span className="gal-big-row" key={r}>
+        {Array.from({ length: count }).map((_, c) => {
+          const on = n < lit
+          n++
+          return <span key={c} className={`bump ${on ? '' : 'is-off'}`} />
+        })}
+      </span>
+    ))
+    design = (
+      <div
+        className={`gal-big big-${kind}`}
+        style={{ '--bc': spec.bc, '--shoe': spec.shoe } as React.CSSProperties}
+      >
+        {arms}
+        <span className="gal-big-rows">{rows}</span>
+        {feet}
+        {spec.face === 'girl' ? (
+          <>
+            {eyes}
+            {lips}
+          </>
+        ) : (
+          face
+        )}
+        {bigAccessory(spec.acc)}
+        {halo}
+      </div>
+    )
+  } else if (kind === 'lulu') {
     design = (
       <div className="gal-blob">
         {arms}

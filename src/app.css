@@ -1259,7 +1259,8 @@ button {
 .gal-piko .bump,
 .gal-dudi .bump,
 .gal-zuzu .bump,
-.gal-koko .bump {
+.gal-koko .bump,
+.gal-big .bump {
   background-color: var(--bc, #ef4444);
   background-image: radial-gradient(rgba(255, 255, 255, 0.13) 0.5px, transparent 0.8px),
     radial-gradient(circle at 38% 24%, rgba(255, 255, 255, 0.34), transparent 48%),
@@ -1537,6 +1538,30 @@ button {
 
 .pill:disabled {
   opacity: 0.4;
+}
+
+/* decade group selector (1–10, 11–20, … up toward 100) */
+.gal-groups {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.gal-groups .pill {
+  font-size: 0.98rem;
+  padding: 8px 16px;
+}
+.gal-groups .pill.is-active {
+  background: var(--accent);
+  color: #1a1206;
+  border-color: var(--accent);
+}
+
+/* scales the friend shown in the big stage (shrinks the chunkier 1–10) */
+.gal-stage-fit {
+  display: inline-flex;
+  transform-origin: center center;
 }
 
 .gal-big-stage {
@@ -2655,6 +2680,395 @@ button {
   background: #22d3ee;
 }
 
+/* ---------- 11–20: the bigger friends (rows of bumps) ---------- */
+.gal-big {
+  --u: 46px;
+  --shoe: #1e3a8a;
+  position: relative;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  filter: drop-shadow(0 12px 15px rgba(0, 0, 0, 0.33));
+  animation: friend-breathe 2.8s ease-in-out infinite;
+}
+.gal-big-rows {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.gal-big-row {
+  display: flex;
+}
+.gal-big-row + .gal-big-row {
+  margin-top: calc(var(--u) * -0.26);
+}
+.gal-big .bump {
+  width: var(--u);
+  height: var(--u);
+  border-radius: 50%;
+}
+.gal-big-row .bump + .bump {
+  margin-inline-start: calc(var(--u) * -0.16);
+}
+.gal-big .gal-halo {
+  top: -58px;
+  z-index: 12;
+}
+/* face + persona sit above the bumps */
+.gal-big .gf-eye,
+.gal-big .gf-mouth,
+.gal-big .lips,
+.gal-big .acc2 {
+  z-index: 11;
+}
+.gal-big .gf-eye {
+  top: 40%;
+  width: 18px;
+  height: 22px;
+}
+.gal-big .gf-eye.l {
+  left: calc(50% - 25px);
+}
+.gal-big .gf-eye.r {
+  right: calc(50% - 25px);
+}
+.gal-big .gf-mouth {
+  top: 55%;
+  bottom: auto;
+  width: 22px;
+  height: 11px;
+}
+.gal-big .lips {
+  position: absolute;
+  top: 54%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 26px;
+  height: 14px;
+  background-color: #e11d48;
+  background-image: radial-gradient(circle at 40% 26%, rgba(255, 255, 255, 0.25), transparent 55%),
+    radial-gradient(circle at 55% 122%, rgba(0, 0, 0, 0.26), transparent 60%);
+  border-radius: 45% 45% 55% 55% / 45% 45% 100% 100%;
+}
+.gal-big .lips .lips-line {
+  position: absolute;
+  top: 44%;
+  left: 12%;
+  right: 12%;
+  height: 2px;
+  background: rgba(90, 0, 15, 0.55);
+  border-radius: 2px;
+}
+
+/* persona accessories — anchored at top-centre of the head (.acc2) */
+.gal-big .acc2 {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+/* 11 טוטו — party cone + pom */
+.gal-big .acc2-cone {
+  top: -46px;
+  width: 40px;
+  height: 44px;
+  background: linear-gradient(135deg, #fb7185, #e11d48);
+  clip-path: polygon(50% 0, 100% 100%, 0 100%);
+  filter: drop-shadow(0 3px 3px rgba(0, 0, 0, 0.3));
+}
+.gal-big .acc2-cone .pom {
+  position: absolute;
+  top: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+/* 12 לילי — hair bow */
+.gal-big .acc2-bow {
+  top: -18px;
+  width: 46px;
+  height: 22px;
+}
+.gal-big .acc2-bow .l,
+.gal-big .acc2-bow .r {
+  position: absolute;
+  top: 0;
+  width: 20px;
+  height: 22px;
+  background: #fb7185;
+  border-radius: 70% 30% 30% 70% / 50%;
+}
+.gal-big .acc2-bow .l {
+  left: 0;
+  transform: rotate(6deg);
+}
+.gal-big .acc2-bow .r {
+  right: 0;
+  transform: rotate(-6deg) scaleX(-1);
+}
+.gal-big .acc2-bow .k {
+  position: absolute;
+  left: 50%;
+  top: 4px;
+  transform: translateX(-50%);
+  width: 10px;
+  height: 14px;
+  border-radius: 50%;
+  background: #f43f5e;
+}
+/* 13 מומו — round glasses (on the face) */
+.gal-big .acc2-glasses {
+  top: 40%;
+  transform: translate(-50%, -50%);
+  width: 62px;
+  height: 24px;
+}
+.gal-big .acc2-glasses .l,
+.gal-big .acc2-glasses .r {
+  position: absolute;
+  top: 0;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 3px solid #1f2937;
+  background: rgba(255, 255, 255, 0.16);
+}
+.gal-big .acc2-glasses .l {
+  left: 0;
+}
+.gal-big .acc2-glasses .r {
+  right: 0;
+}
+.gal-big .acc2-glasses .b {
+  position: absolute;
+  top: 10px;
+  left: 24px;
+  right: 24px;
+  height: 3px;
+  background: #1f2937;
+}
+/* 14 ריקי — baseball cap */
+.gal-big .acc2-cap {
+  top: -20px;
+  width: 54px;
+  height: 26px;
+}
+.gal-big .acc2-cap::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 26px;
+  background: linear-gradient(#60a5fa, #2563eb);
+  border-radius: 26px 26px 0 0;
+}
+.gal-big .acc2-cap .brim {
+  position: absolute;
+  bottom: -2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 66px;
+  height: 8px;
+  background: #1d4ed8;
+  border-radius: 0 0 10px 10px;
+}
+/* 15 שושו — flower */
+.gal-big .acc2-flower {
+  top: -28px;
+  width: 36px;
+  height: 36px;
+}
+.gal-big .acc2-flower i {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #fde047;
+}
+.gal-big .acc2-flower i:nth-child(1) {
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+}
+.gal-big .acc2-flower i:nth-child(2) {
+  top: 50%;
+  left: 0;
+  transform: translateY(-50%);
+}
+.gal-big .acc2-flower i:nth-child(3) {
+  top: 50%;
+  right: 0;
+  transform: translateY(-50%);
+}
+.gal-big .acc2-flower i:nth-child(4) {
+  bottom: 0;
+  left: 5px;
+}
+.gal-big .acc2-flower i:nth-child(5) {
+  bottom: 0;
+  right: 5px;
+}
+.gal-big .acc2-flower b {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  background: #f97316;
+}
+/* 16 גילי — star */
+.gal-big .acc2-star {
+  top: -32px;
+  width: 32px;
+  height: 32px;
+  background: linear-gradient(#fde047, #f59e0b);
+  clip-path: polygon(50% 0, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.3));
+}
+/* 17 רוני — earmuffs / headphones */
+.gal-big .acc2-earmuffs {
+  top: -14px;
+  width: 72px;
+  height: 30px;
+}
+.gal-big .acc2-earmuffs::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 8px;
+  right: 8px;
+  height: 30px;
+  border: 5px solid #6d28d9;
+  border-bottom: none;
+  border-radius: 40px 40px 0 0;
+}
+.gal-big .acc2-earmuffs .l,
+.gal-big .acc2-earmuffs .r {
+  position: absolute;
+  top: 18px;
+  width: 16px;
+  height: 20px;
+  border-radius: 8px;
+  background: #7c3aed;
+}
+.gal-big .acc2-earmuffs .l {
+  left: -2px;
+}
+.gal-big .acc2-earmuffs .r {
+  right: -2px;
+}
+/* 18 יויו — propeller cap */
+.gal-big .acc2-propeller {
+  top: -20px;
+  width: 46px;
+  height: 14px;
+}
+.gal-big .acc2-propeller .l,
+.gal-big .acc2-propeller .r {
+  position: absolute;
+  top: 4px;
+  width: 21px;
+  height: 7px;
+  border-radius: 6px;
+}
+.gal-big .acc2-propeller .l {
+  left: 0;
+  background: #ef4444;
+}
+.gal-big .acc2-propeller .r {
+  right: 0;
+  background: #22c55e;
+}
+.gal-big .acc2-propeller b {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  transform: translateX(-50%);
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: #1f2937;
+}
+/* 19 סופי — tiara */
+.gal-big .acc2-tiara {
+  top: -16px;
+  width: 52px;
+  height: 16px;
+}
+.gal-big .acc2-tiara::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 14px;
+  background: linear-gradient(#fde047, #f4c430);
+  clip-path: polygon(0 100%, 0 55%, 20% 55%, 30% 0, 50% 50%, 70% 0, 80% 55%, 100% 55%, 100% 100%);
+}
+.gal-big .acc2-tiara i {
+  position: absolute;
+  bottom: 5px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+.gal-big .acc2-tiara i:nth-child(1) {
+  left: 12px;
+  background: #ec4899;
+}
+.gal-big .acc2-tiara i:nth-child(2) {
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 10px;
+  background: #22d3ee;
+}
+.gal-big .acc2-tiara i:nth-child(3) {
+  right: 12px;
+  background: #ec4899;
+}
+/* 20 קיקי — royal crown */
+.gal-big .acc2-crown {
+  top: -24px;
+  width: 56px;
+  height: 32px;
+  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.3));
+}
+.gal-big .acc2-crown::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(#fde047, #f4c430);
+  clip-path: polygon(0% 100%, 0% 42%, 18% 72%, 50% 8%, 82% 72%, 100% 42%, 100% 100%);
+}
+.gal-big .acc2-crown i {
+  position: absolute;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+}
+.gal-big .acc2-crown i:nth-child(1) {
+  left: 3px;
+  top: 42%;
+  background: #ef4444;
+}
+.gal-big .acc2-crown i:nth-child(2) {
+  left: 50%;
+  top: 8%;
+  transform: translateX(-50%);
+  background: #22d3ee;
+}
+.gal-big .acc2-crown i:nth-child(3) {
+  right: 3px;
+  top: 42%;
+  background: #4ade80;
+}
+
 /* size comparison strip (1 · 2 · 3, on one baseline) */
 .gal-compare-title {
   text-align: center;
@@ -2674,6 +3088,18 @@ button {
 .gal-mini {
   zoom: 0.42;
   display: inline-flex;
+  background: none;
+  border: none;
+  padding: 10px;
+  cursor: pointer;
+  border-radius: 18px;
+}
+.gal-mini.is-active {
+  background: rgba(255, 221, 102, 0.18);
+  outline: 7px solid var(--accent);
+}
+.gal-mini:active {
+  transform: scale(0.93);
 }
 .gal-mini .gal-halo {
   display: none;
@@ -2759,10 +3185,21 @@ button {
   animation: catch-pop 0.43s ease forwards;
   pointer-events: none;
 }
+/* gentle exit when a friend's 6s on the board is up (calmer than the pop) */
+.catch-card.is-leaving {
+  animation: catch-fade 0.4s ease forwards;
+  pointer-events: none;
+}
 
 @keyframes catch-pop {
   to {
     transform: scale(1.5);
+    opacity: 0;
+  }
+}
+@keyframes catch-fade {
+  to {
+    transform: scale(0.6);
     opacity: 0;
   }
 }
