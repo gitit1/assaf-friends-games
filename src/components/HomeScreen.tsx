@@ -1,27 +1,36 @@
-import { CATEGORIES, gamesInCategory } from '../games/registry'
+import { CATEGORIES, gamesInCategory, type CategoryId } from '../games/registry'
 import Friend from './Friend'
 import SettingsPanel from './SettingsPanel'
 import { playTap, unlockAudio } from '../audio'
 import { stopSpeech } from '../speech'
 
 type HomeScreenProps = {
-  // id is a game id, or 'meet' for the meet-the-friends screen.
-  onPick: (id: string) => void
+  // open a special screen: 'meet' (meet the friends) or 'gallery'
+  onOpen: (id: string) => void
+  // open a category's game list
+  onOpenCategory: (id: CategoryId) => void
 }
 
-export default function HomeScreen({ onPick }: HomeScreenProps) {
-  function pick(id: string) {
+export default function HomeScreen({ onOpen, onOpenCategory }: HomeScreenProps) {
+  function tap() {
     unlockAudio()
     stopSpeech()
     playTap()
-    onPick(id)
+  }
+  function open(id: string) {
+    tap()
+    onOpen(id)
+  }
+  function openCategory(id: CategoryId) {
+    tap()
+    onOpenCategory(id)
   }
 
   return (
     <div className="home-screen">
       <header className="home-header">
         <SettingsPanel />
-        <button className="gallery-button" aria-label="גלריית עיצובים" onClick={() => pick('gallery')}>
+        <button className="gallery-button" aria-label="גלריית עיצובים" onClick={() => open('gallery')}>
           🎨
         </button>
         <h1 className="home-title">
@@ -31,7 +40,7 @@ export default function HomeScreen({ onPick }: HomeScreenProps) {
       </header>
 
       {/* Featured: meet the friends */}
-      <button className="featured-card" onClick={() => pick('meet')}>
+      <button className="featured-card" onClick={() => open('meet')}>
         <span className="friend-cluster" aria-hidden="true">
           <Friend index={0} scale={0.32} showNumber={false} />
           <Friend index={1} scale={0.32} showNumber={false} />
@@ -43,30 +52,25 @@ export default function HomeScreen({ onPick }: HomeScreenProps) {
         </span>
       </button>
 
-      {CATEGORIES.map((category) => {
-        const games = gamesInCategory(category.id)
-        if (games.length === 0) return null
-        return (
-          <section key={category.id} className="home-section">
-            <h2 className="home-section-title">{category.title}</h2>
-            <nav className="game-grid" aria-label={category.title}>
-              {games.map((game) => (
-                <button
-                  key={game.id}
-                  className="game-card"
-                  style={{ background: game.color }}
-                  onClick={() => pick(game.id)}
-                >
-                  <span className="game-card-emoji" aria-hidden="true">
-                    {game.emoji}
-                  </span>
-                  <span className="game-card-title">{game.title}</span>
-                </button>
-              ))}
-            </nav>
-          </section>
-        )
-      })}
+      {/* Category cubes — tap one to see its games */}
+      <nav className="category-grid" aria-label="קטגוריות">
+        {CATEGORIES.map((category) => {
+          if (gamesInCategory(category.id).length === 0) return null
+          return (
+            <button
+              key={category.id}
+              className="category-card"
+              style={{ background: category.color }}
+              onClick={() => openCategory(category.id)}
+            >
+              <span className="category-cover" aria-hidden="true">
+                <span className="category-cover-emoji">{category.emoji}</span>
+              </span>
+              <span className="category-title">{category.title}</span>
+            </button>
+          )
+        })}
+      </nav>
     </div>
   )
 }

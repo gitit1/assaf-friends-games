@@ -20,13 +20,16 @@ export type CategoryId = 'numbers' | 'thinking' | 'fun' | 'letters'
 export type Category = {
   id: CategoryId
   title: string
+  emoji: string
+  // Background gradient for the category cube on the home screen.
+  color: string
 }
 
 export const CATEGORIES: Category[] = [
-  { id: 'numbers', title: '🔢 מספרים' },
-  { id: 'thinking', title: '🧠 חשיבה' },
-  { id: 'fun', title: '🎉 כיף' },
-  { id: 'letters', title: '🔤 אותיות' },
+  { id: 'numbers', title: 'מספרים', emoji: '🔢', color: 'linear-gradient(160deg, #6366f1, #4338ca)' },
+  { id: 'thinking', title: 'חשיבה', emoji: '🧠', color: 'linear-gradient(160deg, #22c55e, #15803d)' },
+  { id: 'fun', title: 'כיף', emoji: '🎉', color: 'linear-gradient(160deg, #f97316, #db2777)' },
+  { id: 'letters', title: 'אותיות', emoji: '🔤', color: 'linear-gradient(160deg, #a855f7, #7c3aed)' },
 ]
 
 export type GameDef = {
