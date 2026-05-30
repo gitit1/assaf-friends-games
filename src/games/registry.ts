@@ -8,6 +8,7 @@ import MathRace from './MathRace'
 import PopFriends from './PopFriends'
 import BigSmall from './BigSmall'
 import SeqGame from './SeqGame'
+import QtyMatch from './QtyMatch'
 
 // Every game gets a callback to return to the home screen.
 export type GameProps = {
@@ -76,6 +77,14 @@ export const GAMES: GameDef[] = [
     color: 'linear-gradient(160deg, #38bdf8, #0369a1)',
     category: 'numbers',
     Component: SeqGame,
+  },
+  {
+    id: 'quantity',
+    title: 'מספר וכמות',
+    emoji: '🔟',
+    color: 'linear-gradient(160deg, #fb923c, #c2410c)',
+    category: 'numbers',
+    Component: QtyMatch,
   },
   {
     id: 'calc',

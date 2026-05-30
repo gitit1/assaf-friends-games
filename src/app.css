@@ -3221,6 +3221,89 @@ button {
   flex: none;
 }
 
+/* ---------- match number to quantity ---------- */
+.qty-head {
+  display: flex;
+  justify-content: flex-end;
+  max-width: 600px;
+  margin: 0 auto;
+}
+.qty-score {
+  font-family: 'Fredoka', 'Heebo', sans-serif;
+  font-weight: 800;
+  font-size: 1.4rem;
+}
+.qty-target-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin: 6px 0 22px;
+}
+.qty-prompt {
+  font-family: 'Fredoka', 'Heebo', sans-serif;
+  font-weight: 800;
+  font-size: 1.7rem;
+}
+.qty-target {
+  font-family: 'Fredoka', 'Heebo', sans-serif;
+  font-weight: 800;
+  font-size: 3.4rem;
+  color: #15233a;
+  min-width: 72px;
+  height: 72px;
+  padding: 0 14px;
+  border-radius: 24px;
+  background: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow);
+}
+.qty-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  justify-content: center;
+  align-items: stretch;
+  max-width: 620px;
+  margin: 0 auto;
+}
+.qty-card {
+  flex: 1 1 150px;
+  max-width: 200px;
+  min-height: 150px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--panel-strong);
+  border: 3px solid var(--line);
+  border-radius: 24px;
+  padding: 12px;
+  box-shadow: var(--shadow);
+  transition: transform 0.12s ease;
+}
+.qty-card:active {
+  transform: scale(0.96);
+}
+.qty-card:disabled {
+  opacity: 1;
+}
+.qty-card.is-wrong {
+  animation: shake 0.4s ease;
+}
+.qty-card.is-win {
+  border-color: var(--success);
+  background: rgba(134, 245, 196, 0.14);
+}
+.qty-cluster {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+  justify-content: center;
+}
+
 /* ---------- missing friend in the sequence ---------- */
 .seq-head {
   display: flex;
