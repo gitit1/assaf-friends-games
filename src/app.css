@@ -3247,20 +3247,49 @@ button {
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  gap: 12px;
+  gap: 14px;
   flex-wrap: wrap;
-  min-height: 150px;
-  max-width: 560px;
+  min-height: 170px;
+  max-width: 580px;
   margin: 0 auto 22px;
 }
-.seq-cell {
+/* one friend in the row/choices = a clear number badge above the friend */
+.seq-item,
+.seq-choice {
   display: flex;
-  align-items: flex-end;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  padding: 6px;
+  border-radius: 20px;
+  transition: transform 0.12s ease;
+}
+.seq-item:active,
+.seq-choice:active {
+  transform: scale(0.95);
+}
+.seq-num {
+  min-width: 36px;
+  height: 36px;
+  padding: 0 10px;
+  display: flex;
+  align-items: center;
   justify-content: center;
+  border-radius: 999px;
+  background: var(--panel-strong);
+  box-shadow: var(--shadow);
+  font-family: 'Fredoka', 'Heebo', sans-serif;
+  font-weight: 800;
+  font-size: 1.5rem;
+}
+.seq-num-empty {
+  color: var(--text-soft);
 }
 .seq-gap {
-  width: 64px;
-  height: 64px;
+  width: 70px;
+  height: 70px;
   border-radius: 18px;
   border: 3px dashed var(--line);
   display: flex;
@@ -3278,18 +3307,6 @@ button {
   justify-content: center;
   max-width: 480px;
   margin: 0 auto;
-}
-.seq-choice {
-  background: none;
-  border: none;
-  padding: 8px;
-  border-radius: 20px;
-  display: flex;
-  align-items: flex-end;
-  transition: transform 0.12s ease;
-}
-.seq-choice:active {
-  transform: scale(0.95);
 }
 .seq-choice:disabled {
   opacity: 1;

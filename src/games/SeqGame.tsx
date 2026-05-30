@@ -3,14 +3,15 @@ import GameShell from '../components/GameShell'
 import Friend from '../components/Friend'
 import { friendMaxDim } from '../components/FriendArt'
 import type { GameProps } from './registry'
-import { playNudge, playSuccess, playWin, unlockAudio } from '../audio'
+import { playFriend, playNudge, playSuccess, playWin, unlockAudio } from '../audio'
 import { speak } from '../speech'
 import { friendSay } from '../friends'
 import { numberWord, randInt, shuffle } from './util'
 
 // "Missing friend in the sequence" — show a run of friends in order with one
 // gap (e.g. 1 · 2 · _ · 4) and pick the friend that completes it. No timer,
-// wrong picks give a gentle nudge with no penalty.
+// wrong picks give a gentle nudge with no penalty. Tap any friend to hear its
+// number + name.
 const LEN = 4 // how many friends in the run
 const MAXN = 20
 
@@ -43,14 +44,24 @@ export default function SeqGame({ onExit }: GameProps) {
   const [score, setScore] = useState(0)
   const [wrong, setWrong] = useState<number | null>(null)
   const [solved, setSolved] = useState(false)
+  const [poked, setPoked] = useState<number | null>(null)
 
   const missing = round.start + round.gapPos
-  const seqScale = (n: number) => 60 / friendMaxDim(n - 1)
-  const choiceScale = (n: number) => 74 / friendMaxDim(n - 1)
+  const seqScale = (n: number) => 78 / friendMaxDim(n - 1)
+  const choiceScale = (n: number) => 84 / friendMaxDim(n - 1)
 
   useEffect(() => {
     speak('איזה חבר חסר?')
   }, [round])
+
+  // tap a friend to hear its number + name
+  function sayFriend(n: number) {
+    unlockAudio()
+    playFriend(n - 1)
+    speak(`${numberWord(n)}. ${friendSay(n - 1)}`)
+    setPoked(n)
+    window.setTimeout(() => setPoked(null), 550)
+  }
 
   function pick(n: number) {
     if (solved) return
@@ -88,23 +99,24 @@ export default function SeqGame({ onExit }: GameProps) {
       <div className="seq-row" dir="ltr">
         {Array.from({ length: LEN }).map((_, i) => {
           const num = round.start + i
-          if (i === round.gapPos) {
+          if (i === round.gapPos && !solved) {
             return (
-              <span className="seq-cell" key={i}>
-                {solved ? (
-                  <Friend index={num - 1} scale={seqScale(num)} bouncing />
-                ) : (
-                  <span className="seq-gap" aria-label="חסר">
-                    ?
-                  </span>
-                )}
+              <span className="seq-item" key={i}>
+                <span className="seq-num seq-num-empty">?</span>
+                <span className="seq-gap">?</span>
               </span>
             )
           }
           return (
-            <span className="seq-cell" key={i}>
-              <Friend index={num - 1} scale={seqScale(num)} />
-            </span>
+            <button
+              className="seq-item"
+              key={i}
+              onClick={() => sayFriend(num)}
+              aria-label={`חבר מספר ${num}`}
+            >
+              <span className="seq-num">{num}</span>
+              <Friend index={num - 1} scale={seqScale(num)} showNumber={false} bouncing={poked === num || (i === round.gapPos && solved)} />
+            </button>
           )
         })}
       </div>
@@ -118,7 +130,8 @@ export default function SeqGame({ onExit }: GameProps) {
             disabled={solved}
             aria-label={`חבר מספר ${n}`}
           >
-            <Friend index={n - 1} scale={choiceScale(n)} />
+            <span className="seq-num">{n}</span>
+            <Friend index={n - 1} scale={choiceScale(n)} showNumber={false} />
           </button>
         ))}
       </div>
