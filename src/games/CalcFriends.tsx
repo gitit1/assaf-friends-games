@@ -36,7 +36,9 @@ function useIsWide() {
 // (one per digit), with the number on it, that looks like it holds lots inside.
 function BigFriend({ value, scale }: { value: number; scale: number }) {
   const digits = String(value).length
-  const unit = Math.max(28, Math.round(72 * scale))
+  const base = Math.round(72 * scale)
+  // Shrink the bumps when there are many digits so big numbers still fit.
+  const unit = Math.max(22, digits > 4 ? Math.round((base * 4) / digits) : base)
   return (
     <div className="bigf">
       <div className="bigf-body" style={{ '--u': `${unit}px` } as React.CSSProperties}>
@@ -78,7 +80,7 @@ export default function CalcFriends({ onExit }: GameProps) {
       setFresh(false)
       return
     }
-    setDisplay((p) => (p === '0' ? d : p.replace('-', '').length >= 3 ? p : p + d))
+    setDisplay((p) => (p === '0' ? d : p + d))
   }
 
   function chooseOp(next: Op) {
@@ -116,10 +118,22 @@ export default function CalcFriends({ onExit }: GameProps) {
     setFresh(true)
   }
 
-  function backspace() {
-    if (fresh) return
+  // "Back" — always works. If an operator was just chosen, cancel it and return
+  // to the previous number; otherwise erase the last digit being typed.
+  function back() {
     playTap()
-    setDisplay((p) => (p.length > 1 ? p.slice(0, -1) : '0'))
+    if (fresh && op !== null) {
+      if (acc !== null) setDisplay(String(acc))
+      setAcc(null)
+      setOp(null)
+      setFresh(false)
+      return
+    }
+    setFresh(false)
+    setDisplay((p) => {
+      const next = p.slice(0, -1)
+      return next === '' || next === '-' ? '0' : next
+    })
   }
 
   const keys: { label: string; kind: string; onClick: () => void }[] = [
@@ -135,9 +149,9 @@ export default function CalcFriends({ onExit }: GameProps) {
     { label: '2', kind: 'num', onClick: () => digit('2') },
     { label: '3', kind: 'num', onClick: () => digit('3') },
     { label: '➕', kind: 'op', onClick: () => chooseOp('+') },
-    { label: 'C', kind: 'clear', onClick: clear },
     { label: '0', kind: 'num', onClick: () => digit('0') },
-    { label: '⌫', kind: 'back', onClick: backspace },
+    { label: 'C', kind: 'clear', onClick: clear },
+    { label: '⌫', kind: 'back', onClick: back },
     { label: '=', kind: 'eq', onClick: equals },
   ]
 

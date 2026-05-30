@@ -2832,8 +2832,10 @@ button {
 .calc-current {
   font-family: 'Fredoka', 'Heebo', sans-serif;
   font-weight: 800;
-  font-size: 2.6rem;
+  font-size: clamp(1.7rem, 8vw, 2.6rem);
   line-height: 1.1;
+  max-width: 100%;
+  overflow-wrap: anywhere;
 }
 .calc-grid {
   display: grid;
@@ -2864,6 +2866,9 @@ button {
 .calc-key-clear {
   background: #ff7f8d;
 }
+.calc-key-back {
+  background: #ffce85;
+}
 
 /* big-number friend: a chunky body of connected circles (one per digit) that
    looks like it holds lots inside, with the number on a clear badge below */
@@ -2877,6 +2882,9 @@ button {
   position: relative;
   display: flex;
   align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  max-width: 100%;
   filter: drop-shadow(0 9px 11px rgba(0, 0, 0, 0.3));
 }
 .bigf-circle {
