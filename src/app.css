@@ -3508,6 +3508,33 @@ button {
   }
 }
 
+/* ---------- math challenge (reuses .math-q / .math-choices below) ---------- */
+.chal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  max-width: 520px;
+  margin: 0 auto 6px;
+}
+.chal-levels {
+  display: flex;
+  gap: 8px;
+}
+.chal-score {
+  font-family: 'Fredoka', 'Heebo', sans-serif;
+  font-weight: 800;
+  font-size: 1.4rem;
+}
+.chal-mascot {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  min-height: 120px;
+  margin-bottom: 8px;
+}
+
 /* ---------- math race ---------- */
 .race-ops {
   display: flex;

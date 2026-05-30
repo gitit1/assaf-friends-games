@@ -9,6 +9,7 @@ import PopFriends from './PopFriends'
 import BigSmall from './BigSmall'
 import SeqGame from './SeqGame'
 import QtyMatch from './QtyMatch'
+import MathChallenge from './MathChallenge'
 
 // Every game gets a callback to return to the home screen.
 export type GameProps = {
@@ -101,6 +102,14 @@ export const GAMES: GameDef[] = [
     color: 'linear-gradient(160deg, #f43f5e, #be123c)',
     category: 'numbers',
     Component: MathRace,
+  },
+  {
+    id: 'challenge',
+    title: 'אתגר חשבון',
+    emoji: '🎓',
+    color: 'linear-gradient(160deg, #818cf8, #4f46e5)',
+    category: 'numbers',
+    Component: MathChallenge,
   },
   {
     id: 'memory',
