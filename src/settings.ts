@@ -8,10 +8,12 @@ import { setSpeechEnabled } from './speech'
 export type Settings = {
   voice: boolean
   sound: boolean
+  /** Seconds between switching the "catch" target friend (30 or 60). */
+  catchSeconds: number
 }
 
 const STORAGE_KEY = 'assaf-games:settings'
-const DEFAULTS: Settings = { voice: true, sound: true }
+const DEFAULTS: Settings = { voice: true, sound: true, catchSeconds: 30 }
 
 function load(): Settings {
   try {

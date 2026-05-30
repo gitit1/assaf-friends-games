@@ -83,6 +83,27 @@ export default function SettingsPanel() {
               onChange={(next) => updateSettings({ sound: next })}
             />
 
+            <div className="settings-row settings-row-static">
+              <span className="settings-row-text">
+                <span className="settings-row-label">⏱️ החלפת חבר</span>
+                <span className="settings-row-hint">במשחק "תופסים חבר"</span>
+              </span>
+              <span className="settings-choice">
+                {[30, 60].map((sec) => (
+                  <button
+                    key={sec}
+                    className={`pill pill-small ${settings.catchSeconds === sec ? 'pill-active' : ''}`}
+                    onClick={() => {
+                      playTap()
+                      updateSettings({ catchSeconds: sec })
+                    }}
+                  >
+                    {sec === 30 ? 'חצי דקה' : 'דקה'}
+                  </button>
+                ))}
+              </span>
+            </div>
+
             <button className="big-button settings-close" onClick={() => setOpen(false)}>
               סגירה
             </button>
