@@ -5,20 +5,22 @@ import { friendMaxDim } from '../components/FriendArt'
 import type { GameProps } from './registry'
 import { playSuccess, playTap, playWin, unlockAudio } from '../audio'
 import { speak } from '../speech'
-import { friendName, friendSay } from '../friends'
+import { FRIENDS, friendName, friendSay } from '../friends'
 import { shuffle } from './util'
 
 type Level = { label: string; pairs: number }
 const LEVELS: Level[] = [
   { label: 'קל', pairs: 3 },
   { label: 'רגיל', pairs: 6 },
+  { label: 'קשה', pairs: 8 },
+  { label: 'אלוף', pairs: 10 },
 ]
 
 type Card = { id: number; friend: number }
 
-// Use the smaller friends (1–6) so the towers fit nicely on the cards.
+// Draw distinct friends from the whole cast (cards auto-scale to fit any friend).
 function buildDeck(pairs: number): Card[] {
-  const friends = shuffle(Array.from({ length: 6 }, (_, i) => i)).slice(0, pairs)
+  const friends = shuffle(Array.from({ length: FRIENDS.length }, (_, i) => i)).slice(0, pairs)
   const deck = friends.flatMap((friend, i) => [
     { id: i * 2, friend },
     { id: i * 2 + 1, friend },
@@ -35,8 +37,9 @@ export default function MemoryGame({ onExit }: GameProps) {
   const [locked, setLocked] = useState(false)
 
   const won = matched.length === level.pairs
-  // Friend body size — smaller on the harder (denser) board.
-  const cardPx = level.pairs <= 3 ? 78 : 56
+  // Friend body size + column count — denser boards use smaller cards.
+  const cardPx = level.pairs <= 3 ? 78 : level.pairs <= 6 ? 56 : level.pairs <= 8 ? 50 : 44
+  const cols = level.pairs <= 3 ? 3 : level.pairs <= 8 ? 4 : 5
 
   function reset(next: Level = level) {
     setLevel(next)
@@ -105,7 +108,7 @@ export default function MemoryGame({ onExit }: GameProps) {
         </div>
       )}
 
-      <div className="memory-grid" style={{ '--cols': level.pairs <= 3 ? 3 : 4 } as React.CSSProperties}>
+      <div className="memory-grid" style={{ '--cols': cols } as React.CSSProperties}>
         {deck.map((card, index) => {
           const isMatched = matched.includes(card.friend)
           const isOpen = flipped.includes(index) || isMatched
