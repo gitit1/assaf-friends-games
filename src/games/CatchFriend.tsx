@@ -4,21 +4,33 @@ import Friend from '../components/Friend'
 import type { GameProps } from './registry'
 import { playPop, playSuccess, playWin, unlockAudio } from '../audio'
 import { speak } from '../speech'
-import { friendName, friendSay } from '../friends'
+import { FRIENDS, friendName, friendSay } from '../friends'
 import { useSettings } from '../settings'
 import { randInt, shuffle } from './util'
 
-const COUNT = 10 // friend identities (indices 0..9)
+const COUNT = FRIENDS.length // friend identities — the whole cast
 const BOARD = 9 // friends visible at once
 const WANT_TARGETS = 3 // targets placed at the start and on each switch (≈ 1 : 2 vs decoys)
 const FLOOR_TARGETS = 1 // never let the board run out of catchable friends
+const LIFETIME = 6000 // each friend leaves the board 6s after it appears
+const FADE = 400 // gentle fade-out before it's actually removed
 
-type Card = { id: number; index: number; x: number; y: number; popping: boolean }
+type Card = { id: number; index: number; x: number; y: number; popping: boolean; leaving: boolean; born: number }
 
 let nextId = 0
 
-function makeCard(index: number): Card {
-  return { id: nextId++, index, x: 4 + Math.random() * 72, y: 6 + Math.random() * 64, popping: false }
+// `ageMs` lets the starting board be staggered so the friends don't all vanish
+// at the same moment.
+function makeCard(index: number, ageMs = 0): Card {
+  return {
+    id: nextId++,
+    index,
+    x: 4 + Math.random() * 72,
+    y: 6 + Math.random() * 64,
+    popping: false,
+    leaving: false,
+    born: Date.now() - ageMs,
+  }
 }
 
 // Make sure at least `min` of the cards are the target (convert random others).
@@ -43,7 +55,7 @@ export default function CatchFriend({ onExit }: GameProps) {
   const { catchSeconds } = useSettings()
   const [target, setTarget] = useState(() => randInt(0, COUNT - 1))
   const [cards, setCards] = useState<Card[]>(() => {
-    const arr = Array.from({ length: BOARD }, () => makeCard(randInt(0, COUNT - 1)))
+    const arr = Array.from({ length: BOARD }, () => makeCard(randInt(0, COUNT - 1), randInt(0, LIFETIME - 1000)))
     return ensureTargets(arr, target, WANT_TARGETS)
   })
   const [score, setScore] = useState(0)
@@ -77,9 +89,36 @@ export default function CatchFriend({ onExit }: GameProps) {
     setCards((cs) => ensureTargets(cs, target, WANT_TARGETS))
   }, [target])
 
+  // Each friend leaves the board ~6s after it appears: it gently fades, then is
+  // removed and a fresh friend takes its place so the board stays lively.
+  useEffect(() => {
+    const id = window.setInterval(() => {
+      setCards((cs) => {
+        const now = Date.now()
+        let changed = false
+        let next = cs.map((c) => {
+          if (!c.leaving && !c.popping && now - c.born >= LIFETIME) {
+            changed = true
+            return { ...c, leaving: true }
+          }
+          return c
+        })
+        const survivors = next.filter((c) => !(c.leaving && now - c.born >= LIFETIME + FADE))
+        const gone = next.length - survivors.length
+        if (gone > 0) {
+          changed = true
+          const fresh = Array.from({ length: gone }, () => makeCard(randInt(0, COUNT - 1)))
+          next = ensureTargets([...survivors, ...fresh], targetRef.current, FLOOR_TARGETS)
+        }
+        return changed ? next : cs
+      })
+    }, 250)
+    return () => window.clearInterval(id)
+  }, [])
+
   function tap(card: Card) {
     unlockAudio()
-    if (card.popping) return
+    if (card.popping || card.leaving) return
     if (card.index === target) {
       setCards((cs) => cs.map((c) => (c.id === card.id ? { ...c, popping: true } : c)))
       playPop()
@@ -122,7 +161,9 @@ export default function CatchFriend({ onExit }: GameProps) {
         {cards.map((card) => (
           <button
             key={card.id}
-            className={`catch-card ${card.popping ? 'is-pop' : ''} ${wrongId === card.id ? 'is-wrong' : ''}`}
+            className={`catch-card ${card.popping ? 'is-pop' : ''} ${card.leaving ? 'is-leaving' : ''} ${
+              wrongId === card.id ? 'is-wrong' : ''
+            }`}
             style={{ left: `${card.x}%`, top: `${card.y}%` }}
             onClick={() => tap(card)}
             aria-label={friendName(card.index)}
