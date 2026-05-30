@@ -2705,3 +2705,74 @@ button {
 .friend-holder.is-jumping {
   animation: friend-jump 0.5s ease;
 }
+
+/* ---------- catch-the-friend game ---------- */
+
+.catch-target {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px 14px;
+  margin-bottom: 12px;
+}
+.catch-target-label {
+  font-family: 'Fredoka', 'Heebo', sans-serif;
+  font-weight: 700;
+  font-size: 1.4rem;
+}
+.catch-target-name {
+  font-family: 'Fredoka', 'Heebo', sans-serif;
+  font-weight: 800;
+  font-size: 1.4rem;
+  color: var(--accent);
+}
+.catch-score {
+  font-family: 'Fredoka', 'Heebo', sans-serif;
+  font-weight: 800;
+  font-size: 1.3rem;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: var(--panel-strong);
+}
+
+.catch-board {
+  position: relative;
+  height: 60svh;
+  max-width: 640px;
+  margin: 0 auto;
+  border-radius: 28px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.catch-card {
+  position: absolute;
+  padding: 0;
+  border: none;
+  background: none;
+}
+.catch-card.is-wrong {
+  animation: shake 0.36s ease;
+}
+.catch-card.is-pop {
+  animation: catch-pop 0.43s ease forwards;
+  pointer-events: none;
+}
+
+@keyframes catch-pop {
+  to {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+}
+
+/* settings: a non-toggle row with a segmented choice */
+.settings-row-static {
+  cursor: default;
+}
+.settings-choice {
+  display: flex;
+  gap: 8px;
+  flex: none;
+}

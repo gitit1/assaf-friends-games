@@ -1,10 +1,8 @@
 import type { ComponentType } from 'react'
 import MemoryGame from './MemoryGame'
-import BubblePopGame from './BubblePopGame'
 import CountGame from './CountGame'
 import AddGame from './AddGame'
-import LettersGame from './LettersGame'
-import WordsGame from './WordsGame'
+import CatchFriend from './CatchFriend'
 
 // Every game gets a callback to return to the home screen.
 export type GameProps = {
@@ -61,28 +59,12 @@ export const GAMES: GameDef[] = [
     Component: MemoryGame,
   },
   {
-    id: 'letters',
-    title: 'חידון אותיות',
-    emoji: '🔤',
-    color: 'linear-gradient(160deg, #9775fa, #6741d9)',
-    category: 'more',
-    Component: LettersGame,
-  },
-  {
-    id: 'words',
-    title: 'חידון מילים',
-    emoji: '🗣️',
-    color: 'linear-gradient(160deg, #4dabf7, #1c7ed6)',
-    category: 'more',
-    Component: WordsGame,
-  },
-  {
-    id: 'bubbles',
-    title: 'בועות',
-    emoji: '🫧',
-    color: 'linear-gradient(160deg, #86f5c4, #2f9e8c)',
-    category: 'more',
-    Component: BubblePopGame,
+    id: 'catch',
+    title: 'תופסים חבר',
+    emoji: '🎯',
+    color: 'linear-gradient(160deg, #f59f00, #d8632f)',
+    category: 'friends',
+    Component: CatchFriend,
   },
 ]
 
