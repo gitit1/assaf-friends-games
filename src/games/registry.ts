@@ -5,6 +5,7 @@ import AddGame from './AddGame'
 import CatchFriend from './CatchFriend'
 import CalcFriends from './CalcFriends'
 import MathRace from './MathRace'
+import PopFriends from './PopFriends'
 
 // Every game gets a callback to return to the home screen.
 export type GameProps = {
@@ -83,6 +84,14 @@ export const GAMES: GameDef[] = [
     color: 'linear-gradient(160deg, #f43f5e, #be123c)',
     category: 'friends',
     Component: MathRace,
+  },
+  {
+    id: 'pop',
+    title: 'פיצוץ חברים',
+    emoji: '🎈',
+    color: 'linear-gradient(160deg, #fbbf24, #d97706)',
+    category: 'friends',
+    Component: PopFriends,
   },
 ]
 

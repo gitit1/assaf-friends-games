@@ -3221,6 +3221,58 @@ button {
   flex: none;
 }
 
+/* ---------- pop friends ---------- */
+.pop-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 420px;
+  margin: 0 auto 4px;
+}
+.pop-score {
+  font-family: 'Fredoka', 'Heebo', sans-serif;
+  font-weight: 800;
+  font-size: 1.5rem;
+}
+.pop-hint {
+  text-align: center;
+  color: var(--text-soft);
+  margin: 0 0 12px;
+}
+.pop-board {
+  display: grid;
+  grid-template-columns: repeat(var(--cols, 6), 1fr);
+  gap: 4px;
+  max-width: 420px;
+  margin: 0 auto;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.pop-cell {
+  aspect-ratio: 1 / 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 14px;
+  transition: transform 0.12s ease;
+}
+.pop-cell.is-picked {
+  transform: scale(1.16);
+  background: rgba(255, 221, 102, 0.16);
+  filter: drop-shadow(0 0 7px rgba(255, 221, 102, 0.85));
+}
+.pop-cell.is-pop {
+  animation: pop-burst 0.32s ease forwards;
+  pointer-events: none;
+}
+@keyframes pop-burst {
+  to {
+    transform: scale(1.6);
+    opacity: 0;
+  }
+}
+
 /* ---------- math race ---------- */
 .race-ops {
   display: flex;
