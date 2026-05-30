@@ -1,0 +1,2707 @@
+@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Heebo:wght@400;500;700;800&display=swap');
+
+:root {
+  color: #eff7ff;
+  background:
+    radial-gradient(circle at top, rgba(255, 221, 126, 0.22), transparent 26%),
+    linear-gradient(180deg, #12324c 0%, #071824 100%);
+  font-family: 'Heebo', sans-serif;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  --panel: rgba(10, 25, 38, 0.64);
+  --panel-strong: rgba(10, 24, 36, 0.82);
+  --line: rgba(255, 255, 255, 0.18);
+  --text-soft: rgba(239, 247, 255, 0.78);
+  --accent: #ffd466;
+  --success: #86f5c4;
+  --shadow: 0 24px 60px rgba(2, 8, 14, 0.4);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  /* Avoid the iOS tap highlight + accidental text selection during play. */
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  border: none;
+  background: none;
+  touch-action: manipulation;
+}
+
+/* ---------- shell ---------- */
+
+.app-shell {
+  min-height: 100svh;
+  /* Respect notches / home indicators on phones. */
+  padding: max(16px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right))
+    max(16px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+  position: relative;
+  overflow: hidden;
+}
+
+.banner {
+  margin: 0 auto 12px;
+  max-width: 420px;
+  text-align: center;
+  font-weight: 800;
+  font-size: 1.4rem;
+  padding: 14px 18px;
+  border-radius: 18px;
+  background: var(--panel-strong);
+  box-shadow: var(--shadow);
+}
+
+.banner-success {
+  color: #06281d;
+  background: var(--success);
+}
+
+/* ---------- home ---------- */
+
+.home-header {
+  position: relative;
+  text-align: center;
+  margin: 8px 0 22px;
+}
+
+.home-title {
+  font-family: 'Fredoka', 'Heebo', sans-serif;
+  font-size: clamp(2rem, 8vw, 3rem);
+  margin: 0;
+}
+
+.home-subtitle {
+  margin: 6px 0 0;
+  color: var(--text-soft);
+  font-size: 1.1rem;
+}
+
+.game-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 16px;
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.game-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  aspect-ratio: 1 / 1;
+  border-radius: 28px;
+  box-shadow: var(--shadow);
+  color: #fff;
+  transition: transform 0.12s ease;
+}
+
+.game-card:active {
+  transform: scale(0.94);
+}
+
+.game-card-emoji {
+  font-size: clamp(3rem, 16vw, 4.5rem);
+  line-height: 1;
+}
+
+.game-card-title {
+  font-family: 'Fredoka', 'Heebo', sans-serif;
+  font-weight: 700;
+  font-size: 1.3rem;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* ---------- categories (main screen) ---------- */
+
+.category-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  max-width: 560px;
+  margin: 0 auto;
+}
+
+.category-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  aspect-ratio: 1 / 1;
+  border-radius: 32px;
+  box-shadow: var(--shadow);
+  color: #fff;
+  transition: transform 0.12s ease;
+}
+
+.category-card:active {
+  transform: scale(0.95);
+}
+
+.category-cover {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 46%;
+}
+
+.category-cover-emoji {
+  font-size: clamp(3.5rem, 22vw, 6rem);
+  line-height: 1;
+}
+
+/* a small huddle of friends for the "friends" cover */
+.friend-cluster {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  padding-bottom: 6px;
+}
+
+.category-title {
+  font-family: 'Fredoka', 'Heebo', sans-serif;
+  font-weight: 700;
+  font-size: 1.7rem;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* ---------- home (friends world) ---------- */
+
+.home-section {
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.home-section + .home-section {
+  margin-top: 22px;
+}
+
+.home-section-title {
+  font-family: 'Fredoka', 'Heebo', sans-serif;
+  font-weight: 700;
+  font-size: 1.4rem;
+  margin: 0 0 12px;
+  color: var(--text-soft);
+}
+
+/* big "meet the friends" entry */
+.featured-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  max-width: 640px;
+  margin: 0 auto 24px;
+  padding: 16px 22px;
+  border-radius: 28px;
+  background: linear-gradient(160deg, #f59f00, #ec4899);
+  box-shadow: var(--shadow);
+  color: #fff;
+  text-align: start;
+}
+
+.featured-card:active {
+  transform: scale(0.97);
+}
+
+.featured-card .friend-cluster {
+  flex: none;
+}
+
+.featured-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.featured-title {
+  font-family: 'Fredoka', 'Heebo', sans-serif;
+  font-weight: 700;
+  font-size: 1.7rem;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.featured-sub {
+  font-size: 1.1rem;
+  opacity: 0.92;
+}
+
+/* ---------- meet the friends screen ---------- */
+
+.meet-intro {
+  text-align: center;
+  font-family: 'Fredoka', 'Heebo', sans-serif;
+  font-size: 1.4rem;
+  margin: 4px 0 22px;
+}
+
+.meet-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: flex-end; /* a little staircase — taller friends are bigger numbers */
+  gap: 18px 14px;
+  max-width: 560px;
+  margin: 0 auto;
+}
+
+.meet-friend {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  min-width: 72px;
+}
+
+.meet-name {
+  font-family: 'Fredoka', 'Heebo', sans-serif;
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--text-soft);
+}
+
+/* ---------- game frame ---------- */
+
+.game-top-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.back-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 800;
+  font-size: 1.1rem;
+  padding: 12px 18px;
+  border-radius: 999px;
+  background: var(--panel-strong);
+  box-shadow: var(--shadow);
+}
+
+.back-button span:first-child {
+  font-size: 1.4rem;
+}
+
+.back-button:active {
+  transform: scale(0.95);
+}
+
+.game-title {
+  font-family: 'Fredoka', 'Heebo', sans-serif;
+  font-size: clamp(1.4rem, 6vw, 2rem);
+  margin: 0;
+}
+
+.game-body {
+  position: relative;
+}
+
+/* ---------- shared pills / buttons ---------- */
+
+.pill {
+  font-weight: 700;
+  font-size: 1.05rem;
+  padding: 10px 18px;
+  border-radius: 999px;
+  background: var(--panel);
+  border: 2px solid var(--line);
+}
+
+.pill-active {
+  background: var(--accent);
+  color: #1a1206;
+  border-color: var(--accent);
+}
+
+.pill:active {
+  transform: scale(0.95);
+}
+
+.big-button {
+  font-family: 'Fredoka', 'Heebo', sans-serif;
+  font-weight: 700;
+  font-size: 1.4rem;
+  padding: 16px 28px;
+  border-radius: 22px;
+  background: var(--accent);
+  color: #1a1206;
+  box-shadow: var(--shadow);
+}
+
+.big-button:active {
+  transform: scale(0.95);
+}
+
+/* ---------- memory game ---------- */
+
+.memory-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  margin-bottom: 18px;
+}
+
+.memory-grid {
+  display: grid;
+  grid-template-columns: repeat(var(--cols, 3), 1fr);
+  gap: 12px;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.memory-card {
+  aspect-ratio: 1 / 1;
+  border-radius: 20px;
+  background: var(--panel-strong);
+  border: 2px solid var(--line);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: clamp(2rem, 11vw, 3.2rem);
+  transition: transform 0.15s ease, background 0.2s ease;
+}
+
+.memory-card.is-open {
+  background: rgba(124, 196, 245, 0.22);
+}
+
+.memory-card.is-matched {
+  background: rgba(134, 245, 196, 0.28);
+  border-color: var(--success);
+}
+
+.memory-card:active {
+  transform: scale(0.95);
+}
+
+/* ---------- counting game ---------- */
+
+.counting-stars {
+  text-align: center;
+  font-size: 1.6rem;
+  min-height: 1.8rem;
+  margin-bottom: 8px;
+  letter-spacing: 2px;
+}
+
+.counting-prompt {
+  text-align: center;
+  font-family: 'Fredoka', 'Heebo', sans-serif;
+  font-size: 1.8rem;
+  margin: 4px 0 18px;
+}
+
+.counting-stage {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  min-height: 160px;
+  align-content: center;
+  max-width: 460px;
+  margin: 0 auto 24px;
+}
+
+.counting-item {
+  font-size: clamp(2.6rem, 14vw, 4rem);
+  animation: pop-in 0.35s ease both;
+}
+
+.counting-choices {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.number-button {
+  width: 84px;
+  height: 84px;
+  border-radius: 24px;
+  font-family: 'Fredoka', 'Heebo', sans-serif;
+  font-weight: 700;
+  font-size: 2.4rem;
+  background: var(--panel-strong);
+  border: 3px solid var(--line);
+  transition: transform 0.12s ease, background 0.2s ease;
+}
+
+.number-button:active {
+  transform: scale(0.92);
+}
+
+.number-button.is-wrong {
+  animation: shake 0.4s ease;
+  background: rgba(255, 159, 176, 0.22);
+}
+
+.counting-next {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+/* ---------- bubble game ---------- */
+
+.bubble-counter {
+  text-align: center;
+  font-family: 'Fredoka', 'Heebo', sans-serif;
+  font-size: 1.6rem;
+  margin-bottom: 8px;
+}
+
+.bubble-stage {
+  position: relative;
+  height: 70svh;
+  max-width: 640px;
+  margin: 0 auto;
+  border-radius: 28px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.bubble {
+  position: absolute;
+  bottom: -140px;
+  border-radius: 50%;
+  border: none;
+  box-shadow: inset 0 -6px 12px rgba(0, 0, 0, 0.12), 0 6px 18px rgba(0, 0, 0, 0.18);
+  animation-name: rise;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+}
+
+.bubble:active {
+  transform: scale(0.8);
+}
+
+/* ---------- animations ---------- */
+
+@keyframes pop-in {
+  from {
+    transform: scale(0.3);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-6px); }
+  75% { transform: translateX(6px); }
+}
+
+@keyframes rise {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(calc(-70svh - 200px));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+  /* Bubbles still need to travel, just without easing surprises. */
+  .bubble {
+    animation-duration: 6s !important;
+  }
+}
+
+/* ---------- shared row of controls ---------- */
+
+.row-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.pill-small {
+  font-size: 0.95rem;
+  padding: 8px 14px;
+}
+
+/* ---------- settings ---------- */
+
+.settings-gear {
+  position: absolute;
+  top: 0;
+  inset-inline-end: 0;
+  font-size: 1.8rem;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--panel-strong);
+  box-shadow: var(--shadow);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.settings-gear:active {
+  transform: scale(0.92);
+}
+
+.gallery-button {
+  position: absolute;
+  top: 0;
+  inset-inline-start: 0;
+  font-size: 1.6rem;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--panel-strong);
+  box-shadow: var(--shadow);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.gallery-button:active {
+  transform: scale(0.92);
+}
+
+.settings-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(3, 12, 20, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  z-index: 10;
+}
+
+.settings-card {
+  width: 100%;
+  max-width: 420px;
+  background: linear-gradient(180deg, #163b58, #0c2436);
+  border: 1px solid var(--line);
+  border-radius: 26px;
+  padding: 22px;
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.settings-title {
+  font-family: 'Fredoka', 'Heebo', sans-serif;
+  margin: 0 0 4px;
+  text-align: center;
+  font-size: 1.6rem;
+}
+
+.settings-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: 18px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  text-align: start;
+}
+
+.settings-row-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.settings-row-label {
+  font-weight: 700;
+  font-size: 1.15rem;
+}
+
+.settings-row-hint {
+  color: var(--text-soft);
+  font-size: 0.9rem;
+}
+
+.switch {
+  flex: none;
+  width: 60px;
+  height: 34px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.18);
+  position: relative;
+  transition: background 0.2s ease;
+}
+
+.switch-on {
+  background: var(--success);
+}
+
+.switch-knob {
+  position: absolute;
+  top: 3px;
+  inset-inline-start: 3px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  transition: transform 0.2s ease;
+}
+
+.switch-on .switch-knob {
+  /* RTL-aware: knob slides to the other end when on. */
+  transform: translateX(-26px);
+}
+
+.settings-warning {
+  margin: 0;
+  font-size: 0.92rem;
+  color: #ffd8a8;
+  background: rgba(255, 146, 43, 0.16);
+  border-radius: 14px;
+  padding: 10px 14px;
+}
+
+.settings-close {
+  margin-top: 4px;
+}
+
+/* ---------- the friends (our own characters, built from unit segments) ---------- */
+
+.friends-stage {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  min-height: 46svh;
+  max-width: 560px;
+  margin: 0 auto 8px;
+}
+
+/* outer wrapper: number floats above the head, body below; carries the jump */
+.friend {
+  position: relative;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: calc(var(--size) * 0.08);
+  padding: 0;
+  border: none;
+  background: none;
+  transform-origin: bottom center;
+}
+
+.friend.is-jumping {
+  animation: friend-jump 0.5s ease;
+}
+
+/* the friend's number — a big clear badge ABOVE the head */
+.friend-number {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.9em;
+  padding: 0.05em 0.3em;
+  background: #fff;
+  color: #15233a;
+  border: 3px solid rgba(0, 0, 0, 0.12);
+  border-radius: 999px;
+  font-family: 'Fredoka', 'Heebo', sans-serif;
+  font-weight: 800;
+  font-size: clamp(1.2rem, calc(var(--size) * 0.26), 2.6rem);
+  line-height: 1.1;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  pointer-events: none;
+}
+
+/* the body: one cute, rounded "pet" blob; breathes gently so it feels alive */
+.friend-body {
+  position: relative;
+  width: var(--size);
+  height: var(--size);
+  animation: friend-breathe 2.8s ease-in-out infinite;
+}
+
+/* the coloured blob shape (its N colour regions are set inline as a gradient) */
+.friend-shape {
+  position: absolute;
+  inset: 0;
+  border: 3px solid rgba(0, 0, 0, 0.16);
+  border-radius: 48% 48% 46% 46% / 56% 56% 44% 44%;
+  box-shadow: inset 0 calc(var(--size) * -0.16) 0 rgba(0, 0, 0, 0.12),
+    inset 0 calc(var(--size) * 0.14) 0 rgba(255, 255, 255, 0.28),
+    0 calc(var(--size) * 0.08) calc(var(--size) * 0.13) rgba(0, 0, 0, 0.24);
+}
+
+/* the face */
+.friend-face {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.friend-eye {
+  position: absolute;
+  top: 26%;
+  width: 24%;
+  height: 27%;
+  background: #fff;
+  border: 2px solid #1a1a1a;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform-origin: center;
+  animation: friend-blink 4.4s ease-in-out infinite;
+}
+
+.friend-eye-l {
+  left: 21%;
+}
+.friend-eye-r {
+  right: 21%;
+}
+
+.friend-eye i {
+  width: 44%;
+  height: 44%;
+  background: #1a1a1a;
+  border-radius: 50%;
+}
+
+.friend-mouth {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 24%;
+  width: 34%;
+  height: 17%;
+  border: 3px solid #1a1a1a;
+  border-top: none;
+  border-radius: 0 0 999px 999px;
+}
+
+/* sleeping (not yet counted / still being built) → eyes shut */
+.friend.is-sleeping .friend-eye {
+  height: 3px;
+  background: #1a1a1a;
+}
+.friend.is-sleeping .friend-eye i {
+  display: none;
+}
+
+/* two little feet */
+.friend-foot {
+  position: absolute;
+  bottom: -5%;
+  width: 26%;
+  height: 16%;
+  background: var(--foot, #888);
+  border: 3px solid rgba(0, 0, 0, 0.16);
+  border-radius: 50%;
+}
+.friend-foot-l {
+  left: 20%;
+}
+.friend-foot-r {
+  right: 20%;
+}
+
+.count-readout {
+  text-align: center;
+  font-family: 'Fredoka', 'Heebo', sans-serif;
+  font-weight: 700;
+  font-size: 3rem;
+  min-height: 3.4rem;
+  margin-bottom: 8px;
+}
+
+.count-target {
+  text-align: center;
+  font-family: 'Fredoka', 'Heebo', sans-serif;
+  font-size: 1.8rem;
+  margin: 0 0 12px;
+}
+.count-target strong {
+  font-size: 2.6rem;
+  color: var(--accent);
+}
+
+@keyframes friend-jump {
+  0%, 100% { transform: translateY(0) scale(1); }
+  35% { transform: translateY(-26px) scale(1.08); }
+  70% { transform: translateY(0) scale(0.96); }
+}
+
+@keyframes friend-breathe {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-2px) scale(1.02); }
+}
+
+@keyframes friend-blink {
+  0%, 90%, 100% { transform: scaleY(1); }
+  95% { transform: scaleY(0.1); }
+}
+
+/* ---------- picture prompt (letters) ---------- */
+
+.picture-stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  margin: 0 auto 22px;
+  padding: 18px 28px;
+  border-radius: 28px;
+  background: var(--panel-strong);
+  box-shadow: var(--shadow);
+}
+
+.picture-stage:active {
+  transform: scale(0.97);
+}
+
+.picture-emoji {
+  font-size: clamp(4.5rem, 28vw, 8rem);
+  line-height: 1;
+}
+
+.picture-hint {
+  font-size: 1.4rem;
+  opacity: 0.7;
+}
+
+.letter-button {
+  width: 90px;
+  height: 90px;
+  border-radius: 24px;
+  font-family: 'Heebo', sans-serif;
+  font-weight: 800;
+  font-size: 3rem;
+  background: var(--panel-strong);
+  border: 3px solid var(--line);
+  transition: transform 0.12s ease, background 0.2s ease;
+}
+
+.letter-button:active {
+  transform: scale(0.92);
+}
+
+.letter-button.is-wrong {
+  animation: shake 0.4s ease;
+  background: rgba(255, 159, 176, 0.22);
+}
+
+/* ---------- words ---------- */
+
+.word-prompt {
+  display: block;
+  margin: 0 auto 22px;
+  font-family: 'Fredoka', 'Heebo', sans-serif;
+  font-weight: 700;
+  font-size: 1.7rem;
+  padding: 14px 24px;
+  border-radius: 22px;
+  background: var(--panel-strong);
+  box-shadow: var(--shadow);
+}
+
+.word-prompt:active {
+  transform: scale(0.97);
+}
+
+.word-choices {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 16px;
+  max-width: 520px;
+  margin: 0 auto;
+}
+
+.word-card {
+  width: clamp(96px, 28vw, 130px);
+  height: clamp(96px, 28vw, 130px);
+  border-radius: 26px;
+  background: var(--panel-strong);
+  border: 3px solid var(--line);
+  font-size: clamp(3rem, 14vw, 4.5rem);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.12s ease, background 0.2s ease;
+}
+
+.word-card:active {
+  transform: scale(0.92);
+}
+
+.word-card.is-right {
+  background: rgba(134, 245, 196, 0.28);
+  border-color: var(--success);
+}
+
+.word-card.is-wrong {
+  animation: shake 0.4s ease;
+  background: rgba(255, 159, 176, 0.22);
+}
+
+/* ---------- routine ---------- */
+
+.routine-strip {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+  margin-bottom: 18px;
+}
+
+.routine-chip {
+  font-size: 1.5rem;
+  width: 42px;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.06);
+  opacity: 0.5;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.routine-chip.is-done {
+  opacity: 0.85;
+  background: rgba(134, 245, 196, 0.18);
+}
+
+.routine-chip.is-current {
+  opacity: 1;
+  background: var(--accent);
+  transform: scale(1.18);
+}
+
+.routine-current {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin: 0 auto 20px;
+  padding: 22px 32px;
+  border-radius: 30px;
+  background: var(--panel-strong);
+  box-shadow: var(--shadow);
+}
+
+.routine-current:active {
+  transform: scale(0.98);
+}
+
+.routine-current-emoji {
+  font-size: clamp(4.5rem, 26vw, 7rem);
+  line-height: 1;
+}
+
+.routine-current-label {
+  font-family: 'Fredoka', 'Heebo', sans-serif;
+  font-weight: 700;
+  font-size: 1.6rem;
+}
+
+/* ---------- reward journey (diaper / pacifier) ---------- */
+
+.story-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  margin: 0 auto 14px;
+  padding: 22px 26px;
+  max-width: 460px;
+  border-radius: 28px;
+  background: var(--panel-strong);
+  box-shadow: var(--shadow);
+}
+
+.story-card:active {
+  transform: scale(0.98);
+}
+
+.story-emoji {
+  font-size: clamp(4rem, 22vw, 6rem);
+  line-height: 1;
+}
+
+.story-text {
+  font-family: 'Fredoka', 'Heebo', sans-serif;
+  font-weight: 600;
+  font-size: 1.4rem;
+  text-align: center;
+}
+
+.reward-chart {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+  max-width: 460px;
+  margin: 18px auto;
+  font-size: clamp(2rem, 9vw, 2.8rem);
+}
+
+.reward-slot {
+  filter: grayscale(0.2);
+  transition: transform 0.2s ease;
+}
+
+.reward-slot.is-filled {
+  transform: scale(1.08);
+  filter: none;
+}
+
+.reward-done {
+  background: var(--success);
+}
+
+.reward-mini-controls {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.reward-total {
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--text-soft);
+}
+
+/* ---------- design gallery (temporary compare screen) ---------- */
+
+.gallery {
+  max-width: 520px;
+  margin: 0 auto;
+  padding: 8px 4px 60px;
+}
+
+.gallery h1 {
+  font-family: 'Fredoka', 'Heebo', sans-serif;
+  text-align: center;
+  font-size: 1.6rem;
+  margin: 6px 0 2px;
+}
+
+.gallery .sub {
+  text-align: center;
+  color: var(--text-soft);
+  margin: 0 0 22px;
+}
+
+.gal-row {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  padding: 16px;
+  margin-bottom: 14px;
+}
+
+.gal-stage {
+  flex: none;
+  width: 132px;
+  height: 172px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* a floating, glowing number that hovers above the friend's head like a halo */
+.gal-halo {
+  position: absolute;
+  top: -34px;
+  left: 50%;
+  transform: translateX(-50%);
+  min-width: 30px;
+  height: 30px;
+  padding: 0 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+  color: #15233a;
+  border-radius: 999px;
+  font-family: 'Fredoka', 'Heebo', sans-serif;
+  font-weight: 800;
+  font-size: 1.35rem;
+  box-shadow: 0 0 0 5px rgba(255, 221, 102, 0.35), 0 6px 12px rgba(0, 0, 0, 0.3),
+    0 0 16px rgba(255, 221, 102, 0.7);
+  animation: halo-float 2.4s ease-in-out infinite;
+  z-index: 5;
+}
+
+@keyframes halo-float {
+  0%, 100% {
+    transform: translateX(-50%) translateY(0);
+  }
+  50% {
+    transform: translateX(-50%) translateY(-7px);
+  }
+}
+
+.gal-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.gal-title {
+  display: flex;
+  align-items: center;
+  font-family: 'Fredoka', 'Heebo', sans-serif;
+  font-weight: 700;
+  font-size: 1.2rem;
+}
+
+.gal-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #1a1206;
+  font-weight: 800;
+  margin-inline-end: 10px;
+}
+
+.gal-desc {
+  color: var(--text-soft);
+  font-size: 0.95rem;
+}
+
+/* shared little face used by the swatches */
+.gf-eye {
+  position: absolute;
+  top: 30%;
+  width: 22%;
+  height: 25%;
+  background: #fff;
+  border: 2px solid #1a1a1a;
+  border-radius: 50%;
+}
+.gf-eye.l {
+  left: 24%;
+}
+.gf-eye.r {
+  right: 24%;
+}
+.gf-eye::after {
+  content: '';
+  position: absolute;
+  inset: 30%;
+  background: #1a1a1a;
+  border-radius: 50%;
+}
+.gf-mouth {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  top: 58%;
+  width: 30%;
+  height: 15%;
+  border: 2.5px solid #1a1a1a;
+  border-top: none;
+  border-radius: 0 0 999px 999px;
+}
+
+/* A — the original cute "pet" blob */
+/* shared furry, matte "felt" surface — soft fur speckle + strong rounded
+   volume (deep shadow below, soft light above, edge darkening) for real 3D. */
+.gal-blob .bump,
+.gal-toki .lobe,
+.gal-bobby .bump,
+.gal-gogo .bump,
+.gal-moki .bump,
+.gal-nuni .bump,
+.gal-piko .bump,
+.gal-dudi .bump,
+.gal-zuzu .bump,
+.gal-koko .bump {
+  background-color: var(--bc, #ef4444);
+  background-image: radial-gradient(rgba(255, 255, 255, 0.13) 0.5px, transparent 0.8px),
+    radial-gradient(circle at 38% 24%, rgba(255, 255, 255, 0.34), transparent 48%),
+    radial-gradient(circle at 54% 120%, rgba(0, 0, 0, 0.42), transparent 60%);
+  background-size: 5px 5px, 100% 100%, 100% 100%;
+  border: none;
+  box-shadow: inset 0 -16px 20px rgba(0, 0, 0, 0.3), inset 0 11px 14px rgba(255, 255, 255, 0.26),
+    inset 0 0 0 3px rgba(0, 0, 0, 0.06), 0 13px 18px rgba(0, 0, 0, 0.3);
+}
+
+/* a not-yet-lit part — a faint outline (used while counting / building) */
+.bump.is-off,
+.lobe.is-off {
+  background: rgba(255, 255, 255, 0.06) !important;
+  box-shadow: none !important;
+  border: 2px dashed rgba(255, 255, 255, 0.34) !important;
+}
+
+.gal-blob {
+  position: relative;
+  width: 104px;
+  height: 104px;
+  --bc: #ef4444;
+  --shoe: #2563eb;
+  animation: friend-breathe 2.8s ease-in-out infinite;
+}
+.gal-blob .bump.solo {
+  position: absolute;
+  inset: 0;
+  border-radius: 48% 48% 46% 46% / 56% 56% 44% 44%;
+}
+.gal-blob .gf-eye {
+  top: 26%;
+  width: 24%;
+  height: 27%;
+}
+.gal-blob .gf-eye.l {
+  left: 21%;
+}
+.gal-blob .gf-eye.r {
+  right: 21%;
+}
+.gal-blob .gf-mouth {
+  top: auto;
+  bottom: 24%;
+  width: 34%;
+  height: 17%;
+}
+
+/* designed shoes (per friend) — oblong with a flat base + rounded toe, matte */
+.gal-foot {
+  position: absolute;
+  bottom: -7%;
+  width: 30px;
+  height: 15px;
+  background-color: var(--shoe, #2563eb);
+  background-image: radial-gradient(circle at 34% 24%, rgba(255, 255, 255, 0.18), transparent 55%),
+    radial-gradient(circle at 56% 124%, rgba(0, 0, 0, 0.3), transparent 64%);
+  border: none;
+  /* rounded toe/top, flatter heel/base → reads as a shoe, not a circle */
+  border-radius: 50% 50% 24% 24% / 78% 78% 38% 38%;
+  box-shadow: inset 0 -3px 3px rgba(0, 0, 0, 0.3), inset 0 2px 3px rgba(255, 255, 255, 0.2),
+    0 4px 5px rgba(0, 0, 0, 0.26);
+  z-index: 0;
+}
+.gal-foot.l {
+  left: 22%;
+}
+.gal-foot.r {
+  right: 22%;
+}
+
+/* arms with white gloves */
+.gal-arm {
+  position: absolute;
+  top: 48%;
+  width: 26px;
+  height: 8px;
+  background: #3a3a46;
+  border-radius: 999px;
+  z-index: 0;
+}
+.gal-arm .hand {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  background: #fff;
+  border: 2px solid rgba(0, 0, 0, 0.12);
+}
+.gal-arm.l {
+  left: -13px;
+  transform: rotate(16deg);
+}
+.gal-arm.l .hand {
+  left: -9px;
+}
+.gal-arm.r {
+  right: -13px;
+  transform: rotate(-16deg);
+}
+.gal-arm.r .hand {
+  right: -9px;
+}
+
+/* accessory: bow worn on the side of לולו's head (tilted, casts a shadow) */
+.acc-bow {
+  position: absolute;
+  top: -1px;
+  left: 7px;
+  transform: rotate(-20deg);
+  transform-origin: bottom right;
+  width: 40px;
+  height: 19px;
+  z-index: 6;
+  filter: drop-shadow(0 3px 3px rgba(0, 0, 0, 0.28));
+}
+.acc-bow .loop {
+  position: absolute;
+  top: 0;
+  width: 18px;
+  height: 20px;
+  background-color: #ec4899;
+  background-image: radial-gradient(circle at 38% 28%, rgba(255, 255, 255, 0.22), transparent 55%),
+    radial-gradient(circle at 58% 120%, rgba(0, 0, 0, 0.3), transparent 62%);
+  border: none;
+  box-shadow: inset 0 -2px 3px rgba(0, 0, 0, 0.22), inset 0 2px 3px rgba(255, 255, 255, 0.22);
+}
+.acc-bow .loop.l {
+  left: 0;
+  border-radius: 70% 30% 55% 45%;
+}
+.acc-bow .loop.r {
+  right: 0;
+  border-radius: 30% 70% 45% 55%;
+}
+.acc-bow .knot {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 9px;
+  height: 13px;
+  background-color: #db2777;
+  background-image: radial-gradient(circle at 40% 30%, rgba(255, 255, 255, 0.25), transparent 60%);
+  border-radius: 3px;
+  box-shadow: inset 0 -2px 2px rgba(0, 0, 0, 0.25);
+  z-index: 1;
+}
+
+/* accessory: cap worn on the side of טוקי's head (tilted; leaves the number clear) */
+.acc-hat {
+  position: absolute;
+  top: -10px;
+  left: 14px;
+  transform: rotate(-16deg);
+  transform-origin: bottom center;
+  width: 52px;
+  height: 28px;
+  z-index: 6;
+  filter: drop-shadow(0 3px 3px rgba(0, 0, 0, 0.28));
+}
+.acc-hat .dome {
+  position: absolute;
+  bottom: 4px;
+  left: 5px;
+  width: 46px;
+  height: 26px;
+  background-color: #2563eb;
+  background-image: radial-gradient(circle at 36% 22%, rgba(255, 255, 255, 0.24), transparent 52%),
+    radial-gradient(circle at 55% 118%, rgba(0, 0, 0, 0.32), transparent 60%);
+  border-radius: 24px 24px 6px 6px;
+  border: none;
+  box-shadow: inset 0 -3px 5px rgba(0, 0, 0, 0.24), inset 0 3px 4px rgba(255, 255, 255, 0.22);
+}
+.acc-hat .brim {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 56px;
+  height: 9px;
+  background-color: #1d4ed8;
+  background-image: radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.2), transparent 60%),
+    linear-gradient(rgba(0, 0, 0, 0) 40%, rgba(0, 0, 0, 0.28));
+  border-radius: 999px;
+  box-shadow: 0 2px 3px rgba(0, 0, 0, 0.25);
+}
+.acc-hat .pom {
+  position: absolute;
+  top: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background-color: #fff;
+  background-image: radial-gradient(circle at 38% 30%, #fff, #d6dde6 80%);
+  box-shadow: inset 0 -2px 2px rgba(0, 0, 0, 0.18);
+}
+
+/* accessory: bow-tie on בובי */
+.acc-tie {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 44px;
+  height: 26px;
+  z-index: 6;
+  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.3));
+}
+/* one "butterfly" shape: full-height left & right edges, pinched in the middle */
+.acc-tie .bow {
+  position: absolute;
+  inset: 0;
+  background-color: #1e3a8a;
+  background-image: radial-gradient(circle at 30% 26%, rgba(255, 255, 255, 0.22), transparent 50%),
+    radial-gradient(circle at 70% 26%, rgba(255, 255, 255, 0.22), transparent 50%),
+    radial-gradient(circle at 50% 120%, rgba(0, 0, 0, 0.32), transparent 60%);
+  clip-path: polygon(0% 0%, 50% 38%, 100% 0%, 100% 100%, 50% 62%, 0% 100%);
+}
+.acc-tie .knot {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 11px;
+  height: 17px;
+  background-color: #172a63;
+  background-image: radial-gradient(circle at 40% 30%, rgba(255, 255, 255, 0.24), transparent 60%);
+  border-radius: 4px;
+  box-shadow: inset 0 -2px 2px rgba(0, 0, 0, 0.3);
+  z-index: 1;
+}
+
+/* C — glossy 3D orb */
+.gal-orb {
+  position: relative;
+  width: 104px;
+  height: 104px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 32% 26%, rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.1) 42%, rgba(255, 255, 255, 0) 60%),
+    radial-gradient(circle at 68% 82%, rgba(0, 0, 0, 0.34), rgba(0, 0, 0, 0) 58%), #ef4444;
+  box-shadow: inset 0 -14px 16px rgba(0, 0, 0, 0.26), inset 0 9px 10px rgba(255, 255, 255, 0.4),
+    0 7px 13px rgba(0, 0, 0, 0.28);
+  animation: friend-breathe 2.8s ease-in-out infinite;
+}
+
+/* B — the flat rounded square */
+.gal-square {
+  position: relative;
+  width: 96px;
+  height: 96px;
+  border-radius: 28%;
+  background: #ef4444;
+  border: 2px solid rgba(0, 0, 0, 0.2);
+  box-shadow: inset 0 -16px 14px rgba(0, 0, 0, 0.14), inset 0 12px 10px rgba(255, 255, 255, 0.28);
+}
+
+/* paged gallery nav */
+.gal-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.gal-page-title {
+  font-family: 'Fredoka', 'Heebo', sans-serif;
+  font-weight: 800;
+  font-size: 1.3rem;
+}
+
+.pill:disabled {
+  opacity: 0.4;
+}
+
+.gal-big-stage {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 290px;
+  padding: 26px 0 16px;
+  margin: 4px 0 22px;
+}
+
+.gal-note {
+  color: var(--text-soft);
+  font-size: 1rem;
+  line-height: 1.5;
+  text-align: center;
+  max-width: 420px;
+  margin: 0 auto;
+}
+
+/* טוקי (2) — two round bumps joined into one cute, long creature. Each bump
+   is a colour; the soft valley + shadow between them shows there are TWO,
+   naturally (a body shape, not a drawn line). Same 3D pet feel as לולו. */
+.gal-toki {
+  position: relative;
+  width: 176px;
+  height: 106px;
+  --shoe: #0d9488;
+  filter: drop-shadow(0 10px 14px rgba(0, 0, 0, 0.3));
+  animation: friend-breathe 2.8s ease-in-out infinite;
+}
+.gal-toki .lobe {
+  position: absolute;
+  top: 0;
+  width: 108px;
+  height: 106px;
+  border-radius: 50% 50% 48% 48% / 56% 56% 44% 44%;
+}
+.gal-toki .lobe.left {
+  --bc: #ef4444;
+  left: 0;
+  z-index: 2;
+  /* soft contact shadow into the valley toward the right bump */
+  box-shadow: inset 0 -12px 16px rgba(0, 0, 0, 0.2), inset 0 8px 12px rgba(255, 255, 255, 0.18),
+    7px 3px 10px -2px rgba(0, 0, 0, 0.3);
+}
+.gal-toki .lobe.right {
+  --bc: #f97316;
+  right: 0;
+  z-index: 1;
+}
+.gal-toki .gf-eye,
+.gal-toki .gf-mouth,
+.gal-toki .gal-foot {
+  z-index: 3;
+}
+.gal-toki .gf-eye {
+  top: 22%;
+  width: 15%;
+  height: 25%;
+}
+.gal-toki .gf-eye.l {
+  left: 35%;
+}
+.gal-toki .gf-eye.r {
+  right: 35%;
+}
+.gal-toki .gf-mouth {
+  top: auto;
+  bottom: 30%;
+  width: 18%;
+  height: 15%;
+}
+.gal-toki .gal-foot {
+  bottom: -8px;
+}
+.gal-toki .gal-foot.l {
+  left: 24%;
+}
+.gal-toki .gal-foot.r {
+  right: 24%;
+}
+
+/* בובי (3) — three bumps in a triangle, merged into one plush, matte creature
+   (soft felt look, gentle 3D — not shiny). Bumps overlap so there are no gaps. */
+.gal-bobby {
+  position: relative;
+  width: 168px;
+  height: 166px;
+  --shoe: #7c3aed;
+  filter: drop-shadow(0 11px 14px rgba(0, 0, 0, 0.32));
+  animation: friend-breathe 2.8s ease-in-out infinite;
+}
+.gal-bobby .bump {
+  position: absolute;
+  width: 102px;
+  height: 102px;
+  border-radius: 50%;
+}
+.gal-bobby .bump.top {
+  --bc: #facc15;
+  left: 33px;
+  top: 2px;
+  z-index: 1;
+}
+.gal-bobby .bump.bl {
+  --bc: #ef4444;
+  left: 8px;
+  top: 60px;
+  z-index: 2;
+}
+.gal-bobby .bump.br {
+  --bc: #f97316;
+  left: 58px;
+  top: 60px;
+  z-index: 3;
+}
+.gal-bobby .gf-eye,
+.gal-bobby .gf-mouth,
+.gal-bobby .gal-foot {
+  z-index: 4;
+}
+.gal-bobby .gf-eye {
+  top: 22px;
+  width: 16px;
+  height: 20px;
+}
+.gal-bobby .gf-eye.l {
+  left: 58px;
+}
+.gal-bobby .gf-eye.r {
+  right: 58px;
+}
+.gal-bobby .gf-mouth {
+  top: 52px;
+  bottom: auto;
+  width: 20px;
+  height: 11px;
+}
+.gal-bobby .gal-foot {
+  bottom: -6px;
+}
+.gal-bobby .gal-foot.l {
+  left: 34px;
+}
+.gal-bobby .gal-foot.r {
+  right: 34px;
+}
+.gal-bobby .acc-tie {
+  top: 96px;
+}
+
+/* גוגו (4) — 2×2 square of four colours; a girl (lips + necklace + pink shoes) */
+.gal-gogo {
+  position: relative;
+  width: 180px;
+  height: 178px;
+  --shoe: #ec4899;
+  filter: drop-shadow(0 11px 14px rgba(0, 0, 0, 0.32));
+  animation: friend-breathe 2.8s ease-in-out infinite;
+}
+.gal-gogo .bump {
+  position: absolute;
+  width: 104px;
+  height: 104px;
+  border-radius: 50%;
+}
+.gal-gogo .bump.tl {
+  --bc: #ef4444;
+  left: 4px;
+  top: 2px;
+  z-index: 1;
+}
+.gal-gogo .bump.tr {
+  --bc: #f97316;
+  left: 72px;
+  top: 2px;
+  z-index: 2;
+}
+.gal-gogo .bump.bl {
+  --bc: #facc15;
+  left: 4px;
+  top: 70px;
+  z-index: 3;
+}
+.gal-gogo .bump.br {
+  --bc: #4ade80;
+  left: 72px;
+  top: 70px;
+  z-index: 4;
+}
+.gal-gogo .gf-eye,
+.gal-gogo .lips,
+.gal-gogo .necklace {
+  z-index: 5;
+}
+.gal-gogo .gf-eye {
+  top: 44px;
+  width: 18px;
+  height: 22px;
+}
+.gal-gogo .gf-eye.l {
+  left: 56px;
+}
+.gal-gogo .gf-eye.r {
+  right: 56px;
+}
+/* eyelashes (a soft curved cap on each eye) */
+.gal-gogo .gf-eye::before {
+  content: '';
+  position: absolute;
+  top: -3px;
+  width: 11px;
+  height: 7px;
+  border-top: 2px solid #1a1a1a;
+  border-radius: 50% 50% 0 0;
+}
+.gal-gogo .gf-eye.l::before {
+  left: -1px;
+  transform: rotate(-16deg);
+}
+.gal-gogo .gf-eye.r::before {
+  right: -1px;
+  transform: rotate(16deg);
+}
+/* red lips */
+.gal-gogo .lips {
+  position: absolute;
+  top: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 28px;
+  height: 15px;
+  background-color: #e11d48;
+  background-image: radial-gradient(circle at 40% 26%, rgba(255, 255, 255, 0.25), transparent 55%),
+    radial-gradient(circle at 55% 122%, rgba(0, 0, 0, 0.26), transparent 60%);
+  border-radius: 45% 45% 55% 55% / 45% 45% 100% 100%;
+}
+.gal-gogo .lips .lips-line {
+  position: absolute;
+  top: 44%;
+  left: 12%;
+  right: 12%;
+  height: 2px;
+  background: rgba(90, 0, 15, 0.55);
+  border-radius: 2px;
+}
+/* gold necklace with a gem pendant */
+.gal-gogo .necklace {
+  position: absolute;
+  top: 98px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 76px;
+  height: 42px;
+  border: 5px solid #f1c40f;
+  border-top-color: transparent;
+  border-left-color: transparent;
+  border-right-color: transparent;
+  border-radius: 50%;
+}
+.gal-gogo .necklace .pendant {
+  position: absolute;
+  bottom: -7px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background-color: #22d3ee;
+  background-image: radial-gradient(circle at 38% 30%, rgba(255, 255, 255, 0.5), transparent 55%);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+/* מוקי (5) — 2×2 square + a cyan head on top; a boy (glasses, brows, cowlick) */
+.gal-moki {
+  position: relative;
+  width: 168px;
+  height: 210px;
+  --shoe: #f59e0b;
+  filter: drop-shadow(0 11px 14px rgba(0, 0, 0, 0.32));
+  animation: friend-breathe 2.8s ease-in-out infinite;
+}
+.gal-moki .bump {
+  position: absolute;
+  width: 92px;
+  height: 92px;
+  border-radius: 50%;
+}
+.gal-moki .bump.top {
+  --bc: #22d3ee;
+  left: 38px;
+  top: 0;
+  z-index: 1;
+}
+.gal-moki .bump.tl {
+  --bc: #ef4444;
+  left: 6px;
+  top: 56px;
+  z-index: 2;
+}
+.gal-moki .bump.tr {
+  --bc: #f97316;
+  left: 70px;
+  top: 56px;
+  z-index: 3;
+}
+.gal-moki .bump.bl {
+  --bc: #facc15;
+  left: 6px;
+  top: 118px;
+  z-index: 4;
+}
+.gal-moki .bump.br {
+  --bc: #4ade80;
+  left: 70px;
+  top: 118px;
+  z-index: 5;
+}
+.gal-moki .gf-eye,
+.gal-moki .gf-mouth,
+.gal-moki .brow,
+.gal-moki .glasses,
+.gal-moki .cowlick {
+  z-index: 6;
+}
+.gal-moki .gf-eye {
+  top: 20px;
+  width: 17px;
+  height: 21px;
+}
+.gal-moki .gf-eye.l {
+  left: 58px;
+}
+.gal-moki .gf-eye.r {
+  right: 58px;
+}
+.gal-moki .gf-mouth {
+  top: 52px;
+  bottom: auto;
+  width: 18px;
+  height: 10px;
+}
+/* eyebrows */
+.gal-moki .brow {
+  position: absolute;
+  top: 10px;
+  width: 16px;
+  height: 4px;
+  background: #3a2e28;
+  border-radius: 3px;
+}
+.gal-moki .brow.l {
+  left: 56px;
+  transform: rotate(-10deg);
+}
+.gal-moki .brow.r {
+  right: 56px;
+  transform: rotate(10deg);
+}
+/* round glasses sitting over the eyes */
+.gal-moki .glasses {
+  position: absolute;
+  top: 19px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.gal-moki .glasses .lens {
+  width: 23px;
+  height: 23px;
+  border: 3px solid #263243;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.16);
+}
+.gal-moki .glasses .bridge {
+  width: 6px;
+  height: 3px;
+  background: #263243;
+  border-radius: 2px;
+}
+/* a little hair cowlick on top of the head */
+.gal-moki .cowlick {
+  position: absolute;
+  top: -9px;
+  left: 48%;
+  transform: translateX(-50%) rotate(14deg);
+  width: 15px;
+  height: 21px;
+  background-color: #5b4632;
+  background-image: radial-gradient(circle at 38% 28%, rgba(255, 255, 255, 0.2), transparent 55%);
+  border-radius: 65% 35% 55% 45% / 75% 25% 75% 25%;
+  box-shadow: inset 0 -2px 2px rgba(0, 0, 0, 0.2);
+}
+
+/* נוני (6) — 3×2 block of six colours; a girl (lashes, lips, flower, earrings) */
+.gal-nuni {
+  position: relative;
+  width: 216px;
+  height: 150px;
+  --shoe: #fb7185;
+  filter: drop-shadow(0 11px 14px rgba(0, 0, 0, 0.32));
+  animation: friend-breathe 2.8s ease-in-out infinite;
+}
+.gal-nuni .bump {
+  position: absolute;
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+}
+.gal-nuni .bump.c1 {
+  --bc: #ef4444;
+  left: 6px;
+  top: 2px;
+  z-index: 1;
+}
+.gal-nuni .bump.c2 {
+  --bc: #f97316;
+  left: 64px;
+  top: 2px;
+  z-index: 2;
+}
+.gal-nuni .bump.c3 {
+  --bc: #facc15;
+  left: 122px;
+  top: 2px;
+  z-index: 3;
+}
+.gal-nuni .bump.c4 {
+  --bc: #4ade80;
+  left: 6px;
+  top: 56px;
+  z-index: 4;
+}
+.gal-nuni .bump.c5 {
+  --bc: #22d3ee;
+  left: 64px;
+  top: 56px;
+  z-index: 5;
+}
+.gal-nuni .bump.c6 {
+  --bc: #3b82f6;
+  left: 122px;
+  top: 56px;
+  z-index: 6;
+}
+.gal-nuni .gf-eye,
+.gal-nuni .lips,
+.gal-nuni .flower,
+.gal-nuni .earring {
+  z-index: 7;
+}
+.gal-nuni .gf-eye {
+  top: 30px;
+  width: 17px;
+  height: 21px;
+}
+.gal-nuni .gf-eye.l {
+  left: 90px;
+}
+.gal-nuni .gf-eye.r {
+  right: 90px;
+}
+.gal-nuni .gf-eye::before {
+  content: '';
+  position: absolute;
+  top: -3px;
+  width: 11px;
+  height: 7px;
+  border-top: 2px solid #1a1a1a;
+  border-radius: 50% 50% 0 0;
+}
+.gal-nuni .gf-eye.l::before {
+  left: -1px;
+  transform: rotate(-16deg);
+}
+.gal-nuni .gf-eye.r::before {
+  right: -1px;
+  transform: rotate(16deg);
+}
+.gal-nuni .lips {
+  position: absolute;
+  top: 74px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 26px;
+  height: 14px;
+  background-color: #e11d48;
+  background-image: radial-gradient(circle at 40% 26%, rgba(255, 255, 255, 0.25), transparent 55%),
+    radial-gradient(circle at 55% 122%, rgba(0, 0, 0, 0.26), transparent 60%);
+  border-radius: 45% 45% 55% 55% / 45% 45% 100% 100%;
+}
+.gal-nuni .lips .lips-line {
+  position: absolute;
+  top: 44%;
+  left: 12%;
+  right: 12%;
+  height: 2px;
+  background: rgba(90, 0, 15, 0.55);
+  border-radius: 2px;
+}
+/* a daisy on top of her head */
+.gal-nuni .flower {
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 26px;
+  height: 26px;
+}
+.gal-nuni .flower i {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 11px;
+  height: 14px;
+  margin: -7px 0 0 -5.5px;
+  background: #fde2f0;
+  border-radius: 50%;
+  box-shadow: inset 0 -2px 2px rgba(0, 0, 0, 0.12);
+}
+.gal-nuni .flower i:nth-child(1) {
+  transform: rotate(0deg) translateY(-8px);
+}
+.gal-nuni .flower i:nth-child(2) {
+  transform: rotate(72deg) translateY(-8px);
+}
+.gal-nuni .flower i:nth-child(3) {
+  transform: rotate(144deg) translateY(-8px);
+}
+.gal-nuni .flower i:nth-child(4) {
+  transform: rotate(216deg) translateY(-8px);
+}
+.gal-nuni .flower i:nth-child(5) {
+  transform: rotate(288deg) translateY(-8px);
+}
+.gal-nuni .flower b {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 11px;
+  height: 11px;
+  margin: -5.5px;
+  background: #f4c430;
+  border-radius: 50%;
+  box-shadow: inset 0 -2px 2px rgba(0, 0, 0, 0.18);
+}
+/* little earrings on the sides */
+.gal-nuni .earring {
+  position: absolute;
+  top: 80px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #22d3ee;
+  background-image: radial-gradient(circle at 38% 30%, rgba(255, 255, 255, 0.5), transparent 55%);
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.25);
+}
+.gal-nuni .earring.l {
+  left: -2px;
+}
+.gal-nuni .earring.r {
+  right: -2px;
+}
+
+/* פיקו (7) — a flower: violet centre + six rainbow petals; completes the rainbow */
+.gal-piko {
+  position: relative;
+  width: 214px;
+  height: 224px;
+  --shoe: #16a34a;
+  filter: drop-shadow(0 11px 14px rgba(0, 0, 0, 0.32));
+  animation: friend-breathe 2.8s ease-in-out infinite;
+}
+.gal-piko .bump {
+  position: absolute;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  z-index: 1;
+}
+.gal-piko .bump.p1 {
+  --bc: #ef4444;
+  left: 67px;
+  top: 0;
+}
+.gal-piko .bump.p2 {
+  --bc: #f97316;
+  left: 129px;
+  top: 36px;
+}
+.gal-piko .bump.p3 {
+  --bc: #facc15;
+  left: 129px;
+  top: 108px;
+}
+.gal-piko .bump.p4 {
+  --bc: #4ade80;
+  left: 67px;
+  top: 144px;
+}
+.gal-piko .bump.p5 {
+  --bc: #22d3ee;
+  left: 5px;
+  top: 108px;
+}
+.gal-piko .bump.p6 {
+  --bc: #3b82f6;
+  left: 5px;
+  top: 36px;
+}
+.gal-piko .bump.cn {
+  --bc: #8b5cf6;
+  left: 67px;
+  top: 72px;
+  z-index: 5;
+}
+.gal-piko .gf-eye,
+.gal-piko .gf-mouth,
+.gal-piko .crown {
+  z-index: 8;
+}
+.gal-piko .gf-eye {
+  top: 96px;
+  width: 16px;
+  height: 20px;
+}
+.gal-piko .gf-eye.l {
+  left: 90px;
+}
+.gal-piko .gf-eye.r {
+  right: 90px;
+}
+.gal-piko .gf-mouth {
+  top: 122px;
+  bottom: auto;
+  width: 18px;
+  height: 10px;
+}
+/* a little crown on top */
+.gal-piko .crown {
+  position: absolute;
+  top: -16px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 48px;
+  height: 28px;
+  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.3));
+}
+.gal-piko .crown::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-color: #f4c430;
+  background-image: radial-gradient(circle at 40% 26%, rgba(255, 255, 255, 0.3), transparent 55%),
+    radial-gradient(circle at 55% 120%, rgba(0, 0, 0, 0.28), transparent 60%);
+  clip-path: polygon(0% 100%, 0% 42%, 18% 72%, 50% 8%, 82% 72%, 100% 42%, 100% 100%);
+}
+.gal-piko .crown i {
+  position: absolute;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+}
+.gal-piko .crown i:nth-child(1) {
+  left: 1px;
+  top: 38%;
+  background: #ef4444;
+}
+.gal-piko .crown i:nth-child(2) {
+  left: 50%;
+  top: 4%;
+  transform: translateX(-50%);
+  background: #22d3ee;
+}
+.gal-piko .crown i:nth-child(3) {
+  right: 1px;
+  top: 38%;
+  background: #4ade80;
+}
+
+/* דודי (8) — 4×2 block (adds pink); a boy with headphones */
+.gal-dudi {
+  position: relative;
+  width: 242px;
+  height: 138px;
+  --shoe: #dc2626;
+  filter: drop-shadow(0 11px 14px rgba(0, 0, 0, 0.32));
+  animation: friend-breathe 2.8s ease-in-out infinite;
+}
+.gal-dudi .bump {
+  position: absolute;
+  width: 78px;
+  height: 78px;
+  border-radius: 50%;
+}
+.gal-dudi .bump.b1 {
+  --bc: #ef4444;
+  left: 4px;
+  top: 2px;
+  z-index: 1;
+}
+.gal-dudi .bump.b2 {
+  --bc: #f97316;
+  left: 56px;
+  top: 2px;
+  z-index: 2;
+}
+.gal-dudi .bump.b3 {
+  --bc: #facc15;
+  left: 108px;
+  top: 2px;
+  z-index: 3;
+}
+.gal-dudi .bump.b4 {
+  --bc: #4ade80;
+  left: 160px;
+  top: 2px;
+  z-index: 4;
+}
+.gal-dudi .bump.b5 {
+  --bc: #22d3ee;
+  left: 4px;
+  top: 56px;
+  z-index: 5;
+}
+.gal-dudi .bump.b6 {
+  --bc: #3b82f6;
+  left: 56px;
+  top: 56px;
+  z-index: 6;
+}
+.gal-dudi .bump.b7 {
+  --bc: #8b5cf6;
+  left: 108px;
+  top: 56px;
+  z-index: 7;
+}
+.gal-dudi .bump.b8 {
+  --bc: #ec4899;
+  left: 160px;
+  top: 56px;
+  z-index: 8;
+}
+.gal-dudi .gf-eye,
+.gal-dudi .gf-mouth {
+  z-index: 9;
+}
+.gal-dudi .gf-eye {
+  top: 28px;
+  width: 16px;
+  height: 20px;
+}
+.gal-dudi .gf-eye.l {
+  left: 100px;
+}
+.gal-dudi .gf-eye.r {
+  right: 100px;
+}
+.gal-dudi .gf-mouth {
+  top: 58px;
+  bottom: auto;
+  width: 18px;
+  height: 10px;
+}
+/* headphones */
+.gal-dudi .headphones {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  pointer-events: none;
+}
+.gal-dudi .headphones .band {
+  position: absolute;
+  top: -10px;
+  left: 4%;
+  right: 4%;
+  height: 40px;
+  border: 7px solid #334155;
+  border-bottom: none;
+  border-radius: 999px 999px 0 0;
+}
+.gal-dudi .headphones .cup {
+  position: absolute;
+  top: 22px;
+  width: 18px;
+  height: 32px;
+  border-radius: 8px;
+  background-color: #334155;
+  background-image: radial-gradient(circle at 40% 30%, rgba(255, 255, 255, 0.18), transparent 55%);
+  box-shadow: inset 0 -3px 4px rgba(0, 0, 0, 0.3);
+}
+.gal-dudi .headphones .cup.l {
+  left: -4px;
+}
+.gal-dudi .headphones .cup.r {
+  right: -4px;
+}
+
+/* זוזו (9) — 3×3 square (adds a ninth colour); a girl with pigtails + lashes */
+.gal-zuzu {
+  position: relative;
+  width: 208px;
+  height: 206px;
+  --shoe: #db2777;
+  filter: drop-shadow(0 11px 14px rgba(0, 0, 0, 0.32));
+  animation: friend-breathe 2.8s ease-in-out infinite;
+}
+.gal-zuzu .bump {
+  position: absolute;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+}
+.gal-zuzu .bump.m1 {
+  --bc: #ef4444;
+  left: 4px;
+  top: 2px;
+  z-index: 1;
+}
+.gal-zuzu .bump.m2 {
+  --bc: #f97316;
+  left: 64px;
+  top: 2px;
+  z-index: 2;
+}
+.gal-zuzu .bump.m3 {
+  --bc: #facc15;
+  left: 124px;
+  top: 2px;
+  z-index: 3;
+}
+.gal-zuzu .bump.m4 {
+  --bc: #4ade80;
+  left: 4px;
+  top: 62px;
+  z-index: 4;
+}
+.gal-zuzu .bump.m5 {
+  --bc: #22d3ee;
+  left: 64px;
+  top: 62px;
+  z-index: 5;
+}
+.gal-zuzu .bump.m6 {
+  --bc: #3b82f6;
+  left: 124px;
+  top: 62px;
+  z-index: 6;
+}
+.gal-zuzu .bump.m7 {
+  --bc: #8b5cf6;
+  left: 4px;
+  top: 122px;
+  z-index: 7;
+}
+.gal-zuzu .bump.m8 {
+  --bc: #ec4899;
+  left: 64px;
+  top: 122px;
+  z-index: 8;
+}
+.gal-zuzu .bump.m9 {
+  --bc: #f43f5e;
+  left: 124px;
+  top: 122px;
+  z-index: 9;
+}
+.gal-zuzu .gf-eye,
+.gal-zuzu .gf-mouth {
+  z-index: 11;
+}
+.gal-zuzu .gf-eye {
+  top: 84px;
+  width: 16px;
+  height: 20px;
+}
+.gal-zuzu .gf-eye.l {
+  left: 82px;
+}
+.gal-zuzu .gf-eye.r {
+  right: 82px;
+}
+.gal-zuzu .gf-eye::before {
+  content: '';
+  position: absolute;
+  top: -3px;
+  width: 11px;
+  height: 7px;
+  border-top: 2px solid #1a1a1a;
+  border-radius: 50% 50% 0 0;
+}
+.gal-zuzu .gf-eye.l::before {
+  left: -1px;
+  transform: rotate(-16deg);
+}
+.gal-zuzu .gf-eye.r::before {
+  right: -1px;
+  transform: rotate(16deg);
+}
+.gal-zuzu .gf-mouth {
+  top: 112px;
+  bottom: auto;
+  width: 18px;
+  height: 10px;
+}
+/* pigtails (hair puffs with little ties) tucked behind the sides of the head */
+.gal-zuzu .pigtail {
+  position: absolute;
+  top: 20px;
+  width: 44px;
+  height: 52px;
+  background-color: #7a5a3c;
+  background-image: radial-gradient(circle at 40% 30%, rgba(255, 255, 255, 0.18), transparent 55%),
+    radial-gradient(circle at 55% 120%, rgba(0, 0, 0, 0.3), transparent 60%);
+  border-radius: 50% 50% 50% 50% / 58% 58% 42% 42%;
+  z-index: 0;
+}
+.gal-zuzu .pigtail.l {
+  left: -24px;
+}
+.gal-zuzu .pigtail.r {
+  right: -24px;
+}
+.gal-zuzu .pigtail::after {
+  content: '';
+  position: absolute;
+  top: 4px;
+  width: 16px;
+  height: 9px;
+  border-radius: 4px;
+  background: #db2777;
+}
+.gal-zuzu .pigtail.l::after {
+  right: 2px;
+}
+.gal-zuzu .pigtail.r::after {
+  left: 2px;
+}
+
+/* קוקו (10) — 5×2 block (tenth colour); a girl with a princess tiara */
+.gal-koko {
+  position: relative;
+  width: 278px;
+  height: 130px;
+  --shoe: #eab308;
+  filter: drop-shadow(0 11px 14px rgba(0, 0, 0, 0.32));
+  animation: friend-breathe 2.8s ease-in-out infinite;
+}
+.gal-koko .bump {
+  position: absolute;
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+}
+.gal-koko .bump.m1 {
+  --bc: #ef4444;
+  left: 4px;
+  top: 2px;
+  z-index: 1;
+}
+.gal-koko .bump.m2 {
+  --bc: #f97316;
+  left: 54px;
+  top: 2px;
+  z-index: 2;
+}
+.gal-koko .bump.m3 {
+  --bc: #facc15;
+  left: 104px;
+  top: 2px;
+  z-index: 3;
+}
+.gal-koko .bump.m4 {
+  --bc: #4ade80;
+  left: 154px;
+  top: 2px;
+  z-index: 4;
+}
+.gal-koko .bump.m5 {
+  --bc: #14b8a6;
+  left: 204px;
+  top: 2px;
+  z-index: 5;
+}
+.gal-koko .bump.m6 {
+  --bc: #22d3ee;
+  left: 4px;
+  top: 56px;
+  z-index: 6;
+}
+.gal-koko .bump.m7 {
+  --bc: #3b82f6;
+  left: 54px;
+  top: 56px;
+  z-index: 7;
+}
+.gal-koko .bump.m8 {
+  --bc: #8b5cf6;
+  left: 104px;
+  top: 56px;
+  z-index: 8;
+}
+.gal-koko .bump.m9 {
+  --bc: #ec4899;
+  left: 154px;
+  top: 56px;
+  z-index: 9;
+}
+.gal-koko .bump.m10 {
+  --bc: #f43f5e;
+  left: 204px;
+  top: 56px;
+  z-index: 10;
+}
+.gal-koko .gf-eye,
+.gal-koko .lips,
+.gal-koko .tiara {
+  z-index: 12;
+}
+.gal-koko .gf-eye {
+  top: 22px;
+  width: 16px;
+  height: 20px;
+}
+.gal-koko .gf-eye.l {
+  left: 114px;
+}
+.gal-koko .gf-eye.r {
+  right: 114px;
+}
+.gal-koko .gf-eye::before {
+  content: '';
+  position: absolute;
+  top: -3px;
+  width: 11px;
+  height: 7px;
+  border-top: 2px solid #1a1a1a;
+  border-radius: 50% 50% 0 0;
+}
+.gal-koko .gf-eye.l::before {
+  left: -1px;
+  transform: rotate(-16deg);
+}
+.gal-koko .gf-eye.r::before {
+  right: -1px;
+  transform: rotate(16deg);
+}
+.gal-koko .lips {
+  position: absolute;
+  top: 52px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 26px;
+  height: 14px;
+  background-color: #e11d48;
+  background-image: radial-gradient(circle at 40% 26%, rgba(255, 255, 255, 0.25), transparent 55%),
+    radial-gradient(circle at 55% 122%, rgba(0, 0, 0, 0.26), transparent 60%);
+  border-radius: 45% 45% 55% 55% / 45% 45% 100% 100%;
+}
+.gal-koko .lips .lips-line {
+  position: absolute;
+  top: 44%;
+  left: 12%;
+  right: 12%;
+  height: 2px;
+  background: rgba(90, 0, 15, 0.55);
+  border-radius: 2px;
+}
+/* princess tiara: a gold band with three gems */
+.gal-koko .tiara {
+  position: absolute;
+  top: -7px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 18px;
+  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.3));
+}
+.gal-koko .tiara::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 8px;
+  background-color: #f4c430;
+  background-image: radial-gradient(circle at 40% 20%, rgba(255, 255, 255, 0.35), transparent 60%);
+  border-radius: 999px;
+}
+.gal-koko .tiara i {
+  position: absolute;
+  bottom: 5px;
+  border-radius: 50%;
+}
+.gal-koko .tiara i:nth-child(1) {
+  left: 8px;
+  width: 7px;
+  height: 7px;
+  background: #22d3ee;
+}
+.gal-koko .tiara i:nth-child(2) {
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 6px;
+  width: 13px;
+  height: 13px;
+  background: #ec4899;
+}
+.gal-koko .tiara i:nth-child(3) {
+  right: 8px;
+  width: 7px;
+  height: 7px;
+  background: #22d3ee;
+}
+
+/* size comparison strip (1 · 2 · 3, on one baseline) */
+.gal-compare-title {
+  text-align: center;
+  font-family: 'Fredoka', 'Heebo', sans-serif;
+  font-size: 1.1rem;
+  color: var(--text-soft);
+  margin: 30px 0 6px;
+}
+.gal-compare {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 18px 14px;
+  min-height: 120px;
+}
+.gal-mini {
+  zoom: 0.42;
+  display: inline-flex;
+}
+.gal-mini .gal-halo {
+  display: none;
+}
+
+/* ---------- in-game friend wrapper (scales the shared FriendArt) ---------- */
+
+.friend-art {
+  display: inline-block;
+}
+.friend-art.is-asleep {
+  filter: grayscale(0.5) brightness(0.93);
+  opacity: 0.82;
+}
+
+.friend-holder {
+  position: relative;
+  display: inline-block;
+  padding: 0;
+  border: none;
+  background: none;
+}
+.friend-scale {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: inline-block;
+}
+.friend-holder.is-jumping {
+  animation: friend-jump 0.5s ease;
+}
