@@ -107,7 +107,7 @@ export default function CalcFriends({ onExit }: GameProps) {
     setOp(null)
     setFresh(true)
     playWin()
-    if (r >= 1 && r <= 10) speak(`${numberWord(r)}. ${friendName(r - 1)}`)
+    if (r >= 1 && r <= REAL_FRIENDS) speak(`${numberWord(r)}. ${friendName(r - 1)}`)
   }
 
   function clear() {

@@ -75,7 +75,11 @@ export function playCount(step: number) {
 
 // A friend's little "voice" boop when poked — each friend a distinct pitch.
 export function playFriend(index: number) {
-  const scale = [392, 440, 494, 523, 587, 659, 698, 784, 880, 988]
+  // Two octaves so friends 1–20 each sound different.
+  const scale = [
+    392, 440, 494, 523, 587, 659, 698, 784, 880, 988,
+    1047, 1175, 1319, 1397, 1568, 1760, 1865, 2093, 2349, 2637,
+  ]
   const freq = scale[index % scale.length]
   tone({ freq, duration: 0.16, type: 'sine', volume: 0.18 })
   tone({ freq: freq * 1.5, duration: 0.12, type: 'triangle', volume: 0.09, delay: 0.05 })
