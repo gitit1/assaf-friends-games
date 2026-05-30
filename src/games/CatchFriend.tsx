@@ -91,11 +91,11 @@ export default function CatchFriend({ onExit }: GameProps) {
       const t = window.setTimeout(() => {
         setCards((cs) => {
           const remaining = cs.filter((c) => c.id !== card.id)
-          const tgt = targetRef.current
-          const targetsLeft = remaining.filter((c) => c.index === tgt).length
-          // Keep a couple of targets around, otherwise add variety (any friend).
-          const index = targetsLeft < MIN_TARGETS ? tgt : randInt(0, COUNT - 1)
-          return [...remaining, makeCard(index)]
+          // The friend that appears in the popped spot is a RANDOM one (usually
+          // not the target) — that's the variety. Catchability is kept by
+          // topping the board back up to MIN_TARGETS elsewhere if needed.
+          const withNew = [...remaining, makeCard(randInt(0, COUNT - 1))]
+          return ensureTargets(withNew, targetRef.current, MIN_TARGETS)
         })
       }, 430)
       timers.current.push(t)
