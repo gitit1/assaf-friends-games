@@ -1,0 +1,94 @@
+import { useState } from 'react'
+import { updateSettings, useSettings } from '../settings'
+import { hasHebrewVoice, speak } from '../speech'
+import { playTap, unlockAudio } from '../audio'
+
+// A toggle row with a big, finger-friendly switch.
+function Toggle({
+  label,
+  hint,
+  value,
+  onChange,
+}: {
+  label: string
+  hint?: string
+  value: boolean
+  onChange: (next: boolean) => void
+}) {
+  return (
+    <button
+      className="settings-row"
+      role="switch"
+      aria-checked={value}
+      onClick={() => {
+        playTap()
+        onChange(!value)
+      }}
+    >
+      <span className="settings-row-text">
+        <span className="settings-row-label">{label}</span>
+        {hint && <span className="settings-row-hint">{hint}</span>}
+      </span>
+      <span className={`switch ${value ? 'switch-on' : ''}`} aria-hidden="true">
+        <span className="switch-knob" />
+      </span>
+    </button>
+  )
+}
+
+export default function SettingsPanel() {
+  const [open, setOpen] = useState(false)
+  const settings = useSettings()
+  const voiceMissing = settings.voice && !hasHebrewVoice()
+
+  return (
+    <>
+      <button
+        className="settings-gear"
+        aria-label="הגדרות"
+        onClick={() => {
+          unlockAudio()
+          playTap()
+          setOpen(true)
+        }}
+      >
+        ⚙️
+      </button>
+
+      {open && (
+        <div className="settings-overlay" onClick={() => setOpen(false)}>
+          <div className="settings-card" onClick={(e) => e.stopPropagation()}>
+            <h2 className="settings-title">הגדרות</h2>
+
+            <Toggle
+              label="🔊 קול בעברית"
+              hint="הקראה ועידוד לאסף"
+              value={settings.voice}
+              onChange={(next) => {
+                updateSettings({ voice: next })
+                if (next) speak('שלום אסף')
+              }}
+            />
+
+            {voiceMissing && (
+              <p className="settings-warning">
+                לא נמצא קול עברי במכשיר הזה. אפשר להתקין קול עברית בהגדרות הטלפון, או להמשיך עם צלילים בלבד.
+              </p>
+            )}
+
+            <Toggle
+              label="🎵 צלילים"
+              hint="צלילי מגע והצלחה"
+              value={settings.sound}
+              onChange={(next) => updateSettings({ sound: next })}
+            />
+
+            <button className="big-button settings-close" onClick={() => setOpen(false)}>
+              סגירה
+            </button>
+          </div>
+        </div>
+      )}
+    </>
+  )
+}
