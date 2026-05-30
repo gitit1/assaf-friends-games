@@ -2865,57 +2865,73 @@ button {
   background: #ff7f8d;
 }
 
-/* smiley balloons for numbers without a friend yet (11–20) */
-.calc-balloons {
+/* big-number friend: a chunky body of connected circles (one per digit) that
+   looks like it holds lots inside, with the number on a clear badge below */
+.bigf {
   display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  align-content: center;
-  gap: 6px;
-  max-width: 280px;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
 }
-.calc-balloon {
+.bigf-body {
   position: relative;
-  width: 40px;
-  height: 46px;
-  border-radius: 50% 50% 48% 48%;
-  background: radial-gradient(circle at 36% 28%, rgba(255, 255, 255, 0.55), transparent 50%), var(--bc, #888);
-  box-shadow: inset 0 -6px 8px rgba(0, 0, 0, 0.18), 0 3px 5px rgba(0, 0, 0, 0.2);
+  display: flex;
+  align-items: center;
+  filter: drop-shadow(0 9px 11px rgba(0, 0, 0, 0.3));
 }
-.calc-balloon .be {
+.bigf-circle {
+  width: var(--u, 56px);
+  height: var(--u, 56px);
+  border-radius: 50%;
+  background-color: var(--bc, #888);
+  background-image: radial-gradient(rgba(255, 255, 255, 0.18) 1px, transparent 1.7px),
+    radial-gradient(circle at 36% 28%, rgba(255, 255, 255, 0.55), transparent 48%),
+    radial-gradient(circle at 62% 118%, rgba(0, 0, 0, 0.34), transparent 60%);
+  background-size: 7px 7px, 100% 100%, 100% 100%;
+  border: 2px solid rgba(0, 0, 0, 0.14);
+  box-shadow: inset 0 calc(var(--u) * -0.12) calc(var(--u) * 0.14) rgba(0, 0, 0, 0.22);
+}
+.bigf-circle + .bigf-circle {
+  margin-inline-start: calc(var(--u) * -0.34);
+}
+.bigf-face {
   position: absolute;
-  top: 30%;
-  width: 16%;
-  height: 15%;
-  background: #1a1a1a;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--u);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: calc(var(--u) * 0.14);
+}
+.bigf-eye {
+  width: calc(var(--u) * 0.18);
+  height: calc(var(--u) * 0.21);
+  background: #fff;
+  border: 2px solid #1a1a1a;
   border-radius: 50%;
 }
-.calc-balloon .be.l {
-  left: 30%;
-}
-.calc-balloon .be.r {
-  right: 30%;
-}
-.calc-balloon .bm {
+.bigf-mouth {
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
-  top: 50%;
-  width: 34%;
-  height: 18%;
-  border: 2px solid #1a1a1a;
+  top: 58%;
+  width: calc(var(--u) * 0.26);
+  height: calc(var(--u) * 0.14);
+  border: 2.5px solid #1a1a1a;
   border-top: none;
   border-radius: 0 0 999px 999px;
 }
-.calc-balloon::after {
-  content: '';
-  position: absolute;
-  bottom: -5px;
-  left: 50%;
-  transform: translateX(-50%);
-  border-left: 4px solid transparent;
-  border-right: 4px solid transparent;
-  border-top: 6px solid var(--bc, #888);
+.bigf-num {
+  font-family: 'Fredoka', 'Heebo', sans-serif;
+  font-weight: 800;
+  font-size: clamp(1.5rem, 7vw, 2.6rem);
+  color: #15233a;
+  background: rgba(255, 255, 255, 0.94);
+  border-radius: 999px;
+  padding: 2px 16px;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.25);
 }
 
 .calc-bignum {

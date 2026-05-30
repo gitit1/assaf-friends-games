@@ -5,7 +5,10 @@ import type { GameProps } from './registry'
 import { playTap, playWin, unlockAudio } from '../audio'
 import { speak } from '../speech'
 import { friendColor, friendName } from '../friends'
+import { FRIEND_KINDS } from '../components/FriendArt'
 import { numberWord } from './util'
+
+const REAL_FRIENDS = FRIEND_KINDS.length // numbers up to here have a real friend
 
 type Op = '+' | '-' | '×'
 
@@ -29,25 +32,32 @@ function useIsWide() {
   return wide
 }
 
-// Numbers 11–20 with no friend yet are shown as a pile of smiley balloons.
-function BalloonPile({ count }: { count: number }) {
+// Numbers with no real friend yet → a chunky friend made of connected circles
+// (one per digit), with the number on it, that looks like it holds lots inside.
+function BigFriend({ value, scale }: { value: number; scale: number }) {
+  const digits = String(value).length
+  const unit = Math.max(28, Math.round(72 * scale))
   return (
-    <div className="calc-balloons">
-      {Array.from({ length: count }).map((_, i) => (
-        <span className="calc-balloon" style={{ '--bc': friendColor(i % 10) } as React.CSSProperties} key={i}>
-          <i className="be l" />
-          <i className="be r" />
-          <span className="bm" />
+    <div className="bigf">
+      <div className="bigf-body" style={{ '--u': `${unit}px` } as React.CSSProperties}>
+        {Array.from({ length: digits }).map((_, i) => (
+          <span className="bigf-circle" style={{ '--bc': friendColor(i % 10) } as React.CSSProperties} key={i} />
+        ))}
+        <span className="bigf-face">
+          <i className="bigf-eye" />
+          <i className="bigf-eye" />
+          <span className="bigf-mouth" />
         </span>
-      ))}
+      </div>
+      <span className="bigf-num">{value}</span>
     </div>
   )
 }
 
 // What the friends panel shows for the number currently on the display.
 function NumberView({ value, scale }: { value: number; scale: number }) {
-  if (value >= 1 && value <= 10) return <Friend index={value - 1} scale={scale} />
-  if (value > 10 && value <= 20) return <BalloonPile count={value} />
+  if (value >= 1 && value <= REAL_FRIENDS) return <Friend index={value - 1} scale={scale} />
+  if (value > REAL_FRIENDS) return <BigFriend value={value} scale={scale} />
   return <span className="calc-bignum">{value}</span>
 }
 
