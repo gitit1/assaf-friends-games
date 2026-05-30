@@ -6,36 +6,48 @@ import { playPop, playSuccess, playWin, unlockAudio } from '../audio'
 import { speak } from '../speech'
 import { friendName, friendSay } from '../friends'
 import { useSettings } from '../settings'
-import { randInt } from './util'
+import { randInt, shuffle } from './util'
 
 const COUNT = 10 // friend identities (indices 0..9)
-const BOARD = 6 // friends visible at once
+const BOARD = 8 // friends visible at once
+const MIN_TARGETS = 2 // always keep at least this many catchable targets
 
 type Card = { id: number; index: number; x: number; y: number; popping: boolean }
 
 let nextId = 0
 
-function makeCard(target: number): Card {
-  // Bias toward the target so there's usually one to catch.
-  const index = Math.random() < 0.45 ? target : randInt(0, COUNT - 1)
-  return { id: nextId++, index, x: 4 + Math.random() * 68, y: 6 + Math.random() * 62, popping: false }
+function makeCard(index: number): Card {
+  return { id: nextId++, index, x: 4 + Math.random() * 72, y: 6 + Math.random() * 64, popping: false }
+}
+
+// Make sure at least `min` of the cards are the target (convert random others).
+function ensureTargets(cards: Card[], target: number, min: number): Card[] {
+  let have = cards.filter((c) => c.index === target).length
+  if (have >= min) return cards
+  const copy = cards.map((c) => ({ ...c }))
+  for (const c of shuffle(copy)) {
+    if (have >= min) break
+    if (c.index !== target) {
+      c.index = target
+      have++
+    }
+  }
+  return copy
 }
 
 // Show a target friend; tap matching friends on the board to pop them for a
-// point. The target friend changes on an interval set in settings. No timer
-// pressure on each tap, no penalty for wrong taps.
+// point. A mix of friends is always on the board (with at least a couple of
+// catchable ones), and the target switches on an interval set in settings.
 export default function CatchFriend({ onExit }: GameProps) {
   const { catchSeconds } = useSettings()
   const [target, setTarget] = useState(() => randInt(0, COUNT - 1))
   const [cards, setCards] = useState<Card[]>(() => {
-    const arr = Array.from({ length: BOARD }, () => makeCard(target))
-    if (!arr.some((c) => c.index === target)) arr[0].index = target
-    return arr
+    const arr = Array.from({ length: BOARD }, () => makeCard(randInt(0, COUNT - 1)))
+    return ensureTargets(arr, target, MIN_TARGETS)
   })
   const [score, setScore] = useState(0)
   const [wrongId, setWrongId] = useState<number | null>(null)
   const timers = useRef<number[]>([])
-  // Latest target, readable from delayed callbacks (spawning a replacement).
   const targetRef = useRef(target)
   useEffect(() => {
     targetRef.current = target
@@ -58,14 +70,10 @@ export default function CatchFriend({ onExit }: GameProps) {
     return () => window.clearInterval(id)
   }, [catchSeconds])
 
-  // Announce the target and make sure at least one is on the board.
+  // Announce the new target and make sure enough catchable ones are present.
   useEffect(() => {
     speak(`תפסו את ${friendSay(target)}`)
-    setCards((cs) => {
-      if (cs.some((c) => c.index === target)) return cs
-      const i = randInt(0, cs.length - 1)
-      return cs.map((c, idx) => (idx === i ? { ...c, index: target } : c))
-    })
+    setCards((cs) => ensureTargets(cs, target, MIN_TARGETS))
   }, [target])
 
   function tap(card: Card) {
@@ -84,10 +92,10 @@ export default function CatchFriend({ onExit }: GameProps) {
         setCards((cs) => {
           const remaining = cs.filter((c) => c.id !== card.id)
           const tgt = targetRef.current
-          const next = makeCard(tgt)
-          // Always keep at least one catchable target on the board.
-          if (!remaining.some((c) => c.index === tgt)) next.index = tgt
-          return [...remaining, next]
+          const targetsLeft = remaining.filter((c) => c.index === tgt).length
+          // Keep a couple of targets around, otherwise add variety (any friend).
+          const index = targetsLeft < MIN_TARGETS ? tgt : randInt(0, COUNT - 1)
+          return [...remaining, makeCard(index)]
         })
       }, 430)
       timers.current.push(t)
@@ -118,7 +126,7 @@ export default function CatchFriend({ onExit }: GameProps) {
             onClick={() => tap(card)}
             aria-label={friendName(card.index)}
           >
-            <Friend index={card.index} scale={0.32} showNumber={false} bouncing={card.popping} />
+            <Friend index={card.index} scale={0.3} showNumber={false} bouncing={card.popping} />
           </button>
         ))}
       </div>
