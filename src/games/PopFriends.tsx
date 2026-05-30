@@ -4,7 +4,8 @@ import Friend from '../components/Friend'
 import { friendMaxDim } from '../components/FriendArt'
 import type { GameProps } from './registry'
 import { playPop, playSuccess, playWin, unlockAudio } from '../audio'
-import { randInt } from './util'
+import { FRIENDS } from '../friends'
+import { randInt, shuffle } from './util'
 
 // A calm "pop" game (no timer, no losing): drag across 3+ connected friends of
 // the SAME kind, then let go to pop them all. Friends above fall down and fresh
@@ -12,12 +13,19 @@ import { randInt } from './util'
 // games but our own, and gentle for sensory comfort.
 const COLS = 6
 const ROWS = 6
-const TYPES = 5 // how many different friends appear (indices 0..TYPES-1)
+// distinct friends on the board at once — kept small so matches stay findable.
+// Each game draws a fresh handful from the WHOLE roster (see pickPalette), so
+// every friend (incl. newly-added ones) gets to play across games.
+const PALETTE_SIZE = 5
 const MIN_CHAIN = 3 // need at least 3 connected same friends to pop
 const FRIEND_PX = 44 // on-screen size target for each friend in a cell
 
-function makeGrid(): number[] {
-  return Array.from({ length: ROWS * COLS }, () => randInt(0, TYPES - 1))
+function pickPalette(): number[] {
+  return shuffle(Array.from({ length: FRIENDS.length }, (_, i) => i)).slice(0, PALETTE_SIZE)
+}
+
+function makeGrid(palette: number[]): number[] {
+  return Array.from({ length: ROWS * COLS }, () => palette[randInt(0, palette.length - 1)])
 }
 
 const rowOf = (i: number) => Math.floor(i / COLS)
@@ -27,8 +35,8 @@ function adjacent(a: number, b: number) {
 }
 
 // Remove the popped cells; survivors in each column fall to the bottom and new
-// random friends fill the gaps at the top.
-function collapse(grid: number[], popped: Set<number>): number[] {
+// friends (from the current palette) fill the gaps at the top.
+function collapse(grid: number[], popped: Set<number>, palette: number[]): number[] {
   const next = grid.slice()
   for (let c = 0; c < COLS; c++) {
     const survivors: number[] = []
@@ -39,13 +47,14 @@ function collapse(grid: number[], popped: Set<number>): number[] {
     let writeRow = ROWS - 1
     let k = 0
     for (; k < survivors.length; k++, writeRow--) next[writeRow * COLS + c] = survivors[k]
-    for (; writeRow >= 0; writeRow--) next[writeRow * COLS + c] = randInt(0, TYPES - 1)
+    for (; writeRow >= 0; writeRow--) next[writeRow * COLS + c] = palette[randInt(0, palette.length - 1)]
   }
   return next
 }
 
 export default function PopFriends({ onExit }: GameProps) {
-  const [grid, setGrid] = useState<number[]>(makeGrid)
+  const [palette, setPalette] = useState<number[]>(pickPalette)
+  const [grid, setGrid] = useState<number[]>(() => makeGrid(palette))
   const [chain, setChain] = useState<number[]>([])
   const [popping, setPopping] = useState<Set<number>>(() => new Set())
   const [score, setScore] = useState(0)
@@ -112,7 +121,7 @@ export default function PopFriends({ onExit }: GameProps) {
     const gained = picked.length
     setPopping(popped)
     window.setTimeout(() => {
-      setGrid((g) => collapse(g, popped))
+      setGrid((g) => collapse(g, popped, palette))
       setPopping(new Set())
       setScore((s) => {
         const ns = s + gained
@@ -123,12 +132,14 @@ export default function PopFriends({ onExit }: GameProps) {
     }, 320)
   }
 
-  function shuffle() {
+  function reshuffle() {
     dragging.current = false
     lastCell.current = null
     setChainBoth([])
     setPopping(new Set())
-    setGrid(makeGrid())
+    const p = pickPalette()
+    setPalette(p)
+    setGrid(makeGrid(p))
   }
 
   const chainSet = new Set(chain)
@@ -139,7 +150,7 @@ export default function PopFriends({ onExit }: GameProps) {
         <span className="pop-score" aria-label={`ניקוד ${score}`}>
           ⭐ {score}
         </span>
-        <button className="pill pill-small" onClick={shuffle}>
+        <button className="pill pill-small" onClick={reshuffle}>
           🔄 חדש
         </button>
       </div>
