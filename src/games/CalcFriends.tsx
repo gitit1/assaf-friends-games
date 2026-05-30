@@ -150,8 +150,8 @@ export default function CalcFriends({ onExit }: GameProps) {
     { label: '3', kind: 'num', onClick: () => digit('3') },
     { label: '➕', kind: 'op', onClick: () => chooseOp('+') },
     { label: '0', kind: 'num', onClick: () => digit('0') },
-    { label: 'C', kind: 'clear', onClick: clear },
     { label: '⌫', kind: 'back', onClick: back },
+    { label: 'C', kind: 'clear', onClick: clear },
     { label: '=', kind: 'eq', onClick: equals },
   ]
 
