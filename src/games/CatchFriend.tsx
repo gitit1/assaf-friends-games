@@ -35,6 +35,11 @@ export default function CatchFriend({ onExit }: GameProps) {
   const [score, setScore] = useState(0)
   const [wrongId, setWrongId] = useState<number | null>(null)
   const timers = useRef<number[]>([])
+  // Latest target, readable from delayed callbacks (spawning a replacement).
+  const targetRef = useRef(target)
+  useEffect(() => {
+    targetRef.current = target
+  }, [target])
 
   useEffect(() => {
     const all = timers.current
@@ -76,7 +81,14 @@ export default function CatchFriend({ onExit }: GameProps) {
         return ns
       })
       const t = window.setTimeout(() => {
-        setCards((cs) => [...cs.filter((c) => c.id !== card.id), makeCard(target)])
+        setCards((cs) => {
+          const remaining = cs.filter((c) => c.id !== card.id)
+          const tgt = targetRef.current
+          const next = makeCard(tgt)
+          // Always keep at least one catchable target on the board.
+          if (!remaining.some((c) => c.index === tgt)) next.index = tgt
+          return [...remaining, next]
+        })
       }, 430)
       timers.current.push(t)
     } else {
