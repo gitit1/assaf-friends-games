@@ -108,7 +108,10 @@ export default function MemoryGame({ onExit }: GameProps) {
         </div>
       )}
 
-      <div className="memory-grid" style={{ '--cols': cols } as React.CSSProperties}>
+      <div
+        className={`memory-grid ${cols >= 5 ? 'is-wide-board' : ''}`}
+        style={{ '--cols': cols } as React.CSSProperties}
+      >
         {deck.map((card, index) => {
           const isMatched = matched.includes(card.friend)
           const isOpen = flipped.includes(index) || isMatched

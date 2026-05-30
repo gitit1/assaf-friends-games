@@ -372,6 +372,13 @@ button {
   max-width: 480px;
   margin: 0 auto;
 }
+/* on phones, the densest board drops to 4 columns so cards stay big and the
+   extra cards fall onto more rows instead of squeezing across */
+@media (max-width: 520px) {
+  .memory-grid.is-wide-board {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
 
 .memory-card {
   aspect-ratio: 1 / 1;
