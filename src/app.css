@@ -3710,6 +3710,38 @@ button {
   background: rgba(134, 245, 196, 0.18);
 }
 
+/* ---------- friends piano ---------- */
+.piano-hint {
+  text-align: center;
+  color: var(--text-soft);
+  font-size: 1.15rem;
+  margin: 0 0 18px;
+}
+.piano-keys {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+  align-items: flex-end;
+  max-width: 560px;
+  margin: 0 auto;
+}
+.piano-key {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 12px;
+  border-radius: 20px;
+  background: var(--panel-strong);
+  box-shadow: var(--shadow);
+  border: none;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+.piano-key:active {
+  transform: translateY(3px) scale(0.96);
+  box-shadow: 0 0 0 3px rgba(255, 221, 102, 0.5);
+}
+
 /* ---------- pop friends ---------- */
 .pop-head {
   display: flex;

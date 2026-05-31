@@ -11,6 +11,7 @@ import SeqGame from './SeqGame'
 import QtyMatch from './QtyMatch'
 import MathChallenge from './MathChallenge'
 import WhoGame from './WhoGame'
+import PianoFriends from './PianoFriends'
 
 // Every game gets a callback to return to the home screen.
 export type GameProps = {
@@ -143,6 +144,14 @@ export const GAMES: GameDef[] = [
     color: 'linear-gradient(160deg, #fbbf24, #d97706)',
     category: 'fun',
     Component: PopFriends,
+  },
+  {
+    id: 'piano',
+    title: 'פסנתר חברים',
+    emoji: '🎹',
+    color: 'linear-gradient(160deg, #2dd4bf, #0891b2)',
+    category: 'fun',
+    Component: PianoFriends,
   },
 ]
 
