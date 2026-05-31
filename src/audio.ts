@@ -85,6 +85,16 @@ export function playFriend(index: number) {
   tone({ freq: freq * 1.5, duration: 0.12, type: 'triangle', volume: 0.09, delay: 0.05 })
 }
 
+// Musical piano-ish note for the "friends piano" (C-major scale: Do Re Mi…),
+// longer and softer so a melody sounds nice.
+const PIANO_SCALE = [261.63, 293.66, 329.63, 349.23, 392.0, 440.0, 493.88, 523.25, 587.33, 659.25]
+export function playPiano(degree: number) {
+  const n = PIANO_SCALE.length
+  const freq = PIANO_SCALE[((degree % n) + n) % n]
+  tone({ freq, duration: 0.5, type: 'triangle', volume: 0.2 })
+  tone({ freq: freq * 2, duration: 0.4, type: 'sine', volume: 0.06, delay: 0 })
+}
+
 // Cheerful rising chime for a correct answer / match.
 export function playSuccess() {
   tone({ freq: 523.25, duration: 0.18, type: 'sine', volume: 0.16 })

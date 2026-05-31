@@ -3710,36 +3710,120 @@ button {
   background: rgba(134, 245, 196, 0.18);
 }
 
-/* ---------- friends piano ---------- */
-.piano-hint {
+/* ---------- friends piano (melody / guitar-hero style) ---------- */
+.gh-songs {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+.gh-hint {
   text-align: center;
   color: var(--text-soft);
-  font-size: 1.15rem;
-  margin: 0 0 18px;
+  margin: 0 0 10px;
 }
-.piano-keys {
+.gh-board {
+  position: relative;
+  height: 42vh;
+  max-width: 560px;
+  margin: 0 auto 10px;
+  border-radius: 20px;
+  overflow: hidden;
+  border: 2px solid var(--line);
+  background: repeating-linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.035) 0 calc(100% / 6),
+    rgba(255, 255, 255, 0.08) calc(100% / 6) calc(2 * 100% / 6)
+  );
+}
+.gh-note {
+  position: absolute;
+  top: 6px;
+  left: calc(var(--lane) * (100% / var(--lanes)));
+  width: calc(100% / var(--lanes));
   display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
+  justify-content: center;
+  animation: gh-fall 1.2s ease-in forwards;
+}
+@keyframes gh-fall {
+  from {
+    transform: translateY(-12%);
+  }
+  to {
+    transform: translateY(calc(42vh - 78px));
+  }
+}
+.gh-tile {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--c, #888);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Fredoka', 'Heebo', sans-serif;
+  font-weight: 800;
+  font-size: 1.9rem;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.32);
+}
+.gh-board-done {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 4rem;
+}
+.gh-keys {
+  display: flex;
+  gap: 6px;
   justify-content: center;
   align-items: flex-end;
   max-width: 560px;
   margin: 0 auto;
 }
-.piano-key {
+.gh-key {
+  flex: 1;
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  padding: 12px;
-  border-radius: 20px;
+  padding: 10px 4px;
+  border-radius: 16px;
   background: var(--panel-strong);
   box-shadow: var(--shadow);
-  border: none;
-  transition: transform 0.1s ease, box-shadow 0.1s ease;
+  border: 3px solid transparent;
+  transition: transform 0.1s ease, box-shadow 0.12s ease, border-color 0.12s ease;
 }
-.piano-key:active {
+.gh-key:active {
   transform: translateY(3px) scale(0.96);
-  box-shadow: 0 0 0 3px rgba(255, 221, 102, 0.5);
+}
+.gh-key.is-active {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px rgba(255, 221, 102, 0.45), var(--shadow);
+  animation: gh-glow 1s ease-in-out infinite;
+}
+@keyframes gh-glow {
+  0%, 100% {
+    box-shadow: 0 0 0 4px rgba(255, 221, 102, 0.4), var(--shadow);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(255, 221, 102, 0.65), var(--shadow);
+  }
+}
+.gh-key.is-wrong {
+  animation: shake 0.35s ease;
+}
+.gh-foot {
+  text-align: center;
+  margin-top: 14px;
+}
+.gh-progress {
+  font-family: 'Fredoka', 'Heebo', sans-serif;
+  font-weight: 800;
+  font-size: 1.3rem;
+  color: var(--text-soft);
 }
 
 /* ---------- pop friends ---------- */
