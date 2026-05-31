@@ -3510,22 +3510,22 @@ button {
 .hint-snum b {
   font-family: 'Fredoka', 'Heebo', sans-serif;
   font-weight: 800;
-  font-size: 1.3rem;
+  font-size: 1.6rem;
 }
 .hint-eq-op {
   font-family: 'Fredoka', 'Heebo', sans-serif;
   font-weight: 800;
-  font-size: 1.9rem;
+  font-size: 2.3rem;
   color: var(--text-soft);
 }
 .hint-eq-q {
   font-family: 'Fredoka', 'Heebo', sans-serif;
   font-weight: 800;
-  font-size: 1.6rem;
+  font-size: 1.9rem;
   color: #1a1206;
   background: var(--accent);
   border-radius: 8px;
-  padding: 1px 10px;
+  padding: 2px 12px;
 }
 .hint-divider {
   height: 3px;

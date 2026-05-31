@@ -140,7 +140,7 @@ function NumFig({ v, px }: { v: number; px: number }) {
 function SmallNum({ v }: { v: number }) {
   return (
     <span className="hint-snum">
-      <Friend index={v - 1} scale={32 / friendMaxDim(v - 1)} showNumber={false} />
+      <Friend index={v - 1} scale={42 / friendMaxDim(v - 1)} showNumber={false} />
       <b>{v}</b>
     </span>
   )
