@@ -3982,6 +3982,36 @@ button {
 .pet-figure.is-eating {
   animation: pet-eat 2.3s ease;
 }
+/* playing — a happy bob + tilt */
+.pet-figure.is-playing {
+  animation: pet-play 0.7s ease-in-out infinite;
+}
+@keyframes pet-play {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-3deg);
+  }
+  50% {
+    transform: translateY(-9px) rotate(3deg);
+  }
+}
+.pet-play-prop {
+  position: absolute;
+  bottom: 2px;
+  right: -12px;
+  font-size: 2.4rem;
+  pointer-events: none;
+  animation: play-bob 0.8s ease-in-out infinite;
+}
+@keyframes play-bob {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-8deg);
+  }
+  50% {
+    transform: translateY(-12px) rotate(8deg);
+  }
+}
 @keyframes pet-eat {
   0% {
     transform: translateY(0);

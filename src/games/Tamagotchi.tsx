@@ -53,6 +53,15 @@ const DROPS = [
   { x: '20px', y: '34px' },
 ]
 
+// "play" picks one of these at random — a little animation of the friend doing it
+const PLAYS: { emoji: string; label: string }[] = [
+  { emoji: '⚽', label: 'משחק בכדור' },
+  { emoji: '💻', label: 'משחק במחשב' },
+  { emoji: '📖', label: 'קורא ספר' },
+  { emoji: '📺', label: 'רואה טלוויזיה' },
+  { emoji: '🧱', label: 'בונה לגו' },
+]
+
 // "My friend" — a gentle Tamagotchi-style virtual pet. Pick a number to raise,
 // then feed / water / play / walk / potty + clean 💩 / dress up. Stats drop
 // slowly but the friend NEVER dies — it just gets sad and you cheer it up. The
@@ -109,15 +118,20 @@ function FriendDressed({
   outfit,
   bouncing,
   eating,
+  playing,
 }: {
   index: number
   px: number
   outfit: Outfit
   bouncing?: boolean
   eating?: boolean
+  playing?: boolean
 }) {
   return (
-    <span className={`pet-figure ${eating ? 'is-eating' : ''}`} style={{ fontSize: `${px}px` }}>
+    <span
+      className={`pet-figure ${eating ? 'is-eating' : ''} ${playing ? 'is-playing' : ''}`}
+      style={{ fontSize: `${px}px` }}
+    >
       <Friend index={index} scale={px / friendMaxDim(index)} showNumber={false} bouncing={bouncing} eating={eating} />
       {outfit.held && <span className="dress dress-held">{outfit.held}</span>}
       {outfit.neck && <span className="dress dress-neck">{outfit.neck}</span>}
@@ -138,6 +152,7 @@ export default function Tamagotchi({ onExit }: GameProps) {
   const [mode, setMode] = useState<'eat' | 'drink'>('eat')
   const [bite, setBite] = useState(0)
   const [poof, setPoof] = useState(false)
+  const [playing, setPlaying] = useState<{ emoji: string; label: string } | null>(null)
   const [scene, setScene] = useState<'home' | 'walk'>('home')
   const [fx, setFx] = useState<{ emoji: string; id: number } | null>(null)
   const [bounce, setBounce] = useState(false)
@@ -288,6 +303,20 @@ export default function Tamagotchi({ onExit }: GameProps) {
     )
   }
 
+  // play = a random one of 5 little activities (ball / computer / book / TV / lego)
+  function play() {
+    unlockAudio()
+    playTap()
+    const a = PLAYS[Math.floor(Math.random() * PLAYS.length)]
+    eatTimers.current.forEach((t) => window.clearTimeout(t))
+    eatTimers.current = []
+    setPlaying(a)
+    setPet((p) => (p ? { ...p, happy: clamp(p.happy + 30) } : p))
+    playSuccess()
+    speak(`${a.label}!`)
+    eatTimers.current.push(window.setTimeout(() => setPlaying(null), 2800))
+  }
+
   // ---- pick-a-friend screen ----
   if (choosing || !pet) {
     return (
@@ -354,7 +383,19 @@ export default function Tamagotchi({ onExit }: GameProps) {
 
       <div className={`pet-room ${scene === 'walk' ? 'is-walk' : ''} ${sad ? 'is-sad' : ''}`}>
         <button className="pet-tap" onClick={pokePet} aria-label={friendName(pet.friend)}>
-          <FriendDressed index={pet.friend} px={150} outfit={pet.outfit} bouncing={bounce} eating={!!eatFood} />
+          <FriendDressed
+            index={pet.friend}
+            px={150}
+            outfit={pet.outfit}
+            bouncing={bounce}
+            eating={!!eatFood}
+            playing={!!playing}
+          />
+          {playing && (
+            <span className="pet-play-prop" aria-hidden="true">
+              {playing.emoji}
+            </span>
+          )}
           {eatFood && (
           <>
             <span
@@ -425,7 +466,9 @@ export default function Tamagotchi({ onExit }: GameProps) {
                   ? (unlockAudio(), playTap(), setFridge(true))
                   : a.type === 'water'
                     ? (unlockAudio(), playTap(), setBar(true))
-                    : act(a.type)
+                    : a.type === 'play'
+                      ? play()
+                      : act(a.type)
             }
           >
             <span className="pet-action-emoji" aria-hidden="true">
