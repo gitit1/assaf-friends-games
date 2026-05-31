@@ -4073,6 +4073,40 @@ button {
     opacity: 0;
   }
 }
+/* drinking: tip the cup on each gulp */
+.pet-eat-food.gulp {
+  animation: drink-gulp 0.45s ease;
+}
+@keyframes drink-gulp {
+  0% {
+    transform: translate(-50%, -50%) rotate(0);
+  }
+  45% {
+    transform: translate(-50%, -50%) rotate(-22deg);
+  }
+  100% {
+    transform: translate(-50%, -50%) rotate(0);
+  }
+}
+/* spilled drops */
+.drop {
+  position: absolute;
+  top: 0;
+  left: 0;
+  font-size: 0.95rem;
+  animation: drop-fall 0.6s ease-in forwards;
+}
+@keyframes drop-fall {
+  from {
+    transform: translate(0, 0);
+    opacity: 0.9;
+  }
+  to {
+    transform: translate(var(--tx), var(--ty));
+    opacity: 0;
+  }
+}
+
 /* a heart / star rising while eating */
 .eat-heart {
   position: absolute;

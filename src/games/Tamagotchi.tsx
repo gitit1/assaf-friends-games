@@ -38,6 +38,21 @@ const CRUMBS = [
 ]
 const HEARTS = ['❤️', '⭐', '😋']
 
+// drinks in the fridge
+const DRINKS: { name: string; emoji: string }[] = [
+  { name: 'מים', emoji: '💧' },
+  { name: 'יין', emoji: '🍷' },
+  { name: 'שתייה מוגזת', emoji: '🥤' },
+  { name: 'מיץ', emoji: '🧃' },
+]
+// spilled-drop directions (fall down and out)
+const DROPS = [
+  { x: '-16px', y: '42px' },
+  { x: '12px', y: '48px' },
+  { x: '-2px', y: '54px' },
+  { x: '20px', y: '34px' },
+]
+
 // "My friend" — a gentle Tamagotchi-style virtual pet. Pick a number to raise,
 // then feed / water / play / walk / potty + clean 💩 / dress up. Stats drop
 // slowly but the friend NEVER dies — it just gets sad and you cheer it up. The
@@ -118,7 +133,9 @@ export default function Tamagotchi({ onExit }: GameProps) {
   const [pick, setPick] = useState(0)
   const [wardrobe, setWardrobe] = useState(false)
   const [fridge, setFridge] = useState(false)
+  const [bar, setBar] = useState(false)
   const [eatFood, setEatFood] = useState<string | null>(null)
+  const [mode, setMode] = useState<'eat' | 'drink'>('eat')
   const [bite, setBite] = useState(0)
   const [poof, setPoof] = useState(false)
   const [scene, setScene] = useState<'home' | 'walk'>('home')
@@ -214,6 +231,7 @@ export default function Tamagotchi({ onExit }: GameProps) {
     unlockAudio()
     playTap()
     setFridge(false)
+    setMode('eat')
     speak(food.name)
     setPet((p) => (p ? { ...p, hunger: clamp(p.hunger + 34) } : p))
     eatTimers.current.forEach((t) => window.clearTimeout(t))
@@ -235,6 +253,36 @@ export default function Tamagotchi({ onExit }: GameProps) {
         setPoof(false)
         setBite(0)
         const lines = ['ים ים!', 'מ-מ-מ, טעים!', `אני אוהב ${food.name}!`]
+        speak(lines[Math.floor(Math.random() * lines.length)])
+      }, 350 + 3 * 600 + 500),
+    )
+  }
+
+  // pick a drink → say its name, then the friend gulps it (drops spill), then a
+  // happy line ("אין על מים!" only for water)
+  function drink(d: { name: string; emoji: string }) {
+    unlockAudio()
+    playTap()
+    setBar(false)
+    setMode('drink')
+    speak(d.name)
+    setPet((p) => (p ? { ...p, thirst: clamp(p.thirst + 34) } : p))
+    eatTimers.current.forEach((t) => window.clearTimeout(t))
+    eatTimers.current = []
+    setEatFood(d.emoji)
+    setBite(0)
+    setPoof(false)
+    for (let k = 0; k < 3; k++) {
+      eatTimers.current.push(window.setTimeout(() => { playMunch(); setBite(k + 1) }, 350 + k * 600))
+    }
+    eatTimers.current.push(window.setTimeout(() => { setPoof(true); playPop() }, 350 + 3 * 600))
+    eatTimers.current.push(
+      window.setTimeout(() => {
+        setEatFood(null)
+        setPoof(false)
+        setBite(0)
+        const lines = ['וואי, איך הייתי צמא!', 'זה היה טוֹב-ב-ב!', 'לרוויה!']
+        if (d.name === 'מים') lines.push('אין על מים!')
         speak(lines[Math.floor(Math.random() * lines.length)])
       }, 350 + 3 * 600 + 500),
     )
@@ -310,17 +358,27 @@ export default function Tamagotchi({ onExit }: GameProps) {
           {eatFood && (
           <>
             <span
-              key={poof ? 'poof' : `bite-${bite}`}
-              className={poof ? 'pet-eat-food is-poof b3' : `pet-eat-food chomp ${bite > 0 ? `b${bite}` : ''}`}
+              key={poof ? 'poof' : `s-${bite}`}
+              className={
+                poof
+                  ? `pet-eat-food is-poof ${mode === 'eat' ? 'b3' : ''}`
+                  : mode === 'eat'
+                    ? `pet-eat-food chomp ${bite > 0 ? `b${bite}` : ''}`
+                    : 'pet-eat-food gulp'
+              }
               aria-hidden="true"
             >
               {eatFood}
             </span>
             {!poof && bite > 0 && (
               <span className="eat-burst" key={`burst-${bite}`} aria-hidden="true">
-                {CRUMBS.map((c, i) => (
-                  <span className="crumb" key={i} style={{ '--tx': c.x, '--ty': c.y } as React.CSSProperties}>
-                    {eatFood}
+                {(mode === 'eat' ? CRUMBS : DROPS).map((c, i) => (
+                  <span
+                    className={mode === 'eat' ? 'crumb' : 'drop'}
+                    key={i}
+                    style={{ '--tx': c.x, '--ty': c.y } as React.CSSProperties}
+                  >
+                    {mode === 'eat' ? eatFood : '💧'}
                   </span>
                 ))}
               </span>
@@ -365,7 +423,9 @@ export default function Tamagotchi({ onExit }: GameProps) {
                 ? (unlockAudio(), playTap(), setWardrobe(true))
                 : a.type === 'feed'
                   ? (unlockAudio(), playTap(), setFridge(true))
-                  : act(a.type)
+                  : a.type === 'water'
+                    ? (unlockAudio(), playTap(), setBar(true))
+                    : act(a.type)
             }
           >
             <span className="pet-action-emoji" aria-hidden="true">
@@ -435,6 +495,27 @@ export default function Tamagotchi({ onExit }: GameProps) {
                     {f.emoji}
                   </span>
                   <span className="fridge-name">{f.name}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {bar && (
+        <div className="fridge-overlay" onClick={() => setBar(false)}>
+          <div className="fridge-card" onClick={(e) => e.stopPropagation()}>
+            <button className="hint-close" onClick={() => setBar(false)} aria-label="סגור">
+              ✕
+            </button>
+            <h3 className="fridge-title">מה בא לך לשתות? 🧊</h3>
+            <div className="fridge-grid">
+              {DRINKS.map((d) => (
+                <button key={d.name} className="fridge-item" onClick={() => drink(d)} aria-label={d.name}>
+                  <span className="fridge-emoji" aria-hidden="true">
+                    {d.emoji}
+                  </span>
+                  <span className="fridge-name">{d.name}</span>
                 </button>
               ))}
             </div>
