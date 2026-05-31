@@ -4059,43 +4059,119 @@ button {
     transform: translateY(0);
   }
 }
-/* sofa / chair seat */
-.seat {
+/* side-view room: friend seated on the left, screen on the right */
+.scene-room {
+  justify-content: space-around;
+  align-items: flex-end;
+  gap: 6px;
+  padding: 0 8px 14px;
+}
+.seat-side {
   position: relative;
-  display: inline-flex;
+  width: 150px;
+  height: 96px;
+  display: flex;
   align-items: flex-end;
   justify-content: center;
 }
-.furniture {
-  font-size: 5rem;
+.seat-side.wide {
+  width: 180px;
 }
-.scene-fig.sit {
+/* couch (side view) */
+.couch {
   position: absolute;
-  bottom: 26%;
+  bottom: 0;
+  left: 6px;
+  right: 6px;
+  height: 46px;
+  background: #b07cf0;
+  border-radius: 12px;
+  box-shadow: inset 0 -6px 0 rgba(0, 0, 0, 0.14);
+}
+.couch::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 30px;
+  height: 72px;
+  background: #9a5fe0;
+  border-radius: 14px 8px 0 0;
+}
+.couch::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 20px;
+  height: 56px;
+  background: #9a5fe0;
+  border-radius: 8px 14px 0 0;
+}
+/* chair (side view) */
+.chair {
+  position: absolute;
+  bottom: 0;
+  left: 34px;
+  width: 76px;
+  height: 34px;
+  background: #b45309;
+  border-radius: 8px;
+}
+.chair::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 14px;
+  height: 64px;
+  background: #92400e;
+  border-radius: 8px 4px 0 0;
+}
+/* the seated friend, leaning a little toward the screen */
+.scene-fig.seated {
+  position: absolute;
+  bottom: 22px;
+  left: 40px;
+  transform: rotate(5deg);
+  z-index: 2;
+}
+.scene-fig.seated.mid {
   left: 50%;
   transform: translateX(-50%);
 }
 .book {
   position: absolute;
-  bottom: 22%;
+  bottom: 18px;
   left: 50%;
-  transform: translateX(-50%);
-  font-size: 2.3rem;
+  transform: translateX(-26%) rotate(-8deg);
+  font-size: 2.6rem;
   z-index: 3;
 }
-/* TV */
+/* TV on a stand */
 .tv-set {
-  width: 132px;
-  height: 84px;
+  position: relative;
+  width: 122px;
+  height: 82px;
   border-radius: 12px;
   background: #2b3340;
-  border: 4px solid #161b22;
+  border: 5px solid #161b22;
   display: flex;
   align-items: center;
   justify-content: center;
 }
+.tv-stand {
+  position: absolute;
+  bottom: -14px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 52px;
+  height: 14px;
+  background: #161b22;
+  border-radius: 0 0 6px 6px;
+}
 .tv-screen,
-.screen {
+.monitor {
   width: 86%;
   height: 74%;
   border-radius: 6px;
@@ -4119,22 +4195,29 @@ button {
   font-size: 1.5rem;
   animation: play-bob 0.7s ease-in-out infinite;
 }
-/* computer desk */
-.desk {
+/* computer on a desk */
+.deskset {
   position: relative;
-  width: 150px;
-  height: 16px;
-  border-radius: 4px;
-  background: #a16207;
+  width: 118px;
+  height: 96px;
 }
-.desk .screen {
+.deskset .desktop {
   position: absolute;
+  bottom: 0;
+  left: 6px;
+  right: 6px;
+  height: 14px;
+  background: #b45309;
+  border-radius: 3px;
+}
+.monitor {
+  position: absolute;
+  bottom: 14px;
   left: 50%;
-  bottom: 12px;
   transform: translateX(-50%);
-  width: 66px;
-  height: 48px;
-  border: 3px solid #161b22;
+  width: 78px;
+  height: 56px;
+  border: 4px solid #161b22;
   border-radius: 6px 6px 2px 2px;
 }
 /* lego — bricks stack up on a rug */

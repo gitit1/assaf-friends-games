@@ -155,34 +155,36 @@ function PlayScene({ kind, friend, outfit, buddy }: { kind: string; friend: numb
   }
   if (kind === 'tv') {
     return (
-      <div className="scene scene-stacked">
+      <div className="scene scene-room">
+        <span className="seat-side">
+          <span className="couch" aria-hidden="true" />
+          <span className="scene-fig seated">
+            <FriendDressed index={friend} px={62} outfit={outfit} />
+          </span>
+        </span>
         <span className="tv-set" aria-hidden="true">
           <span className="tv-screen">
             <span className="tv-star">⭐</span>
           </span>
-        </span>
-        <span className="seat">
-          <span className="furniture">🛋️</span>
-          <span className="scene-fig sit">
-            <FriendDressed index={friend} px={70} outfit={outfit} />
-          </span>
+          <span className="tv-stand" />
         </span>
       </div>
     )
   }
   if (kind === 'computer') {
     return (
-      <div className="scene scene-stacked">
-        <span className="desk" aria-hidden="true">
-          <span className="screen">
-            <span className="tv-star">✨</span>
+      <div className="scene scene-room">
+        <span className="seat-side">
+          <span className="chair" aria-hidden="true" />
+          <span className="scene-fig seated">
+            <FriendDressed index={friend} px={58} outfit={outfit} />
           </span>
         </span>
-        <span className="seat">
-          <span className="furniture">🪑</span>
-          <span className="scene-fig sit">
-            <FriendDressed index={friend} px={66} outfit={outfit} />
+        <span className="deskset" aria-hidden="true">
+          <span className="monitor">
+            <span className="tv-star">✨</span>
           </span>
+          <span className="desktop" />
         </span>
       </div>
     )
@@ -190,10 +192,10 @@ function PlayScene({ kind, friend, outfit, buddy }: { kind: string; friend: numb
   if (kind === 'book') {
     return (
       <div className="scene">
-        <span className="seat">
-          <span className="furniture">🛋️</span>
-          <span className="scene-fig sit">
-            <FriendDressed index={friend} px={72} outfit={outfit} />
+        <span className="seat-side wide">
+          <span className="couch" aria-hidden="true" />
+          <span className="scene-fig seated mid">
+            <FriendDressed index={friend} px={64} outfit={outfit} />
           </span>
           <span className="book" aria-hidden="true">
             📖
