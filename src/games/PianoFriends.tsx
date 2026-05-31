@@ -67,6 +67,14 @@ export default function PianoFriends({ onExit }: GameProps) {
     setWrong(null)
     setBand(pickBand())
   }
+  function newRound() {
+    unlockAudio()
+    setFree(false)
+    setSongIdx(randInt(0, SONGS.length - 1))
+    setPos(0)
+    setWrong(null)
+    setBand(pickBand())
+  }
 
   function tap(i: number) {
     unlockAudio()
@@ -95,6 +103,9 @@ export default function PianoFriends({ onExit }: GameProps) {
         <button className="pill gh-choose" onClick={() => { unlockAudio(); setPicker(true) }}>
           🎵 {free ? 'נגינה חופשית' : `${song.emoji} ${song.name}`} ▾
         </button>
+        <button className="pill" onClick={newRound}>
+          🔄 חדש
+        </button>
       </div>
 
       {!free && !done && <p className="gh-hint" aria-hidden="true">געו במספר שמופיע כדי לנגן 🎵</p>}
@@ -121,7 +132,7 @@ export default function PianoFriends({ onExit }: GameProps) {
             onClick={() => tap(i)}
             aria-label={`צליל ${i + 1}`}
           >
-            <Friend index={band[i]} scale={44 / friendMaxDim(band[i])} showNumber={false} bouncing={pressed === i} />
+            <Friend index={band[i]} scale={40 / friendMaxDim(band[i])} showNumber={false} bouncing={pressed === i} />
           </button>
         ))}
       </div>
