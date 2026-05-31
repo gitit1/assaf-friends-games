@@ -3401,22 +3401,45 @@ button {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  max-width: 480px;
-  margin: 0 auto 4px;
+  gap: 10px;
+  flex-wrap: wrap;
+  max-width: 520px;
+  margin: 0 auto 14px;
 }
-.seq-prompt {
-  font-family: 'Fredoka', 'Heebo', sans-serif;
-  font-weight: 800;
-  font-size: 1.6rem;
+.seq-levels {
+  display: flex;
+  gap: 8px;
 }
 .seq-score {
   font-family: 'Fredoka', 'Heebo', sans-serif;
   font-weight: 800;
   font-size: 1.4rem;
 }
-.seq-say {
-  display: block;
+.seq-tools {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin: 4px 0 14px;
+}
+.seq-hints {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
   margin: 0 auto 18px;
+}
+.seq-hint-line {
+  font-family: 'Fredoka', 'Heebo', sans-serif;
+  font-weight: 800;
+  font-size: 1.7rem;
+  background: var(--panel-strong);
+  border-radius: 14px;
+  padding: 8px 20px;
+  box-shadow: var(--shadow);
+}
+.seq-hint-line.is-q {
+  color: #1a1206;
+  background: var(--accent);
 }
 .seq-row {
   display: flex;
