@@ -1,10 +1,10 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import GameShell from '../components/GameShell'
 import Friend from '../components/Friend'
 import { friendMaxDim } from '../components/FriendArt'
 import type { GameProps } from './registry'
 import { playFriend, playNudge, playSuccess, playWin, unlockAudio } from '../audio'
-import { speak } from '../speech'
+import { speak, stopSpeech } from '../speech'
 import { FRIENDS, friendSay } from '../friends'
 import { numberWord, randInt, shuffle } from './util'
 
@@ -118,17 +118,25 @@ export default function SeqGame({ onExit }: GameProps) {
   const [solved, setSolved] = useState(false)
   const [poked, setPoked] = useState<number | null>(null)
   const [hintShown, setHintShown] = useState(0)
+  const hintTimers = useRef<number[]>([])
 
   const missing = round.terms[round.gapPos]
   const hints = hintLines(round)
   const seqScale = (n: number) => 78 / friendMaxDim(n - 1)
   const choiceScale = (n: number) => 84 / friendMaxDim(n - 1)
 
+  function clearHintTimers() {
+    hintTimers.current.forEach((t) => window.clearTimeout(t))
+    hintTimers.current = []
+  }
+  useEffect(() => clearHintTimers, [])
+
   useEffect(() => {
     speak('איזה חבר חסר?')
   }, [round])
 
   function next(level = levelIdx) {
+    clearHintTimers()
     setRound(genRound(level))
     setSolved(false)
     setWrong(null)
@@ -149,11 +157,20 @@ export default function SeqGame({ onExit }: GameProps) {
     window.setTimeout(() => setPoked(null), 550)
   }
 
-  function showHint() {
+  // Play the whole hint like a little "video": each line pops in one after the
+  // other and is read aloud — one tap, no repeated pressing.
+  function playHint() {
     unlockAudio()
-    if (hintShown >= hints.length) return
-    speak(hints[hintShown].say)
-    setHintShown((h) => h + 1)
+    stopSpeech()
+    clearHintTimers()
+    setHintShown(0)
+    hints.forEach((line, k) => {
+      const t = window.setTimeout(() => {
+        setHintShown(k + 1)
+        speak(line.say)
+      }, k * 1700)
+      hintTimers.current.push(t)
+    })
   }
 
   function pick(n: number) {
@@ -217,7 +234,7 @@ export default function SeqGame({ onExit }: GameProps) {
         <button className="pill" onClick={() => speak('איזה חבר חסר?')}>
           🔊 שמע שוב
         </button>
-        <button className="pill" onClick={showHint} disabled={hintShown >= hints.length}>
+        <button className="pill" onClick={playHint}>
           💡 רמז
         </button>
       </div>
