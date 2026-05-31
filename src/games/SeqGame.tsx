@@ -27,9 +27,10 @@ type Bottom = { leftVal: number | null; op: Op | null; rightVal: number | null; 
 const LEVELS = ['קל', 'רגיל', 'קשה', 'אתגר']
 const OPW: Record<Op, string> = { '+': 'ועוד', '−': 'פחות', '×': 'כפול' }
 // slow, comfortable pacing (ms)
-const STEP = 700 // gap between elements entering
-const HOLD = 1000 // how long the result shows before flying up
-const RISE = 950 // after the equation flies up, before the next term
+const ENTER = 750 // gap between elements entering (first equation)
+const SWAP = 1600 // pause showing the swapped operand (later equations)
+const HOLD = 1100 // how long the result shows before flying up
+const RISE = 1900 // after the equation flies up, before the next term
 
 function buildTerms(type: SeqType, start: number, step: number): number[] {
   return Array.from({ length: LEN }, (_, i) =>
@@ -139,7 +140,7 @@ function NumFig({ v, px }: { v: number; px: number }) {
 function SmallNum({ v }: { v: number }) {
   return (
     <span className="hint-snum">
-      <Friend index={v - 1} scale={20 / friendMaxDim(v - 1)} showNumber={false} />
+      <Friend index={v - 1} scale={32 / friendMaxDim(v - 1)} showNumber={false} />
       <b>{v}</b>
     </span>
   )
@@ -222,20 +223,21 @@ export default function SeqGame({ onExit }: GameProps) {
       if (k === 0) {
         // build the first equation element by element
         at(t, () => setBottom((b) => ({ ...b, leftVal: fr.left })))
-        t += STEP
+        t += ENTER
         at(t, () => setBottom((b) => ({ ...b, op: fr.op })))
-        t += STEP
+        t += ENTER
         at(t, () => setBottom((b) => ({ ...b, rightVal: fr.right })))
-        t += STEP
+        t += ENTER
         at(t, () => setBottom((b) => ({ ...b, eq: true })))
-        t += STEP
+        t += ENTER
         at(t, () => {
           setBottom((b) => ({ ...b, res: fr.missing ? '?' : fr.result }))
           speakFrame(fr)
         })
         t += HOLD
       } else {
-        // only the changing operand swaps; constant + op + = stay
+        // only the changing operand swaps; constant + op + = stay (slow, so the
+        // swap is clearly seen)
         at(t, () =>
           setBottom((b) => ({
             ...b,
@@ -244,7 +246,7 @@ export default function SeqGame({ onExit }: GameProps) {
             rightVal: changing === 'right' ? fr.right : b.rightVal,
           })),
         )
-        t += STEP
+        t += SWAP
         at(t, () => {
           setBottom((b) => ({ ...b, res: fr.missing ? '?' : fr.result }))
           speakFrame(fr)
@@ -377,13 +379,13 @@ export default function SeqGame({ onExit }: GameProps) {
                 <div className="hint-divider" />
                 <div className="hint-work">
                   <div className="eq-row" dir="ltr">
-                    {bottom.leftVal != null && <NumFig key={`L${bottom.leftVal}`} v={bottom.leftVal} px={50} />}
+                    {bottom.leftVal != null && <NumFig key={`L${bottom.leftVal}`} v={bottom.leftVal} px={60} />}
                     {bottom.op && (
                       <span className="eq-sym" key="op">
                         {bottom.op}
                       </span>
                     )}
-                    {bottom.rightVal != null && <NumFig key={`R${bottom.rightVal}`} v={bottom.rightVal} px={50} />}
+                    {bottom.rightVal != null && <NumFig key={`R${bottom.rightVal}`} v={bottom.rightVal} px={60} />}
                     {bottom.eq && (
                       <span className="eq-sym" key="eq">
                         =
@@ -396,7 +398,7 @@ export default function SeqGame({ onExit }: GameProps) {
                     )}
                     {typeof bottom.res === 'number' && (
                       <span className="eq-res" key={`res${bottom.res}`}>
-                        <NumFig v={bottom.res} px={50} />
+                        <NumFig v={bottom.res} px={60} />
                         <span className="eq-spark" aria-hidden="true">
                           ✨
                         </span>
