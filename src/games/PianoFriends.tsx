@@ -5,13 +5,19 @@ import { friendMaxDim } from '../components/FriendArt'
 import type { GameProps } from './registry'
 import { playNudge, playPiano, playWin, unlockAudio } from '../audio'
 import { speak } from '../speech'
-import { friendColor } from '../friends'
+import { FRIENDS, friendColor } from '../friends'
+import { randInt, shuffle } from './util'
 
 // "Friends piano" — Guitar-Hero / Just-Dance style but SELF-PACED (no timer):
 // the next note of a known kids' tune falls down its lane as a number, its key
 // glows, and the child taps it to play. Tapping through plays the whole melody.
-// A free-play mode lets them just make music. No losing.
-const LANES = 6 // friends 1..6 = Do Re Mi Fa Sol La
+// A free-play mode lets them just make music. No losing. The friends on the
+// keys are drawn at random from the whole roster (fresh each play).
+const LANES = 6 // 6 lanes = Do Re Mi Fa Sol La (the pitch is fixed per lane)
+
+function pickBand(): number[] {
+  return shuffle(Array.from({ length: FRIENDS.length }, (_, i) => i)).slice(0, LANES)
+}
 
 type Song = { name: string; emoji: string; notes: number[] } // notes = scale degrees 0..5
 const SONGS: Song[] = [
@@ -22,11 +28,12 @@ const SONGS: Song[] = [
 ]
 
 export default function PianoFriends({ onExit }: GameProps) {
-  const [songIdx, setSongIdx] = useState(0)
+  const [songIdx, setSongIdx] = useState(() => randInt(0, SONGS.length - 1))
   const [free, setFree] = useState(false)
   const [pos, setPos] = useState(0)
   const [pressed, setPressed] = useState<number | null>(null)
   const [wrong, setWrong] = useState<number | null>(null)
+  const [band, setBand] = useState<number[]>(pickBand) // which friends sit on the keys
 
   const song = SONGS[songIdx]
   const done = !free && pos >= song.notes.length
@@ -43,15 +50,18 @@ export default function PianoFriends({ onExit }: GameProps) {
     setSongIdx(i)
     setPos(0)
     setWrong(null)
+    setBand(pickBand())
   }
   function chooseFree() {
     unlockAudio()
     setFree(true)
     setWrong(null)
+    setBand(pickBand())
   }
   function restart() {
     setPos(0)
     setWrong(null)
+    setBand(pickBand())
   }
 
   function tap(i: number) {
@@ -96,9 +106,9 @@ export default function PianoFriends({ onExit }: GameProps) {
           <span
             className="gh-note"
             key={pos}
-            style={{ '--lane': current, '--c': friendColor(current) } as React.CSSProperties}
+            style={{ '--lane': current, '--c': friendColor(band[current]) } as React.CSSProperties}
           >
-            <span className="gh-tile">{current + 1}</span>
+            <span className="gh-tile">{band[current] + 1}</span>
           </span>
         )}
         {done && <span className="gh-board-done" aria-hidden="true">🎉</span>}
@@ -112,7 +122,7 @@ export default function PianoFriends({ onExit }: GameProps) {
             onClick={() => tap(i)}
             aria-label={`צליל ${i + 1}`}
           >
-            <Friend index={i} scale={44 / friendMaxDim(i)} showNumber={false} bouncing={pressed === i} />
+            <Friend index={band[i]} scale={44 / friendMaxDim(band[i])} showNumber={false} bouncing={pressed === i} />
           </button>
         ))}
       </div>
