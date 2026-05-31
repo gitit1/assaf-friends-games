@@ -3797,6 +3797,8 @@ button {
   filter: grayscale(0.3) brightness(0.95);
 }
 .pet-tap {
+  position: relative;
+  display: inline-block;
   background: none;
   border: none;
   padding: 0;

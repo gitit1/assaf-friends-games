@@ -307,8 +307,7 @@ export default function Tamagotchi({ onExit }: GameProps) {
       <div className={`pet-room ${scene === 'walk' ? 'is-walk' : ''} ${sad ? 'is-sad' : ''}`}>
         <button className="pet-tap" onClick={pokePet} aria-label={friendName(pet.friend)}>
           <FriendDressed index={pet.friend} px={150} outfit={pet.outfit} bouncing={bounce} eating={!!eatFood} />
-        </button>
-        {eatFood && (
+          {eatFood && (
           <>
             <span
               key={poof ? 'poof' : `bite-${bite}`}
@@ -337,7 +336,8 @@ export default function Tamagotchi({ onExit }: GameProps) {
               </span>
             )}
           </>
-        )}
+          )}
+        </button>
         {pet.poop && (
           <span className="pet-poop" aria-hidden="true">
             💩
