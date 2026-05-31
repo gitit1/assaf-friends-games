@@ -12,6 +12,7 @@ import QtyMatch from './QtyMatch'
 import MathChallenge from './MathChallenge'
 import WhoGame from './WhoGame'
 import PianoFriends from './PianoFriends'
+import Tamagotchi from './Tamagotchi'
 
 // Every game gets a callback to return to the home screen.
 export type GameProps = {
@@ -152,6 +153,14 @@ export const GAMES: GameDef[] = [
     color: 'linear-gradient(160deg, #2dd4bf, #0891b2)',
     category: 'fun',
     Component: PianoFriends,
+  },
+  {
+    id: 'pet',
+    title: 'החבר שלי',
+    emoji: '🐣',
+    color: 'linear-gradient(160deg, #86efac, #16a34a)',
+    category: 'fun',
+    Component: Tamagotchi,
   },
 ]
 

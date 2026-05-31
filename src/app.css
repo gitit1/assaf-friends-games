@@ -3710,6 +3710,270 @@ button {
   background: rgba(134, 245, 196, 0.18);
 }
 
+/* ---------- my friend (tamagotchi) ---------- */
+.pet-pick-title {
+  text-align: center;
+  font-family: 'Fredoka', 'Heebo', sans-serif;
+  font-weight: 800;
+  font-size: 1.5rem;
+  margin: 10px 0 18px;
+}
+.pet-picker {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  min-height: 200px;
+}
+.pet-pick-figure {
+  display: inline-flex;
+  align-items: flex-end;
+}
+.pet-arrow {
+  font-size: 1.4rem;
+}
+.pet-pick-name {
+  text-align: center;
+  font-family: 'Fredoka', 'Heebo', sans-serif;
+  font-weight: 800;
+  font-size: 1.4rem;
+  color: var(--text-soft);
+  margin: 10px 0 18px;
+}
+
+.pet-meters {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  max-width: 480px;
+  margin: 0 auto 12px;
+}
+.pet-meter {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+}
+.pet-meter-emoji {
+  font-size: 1.3rem;
+}
+.pet-bar {
+  flex: 1;
+  height: 14px;
+  background: var(--panel);
+  border-radius: 999px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+}
+.pet-bar-fill {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.3s ease, background 0.3s ease;
+}
+
+.pet-room {
+  position: relative;
+  max-width: 480px;
+  margin: 0 auto;
+  height: 38vh;
+  min-height: 240px;
+  border-radius: 24px;
+  border: 2px solid var(--line);
+  background: linear-gradient(180deg, rgba(124, 196, 245, 0.12), rgba(255, 255, 255, 0.03));
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 10px;
+  overflow: hidden;
+  transition: background 0.4s ease, filter 0.4s ease;
+}
+.pet-room.is-walk {
+  background: linear-gradient(180deg, rgba(134, 239, 172, 0.28), rgba(56, 189, 248, 0.16));
+}
+.pet-room.is-sad {
+  filter: grayscale(0.3) brightness(0.95);
+}
+.pet-tap {
+  background: none;
+  border: none;
+  padding: 0;
+}
+.pet-figure {
+  position: relative;
+  display: inline-block;
+}
+.dress {
+  position: absolute;
+  line-height: 1;
+  pointer-events: none;
+  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.3));
+}
+.dress-hat {
+  top: -0.3em;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.44em;
+}
+.dress-face {
+  top: 0.32em;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.36em;
+}
+.dress-neck {
+  top: 0.64em;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.34em;
+}
+.dress-held {
+  bottom: 0.05em;
+  right: -0.12em;
+  font-size: 0.42em;
+}
+.pet-poop,
+.pet-mood {
+  position: absolute;
+  font-size: 2.3rem;
+}
+.pet-poop {
+  bottom: 10px;
+  left: 26%;
+}
+.pet-mood {
+  top: 14px;
+  right: 22%;
+}
+.pet-fx {
+  position: absolute;
+  top: 26%;
+  left: 50%;
+  font-size: 2.6rem;
+  animation: pet-float 0.9s ease forwards;
+}
+@keyframes pet-float {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, 14px) scale(0.6);
+  }
+  30% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -64px) scale(1.2);
+  }
+}
+
+.pet-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  max-width: 540px;
+  margin: 16px auto 0;
+}
+.pet-action {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  width: 84px;
+  padding: 10px 4px;
+  border-radius: 18px;
+  background: var(--panel-strong);
+  box-shadow: var(--shadow);
+  border: none;
+  transition: transform 0.1s ease;
+}
+.pet-action:active {
+  transform: scale(0.94);
+}
+.pet-action-emoji {
+  font-size: 2rem;
+}
+.pet-action-label {
+  font-family: 'Fredoka', 'Heebo', sans-serif;
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+.pet-action-new {
+  background: var(--panel);
+}
+
+.ward-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(3, 12, 20, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+  padding: 16px;
+}
+.ward-card {
+  position: relative;
+  width: 92vw;
+  max-width: 520px;
+  max-height: 88vh;
+  overflow-y: auto;
+  background: var(--panel-strong);
+  border-radius: 28px;
+  padding: 24px 18px;
+  box-shadow: var(--shadow);
+  text-align: center;
+  animation: seq-hint-in 0.28s ease;
+}
+.ward-title {
+  font-family: 'Fredoka', 'Heebo', sans-serif;
+  font-weight: 800;
+  font-size: 1.4rem;
+  margin: 2px 0 12px;
+}
+.ward-preview {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  min-height: 150px;
+  margin-bottom: 14px;
+}
+.ward-slot {
+  margin-bottom: 14px;
+}
+.ward-slot-label {
+  display: block;
+  font-family: 'Fredoka', 'Heebo', sans-serif;
+  font-weight: 800;
+  color: var(--text-soft);
+  margin-bottom: 6px;
+}
+.ward-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+}
+.ward-item {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  background: var(--panel);
+  border: 2px solid var(--line);
+  font-size: 1.6rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.1s ease;
+}
+.ward-item:active {
+  transform: scale(0.92);
+}
+.ward-item.is-on {
+  border-color: var(--accent);
+  background: rgba(255, 221, 102, 0.18);
+}
+
 /* ---------- friends piano (melody / guitar-hero style) ---------- */
 .gh-songs {
   display: flex;
