@@ -157,6 +157,7 @@ export default function SeqGame({ onExit }: GameProps) {
   const [hintOpen, setHintOpen] = useState(false)
   const [bottom, setBottom] = useState<Bottom>(EMPTY_BOTTOM)
   const [history, setHistory] = useState<Frame[]>([])
+  const [done, setDone] = useState(false)
   const timers = useRef<number[]>([])
 
   const missing = round.terms[round.gapPos]
@@ -180,6 +181,7 @@ export default function SeqGame({ onExit }: GameProps) {
     setHintOpen(false)
     setBottom(EMPTY_BOTTOM)
     setHistory([])
+    setDone(false)
     setRound(genRound(level))
     setSolved(false)
     setWrong(null)
@@ -212,6 +214,7 @@ export default function SeqGame({ onExit }: GameProps) {
     setHintOpen(true)
     setBottom(EMPTY_BOTTOM)
     setHistory([])
+    setDone(false)
 
     const at = (ms: number, fn: () => void) => timers.current.push(window.setTimeout(fn, ms))
     let t = 300
@@ -255,6 +258,9 @@ export default function SeqGame({ onExit }: GameProps) {
       })
       t += RISE
     })
+    // once the last equation has risen, hide the work area so all the
+    // equations are seen together in the list
+    at(t, () => setDone(true))
   }
 
   function closeHint() {
@@ -364,38 +370,42 @@ export default function SeqGame({ onExit }: GameProps) {
               ))}
             </div>
 
-            <div className="hint-divider" />
-
-            {/* bottom: the equation being built; constant stays, changing swaps */}
-            <div className="hint-work">
-              <div className="eq-row" dir="ltr">
-                {bottom.leftVal != null && <NumFig key={`L${bottom.leftVal}`} v={bottom.leftVal} px={50} />}
-                {bottom.op && (
-                  <span className="eq-sym" key="op">
-                    {bottom.op}
-                  </span>
-                )}
-                {bottom.rightVal != null && <NumFig key={`R${bottom.rightVal}`} v={bottom.rightVal} px={50} />}
-                {bottom.eq && (
-                  <span className="eq-sym" key="eq">
-                    =
-                  </span>
-                )}
-                {bottom.res === '?' && (
-                  <span className="eq-sym eq-q" key="resq">
-                    ???
-                  </span>
-                )}
-                {typeof bottom.res === 'number' && (
-                  <span className="eq-res" key={`res${bottom.res}`}>
-                    <NumFig v={bottom.res} px={50} />
-                    <span className="eq-spark" aria-hidden="true">
-                      ✨
-                    </span>
-                  </span>
-                )}
-              </div>
-            </div>
+            {/* bottom work area — hidden once every equation has risen, so the
+                full list of equations is seen together */}
+            {!done && (
+              <>
+                <div className="hint-divider" />
+                <div className="hint-work">
+                  <div className="eq-row" dir="ltr">
+                    {bottom.leftVal != null && <NumFig key={`L${bottom.leftVal}`} v={bottom.leftVal} px={50} />}
+                    {bottom.op && (
+                      <span className="eq-sym" key="op">
+                        {bottom.op}
+                      </span>
+                    )}
+                    {bottom.rightVal != null && <NumFig key={`R${bottom.rightVal}`} v={bottom.rightVal} px={50} />}
+                    {bottom.eq && (
+                      <span className="eq-sym" key="eq">
+                        =
+                      </span>
+                    )}
+                    {bottom.res === '?' && (
+                      <span className="eq-sym eq-q" key="resq">
+                        ???
+                      </span>
+                    )}
+                    {typeof bottom.res === 'number' && (
+                      <span className="eq-res" key={`res${bottom.res}`}>
+                        <NumFig v={bottom.res} px={50} />
+                        <span className="eq-spark" aria-hidden="true">
+                          ✨
+                        </span>
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </>
+            )}
 
             <button className="pill hint-replay" onClick={openHint}>
               ↻ עוד פעם
