@@ -210,13 +210,13 @@ export default function Tamagotchi({ onExit }: GameProps) {
     setEatFood(food.emoji)
     setBite(0)
     setPoof(false)
-    // three bites: each hop munches and shortens the food
+    // three bites: each hop munches and a chunk is cut out of the food
     for (let k = 0; k < 3; k++) {
-      eatTimers.current.push(window.setTimeout(() => { playMunch(); setBite(k + 1) }, 350 + k * 520))
+      eatTimers.current.push(window.setTimeout(() => { playMunch(); setBite(k + 1) }, 350 + k * 600))
     }
-    eatTimers.current.push(window.setTimeout(() => speak('נם נם נם'), 720))
-    // last bite → the food disappears with a "poof"
-    eatTimers.current.push(window.setTimeout(() => { setPoof(true); playPop() }, 350 + 2 * 520))
+    eatTimers.current.push(window.setTimeout(() => speak('נם נם נם'), 450))
+    // after the last bite the little leftover disappears with a "poof"
+    eatTimers.current.push(window.setTimeout(() => { setPoof(true); playPop() }, 350 + 3 * 600))
     // then clear and a happy random line
     eatTimers.current.push(
       window.setTimeout(() => {
@@ -225,7 +225,7 @@ export default function Tamagotchi({ onExit }: GameProps) {
         setBite(0)
         const lines = ['ים ים!', 'מ-מ-מ, טעים!', `אני אוהב ${food.name}!`]
         speak(lines[Math.floor(Math.random() * lines.length)])
-      }, 350 + 2 * 520 + 520),
+      }, 350 + 3 * 600 + 500),
     )
   }
 
@@ -299,8 +299,7 @@ export default function Tamagotchi({ onExit }: GameProps) {
         </button>
         {eatFood && (
           <span
-            className={`pet-eat-food ${poof ? 'is-poof' : ''}`}
-            style={poof ? undefined : { transform: `translate(-50%,-50%) scale(${Math.max(0.2, 1 - bite / 3)})` }}
+            className={`pet-eat-food ${poof ? 'is-poof b3' : bite > 0 ? `b${bite}` : ''}`}
             aria-hidden="true"
           >
             {eatFood}

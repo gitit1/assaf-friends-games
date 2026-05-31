@@ -3978,7 +3978,7 @@ button {
 
 /* eating: the friend hops 3 times and the food shrinks bite by bite */
 .pet-figure.is-eating {
-  animation: pet-eat 1.8s ease;
+  animation: pet-eat 2.3s ease;
 }
 @keyframes pet-eat {
   0% {
@@ -4015,6 +4015,16 @@ button {
   transform: translate(-50%, -50%);
   transition: transform 0.3s ease;
   filter: drop-shadow(0 3px 4px rgba(0, 0, 0, 0.3));
+}
+/* progressive "bites" cut out of the food */
+.pet-eat-food.b1 {
+  clip-path: polygon(0 0, 64% 0, 80% 20%, 100% 40%, 100% 100%, 0 100%);
+}
+.pet-eat-food.b2 {
+  clip-path: polygon(0 0, 64% 0, 80% 20%, 100% 40%, 100% 64%, 76% 82%, 56% 100%, 0 100%);
+}
+.pet-eat-food.b3 {
+  clip-path: polygon(0 0, 44% 0, 56% 18%, 46% 42%, 60% 60%, 38% 84%, 0 66%);
 }
 .pet-eat-food.is-poof {
   animation: food-poof 0.45s ease forwards;
