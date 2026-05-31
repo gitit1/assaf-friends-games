@@ -4012,6 +4012,187 @@ button {
     transform: translateY(-12px) rotate(8deg);
   }
 }
+
+/* ----- play scenes ----- */
+.scene {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 10px;
+  padding: 0 8px 10px;
+}
+.scene-fig {
+  display: inline-flex;
+  align-items: flex-end;
+}
+.scene-stacked {
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 6px;
+}
+/* ball — two friends passing it back and forth */
+.scene-ball {
+  justify-content: space-between;
+  padding: 0 8%;
+}
+.scene-ball .scene-fig {
+  animation: pet-play 0.8s ease-in-out infinite;
+}
+.play-ball {
+  position: absolute;
+  bottom: 34%;
+  font-size: 2.1rem;
+  animation: ball-pass 1.1s ease-in-out infinite alternate;
+}
+@keyframes ball-pass {
+  0% {
+    left: 20%;
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-46px);
+  }
+  100% {
+    left: 72%;
+    transform: translateY(0);
+  }
+}
+/* sofa / chair seat */
+.seat {
+  position: relative;
+  display: inline-flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+.furniture {
+  font-size: 5rem;
+}
+.scene-fig.sit {
+  position: absolute;
+  bottom: 26%;
+  left: 50%;
+  transform: translateX(-50%);
+}
+.book {
+  position: absolute;
+  bottom: 22%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 2.3rem;
+  z-index: 3;
+}
+/* TV */
+.tv-set {
+  width: 132px;
+  height: 84px;
+  border-radius: 12px;
+  background: #2b3340;
+  border: 4px solid #161b22;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.tv-screen,
+.screen {
+  width: 86%;
+  height: 74%;
+  border-radius: 6px;
+  background: linear-gradient(120deg, #f87171, #fbbf24, #34d399, #60a5fa, #a78bfa);
+  background-size: 300% 300%;
+  animation: tv-play 2s linear infinite;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+@keyframes tv-play {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 100% 50%;
+  }
+}
+.tv-star {
+  font-size: 1.5rem;
+  animation: play-bob 0.7s ease-in-out infinite;
+}
+/* computer desk */
+.desk {
+  position: relative;
+  width: 150px;
+  height: 16px;
+  border-radius: 4px;
+  background: #a16207;
+}
+.desk .screen {
+  position: absolute;
+  left: 50%;
+  bottom: 12px;
+  transform: translateX(-50%);
+  width: 66px;
+  height: 48px;
+  border: 3px solid #161b22;
+  border-radius: 6px 6px 2px 2px;
+}
+/* lego — bricks stack up on a rug */
+.scene-lego {
+  gap: 22px;
+}
+.tower {
+  position: relative;
+  display: flex;
+  flex-direction: column-reverse;
+  align-items: center;
+  width: 56px;
+}
+.tower .rug {
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 120px;
+  height: 14px;
+  border-radius: 50%;
+  background: rgba(167, 139, 250, 0.45);
+}
+.brick {
+  width: 46px;
+  height: 22px;
+  border-radius: 5px;
+  margin-top: 3px;
+  opacity: 0;
+  animation: brick-in 0.4s ease forwards;
+  box-shadow: inset 0 -3px 0 rgba(0, 0, 0, 0.2);
+}
+.brick.b1 {
+  background: #ef4444;
+  animation-delay: 0.4s;
+}
+.brick.b2 {
+  background: #f59e0b;
+  animation-delay: 1.2s;
+}
+.brick.b3 {
+  background: #22c55e;
+  animation-delay: 2s;
+}
+.brick.b4 {
+  background: #3b82f6;
+  animation-delay: 2.8s;
+}
+@keyframes brick-in {
+  from {
+    opacity: 0;
+    transform: translateY(-28px) scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
 @keyframes pet-eat {
   0% {
     transform: translateY(0);

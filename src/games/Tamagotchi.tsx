@@ -53,13 +53,13 @@ const DROPS = [
   { x: '20px', y: '34px' },
 ]
 
-// "play" picks one of these at random — a little animation of the friend doing it
-const PLAYS: { emoji: string; label: string }[] = [
-  { emoji: '⚽', label: 'משחק בכדור' },
-  { emoji: '💻', label: 'משחק במחשב' },
-  { emoji: '📖', label: 'קורא ספר' },
-  { emoji: '📺', label: 'רואה טלוויזיה' },
-  { emoji: '🧱', label: 'בונה לגו' },
+// "play" picks one of these at random — each is its own little scene
+const PLAYS: { kind: string; label: string }[] = [
+  { kind: 'ball', label: 'משחק בכדור' },
+  { kind: 'tv', label: 'רואה טלוויזיה' },
+  { kind: 'computer', label: 'משחק במחשב' },
+  { kind: 'book', label: 'קורא ספר' },
+  { kind: 'lego', label: 'בונה לגו' },
 ]
 
 // "My friend" — a gentle Tamagotchi-style virtual pet. Pick a number to raise,
@@ -118,26 +118,104 @@ function FriendDressed({
   outfit,
   bouncing,
   eating,
-  playing,
 }: {
   index: number
   px: number
   outfit: Outfit
   bouncing?: boolean
   eating?: boolean
-  playing?: boolean
 }) {
   return (
-    <span
-      className={`pet-figure ${eating ? 'is-eating' : ''} ${playing ? 'is-playing' : ''}`}
-      style={{ fontSize: `${px}px` }}
-    >
+    <span className={`pet-figure ${eating ? 'is-eating' : ''}`} style={{ fontSize: `${px}px` }}>
       <Friend index={index} scale={px / friendMaxDim(index)} showNumber={false} bouncing={bouncing} eating={eating} />
       {outfit.held && <span className="dress dress-held">{outfit.held}</span>}
       {outfit.neck && <span className="dress dress-neck">{outfit.neck}</span>}
       {outfit.face && <span className="dress dress-face">{outfit.face}</span>}
       {outfit.hat && <span className="dress dress-hat">{outfit.hat}</span>}
     </span>
+  )
+}
+
+// the little "play" scenes — each activity is its own set
+function PlayScene({ kind, friend, outfit, buddy }: { kind: string; friend: number; outfit: Outfit; buddy: number }) {
+  if (kind === 'ball') {
+    return (
+      <div className="scene scene-ball">
+        <span className="scene-fig">
+          <FriendDressed index={friend} px={88} outfit={outfit} />
+        </span>
+        <span className="play-ball" aria-hidden="true">
+          ⚽
+        </span>
+        <span className="scene-fig">
+          <FriendDressed index={buddy} px={88} outfit={{}} />
+        </span>
+      </div>
+    )
+  }
+  if (kind === 'tv') {
+    return (
+      <div className="scene scene-stacked">
+        <span className="tv-set" aria-hidden="true">
+          <span className="tv-screen">
+            <span className="tv-star">⭐</span>
+          </span>
+        </span>
+        <span className="seat">
+          <span className="furniture">🛋️</span>
+          <span className="scene-fig sit">
+            <FriendDressed index={friend} px={70} outfit={outfit} />
+          </span>
+        </span>
+      </div>
+    )
+  }
+  if (kind === 'computer') {
+    return (
+      <div className="scene scene-stacked">
+        <span className="desk" aria-hidden="true">
+          <span className="screen">
+            <span className="tv-star">✨</span>
+          </span>
+        </span>
+        <span className="seat">
+          <span className="furniture">🪑</span>
+          <span className="scene-fig sit">
+            <FriendDressed index={friend} px={66} outfit={outfit} />
+          </span>
+        </span>
+      </div>
+    )
+  }
+  if (kind === 'book') {
+    return (
+      <div className="scene">
+        <span className="seat">
+          <span className="furniture">🛋️</span>
+          <span className="scene-fig sit">
+            <FriendDressed index={friend} px={72} outfit={outfit} />
+          </span>
+          <span className="book" aria-hidden="true">
+            📖
+          </span>
+        </span>
+      </div>
+    )
+  }
+  // lego — a tower builds up on a rug
+  return (
+    <div className="scene scene-lego">
+      <span className="scene-fig">
+        <FriendDressed index={friend} px={80} outfit={outfit} />
+      </span>
+      <span className="tower" aria-hidden="true">
+        <span className="brick b1" />
+        <span className="brick b2" />
+        <span className="brick b3" />
+        <span className="brick b4" />
+        <span className="rug" />
+      </span>
+    </div>
   )
 }
 
@@ -152,7 +230,8 @@ export default function Tamagotchi({ onExit }: GameProps) {
   const [mode, setMode] = useState<'eat' | 'drink'>('eat')
   const [bite, setBite] = useState(0)
   const [poof, setPoof] = useState(false)
-  const [playing, setPlaying] = useState<{ emoji: string; label: string } | null>(null)
+  const [playing, setPlaying] = useState<{ kind: string; label: string } | null>(null)
+  const [buddy, setBuddy] = useState(0)
   const [scene, setScene] = useState<'home' | 'walk'>('home')
   const [fx, setFx] = useState<{ emoji: string; id: number } | null>(null)
   const [bounce, setBounce] = useState(false)
@@ -247,6 +326,7 @@ export default function Tamagotchi({ onExit }: GameProps) {
     playTap()
     setFridge(false)
     setMode('eat')
+    setPlaying(null)
     speak(food.name)
     setPet((p) => (p ? { ...p, hunger: clamp(p.hunger + 34) } : p))
     eatTimers.current.forEach((t) => window.clearTimeout(t))
@@ -280,6 +360,7 @@ export default function Tamagotchi({ onExit }: GameProps) {
     playTap()
     setBar(false)
     setMode('drink')
+    setPlaying(null)
     speak(d.name)
     setPet((p) => (p ? { ...p, thirst: clamp(p.thirst + 34) } : p))
     eatTimers.current.forEach((t) => window.clearTimeout(t))
@@ -305,16 +386,24 @@ export default function Tamagotchi({ onExit }: GameProps) {
 
   // play = a random one of 5 little activities (ball / computer / book / TV / lego)
   function play() {
+    if (!pet) return
     unlockAudio()
     playTap()
     const a = PLAYS[Math.floor(Math.random() * PLAYS.length)]
     eatTimers.current.forEach((t) => window.clearTimeout(t))
     eatTimers.current = []
+    setEatFood(null)
+    setPoof(false)
+    if (a.kind === 'ball') {
+      let b = Math.floor(Math.random() * FRIENDS.length)
+      if (b === pet.friend) b = (b + 1) % FRIENDS.length
+      setBuddy(b)
+    }
     setPlaying(a)
     setPet((p) => (p ? { ...p, happy: clamp(p.happy + 30) } : p))
     playSuccess()
     speak(`${a.label}!`)
-    eatTimers.current.push(window.setTimeout(() => setPlaying(null), 2800))
+    eatTimers.current.push(window.setTimeout(() => setPlaying(null), 4000))
   }
 
   // ---- pick-a-friend screen ----
@@ -382,20 +471,11 @@ export default function Tamagotchi({ onExit }: GameProps) {
       </div>
 
       <div className={`pet-room ${scene === 'walk' ? 'is-walk' : ''} ${sad ? 'is-sad' : ''}`}>
+        {playing ? (
+          <PlayScene kind={playing.kind} friend={pet.friend} outfit={pet.outfit} buddy={buddy} />
+        ) : (
         <button className="pet-tap" onClick={pokePet} aria-label={friendName(pet.friend)}>
-          <FriendDressed
-            index={pet.friend}
-            px={150}
-            outfit={pet.outfit}
-            bouncing={bounce}
-            eating={!!eatFood}
-            playing={!!playing}
-          />
-          {playing && (
-            <span className="pet-play-prop" aria-hidden="true">
-              {playing.emoji}
-            </span>
-          )}
+          <FriendDressed index={pet.friend} px={150} outfit={pet.outfit} bouncing={bounce} eating={!!eatFood} />
           {eatFood && (
           <>
             <span
@@ -437,12 +517,13 @@ export default function Tamagotchi({ onExit }: GameProps) {
           </>
           )}
         </button>
-        {pet.poop && (
+        )}
+        {!playing && pet.poop && (
           <span className="pet-poop" aria-hidden="true">
             💩
           </span>
         )}
-        {sad && !pet.poop && (
+        {!playing && sad && !pet.poop && (
           <span className="pet-mood" aria-hidden="true">
             😢
           </span>
