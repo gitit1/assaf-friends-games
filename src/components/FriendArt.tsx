@@ -159,6 +159,8 @@ type Props = {
   showHalo?: boolean
   /** How many parts are lit (coloured). The rest are faint outlines. Default = all. */
   litUnits?: number
+  /** Open + chew the mouth (eating animation). */
+  eating?: boolean
 }
 
 // The persona accessory worn by each big friend (11–20). Anchored at the top
@@ -242,7 +244,7 @@ function bigAccessory(acc: BigAccessory) {
   }
 }
 
-export default function FriendArt({ kind, number, showHalo = false, litUnits }: Props) {
+export default function FriendArt({ kind, number, showHalo = false, litUnits, eating = false }: Props) {
   const order = PART_ORDER[kind]
   const lit = litUnits ?? order.length
   const parts = order.map((cls, i) => <span key={cls} className={`${cls} ${i < lit ? '' : 'is-off'}`} />)
@@ -475,5 +477,5 @@ export default function FriendArt({ kind, number, showHalo = false, litUnits }: 
     )
   }
 
-  return <div className="friend-art">{design}</div>
+  return <div className={`friend-art ${eating ? 'is-eating' : ''}`}>{design}</div>
 }
