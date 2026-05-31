@@ -27,6 +27,17 @@ const FOODS: { name: string; emoji: string }[] = [
   { name: 'שוקולד', emoji: '🍫' },
 ]
 
+// crumb fly-out directions + little reaction emojis for the eating "movie"
+const CRUMBS = [
+  { x: '-36px', y: '-24px' },
+  { x: '32px', y: '-30px' },
+  { x: '-42px', y: '12px' },
+  { x: '40px', y: '8px' },
+  { x: '-6px', y: '-46px' },
+  { x: '16px', y: '34px' },
+]
+const HEARTS = ['❤️', '⭐', '😋']
+
 // "My friend" — a gentle Tamagotchi-style virtual pet. Pick a number to raise,
 // then feed / water / play / walk / potty + clean 💩 / dress up. Stats drop
 // slowly but the friend NEVER dies — it just gets sad and you cheer it up. The
@@ -298,17 +309,34 @@ export default function Tamagotchi({ onExit }: GameProps) {
           <FriendDressed index={pet.friend} px={150} outfit={pet.outfit} bouncing={bounce} eating={!!eatFood} />
         </button>
         {eatFood && (
-          <span
-            className={`pet-eat-food ${poof ? 'is-poof b3' : bite > 0 ? `b${bite}` : ''}`}
-            aria-hidden="true"
-          >
-            {eatFood}
-          </span>
-        )}
-        {poof && (
-          <span className="pet-poof" aria-hidden="true">
-            💨
-          </span>
+          <>
+            <span
+              key={poof ? 'poof' : `bite-${bite}`}
+              className={poof ? 'pet-eat-food is-poof b3' : `pet-eat-food chomp ${bite > 0 ? `b${bite}` : ''}`}
+              aria-hidden="true"
+            >
+              {eatFood}
+            </span>
+            {!poof && bite > 0 && (
+              <span className="eat-burst" key={`burst-${bite}`} aria-hidden="true">
+                {CRUMBS.map((c, i) => (
+                  <span className="crumb" key={i} style={{ '--tx': c.x, '--ty': c.y } as React.CSSProperties}>
+                    {eatFood}
+                  </span>
+                ))}
+              </span>
+            )}
+            {!poof && bite > 0 && (
+              <span className="eat-heart" key={`heart-${bite}`} aria-hidden="true">
+                {HEARTS[(bite - 1) % HEARTS.length]}
+              </span>
+            )}
+            {poof && (
+              <span className="pet-poof" aria-hidden="true">
+                💨
+              </span>
+            )}
+          </>
         )}
         {pet.poop && (
           <span className="pet-poop" aria-hidden="true">
