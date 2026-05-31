@@ -1,11 +1,31 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import GameShell from '../components/GameShell'
 import Friend from '../components/Friend'
 import { friendMaxDim } from '../components/FriendArt'
 import type { GameProps } from './registry'
-import { playFriend, playSuccess, playTap, unlockAudio } from '../audio'
+import { playFriend, playMunch, playSuccess, playTap, unlockAudio } from '../audio'
 import { speak } from '../speech'
 import { FRIENDS, friendName, friendSay } from '../friends'
+
+// foods in the fridge — tapping one says its name and the friend eats it
+const FOODS: { name: string; emoji: string }[] = [
+  { name: 'בננה', emoji: '🍌' },
+  { name: 'תפוח', emoji: '🍎' },
+  { name: 'דג', emoji: '🐟' },
+  { name: 'נקניקייה', emoji: '🌭' },
+  { name: 'המבורגר', emoji: '🍔' },
+  { name: 'מלפפון', emoji: '🥒' },
+  { name: 'עגבנייה', emoji: '🍅' },
+  { name: 'קערת אורז', emoji: '🍚' },
+  { name: 'עוף', emoji: '🍗' },
+  { name: 'בשר', emoji: '🥩' },
+  { name: 'פרוסה עם גבינה', emoji: '🧀' },
+  { name: 'גזר', emoji: '🥕' },
+  { name: 'חביתה', emoji: '🍳' },
+  { name: 'טוסט', emoji: '🥪' },
+  { name: 'במבה', emoji: '🥜' },
+  { name: 'שוקולד', emoji: '🍫' },
+]
 
 // "My friend" — a gentle Tamagotchi-style virtual pet. Pick a number to raise,
 // then feed / water / play / walk / potty + clean 💩 / dress up. Stats drop
@@ -57,9 +77,21 @@ function load(): Pet | null {
   }
 }
 
-function FriendDressed({ index, px, outfit, bouncing }: { index: number; px: number; outfit: Outfit; bouncing?: boolean }) {
+function FriendDressed({
+  index,
+  px,
+  outfit,
+  bouncing,
+  eating,
+}: {
+  index: number
+  px: number
+  outfit: Outfit
+  bouncing?: boolean
+  eating?: boolean
+}) {
   return (
-    <span className="pet-figure" style={{ fontSize: `${px}px` }}>
+    <span className={`pet-figure ${eating ? 'is-eating' : ''}`} style={{ fontSize: `${px}px` }}>
       <Friend index={index} scale={px / friendMaxDim(index)} showNumber={false} bouncing={bouncing} />
       {outfit.held && <span className="dress dress-held">{outfit.held}</span>}
       {outfit.neck && <span className="dress dress-neck">{outfit.neck}</span>}
@@ -74,9 +106,14 @@ export default function Tamagotchi({ onExit }: GameProps) {
   const [choosing, setChoosing] = useState(() => pet === null)
   const [pick, setPick] = useState(0)
   const [wardrobe, setWardrobe] = useState(false)
+  const [fridge, setFridge] = useState(false)
+  const [eatFood, setEatFood] = useState<string | null>(null)
+  const [bite, setBite] = useState(0)
   const [scene, setScene] = useState<'home' | 'walk'>('home')
   const [fx, setFx] = useState<{ emoji: string; id: number } | null>(null)
   const [bounce, setBounce] = useState(false)
+  const eatTimers = useRef<number[]>([])
+  useEffect(() => () => eatTimers.current.forEach((t) => window.clearTimeout(t)), [])
 
   // save whenever the pet changes
   useEffect(() => {
@@ -159,6 +196,25 @@ export default function Tamagotchi({ onExit }: GameProps) {
     setPet((p) => (p ? { ...p, outfit: { ...p.outfit, [slot]: p.outfit[slot] === item ? undefined : item } } : p))
   }
 
+  // pick a food from the fridge → say its name, then the friend hops 3× eating
+  // it ("נם נם נם") while the food shrinks bite by bite
+  function eat(food: { name: string; emoji: string }) {
+    unlockAudio()
+    playTap()
+    setFridge(false)
+    speak(food.name)
+    setPet((p) => (p ? { ...p, hunger: clamp(p.hunger + 34) } : p))
+    eatTimers.current.forEach((t) => window.clearTimeout(t))
+    eatTimers.current = []
+    setEatFood(food.emoji)
+    setBite(0)
+    for (let k = 0; k < 3; k++) {
+      eatTimers.current.push(window.setTimeout(() => { playMunch(); setBite(k + 1) }, 350 + k * 520))
+    }
+    eatTimers.current.push(window.setTimeout(() => speak('נם נם נם'), 720))
+    eatTimers.current.push(window.setTimeout(() => { setEatFood(null); setBite(0) }, 350 + 3 * 520 + 250))
+  }
+
   // ---- pick-a-friend screen ----
   if (choosing || !pet) {
     return (
@@ -225,8 +281,17 @@ export default function Tamagotchi({ onExit }: GameProps) {
 
       <div className={`pet-room ${scene === 'walk' ? 'is-walk' : ''} ${sad ? 'is-sad' : ''}`}>
         <button className="pet-tap" onClick={pokePet} aria-label={friendName(pet.friend)}>
-          <FriendDressed index={pet.friend} px={150} outfit={pet.outfit} bouncing={bounce} />
+          <FriendDressed index={pet.friend} px={150} outfit={pet.outfit} bouncing={bounce} eating={!!eatFood} />
         </button>
+        {eatFood && (
+          <span
+            className="pet-eat-food"
+            style={{ transform: `translate(-50%,-50%) scale(${Math.max(0, 1 - bite / 3)})`, opacity: bite >= 3 ? 0 : 1 }}
+            aria-hidden="true"
+          >
+            {eatFood}
+          </span>
+        )}
         {pet.poop && (
           <span className="pet-poop" aria-hidden="true">
             💩
@@ -249,7 +314,13 @@ export default function Tamagotchi({ onExit }: GameProps) {
           <button
             key={a.type}
             className="pet-action"
-            onClick={() => (a.type === 'dress' ? (unlockAudio(), playTap(), setWardrobe(true)) : act(a.type))}
+            onClick={() =>
+              a.type === 'dress'
+                ? (unlockAudio(), playTap(), setWardrobe(true))
+                : a.type === 'feed'
+                  ? (unlockAudio(), playTap(), setFridge(true))
+                  : act(a.type)
+            }
           >
             <span className="pet-action-emoji" aria-hidden="true">
               {a.emoji}
@@ -298,6 +369,27 @@ export default function Tamagotchi({ onExit }: GameProps) {
                     ))}
                   </div>
                 </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {fridge && (
+        <div className="fridge-overlay" onClick={() => setFridge(false)}>
+          <div className="fridge-card" onClick={(e) => e.stopPropagation()}>
+            <button className="hint-close" onClick={() => setFridge(false)} aria-label="סגור">
+              ✕
+            </button>
+            <h3 className="fridge-title">מה בא לך לאכול? 🍽️</h3>
+            <div className="fridge-grid">
+              {FOODS.map((f) => (
+                <button key={f.name} className="fridge-item" onClick={() => eat(f)} aria-label={f.name}>
+                  <span className="fridge-emoji" aria-hidden="true">
+                    {f.emoji}
+                  </span>
+                  <span className="fridge-name">{f.name}</span>
+                </button>
               ))}
             </div>
           </div>

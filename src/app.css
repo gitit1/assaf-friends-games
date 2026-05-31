@@ -3976,6 +3976,104 @@ button {
   background: rgba(255, 221, 102, 0.18);
 }
 
+/* eating: the friend hops 3 times and the food shrinks bite by bite */
+.pet-figure.is-eating {
+  animation: pet-eat 1.8s ease;
+}
+@keyframes pet-eat {
+  0% {
+    transform: translateY(0);
+  }
+  10% {
+    transform: translateY(-20px);
+  }
+  20% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-20px);
+  }
+  50% {
+    transform: translateY(0);
+  }
+  70% {
+    transform: translateY(-20px);
+  }
+  80% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+.pet-eat-food {
+  position: absolute;
+  top: 52%;
+  left: 50%;
+  font-size: 3rem;
+  pointer-events: none;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+  filter: drop-shadow(0 3px 4px rgba(0, 0, 0, 0.3));
+}
+
+/* fridge pop-up */
+.fridge-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(3, 12, 20, 0.6);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  z-index: 50;
+  padding: 6vh 16px 16px;
+}
+.fridge-card {
+  position: relative;
+  width: 94vw;
+  max-width: 520px;
+  max-height: 86vh;
+  overflow-y: auto;
+  background: var(--panel-strong);
+  border-radius: 28px;
+  padding: 24px 16px 16px;
+  box-shadow: var(--shadow);
+  text-align: center;
+  animation: seq-hint-in 0.28s ease;
+}
+.fridge-title {
+  font-family: 'Fredoka', 'Heebo', sans-serif;
+  font-weight: 800;
+  font-size: 1.4rem;
+  margin: 2px 0 14px;
+}
+.fridge-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(86px, 1fr));
+  gap: 10px;
+}
+.fridge-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 10px 4px;
+  border-radius: 16px;
+  background: var(--panel);
+  border: 2px solid var(--line);
+  transition: transform 0.1s ease;
+}
+.fridge-item:active {
+  transform: scale(0.93);
+}
+.fridge-emoji {
+  font-size: 2rem;
+}
+.fridge-name {
+  font-family: 'Fredoka', 'Heebo', sans-serif;
+  font-weight: 700;
+  font-size: 0.8rem;
+}
+
 /* ---------- friends piano (melody / guitar-hero style) ---------- */
 .gh-top {
   display: flex;

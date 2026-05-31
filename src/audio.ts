@@ -102,6 +102,12 @@ export function playSuccess() {
   tone({ freq: 783.99, duration: 0.26, type: 'sine', volume: 0.16, delay: 0.24 })
 }
 
+// Soft "nom" munch for eating.
+export function playMunch() {
+  tone({ freq: 180, duration: 0.13, type: 'sine', volume: 0.17 })
+  tone({ freq: 130, duration: 0.11, type: 'triangle', volume: 0.12, delay: 0.07 })
+}
+
 // A gentle, non-punishing "try again" — soft and low, never harsh.
 export function playNudge() {
   tone({ freq: 300, duration: 0.16, type: 'sine', volume: 0.12 })
