@@ -9,8 +9,10 @@ import { FRIENDS, friendSay } from '../friends'
 import { randInt, shuffle } from './util'
 
 // "Who's missing?" — look at a group of friends, cover them when ready (the
-// child controls the timing → no time pressure), one hides, and pick who's
-// gone. No losing; wrong picks give a gentle nudge. Difficulty = group size.
+// child controls the timing → no time pressure), one hides, and recall who's
+// gone. The answer options are the missing friend + friends that were NEVER in
+// the group (NOT the ones still on the board), so it's a real memory task, not
+// "spot the one not shown". No losing; wrong picks give a gentle nudge.
 const LEVELS = [
   { label: 'קל', k: 3 },
   { label: 'רגיל', k: 4 },
@@ -18,18 +20,23 @@ const LEVELS = [
 ]
 
 type Phase = 'show' | 'hide' | 'guess'
-type Round = { group: number[]; order: number[] }
 
-function newRound(k: number): Round {
-  const group = shuffle(Array.from({ length: FRIENDS.length }, (_, i) => i)).slice(0, k)
-  return { group, order: shuffle([...group]) }
+function newGroup(k: number): number[] {
+  return shuffle(Array.from({ length: FRIENDS.length }, (_, i) => i)).slice(0, k)
+}
+
+// options: the missing friend + `count` friends drawn from `outsiders` (friends
+// that were NOT in the group)
+function pickChoices(missing: number, outsiders: number[], count: number): number[] {
+  return shuffle([missing, ...shuffle(outsiders).slice(0, count)])
 }
 
 export default function WhoGame({ onExit }: GameProps) {
   const [levelIdx, setLevelIdx] = useState(1)
-  const [round, setRound] = useState<Round>(() => newRound(LEVELS[1].k))
+  const [group, setGroup] = useState<number[]>(() => newGroup(LEVELS[1].k))
   const [phase, setPhase] = useState<Phase>('show')
   const [missing, setMissing] = useState<number | null>(null)
+  const [choices, setChoices] = useState<number[]>([])
   const [solved, setSolved] = useState(false)
   const [score, setScore] = useState(0)
   const [wrong, setWrong] = useState<number | null>(null)
@@ -44,15 +51,20 @@ export default function WhoGame({ onExit }: GameProps) {
     setLevelIdx(li)
     setPhase('show')
     setMissing(null)
+    setChoices([])
     setSolved(false)
     setWrong(null)
-    setRound(newRound(k))
+    setGroup(newGroup(k))
   }
 
   function cover() {
     unlockAudio()
     if (phase !== 'show') return
-    setMissing(round.group[randInt(0, round.group.length - 1)])
+    const m = group[randInt(0, group.length - 1)]
+    const outsiders = Array.from({ length: FRIENDS.length }, (_, i) => i).filter((i) => !group.includes(i))
+    const count = levelIdx === 2 ? 3 : 2 // a couple more decoys on the hard level
+    setMissing(m)
+    setChoices(pickChoices(m, outsiders, count))
     setPhase('hide')
     window.setTimeout(() => setPhase('guess'), 850)
   }
@@ -91,7 +103,7 @@ export default function WhoGame({ onExit }: GameProps) {
       </div>
 
       <div className="who-row">
-        {round.group.map((n) => {
+        {group.map((n) => {
           if (phase === 'hide') {
             return (
               <span className="who-cover" key={n} aria-hidden="true">
@@ -124,7 +136,7 @@ export default function WhoGame({ onExit }: GameProps) {
         <>
           <p className="who-prompt">מי נעלם?</p>
           <div className="who-choices">
-            {round.order.map((n) => (
+            {choices.map((n) => (
               <button
                 key={n}
                 className={`who-choice ${wrong === n ? 'is-wrong' : ''}`}
