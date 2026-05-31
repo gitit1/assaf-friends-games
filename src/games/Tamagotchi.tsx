@@ -159,7 +159,7 @@ function PlayScene({ kind, friend, outfit, buddy }: { kind: string; friend: numb
         <span className="seat-side">
           <span className="couch" aria-hidden="true" />
           <span className="scene-fig seated">
-            <FriendDressed index={friend} px={62} outfit={outfit} />
+            <FriendDressed index={friend} px={56} outfit={outfit} />
           </span>
         </span>
         <span className="tv-set" aria-hidden="true">
@@ -177,7 +177,7 @@ function PlayScene({ kind, friend, outfit, buddy }: { kind: string; friend: numb
         <span className="seat-side">
           <span className="chair" aria-hidden="true" />
           <span className="scene-fig seated">
-            <FriendDressed index={friend} px={58} outfit={outfit} />
+            <FriendDressed index={friend} px={52} outfit={outfit} />
           </span>
         </span>
         <span className="deskset" aria-hidden="true">
@@ -195,7 +195,7 @@ function PlayScene({ kind, friend, outfit, buddy }: { kind: string; friend: numb
         <span className="seat-side wide">
           <span className="couch" aria-hidden="true" />
           <span className="scene-fig seated mid">
-            <FriendDressed index={friend} px={64} outfit={outfit} />
+            <FriendDressed index={friend} px={60} outfit={outfit} />
           </span>
           <span className="book" aria-hidden="true">
             📖
