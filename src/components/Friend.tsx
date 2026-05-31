@@ -19,6 +19,8 @@ type Props = {
   showNumber?: boolean
   /** Open + chew the mouth (for the eating animation). */
   eating?: boolean
+  /** Hide the friend's built-in accessory (so dress-up items replace it). */
+  bare?: boolean
 }
 
 export default function Friend({
@@ -29,6 +31,7 @@ export default function Friend({
   interactive = false,
   showNumber = true,
   eating = false,
+  bare = false,
 }: Props) {
   const [poked, setPoked] = useState(false)
   const kind = FRIEND_KINDS[index % FRIEND_KINDS.length]
@@ -49,7 +52,7 @@ export default function Friend({
 
   const inner = (
     <span className="friend-scale" style={scaleStyle}>
-      <FriendArt kind={kind} number={n} showHalo={showNumber} litUnits={litUnits} eating={eating} />
+      <FriendArt kind={kind} number={n} showHalo={showNumber} litUnits={litUnits} eating={eating} bare={bare} />
     </span>
   )
 

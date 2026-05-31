@@ -3814,27 +3814,44 @@ button {
   filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.3));
 }
 .dress-hat {
-  top: -0.3em;
+  top: -0.05em; /* sits on top of the head */
   left: 50%;
   transform: translateX(-50%);
-  font-size: 0.44em;
+  font-size: 0.5em;
 }
 .dress-face {
-  top: 0.32em;
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 0.36em;
-}
-.dress-neck {
-  top: 0.64em;
+  top: 0.34em; /* over the eyes */
   left: 50%;
   transform: translateX(-50%);
   font-size: 0.34em;
 }
+.dress-body {
+  top: 0.58em; /* on the body */
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.46em;
+}
 .dress-held {
-  bottom: 0.05em;
-  right: -0.12em;
+  bottom: 0.06em;
+  right: -0.16em;
   font-size: 0.42em;
+}
+/* when bare, hide the friend's built-in accessory so dress-up replaces it */
+.friend-art.is-bare .acc-bow,
+.friend-art.is-bare .acc-hat,
+.friend-art.is-bare .acc-tie,
+.friend-art.is-bare .crown,
+.friend-art.is-bare .glasses,
+.friend-art.is-bare .necklace,
+.friend-art.is-bare .flower,
+.friend-art.is-bare .earring,
+.friend-art.is-bare .pigtail,
+.friend-art.is-bare .cowlick,
+.friend-art.is-bare .brow,
+.friend-art.is-bare .tiara,
+.friend-art.is-bare .headphones,
+.friend-art.is-bare .acc2 {
+  display: none;
 }
 .pet-poop,
 .pet-mood {
@@ -3916,40 +3933,58 @@ button {
   z-index: 50;
   padding: 16px;
 }
+/* wardrobe pop-up — styled like a wooden closet */
 .ward-card {
   position: relative;
   width: 92vw;
-  max-width: 520px;
-  max-height: 88vh;
+  max-width: 460px;
+  max-height: 90vh;
   overflow-y: auto;
-  background: var(--panel-strong);
-  border-radius: 28px;
-  padding: 24px 18px;
+  background: linear-gradient(180deg, #c8966b, #a9794f);
+  border: 7px solid #7a5638;
+  border-radius: 18px;
+  padding: 20px 16px 16px;
   box-shadow: var(--shadow);
   text-align: center;
+  color: #3b2614;
   animation: seq-hint-in 0.28s ease;
+}
+/* a closet rail under the title */
+.ward-rail {
+  height: 6px;
+  border-radius: 3px;
+  background: #6b4a30;
+  margin: 0 6px 12px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+.ward-card .hint-close {
+  background: #f3e8da;
+  color: #3b2614;
 }
 .ward-title {
   font-family: 'Fredoka', 'Heebo', sans-serif;
   font-weight: 800;
   font-size: 1.4rem;
-  margin: 2px 0 12px;
+  color: #3b2614;
+  margin: 2px 0 10px;
 }
 .ward-preview {
   display: flex;
   justify-content: center;
   align-items: flex-end;
   min-height: 150px;
-  margin-bottom: 14px;
+  margin-bottom: 12px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.18);
 }
 .ward-slot {
-  margin-bottom: 14px;
+  margin-bottom: 12px;
 }
 .ward-slot-label {
   display: block;
   font-family: 'Fredoka', 'Heebo', sans-serif;
   font-weight: 800;
-  color: var(--text-soft);
+  color: #3b2614;
   margin-bottom: 6px;
 }
 .ward-items {
@@ -3959,11 +3994,11 @@ button {
   justify-content: center;
 }
 .ward-item {
-  width: 52px;
-  height: 52px;
-  border-radius: 14px;
-  background: var(--panel);
-  border: 2px solid var(--line);
+  width: 50px;
+  height: 50px;
+  border-radius: 12px;
+  background: #f3e8da;
+  border: 2px solid #caa784;
   font-size: 1.6rem;
   display: flex;
   align-items: center;
@@ -3974,8 +4009,8 @@ button {
   transform: scale(0.92);
 }
 .ward-item.is-on {
-  border-color: var(--accent);
-  background: rgba(255, 221, 102, 0.18);
+  border-color: #2563eb;
+  background: #dbeafe;
 }
 
 /* eating: the friend hops 3 times and the food shrinks bite by bite */

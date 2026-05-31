@@ -68,7 +68,7 @@ const PLAYS: { kind: string; label: string }[] = [
 // pet (and its outfit) is saved so the child returns to the same friend.
 const KEY = 'assaf-friends:pet:v1'
 
-type Slot = 'hat' | 'face' | 'neck' | 'held'
+type Slot = 'hat' | 'face' | 'body' | 'held'
 type Outfit = Partial<Record<Slot, string>>
 type Pet = {
   friend: number
@@ -84,7 +84,7 @@ type Pet = {
 const SLOTS: { key: Slot; label: string; items: string[] }[] = [
   { key: 'hat', label: 'כובע', items: ['🎩', '👑', '🎀', '🧢', '🎓', '👒', '🤠', '🍄', '⭐', '🎉', '🌸', '🪅'] },
   { key: 'face', label: 'משקפיים', items: ['🕶️', '👓', '🥽'] },
-  { key: 'neck', label: 'צעיף', items: ['🧣', '🎀', '📿', '🎽'] },
+  { key: 'body', label: 'בגד', items: ['👕', '👗', '🦺', '🧥', '👔', '🎽', '🩱', '🥋'] },
   { key: 'held', label: 'חפץ', items: ['🎈', '🍭', '🧸', '🌷', '🪁', '⚽', '🍦', '📚', '🎸'] },
 ]
 
@@ -127,9 +127,9 @@ function FriendDressed({
 }) {
   return (
     <span className={`pet-figure ${eating ? 'is-eating' : ''}`} style={{ fontSize: `${px}px` }}>
-      <Friend index={index} scale={px / friendMaxDim(index)} showNumber={false} bouncing={bouncing} eating={eating} />
+      <Friend index={index} scale={px / friendMaxDim(index)} showNumber={false} bouncing={bouncing} eating={eating} bare />
       {outfit.held && <span className="dress dress-held">{outfit.held}</span>}
-      {outfit.neck && <span className="dress dress-neck">{outfit.neck}</span>}
+      {outfit.body && <span className="dress dress-body">{outfit.body}</span>}
       {outfit.face && <span className="dress dress-face">{outfit.face}</span>}
       {outfit.hat && <span className="dress dress-hat">{outfit.hat}</span>}
     </span>
@@ -574,7 +574,8 @@ export default function Tamagotchi({ onExit }: GameProps) {
             <button className="hint-close" onClick={() => setWardrobe(false)} aria-label="סגור">
               ✕
             </button>
-            <h3 className="ward-title">ארון הבגדים 👕</h3>
+            <h3 className="ward-title">👗 הארון</h3>
+            <div className="ward-rail" aria-hidden="true" />
             <div className="ward-preview">
               <FriendDressed index={pet.friend} px={130} outfit={pet.outfit} />
             </div>
