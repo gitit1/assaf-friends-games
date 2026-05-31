@@ -21,10 +21,11 @@ function pickBand(): number[] {
 
 type Song = { name: string; emoji: string; notes: number[] } // notes = scale degrees 0..5
 const SONGS: Song[] = [
-  // Twinkle Twinkle / the ABC song
-  { name: 'כוכב', emoji: '⭐', notes: [0, 0, 4, 4, 5, 5, 4, 3, 3, 2, 2, 1, 1, 0] },
-  // Mary Had a Little Lamb
-  { name: 'כבשה', emoji: '🐑', notes: [2, 1, 0, 1, 2, 2, 2, 1, 1, 1, 2, 4, 4] },
+  { name: 'כוכב קטן', emoji: '⭐', notes: [0, 0, 4, 4, 5, 5, 4, 3, 3, 2, 2, 1, 1, 0] }, // Twinkle / ABC
+  { name: 'כבשה', emoji: '🐑', notes: [2, 1, 0, 1, 2, 2, 2, 1, 1, 1, 2, 4, 4] }, // Mary Had a Little Lamb
+  { name: 'סירה', emoji: '🚣', notes: [0, 0, 0, 1, 2, 2, 1, 2, 3, 4] }, // Row Row Row Your Boat
+  { name: 'אחינו יעקב', emoji: '😴', notes: [0, 1, 2, 0, 0, 1, 2, 0, 2, 3, 4, 2, 3, 4] }, // Frère Jacques
+  { name: 'תופים', emoji: '🥁', notes: [2, 1, 0, 2, 1, 0, 0, 0, 0, 1, 1, 1, 2, 1, 0] }, // Hot Cross Buns
 ]
 
 export default function PianoFriends({ onExit }: GameProps) {
@@ -34,6 +35,7 @@ export default function PianoFriends({ onExit }: GameProps) {
   const [pressed, setPressed] = useState<number | null>(null)
   const [wrong, setWrong] = useState<number | null>(null)
   const [band, setBand] = useState<number[]>(pickBand) // which friends sit on the keys
+  const [picker, setPicker] = useState(false) // song-list pop-up
 
   const song = SONGS[songIdx]
   const done = !free && pos >= song.notes.length
@@ -51,12 +53,14 @@ export default function PianoFriends({ onExit }: GameProps) {
     setPos(0)
     setWrong(null)
     setBand(pickBand())
+    setPicker(false)
   }
   function chooseFree() {
     unlockAudio()
     setFree(true)
     setWrong(null)
     setBand(pickBand())
+    setPicker(false)
   }
   function restart() {
     setPos(0)
@@ -87,14 +91,9 @@ export default function PianoFriends({ onExit }: GameProps) {
 
   return (
     <GameShell title="פסנתר חברים" emoji="🎹" onExit={onExit}>
-      <div className="gh-songs">
-        {SONGS.map((s, i) => (
-          <button key={s.name} className={`pill ${!free && i === songIdx ? 'pill-active' : ''}`} onClick={() => chooseSong(i)}>
-            {s.emoji} {s.name}
-          </button>
-        ))}
-        <button className={`pill ${free ? 'pill-active' : ''}`} onClick={chooseFree}>
-          🎵 חופשי
+      <div className="gh-top">
+        <button className="pill gh-choose" onClick={() => { unlockAudio(); setPicker(true) }}>
+          🎵 {free ? 'נגינה חופשית' : `${song.emoji} ${song.name}`} ▾
         </button>
       </div>
 
@@ -143,6 +142,33 @@ export default function PianoFriends({ onExit }: GameProps) {
               ♪ {pos} / {song.notes.length}
             </span>
           )}
+        </div>
+      )}
+
+      {picker && (
+        <div className="song-overlay" onClick={() => setPicker(false)}>
+          <div className="song-card" onClick={(e) => e.stopPropagation()}>
+            <button className="hint-close" onClick={() => setPicker(false)} aria-label="סגור">
+              ✕
+            </button>
+            <h3 className="song-title">איזה שיר לנגן? 🎵</h3>
+            <div className="song-list">
+              {SONGS.map((s, i) => (
+                <button key={s.name} className="song-item" onClick={() => chooseSong(i)}>
+                  <span className="song-item-emoji" aria-hidden="true">
+                    {s.emoji}
+                  </span>
+                  <span className="song-item-name">{s.name}</span>
+                </button>
+              ))}
+              <button className="song-item" onClick={chooseFree}>
+                <span className="song-item-emoji" aria-hidden="true">
+                  🎶
+                </span>
+                <span className="song-item-name">נגינה חופשית</span>
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </GameShell>
