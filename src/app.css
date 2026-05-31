@@ -4008,15 +4008,50 @@ button {
 }
 .pet-eat-food {
   position: absolute;
-  top: 52%;
+  top: 50%;
   left: 50%;
   font-size: 3rem;
   pointer-events: none;
-  transition: transform 0.3s ease, opacity 0.3s ease;
+  transform: translate(-50%, -50%);
+  transition: transform 0.3s ease;
   filter: drop-shadow(0 3px 4px rgba(0, 0, 0, 0.3));
 }
+.pet-eat-food.is-poof {
+  animation: food-poof 0.45s ease forwards;
+}
+@keyframes food-poof {
+  from {
+    transform: translate(-50%, -50%) scale(0.4);
+    opacity: 1;
+  }
+  to {
+    transform: translate(-50%, -50%) scale(1.8);
+    opacity: 0;
+  }
+}
+.pet-poof {
+  position: absolute;
+  top: 46%;
+  left: 50%;
+  font-size: 2.6rem;
+  pointer-events: none;
+  animation: poof-puff 0.55s ease forwards;
+}
+@keyframes poof-puff {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.5);
+  }
+  40% {
+    opacity: 0.95;
+  }
+  to {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1.7);
+  }
+}
 
-/* fridge pop-up */
+/* fridge pop-up — styled like an actual refrigerator (tall, steel, side handle, shelves) */
 .fridge-overlay {
   position: fixed;
   inset: 0;
@@ -4025,31 +4060,49 @@ button {
   align-items: flex-start;
   justify-content: center;
   z-index: 50;
-  padding: 6vh 16px 16px;
+  padding: 2vh 12px 12px;
 }
 .fridge-card {
   position: relative;
-  width: 94vw;
-  max-width: 520px;
-  max-height: 86vh;
+  width: 90vw;
+  max-width: 360px;
+  max-height: 94vh;
   overflow-y: auto;
-  background: var(--panel-strong);
-  border-radius: 28px;
-  padding: 24px 16px 16px;
+  background: linear-gradient(180deg, #f3f6fa, #d6dfea);
+  border: 5px solid #b6c1cf;
+  border-radius: 24px;
+  /* extra inline-start room for the door handle */
+  padding: 20px 14px 16px 28px;
   box-shadow: var(--shadow);
   text-align: center;
   animation: seq-hint-in 0.28s ease;
 }
+/* the fridge door handle */
+.fridge-card::before {
+  content: '';
+  position: absolute;
+  top: 16%;
+  bottom: 16%;
+  inset-inline-start: 11px;
+  width: 8px;
+  border-radius: 6px;
+  background: #9fb0c2;
+}
+.fridge-card .hint-close {
+  background: #fff;
+  color: #1b2636;
+}
 .fridge-title {
   font-family: 'Fredoka', 'Heebo', sans-serif;
   font-weight: 800;
-  font-size: 1.4rem;
+  font-size: 1.35rem;
+  color: #1b2636;
   margin: 2px 0 14px;
 }
 .fridge-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(86px, 1fr));
-  gap: 10px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
 }
 .fridge-item {
   display: flex;
@@ -4057,21 +4110,23 @@ button {
   align-items: center;
   gap: 3px;
   padding: 10px 4px;
-  border-radius: 16px;
-  background: var(--panel);
-  border: 2px solid var(--line);
+  border-radius: 12px;
+  background: #ffffff;
+  border: 1px solid #cfd8e3;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   transition: transform 0.1s ease;
 }
 .fridge-item:active {
-  transform: scale(0.93);
+  transform: scale(0.92);
 }
 .fridge-emoji {
-  font-size: 2rem;
+  font-size: 1.9rem;
 }
 .fridge-name {
   font-family: 'Fredoka', 'Heebo', sans-serif;
   font-weight: 700;
-  font-size: 0.8rem;
+  font-size: 0.72rem;
+  color: #22303f;
 }
 
 /* ---------- friends piano (melody / guitar-hero style) ---------- */

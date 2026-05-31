@@ -3,7 +3,7 @@ import GameShell from '../components/GameShell'
 import Friend from '../components/Friend'
 import { friendMaxDim } from '../components/FriendArt'
 import type { GameProps } from './registry'
-import { playFriend, playMunch, playSuccess, playTap, unlockAudio } from '../audio'
+import { playFriend, playMunch, playPop, playSuccess, playTap, unlockAudio } from '../audio'
 import { speak } from '../speech'
 import { FRIENDS, friendName, friendSay } from '../friends'
 
@@ -109,6 +109,7 @@ export default function Tamagotchi({ onExit }: GameProps) {
   const [fridge, setFridge] = useState(false)
   const [eatFood, setEatFood] = useState<string | null>(null)
   const [bite, setBite] = useState(0)
+  const [poof, setPoof] = useState(false)
   const [scene, setScene] = useState<'home' | 'walk'>('home')
   const [fx, setFx] = useState<{ emoji: string; id: number } | null>(null)
   const [bounce, setBounce] = useState(false)
@@ -208,11 +209,24 @@ export default function Tamagotchi({ onExit }: GameProps) {
     eatTimers.current = []
     setEatFood(food.emoji)
     setBite(0)
+    setPoof(false)
+    // three bites: each hop munches and shortens the food
     for (let k = 0; k < 3; k++) {
       eatTimers.current.push(window.setTimeout(() => { playMunch(); setBite(k + 1) }, 350 + k * 520))
     }
     eatTimers.current.push(window.setTimeout(() => speak('נם נם נם'), 720))
-    eatTimers.current.push(window.setTimeout(() => { setEatFood(null); setBite(0) }, 350 + 3 * 520 + 250))
+    // last bite → the food disappears with a "poof"
+    eatTimers.current.push(window.setTimeout(() => { setPoof(true); playPop() }, 350 + 2 * 520))
+    // then clear and a happy random line
+    eatTimers.current.push(
+      window.setTimeout(() => {
+        setEatFood(null)
+        setPoof(false)
+        setBite(0)
+        const lines = ['ים ים!', 'מ-מ-מ, טעים!', `אני אוהב ${food.name}!`]
+        speak(lines[Math.floor(Math.random() * lines.length)])
+      }, 350 + 2 * 520 + 520),
+    )
   }
 
   // ---- pick-a-friend screen ----
@@ -285,11 +299,16 @@ export default function Tamagotchi({ onExit }: GameProps) {
         </button>
         {eatFood && (
           <span
-            className="pet-eat-food"
-            style={{ transform: `translate(-50%,-50%) scale(${Math.max(0, 1 - bite / 3)})`, opacity: bite >= 3 ? 0 : 1 }}
+            className={`pet-eat-food ${poof ? 'is-poof' : ''}`}
+            style={poof ? undefined : { transform: `translate(-50%,-50%) scale(${Math.max(0.2, 1 - bite / 3)})` }}
             aria-hidden="true"
           >
             {eatFood}
+          </span>
+        )}
+        {poof && (
+          <span className="pet-poof" aria-hidden="true">
+            💨
           </span>
         )}
         {pet.poop && (
