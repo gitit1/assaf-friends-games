@@ -10,22 +10,22 @@ import { numberWord, randInt, shuffle } from './util'
 
 // "Missing friend in the sequence" — a run of friends follows a rule (counting,
 // jumps, times-tables, doubling) with one gap; pick the friend that completes
-// it. The 💡 hint opens a pop-up that TEACHES by building the sequence's
-// equations one element at a time (friend → + → friend → = → ✨result), each
-// result "rising" to the sequence row, ending on the missing one as `???`. No
-// timer; wrong = gentle nudge. Values stay within the roster (grows toward 100).
+// it. The 💡 hint opens a pop-up that TEACHES: it works through EVERY term's
+// equation (friend + friend = ✨friend), keeping the constant operand in place
+// and only swapping the changing one, highlighting each term in the sequence
+// row above; the missing term shows `???` so he computes it. No timer; wrong =
+// gentle nudge. Values stay within the roster (grows toward 100).
 const LEN = 4
 const MAXN = FRIENDS.length
 
 type SeqType = 'add' | 'mult' | 'geo'
 type Round = { terms: number[]; gapPos: number; type: SeqType; step: number; choices: number[] }
 type Op = '+' | '−' | '×'
-type Eq = { a: number; op: Op; b: number; c: number | null; target: number }
+type Frame = { left: number; op: Op; right: number; result: number; target: number; missing: boolean }
 
 const LEVELS = ['קל', 'רגיל', 'קשה', 'אתגר']
 const OPW: Record<Op, string> = { '+': 'ועוד', '−': 'פחות', '×': 'כפול' }
-const TICKS_PER_EQ = 5
-const TICK_MS = 750
+const TICK_MS = 850
 
 function buildTerms(type: SeqType, start: number, step: number): number[] {
   return Array.from({ length: LEN }, (_, i) =>
@@ -35,7 +35,7 @@ function buildTerms(type: SeqType, start: number, step: number): number[] {
 
 function pickConfig(level: number): { type: SeqType; start: number; step: number } {
   const maxN = Math.max(2, Math.floor(MAXN / LEN))
-  if (level === 0) return { type: 'add', start: randInt(1, MAXN - 3), step: 1 }
+  if (level === 0) return { type: 'add', start: randInt(2, MAXN - 3), step: 1 }
   if (level === 1) {
     const step = [1, -1, 2, -2][randInt(0, 3)]
     const start = step > 0 ? randInt(1, MAXN - 3 * step) : randInt(1 - 3 * step, MAXN)
@@ -73,35 +73,56 @@ function pickChoices(missing: number, terms: number[], count: number): number[] 
 }
 
 function genRound(level: number): Round {
-  for (let t = 0; t < 300; t++) {
+  for (let t = 0; t < 400; t++) {
     const { type, start, step } = pickConfig(level)
     const terms = buildTerms(type, start, step)
-    if (terms.every((v) => v >= 1 && v <= MAXN) && new Set(terms).size === LEN) {
-      const gapPos = randInt(1, LEN - 1)
-      return { terms, gapPos, type, step, choices: pickChoices(terms[gapPos], terms, level === 3 ? 3 : 2) }
+    if (!terms.every((v) => v >= 1 && v <= MAXN) || new Set(terms).size !== LEN) continue
+    // for the teaching pop-up every displayed number must be a real friend (1..MAXN)
+    if (type === 'add') {
+      const c = terms[0] - step // constant operand
+      if (c < 1 || c > MAXN || 4 * Math.abs(step) > MAXN) continue
     }
+    const gapPos = randInt(1, LEN - 1)
+    return { terms, gapPos, type, step, choices: pickChoices(terms[gapPos], terms, level === 3 ? 3 : 2) }
   }
-  const start = randInt(1, MAXN - 3)
+  const start = randInt(2, MAXN - 3)
   const terms = [start, start + 1, start + 2, start + 3]
   const gapPos = randInt(1, LEN - 1)
   return { terms, gapPos, type: 'add', step: 1, choices: pickChoices(terms[gapPos], terms, 2) }
 }
 
-// the equations the hint walks through, ending on the missing term as `???`
-function buildEquations(r: Round): Eq[] {
+// the per-term equations the hint walks through (constant operand + changing one)
+function buildFrames(r: Round): Frame[] {
   const g = r.gapPos
-  const eqs: Eq[] = []
   if (r.type === 'mult') {
     const n = r.step
-    for (let k = 1; k <= g + 1; k++) eqs.push({ a: k, op: '×', b: n, c: k === g + 1 ? null : k * n, target: k - 1 })
-  } else if (r.type === 'geo') {
-    for (let i = 1; i <= g; i++) eqs.push({ a: r.terms[i - 1], op: '×', b: r.step, c: i === g ? null : r.terms[i], target: i })
-  } else {
-    const op: Op = r.step >= 0 ? '+' : '−'
-    const b = Math.abs(r.step)
-    for (let i = 1; i <= g; i++) eqs.push({ a: r.terms[i - 1], op, b, c: i === g ? null : r.terms[i], target: i })
+    return Array.from({ length: LEN }, (_, t) => ({
+      left: t + 1,
+      op: '×' as Op,
+      right: n,
+      result: (t + 1) * n,
+      target: t,
+      missing: t === g,
+    }))
   }
-  return eqs
+  if (r.type === 'geo') {
+    const frames: Frame[] = []
+    for (let i = 1; i <= g; i++)
+      frames.push({ left: r.terms[i - 1], op: '×', right: r.step, result: r.terms[i], target: i, missing: i === g })
+    return frames
+  }
+  // add: constant first operand C = start − step; the addend grows (k × |step|)
+  const c = r.terms[0] - r.step
+  const op: Op = r.step >= 0 ? '+' : '−'
+  const ad = Math.abs(r.step)
+  return Array.from({ length: LEN }, (_, t) => ({
+    left: c,
+    op,
+    right: (t + 1) * ad,
+    result: r.terms[t],
+    target: t,
+    missing: t === g,
+  }))
 }
 
 function NumFig({ v, px }: { v: number; px: number }) {
@@ -121,11 +142,11 @@ export default function SeqGame({ onExit }: GameProps) {
   const [solved, setSolved] = useState(false)
   const [poked, setPoked] = useState<number | null>(null)
   const [hintOpen, setHintOpen] = useState(false)
-  const [tick, setTick] = useState(0)
+  const [step, setStep] = useState(0)
   const timers = useRef<number[]>([])
 
   const missing = round.terms[round.gapPos]
-  const equations = buildEquations(round)
+  const frames = buildFrames(round)
   const seqScale = (n: number) => 78 / friendMaxDim(n - 1)
   const choiceScale = (n: number) => 84 / friendMaxDim(n - 1)
 
@@ -161,24 +182,25 @@ export default function SeqGame({ onExit }: GameProps) {
     window.setTimeout(() => setPoked(null), 550)
   }
 
-  function speakEq(eq: Eq) {
-    const w = OPW[eq.op]
-    if (eq.c != null) speak(`${numberWord(eq.a)} ${w} ${numberWord(eq.b)} שווה ${numberWord(eq.c)}`)
-    else speak(`${numberWord(eq.a)} ${w} ${numberWord(eq.b)}?`)
+  function speakFrame(f: Frame) {
+    const w = OPW[f.op]
+    if (f.missing) speak(`${numberWord(f.left)} ${w} ${numberWord(f.right)}?`)
+    else speak(`${numberWord(f.left)} ${w} ${numberWord(f.right)} שווה ${numberWord(f.result)}`)
   }
 
+  // play the teaching: 2 sub-steps per term (show operands, then the result)
   function openHint() {
     unlockAudio()
     stopSpeech()
     clearTimers()
     setHintOpen(true)
-    setTick(0)
-    const total = equations.length * TICKS_PER_EQ
+    setStep(0)
+    const total = frames.length * 2
     for (let s = 0; s < total; s++) {
       timers.current.push(
         window.setTimeout(() => {
-          setTick(s)
-          if (s % TICKS_PER_EQ === 4) speakEq(equations[Math.floor(s / TICKS_PER_EQ)])
+          setStep(s)
+          if (s % 2 === 1) speakFrame(frames[Math.floor(s / 2)])
         }, s * TICK_MS),
       )
     }
@@ -209,33 +231,9 @@ export default function SeqGame({ onExit }: GameProps) {
   }
 
   // current hint frame
-  const eqIndex = Math.min(Math.floor(tick / TICKS_PER_EQ), equations.length - 1)
-  const revealed = (tick % TICKS_PER_EQ) + 1
-  const activeEq = equations[eqIndex]
-  const eqEls = activeEq
-    ? [
-        <NumFig key="a" v={activeEq.a} px={50} />,
-        <span className="eq-sym" key="op">
-          {activeEq.op}
-        </span>,
-        <NumFig key="b" v={activeEq.b} px={50} />,
-        <span className="eq-sym" key="eq">
-          =
-        </span>,
-        activeEq.c != null ? (
-          <span className="eq-res" key="c">
-            <NumFig v={activeEq.c} px={50} />
-            <span className="eq-spark" aria-hidden="true">
-              ✨
-            </span>
-          </span>
-        ) : (
-          <span className="eq-sym eq-q" key="c">
-            ???
-          </span>
-        ),
-      ].slice(0, revealed)
-    : []
+  const frameIdx = Math.min(Math.floor(step / 2), frames.length - 1)
+  const showResult = step % 2 === 1
+  const f = frames[frameIdx]
 
   return (
     <GameShell title="חבר חסר ברצף" emoji="🧩" onExit={onExit}>
@@ -300,20 +298,17 @@ export default function SeqGame({ onExit }: GameProps) {
         ))}
       </div>
 
-      {hintOpen && (
+      {hintOpen && f && (
         <div className="hint-overlay" onClick={closeHint}>
           <div className="hint-card" onClick={(e) => e.stopPropagation()}>
             <button className="hint-close" onClick={closeHint} aria-label="סגור">
               ✕
             </button>
 
-            {/* top: the sequence, with the term being solved highlighted */}
+            {/* top: the sequence, with the term being worked on highlighted */}
             <div className="hint-seq" dir="ltr">
               {round.terms.map((num, i) => (
-                <span
-                  className={`hint-seq-item ${activeEq && i === activeEq.target ? 'is-active' : ''}`}
-                  key={i}
-                >
+                <span className={`hint-seq-item ${i === f.target ? 'is-active' : ''}`} key={i}>
                   {i === round.gapPos ? (
                     <span className="hint-seq-gap">?</span>
                   ) : (
@@ -328,10 +323,30 @@ export default function SeqGame({ onExit }: GameProps) {
 
             <div className="hint-divider" />
 
-            {/* bottom: the equation building up, element by element */}
+            {/* bottom: the equation — constant operand stays, changing one swaps */}
             <div className="hint-work">
               <div className="eq-row" dir="ltr">
-                {eqEls}
+                <NumFig key={`L${f.left}`} v={f.left} px={50} />
+                <span className="eq-sym" key="op">
+                  {f.op}
+                </span>
+                <NumFig key={`R${f.right}`} v={f.right} px={50} />
+                <span className="eq-sym" key="eq">
+                  =
+                </span>
+                {showResult &&
+                  (f.missing ? (
+                    <span className="eq-sym eq-q" key={`res${f.target}`}>
+                      ???
+                    </span>
+                  ) : (
+                    <span className="eq-res" key={`res${f.target}`}>
+                      <NumFig v={f.result} px={50} />
+                      <span className="eq-spark" aria-hidden="true">
+                        ✨
+                      </span>
+                    </span>
+                  ))}
               </div>
             </div>
 
