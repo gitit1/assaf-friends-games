@@ -59,6 +59,13 @@ export function playTap() {
   tone({ freq: 440, duration: 0.12, type: 'sine', volume: 0.14 })
 }
 
+// A wooden "rattle" of clacks for rolling a die.
+export function playDice() {
+  ;[0, 0.08, 0.16, 0.24, 0.34].forEach((delay, i) =>
+    tone({ freq: 150 + (i % 2) * 40, duration: 0.05, type: 'square', volume: 0.1, delay }),
+  )
+}
+
 // A friendly "bubble pop".
 export function playPop() {
   tone({ freq: 660, duration: 0.1, type: 'triangle', volume: 0.16 })

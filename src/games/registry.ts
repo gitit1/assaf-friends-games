@@ -15,6 +15,7 @@ import PianoFriends from './PianoFriends'
 import Tamagotchi from './Tamagotchi'
 import ColorFriends from './ColorFriends'
 import ConnectDots from './ConnectDots'
+import RollDice from './RollDice'
 
 // Every game gets a callback to return to the home screen.
 export type GameProps = {
@@ -164,6 +165,14 @@ export const GAMES: GameDef[] = [
     color: 'linear-gradient(160deg, #86efac, #16a34a)',
     category: 'fun',
     Component: Tamagotchi,
+  },
+  {
+    id: 'dice',
+    title: 'מגלגלים קובייה',
+    emoji: '🎲',
+    color: 'linear-gradient(160deg, #fb7185, #9333ea)',
+    category: 'fun',
+    Component: RollDice,
   },
   {
     id: 'colorme',

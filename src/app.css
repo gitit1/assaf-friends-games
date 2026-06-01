@@ -6027,3 +6027,109 @@ button {
     box-shadow: 0 0 0 9px rgba(255, 221, 102, 0);
   }
 }
+
+/* ===================== מגלגלים קובייה (roll a dice) ===================== */
+.roll-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+.roll-toggle {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+.dice-stage {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  min-height: 104px;
+}
+.die {
+  width: 96px;
+  height: 96px;
+  padding: 14px;
+  border-radius: 18px;
+  background: linear-gradient(150deg, #ffffff, #dbe2ea);
+  box-shadow: inset 0 -6px 10px rgba(0, 0, 0, 0.12), inset 0 4px 8px rgba(255, 255, 255, 0.8),
+    0 8px 14px rgba(0, 0, 0, 0.3);
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  place-items: center;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+.die:active {
+  transform: scale(0.96);
+}
+.pip {
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+}
+.pip.on {
+  width: 16px;
+  height: 16px;
+  background: radial-gradient(circle at 38% 32%, #475569, #0f172a);
+  box-shadow: inset 0 -1px 1px rgba(0, 0, 0, 0.4);
+}
+.die.is-rolling {
+  animation: die-shake 0.28s linear infinite;
+}
+@keyframes die-shake {
+  0% {
+    transform: rotate(0) translateY(0);
+  }
+  25% {
+    transform: rotate(-13deg) translateY(-5px);
+  }
+  50% {
+    transform: rotate(9deg) translateY(3px);
+  }
+  75% {
+    transform: rotate(-6deg) translateY(-2px);
+  }
+  100% {
+    transform: rotate(0) translateY(0);
+  }
+}
+.roll-result {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  min-height: 190px;
+  justify-content: center;
+}
+.roll-eq {
+  font-family: 'Fredoka', 'Heebo', sans-serif;
+  font-weight: 800;
+  font-size: 1.7rem;
+  margin: 0;
+  color: var(--text);
+}
+.roll-op {
+  color: var(--accent);
+  margin: 0 2px;
+}
+.roll-friend.is-in {
+  animation: roll-pop 0.45s ease;
+}
+@keyframes roll-pop {
+  0% {
+    transform: scale(0.4);
+    opacity: 0;
+  }
+  70% {
+    transform: scale(1.12);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+.roll-button {
+  margin-top: 4px;
+}
