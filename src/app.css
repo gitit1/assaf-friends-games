@@ -601,6 +601,24 @@ button {
   transform: scale(0.92);
 }
 
+.fullscreen-button {
+  position: absolute;
+  top: 0;
+  inset-inline-start: 62px;
+  font-size: 1.5rem;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--panel-strong);
+  box-shadow: var(--shadow);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.fullscreen-button:active {
+  transform: scale(0.92);
+}
+
 .settings-overlay {
   position: fixed;
   inset: 0;

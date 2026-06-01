@@ -1,6 +1,7 @@
 import { CATEGORIES, gamesInCategory, type CategoryId } from '../games/registry'
 import Friend from './Friend'
 import SettingsPanel from './SettingsPanel'
+import FullscreenButton from './FullscreenButton'
 import { playTap, unlockAudio } from '../audio'
 import { stopSpeech } from '../speech'
 
@@ -33,6 +34,7 @@ export default function HomeScreen({ onOpen, onOpenCategory }: HomeScreenProps) 
         <button className="gallery-button" aria-label="גלריית עיצובים" onClick={() => open('gallery')}>
           🎨
         </button>
+        <FullscreenButton />
         <h1 className="home-title">
           <span aria-hidden="true">🌟</span> עולם החברים
         </h1>
