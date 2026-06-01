@@ -5956,6 +5956,10 @@ button {
   left: 0;
   z-index: 1;
 }
+/* freeze the gentle breathing so the bumps stay put under the measured dots */
+.dots-board .friend-art > * {
+  animation: none !important;
+}
 /* the dots + line layer — fades out cleanly when the friend is fully revealed */
 .dots-overlay {
   position: absolute;
