@@ -6079,19 +6079,18 @@ button {
   flex-wrap: wrap;
   justify-content: center;
   align-items: center;
-  gap: 14px;
+  gap: 10px;
   min-height: 88px;
-  max-width: 420px;
   margin: 0 auto;
 }
+/* sizes are in em so the die scales with the inline font-size (= its pixel
+   size), letting dice shrink as more are added */
 .die {
-  width: 78px;
-  height: 78px;
-  padding: 11px;
-  border-radius: 16px;
-  background: linear-gradient(150deg, #ffffff, #dbe2ea);
-  box-shadow: inset 0 -6px 10px rgba(0, 0, 0, 0.12), inset 0 4px 8px rgba(255, 255, 255, 0.8),
-    0 8px 14px rgba(0, 0, 0, 0.3);
+  padding: 0.14em;
+  background: linear-gradient(145deg, #ffffff, #dbe2ea);
+  /* drop-shadow follows the clipped shape; inset shadows give a 3D bevel */
+  box-shadow: inset 0 -0.1em 0.14em rgba(0, 0, 0, 0.22), inset 0 0.07em 0.12em rgba(255, 255, 255, 0.85);
+  filter: drop-shadow(0 0.08em 0.1em rgba(0, 0, 0, 0.38));
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   grid-template-rows: repeat(3, 1fr);
@@ -6101,12 +6100,41 @@ button {
 }
 .die.die-num {
   display: flex;
+  align-items: center;
+  justify-content: center;
+}
+/* the different dice shapes (different number of "sides") */
+.die-square {
+  border-radius: 0.22em;
+}
+.die-triangle {
+  clip-path: polygon(50% 3%, 97% 95%, 3% 95%);
+}
+.die-diamond {
+  clip-path: polygon(50% 2%, 98% 50%, 50% 98%, 2% 50%);
+}
+.die-kite {
+  clip-path: polygon(50% 2%, 96% 40%, 50% 98%, 4% 40%);
+}
+.die-pentagon {
+  clip-path: polygon(50% 2%, 98% 40%, 80% 97%, 20% 97%, 2% 40%);
+}
+.die-hexagon {
+  clip-path: polygon(25% 4%, 75% 4%, 98% 50%, 75% 96%, 25% 96%, 2% 50%);
 }
 .die-value {
   font-family: 'Fredoka', 'Heebo', sans-serif;
   font-weight: 800;
-  font-size: 2.2rem;
+  font-size: 0.5em;
   color: #15233a;
+}
+/* the triangle's centre of area is low, so drop the number a touch */
+.die-triangle .die-value {
+  transform: translateY(28%);
+}
+.die-kite .die-value,
+.die-pentagon .die-value {
+  transform: translateY(8%);
 }
 .die:active {
   transform: scale(0.96);
@@ -6117,10 +6145,10 @@ button {
   border-radius: 50%;
 }
 .pip.on {
-  width: 13px;
-  height: 13px;
+  width: 0.18em;
+  height: 0.18em;
   background: radial-gradient(circle at 38% 32%, #475569, #0f172a);
-  box-shadow: inset 0 -1px 1px rgba(0, 0, 0, 0.4);
+  box-shadow: inset 0 -0.02em 0.02em rgba(0, 0, 0, 0.4);
 }
 .die.is-rolling {
   animation: die-shake 0.28s linear infinite;
@@ -6184,6 +6212,10 @@ button {
     opacity: 1;
   }
 }
-.roll-button {
-  margin-top: 4px;
+/* the roll button — a bigger version of the shared round icon button */
+.roll-icon {
+  width: 74px;
+  height: 74px;
+  font-size: 2.2rem;
+  margin-top: 2px;
 }
