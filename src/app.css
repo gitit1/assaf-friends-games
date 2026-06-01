@@ -5644,18 +5644,11 @@ button {
   text-align: center;
 }
 .color-stage {
-  /* full-bleed: span the whole screen width so big friends can really fill it,
-     regardless of the page's side padding */
-  position: relative;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 100vw;
   display: flex;
   align-items: center;
   justify-content: center;
   min-height: 46vh;
   margin: 2px 0 10px;
-  overflow-x: clip;
 }
 .color-fit {
   position: relative;

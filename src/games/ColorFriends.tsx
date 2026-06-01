@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import GameShell from '../components/GameShell'
 import FriendArt, {
   FRIEND_NATURAL,
@@ -74,30 +74,26 @@ export default function ColorFriends({ onExit }: GameProps) {
   const [more, setMore] = useState(false)
   const wide = useIsWide()
 
-  // measure the play area so big friends can fill ~96% of its width live
-  const stageRef = useRef<HTMLDivElement>(null)
-  const [stageW, setStageW] = useState(0)
+  // live screen size, so big friends can be sized against the real screen width
+  const [win, setWin] = useState(() => ({
+    w: typeof window !== 'undefined' ? window.innerWidth : 360,
+    h: typeof window !== 'undefined' ? window.innerHeight : 700,
+  }))
   useEffect(() => {
-    const el = stageRef.current
-    if (!el) return
-    const update = () => setStageW(el.clientWidth)
-    update()
-    const ro = new ResizeObserver(update)
-    ro.observe(el)
-    return () => ro.disconnect()
+    const onResize = () => setWin({ w: window.innerWidth, h: window.innerHeight })
+    window.addEventListener('resize', onResize)
+    return () => window.removeEventListener('resize', onResize)
   }, [])
 
   const kind = friendKindForIndex(index)
   const nat = FRIEND_NATURAL[kind]
-  // friends above 10 fill ~98% of the screen width (the stage is full-bleed, so
-  // stageW ≈ the screen). The 0.93 box factor leaves room for the arms that
-  // stick out past the design box, so the whole friend lands ≈98% wide without
-  // overflowing. Height is capped so a tall friend never runs off-screen.
-  const vh = typeof window !== 'undefined' ? window.innerHeight : 700
-  const screenW = stageW > 0 ? stageW : typeof window !== 'undefined' ? window.innerWidth : 360
+  // Friends above 10 are sized so the WHOLE friend (arms included, hence +14)
+  // spans ~98% of the screen width — big bumps, easy to colour. The friend is
+  // flex-centred, so it stays in the middle even while overflowing the padded
+  // content box a touch. Height is capped so a tall friend never runs off.
   const scale =
     index >= 10
-      ? Math.min((screenW * 0.93) / nat.w, (vh * 0.6) / nat.h)
+      ? Math.min((win.w * 0.98) / (nat.w + 14), (win.h * 0.6) / nat.h)
       : (wide ? 440 : 290) / MAX_NAT
 
   function goTo(next: number) {
@@ -161,7 +157,7 @@ export default function ColorFriends({ onExit }: GameProps) {
         </button>
       </div>
 
-      <div className="color-stage" ref={stageRef}>
+      <div className="color-stage">
         <span
           className={`color-fit ${done ? 'is-done' : ''}`}
           style={{ width: nat.w * scale, height: nat.h * scale }}
