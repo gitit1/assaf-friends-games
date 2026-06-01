@@ -84,6 +84,10 @@ type BigKind = (typeof BIG_KINDS)[number]
 export type BigAccessory =
   | 'cone' | 'bow' | 'glasses' | 'cap' | 'flower'
   | 'star' | 'earmuffs' | 'propeller' | 'tiara' | 'crown'
+  // every friend gets a UNIQUE one — these are the extra distinct designs
+  | 'bunnyears' | 'sunglasses' | 'catears' | 'beret' | 'feather'
+  | 'headband' | 'antennae' | 'mohawk' | 'sprout' | 'wizardhat'
+  | 'horns' | 'toque' | 'bandana' | 'mustache' | 'mortarboard'
 
 const BU = 46 // bump size (px) for big friends — keep in sync with .gal-big --u
 const H_OVER = 0.16 // horizontal overlap of bumps within a row
@@ -97,25 +101,25 @@ export const BIG: Record<BigKind, {
   face: 'plain' | 'girl'
 }> = {
   toto:   { rows: [3, 5, 3],       bc: '#e11d48', shoe: '#1e3a8a', acc: 'cone',      face: 'plain' }, // 11
-  lili:   { rows: [2, 4, 4, 2],    bc: '#ea580c', shoe: '#1e3a8a', acc: 'bow',       face: 'girl' }, // 12
-  momo:   { rows: [4, 5, 4],       bc: '#ca8a04', shoe: '#0e7490', acc: 'glasses',   face: 'plain' }, // 13
+  lili:   { rows: [2, 4, 4, 2],    bc: '#ea580c', shoe: '#1e3a8a', acc: 'bunnyears', face: 'girl' }, // 12
+  momo:   { rows: [4, 5, 4],       bc: '#ca8a04', shoe: '#0e7490', acc: 'sunglasses',face: 'plain' }, // 13
   riki:   { rows: [3, 4, 4, 3],    bc: '#65a30d', shoe: '#b91c1c', acc: 'cap',       face: 'plain' }, // 14
-  shushu: { rows: [1, 2, 3, 4, 5], bc: '#0d9488', shoe: '#db2777', acc: 'flower',    face: 'girl' }, // 15 ▲
+  shushu: { rows: [1, 2, 3, 4, 5], bc: '#0d9488', shoe: '#db2777', acc: 'catears',   face: 'girl' }, // 15 ▲
   gili:   { rows: [4, 4, 4, 4],    bc: '#0891b2', shoe: '#f59e0b', acc: 'star',      face: 'plain' }, // 16 ■
   roni:   { rows: [1, 4, 4, 4, 4], bc: '#2563eb', shoe: '#f43f5e', acc: 'earmuffs',  face: 'plain' }, // 17 house
   yoyo:   { rows: [3, 4, 4, 4, 3], bc: '#7c3aed', shoe: '#22c55e', acc: 'propeller', face: 'plain' }, // 18
-  sofi:   { rows: [3, 4, 5, 4, 3], bc: '#c026d3', shoe: '#f59e0b', acc: 'tiara',     face: 'girl' }, // 19 ◆
-  kiki:   { rows: [5, 5, 5, 5],    bc: '#be123c', shoe: '#1e3a8a', acc: 'crown',     face: 'girl' }, // 20
-  romi:   { rows: [4, 4, 5, 4, 4], bc: '#be185d', shoe: '#1e3a8a', acc: 'cap',       face: 'plain' }, // 21
-  nini:   { rows: [4, 5, 4, 5, 4], bc: '#c2410c', shoe: '#db2777', acc: 'bow',       face: 'girl' }, // 22
-  pupi:   { rows: [4, 5, 5, 5, 4], bc: '#a16207', shoe: '#f59e0b', acc: 'propeller', face: 'plain' }, // 23
-  tuti:   { rows: [4, 5, 6, 5, 4], bc: '#4d7c0f', shoe: '#b91c1c', acc: 'flower',    face: 'girl' }, // 24 ◆
-  mishi:  { rows: [5, 5, 5, 5, 5], bc: '#047857', shoe: '#0e7490', acc: 'glasses',   face: 'plain' }, // 25 ■
-  buzi:   { rows: [5, 5, 6, 5, 5], bc: '#0e7490', shoe: '#f43f5e', acc: 'star',      face: 'plain' }, // 26
-  dagi:   { rows: [5, 6, 5, 6, 5], bc: '#1d4ed8', shoe: '#22c55e', acc: 'cone',      face: 'plain' }, // 27
-  lala:   { rows: [5, 6, 6, 6, 5], bc: '#6d28d9', shoe: '#f59e0b', acc: 'tiara',     face: 'girl' }, // 28
-  chumi:  { rows: [6, 6, 5, 6, 6], bc: '#a21caf', shoe: '#1e3a8a', acc: 'earmuffs',  face: 'plain' }, // 29
-  tsutsi: { rows: [6, 6, 6, 6, 6], bc: '#9f1239', shoe: '#facc15', acc: 'crown',     face: 'girl' }, // 30 ■
+  sofi:   { rows: [3, 4, 5, 4, 3], bc: '#c026d3', shoe: '#f59e0b', acc: 'beret',     face: 'girl' }, // 19 ◆
+  kiki:   { rows: [5, 5, 5, 5],    bc: '#be123c', shoe: '#1e3a8a', acc: 'feather',   face: 'girl' }, // 20
+  romi:   { rows: [4, 4, 5, 4, 4], bc: '#be185d', shoe: '#1e3a8a', acc: 'headband',  face: 'plain' }, // 21
+  nini:   { rows: [4, 5, 4, 5, 4], bc: '#c2410c', shoe: '#db2777', acc: 'antennae',  face: 'girl' }, // 22
+  pupi:   { rows: [4, 5, 5, 5, 4], bc: '#a16207', shoe: '#f59e0b', acc: 'mohawk',    face: 'plain' }, // 23
+  tuti:   { rows: [4, 5, 6, 5, 4], bc: '#4d7c0f', shoe: '#b91c1c', acc: 'sprout',    face: 'girl' }, // 24 ◆
+  mishi:  { rows: [5, 5, 5, 5, 5], bc: '#047857', shoe: '#0e7490', acc: 'wizardhat', face: 'plain' }, // 25 ■
+  buzi:   { rows: [5, 5, 6, 5, 5], bc: '#0e7490', shoe: '#f43f5e', acc: 'horns',     face: 'plain' }, // 26
+  dagi:   { rows: [5, 6, 5, 6, 5], bc: '#1d4ed8', shoe: '#22c55e', acc: 'toque',     face: 'plain' }, // 27
+  lala:   { rows: [5, 6, 6, 6, 5], bc: '#6d28d9', shoe: '#f59e0b', acc: 'bandana',   face: 'girl' }, // 28
+  chumi:  { rows: [6, 6, 5, 6, 6], bc: '#a21caf', shoe: '#1e3a8a', acc: 'mustache',  face: 'plain' }, // 29
+  tsutsi: { rows: [6, 6, 6, 6, 6], bc: '#9f1239', shoe: '#facc15', acc: 'mortarboard',face: 'girl' }, // 30 ■
 }
 
 const bigNatural = Object.fromEntries(
@@ -299,6 +303,106 @@ function bigAccessory(acc: BigAccessory) {
           <i />
         </span>
       )
+    case 'bunnyears':
+      return (
+        <span className="acc2 acc2-bunnyears">
+          <i className="l" />
+          <i className="r" />
+        </span>
+      )
+    case 'sunglasses':
+      return (
+        <span className="acc2 acc2-sunglasses">
+          <i className="l" />
+          <i className="b" />
+          <i className="r" />
+        </span>
+      )
+    case 'catears':
+      return (
+        <span className="acc2 acc2-catears">
+          <i className="l" />
+          <i className="r" />
+        </span>
+      )
+    case 'beret':
+      return (
+        <span className="acc2 acc2-beret">
+          <b />
+        </span>
+      )
+    case 'feather':
+      return (
+        <span className="acc2 acc2-feather">
+          <i className="band" />
+        </span>
+      )
+    case 'headband':
+      return (
+        <span className="acc2 acc2-headband">
+          <i className="k" />
+        </span>
+      )
+    case 'antennae':
+      return (
+        <span className="acc2 acc2-antennae">
+          <i className="l" />
+          <i className="r" />
+        </span>
+      )
+    case 'mohawk':
+      return (
+        <span className="acc2 acc2-mohawk">
+          <i />
+          <i />
+          <i />
+          <i />
+          <i />
+        </span>
+      )
+    case 'sprout':
+      return (
+        <span className="acc2 acc2-sprout">
+          <i className="l" />
+          <i className="r" />
+        </span>
+      )
+    case 'wizardhat':
+      return (
+        <span className="acc2 acc2-wizardhat">
+          <b />
+        </span>
+      )
+    case 'horns':
+      return (
+        <span className="acc2 acc2-horns">
+          <i className="l" />
+          <i className="r" />
+        </span>
+      )
+    case 'toque':
+      return (
+        <span className="acc2 acc2-toque">
+          <i className="band" />
+        </span>
+      )
+    case 'bandana':
+      return (
+        <span className="acc2 acc2-bandana">
+          <i className="k" />
+          <i className="t1" />
+          <i className="t2" />
+        </span>
+      )
+    case 'mustache':
+      return <span className="acc2 acc2-mustache" />
+    case 'mortarboard':
+      return (
+        <span className="acc2 acc2-mortarboard">
+          <i className="btn" />
+          <i className="tassel" />
+        </span>
+      )
     default:
       return null
   }
@@ -393,9 +497,11 @@ export default function FriendArt({ kind, number, showHalo = false, litUnits, ea
         })}
       </span>
     ))
-    // the persona accessory is glasses for momo (a face item); the rest are
-    // worn on the head — hide whichever slot the child has dressed.
-    const showAcc = spec.acc === 'glasses' ? !wFace : !wHat
+    // some persona accessories sit on the face (glasses / shades / mustache) —
+    // those are replaced by the dress-up "face" slot; the rest sit on the head
+    // and are replaced by the "hat" slot. Hide whichever the child has dressed.
+    const faceAcc = spec.acc === 'glasses' || spec.acc === 'sunglasses' || spec.acc === 'mustache'
+    const showAcc = faceAcc ? !wFace : !wHat
     design = (
       <div
         className={`gal-big big-${kind}`}

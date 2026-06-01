@@ -3077,6 +3077,530 @@ button {
   background: #4ade80;
 }
 
+/* ===== extra UNIQUE persona accessories (so no two friends share one) ===== */
+
+/* 12 לילי — bunny ears */
+.gal-big .acc2-bunnyears {
+  top: -46px;
+  width: 40px;
+  height: 50px;
+}
+.gal-big .acc2-bunnyears .l,
+.gal-big .acc2-bunnyears .r {
+  position: absolute;
+  bottom: 0;
+  width: 15px;
+  height: 48px;
+  background: linear-gradient(#ffffff, #fde7ef);
+  border: 2px solid #f9a8c4;
+  border-radius: 50% 50% 45% 45%;
+}
+.gal-big .acc2-bunnyears .l::after,
+.gal-big .acc2-bunnyears .r::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 6px;
+  transform: translateX(-50%);
+  width: 6px;
+  height: 32px;
+  border-radius: 50%;
+  background: #f9a8c4;
+}
+.gal-big .acc2-bunnyears .l {
+  left: 3px;
+  transform: rotate(-12deg);
+}
+.gal-big .acc2-bunnyears .r {
+  right: 3px;
+  transform: rotate(12deg);
+}
+
+/* 13 מומו — sunglasses (on the face) */
+.gal-big .acc2-sunglasses {
+  top: 40%;
+  transform: translate(-50%, -50%);
+  width: 64px;
+  height: 22px;
+}
+.gal-big .acc2-sunglasses .l,
+.gal-big .acc2-sunglasses .r {
+  position: absolute;
+  top: 0;
+  width: 26px;
+  height: 20px;
+  background: linear-gradient(#374151, #0f172a);
+  border: 2px solid #0b1220;
+  border-radius: 8px 8px 12px 12px;
+}
+.gal-big .acc2-sunglasses .l {
+  left: 0;
+  transform: rotate(-3deg);
+}
+.gal-big .acc2-sunglasses .r {
+  right: 0;
+  transform: rotate(3deg);
+}
+.gal-big .acc2-sunglasses .b {
+  position: absolute;
+  top: 5px;
+  left: 26px;
+  right: 26px;
+  height: 3px;
+  background: #0b1220;
+}
+
+/* 15 שושו — cat ears */
+.gal-big .acc2-catears {
+  top: -22px;
+  width: 56px;
+  height: 26px;
+}
+.gal-big .acc2-catears .l,
+.gal-big .acc2-catears .r {
+  position: absolute;
+  bottom: 0;
+  width: 26px;
+  height: 26px;
+  background: #a78bfa;
+  clip-path: polygon(50% 0, 100% 100%, 0 100%);
+}
+.gal-big .acc2-catears .l::after,
+.gal-big .acc2-catears .r::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  transform: translateX(-50%);
+  width: 12px;
+  height: 14px;
+  background: #f9a8c4;
+  clip-path: polygon(50% 0, 100% 100%, 0 100%);
+}
+.gal-big .acc2-catears .l {
+  left: 0;
+  transform: rotate(-8deg);
+}
+.gal-big .acc2-catears .r {
+  right: 0;
+  transform: rotate(8deg);
+}
+
+/* 19 סופי — beret */
+.gal-big .acc2-beret {
+  top: -22px;
+  width: 52px;
+  height: 28px;
+}
+.gal-big .acc2-beret::before {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 0;
+  right: 0;
+  height: 22px;
+  background: linear-gradient(#ef4444, #b91c1c);
+  border-radius: 50% / 75% 75% 45% 45%;
+  transform: rotate(-7deg);
+  box-shadow: inset 0 -3px 4px rgba(0, 0, 0, 0.18);
+}
+.gal-big .acc2-beret b {
+  position: absolute;
+  top: -2px;
+  left: 56%;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #7f1d1d;
+}
+
+/* 20 קיקי — feather in a band */
+.gal-big .acc2-feather {
+  top: -44px;
+  width: 42px;
+  height: 48px;
+}
+.gal-big .acc2-feather::before {
+  content: '';
+  position: absolute;
+  bottom: 7px;
+  left: 50%;
+  transform: translateX(-50%) rotate(9deg);
+  width: 15px;
+  height: 40px;
+  background: linear-gradient(#f59e0b, #ea580c);
+  border-radius: 50% / 70% 70% 40% 40%;
+}
+.gal-big .acc2-feather::after {
+  content: '';
+  position: absolute;
+  bottom: 7px;
+  left: 50%;
+  transform: translateX(-50%) rotate(9deg);
+  width: 2px;
+  height: 38px;
+  background: rgba(0, 0, 0, 0.22);
+}
+.gal-big .acc2-feather .band {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 40px;
+  height: 10px;
+  background: #92400e;
+  border-radius: 6px;
+}
+
+/* 21 רומי — headband */
+.gal-big .acc2-headband {
+  top: -2px;
+  width: 66px;
+  height: 16px;
+}
+.gal-big .acc2-headband::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(#22d3ee, #0891b2);
+  border-radius: 8px;
+}
+.gal-big .acc2-headband .k {
+  position: absolute;
+  right: -3px;
+  top: -3px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #0e7490;
+}
+
+/* 22 ניני — antennae */
+.gal-big .acc2-antennae {
+  top: -32px;
+  width: 42px;
+  height: 34px;
+}
+.gal-big .acc2-antennae .l,
+.gal-big .acc2-antennae .r {
+  position: absolute;
+  bottom: 0;
+  width: 3px;
+  height: 28px;
+  background: #374151;
+  border-radius: 2px;
+}
+.gal-big .acc2-antennae .l::after,
+.gal-big .acc2-antennae .r::after {
+  content: '';
+  position: absolute;
+  top: -9px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+.gal-big .acc2-antennae .l {
+  left: 9px;
+  transform: rotate(-15deg);
+}
+.gal-big .acc2-antennae .l::after {
+  background: #f43f5e;
+}
+.gal-big .acc2-antennae .r {
+  right: 9px;
+  transform: rotate(15deg);
+}
+.gal-big .acc2-antennae .r::after {
+  background: #22d3ee;
+}
+
+/* 23 פופי — mohawk */
+.gal-big .acc2-mohawk {
+  top: -26px;
+  width: 46px;
+  height: 30px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 2px;
+}
+.gal-big .acc2-mohawk i {
+  width: 8px;
+  background: linear-gradient(#f43f5e, #be123c);
+  border-radius: 4px 4px 0 0;
+}
+.gal-big .acc2-mohawk i:nth-child(1),
+.gal-big .acc2-mohawk i:nth-child(5) {
+  height: 14px;
+}
+.gal-big .acc2-mohawk i:nth-child(2),
+.gal-big .acc2-mohawk i:nth-child(4) {
+  height: 22px;
+}
+.gal-big .acc2-mohawk i:nth-child(3) {
+  height: 30px;
+}
+
+/* 24 תותי — a little sprout */
+.gal-big .acc2-sprout {
+  top: -30px;
+  width: 32px;
+  height: 32px;
+}
+.gal-big .acc2-sprout::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 24px;
+  background: #16a34a;
+  border-radius: 2px;
+}
+.gal-big .acc2-sprout .l,
+.gal-big .acc2-sprout .r {
+  position: absolute;
+  top: 2px;
+  width: 16px;
+  height: 13px;
+  background: #22c55e;
+  border-radius: 0 100% 0 100%;
+}
+.gal-big .acc2-sprout .l {
+  left: -1px;
+  transform: rotate(-12deg);
+}
+.gal-big .acc2-sprout .r {
+  right: -1px;
+  transform: rotate(12deg) scaleX(-1);
+}
+
+/* 25 מישי — wizard hat */
+.gal-big .acc2-wizardhat {
+  top: -50px;
+  width: 48px;
+  height: 56px;
+}
+.gal-big .acc2-wizardhat::before {
+  content: '';
+  position: absolute;
+  bottom: 6px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 38px;
+  height: 48px;
+  background: linear-gradient(#7c3aed, #4c1d95);
+  clip-path: polygon(50% 0, 100% 100%, 0 100%);
+}
+.gal-big .acc2-wizardhat::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 52px;
+  height: 9px;
+  background: #4c1d95;
+  border-radius: 50%;
+}
+.gal-big .acc2-wizardhat b {
+  position: absolute;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 12px;
+  height: 12px;
+  background: linear-gradient(#fde047, #f59e0b);
+  clip-path: polygon(50% 0, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+  z-index: 1;
+}
+
+/* 26 בוזי — little horns */
+.gal-big .acc2-horns {
+  top: -20px;
+  width: 50px;
+  height: 24px;
+}
+.gal-big .acc2-horns .l,
+.gal-big .acc2-horns .r {
+  position: absolute;
+  bottom: 0;
+  width: 16px;
+  height: 22px;
+  background: linear-gradient(#fbbf24, #b45309);
+  border-radius: 80% 20% 60% 40% / 100% 60% 40% 0;
+}
+.gal-big .acc2-horns .l {
+  left: 2px;
+  transform: rotate(-16deg);
+}
+.gal-big .acc2-horns .r {
+  right: 2px;
+  transform: rotate(16deg) scaleX(-1);
+}
+
+/* 27 דגי — chef's toque */
+.gal-big .acc2-toque {
+  top: -36px;
+  width: 48px;
+  height: 42px;
+}
+.gal-big .acc2-toque::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 48px;
+  height: 30px;
+  background: #ffffff;
+  border-radius: 50% 50% 38% 38%;
+  box-shadow: inset 0 -5px 7px rgba(0, 0, 0, 0.08);
+}
+.gal-big .acc2-toque .band {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 38px;
+  height: 14px;
+  background: #f3f4f6;
+  border-radius: 6px;
+  box-shadow: inset 0 -2px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* 28 לאלה — bandana */
+.gal-big .acc2-bandana {
+  top: -10px;
+  width: 66px;
+  height: 22px;
+}
+.gal-big .acc2-bandana::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 16px;
+  background: linear-gradient(#f472b6, #db2777);
+  border-radius: 10px 10px 7px 7px;
+}
+.gal-big .acc2-bandana .k {
+  position: absolute;
+  right: 2px;
+  top: 5px;
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: #be185d;
+}
+.gal-big .acc2-bandana .t1,
+.gal-big .acc2-bandana .t2 {
+  position: absolute;
+  top: 12px;
+  width: 9px;
+  height: 14px;
+  background: #db2777;
+  border-radius: 0 0 6px 6px;
+}
+.gal-big .acc2-bandana .t1 {
+  right: 8px;
+  transform: rotate(14deg);
+}
+.gal-big .acc2-bandana .t2 {
+  right: -1px;
+  transform: rotate(26deg);
+}
+
+/* 29 חומי — mustache (on the face) */
+.gal-big .acc2-mustache {
+  top: 53%;
+  transform: translate(-50%, -50%);
+  width: 42px;
+  height: 16px;
+  background: #4b3a30;
+  border-radius: 50% 50% 50% 50% / 25% 25% 100% 100%;
+}
+.gal-big .acc2-mustache::before,
+.gal-big .acc2-mustache::after {
+  content: '';
+  position: absolute;
+  top: -3px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #4b3a30;
+}
+.gal-big .acc2-mustache::before {
+  left: -2px;
+}
+.gal-big .acc2-mustache::after {
+  right: -2px;
+}
+
+/* 30 צוצי — graduation mortarboard */
+.gal-big .acc2-mortarboard {
+  top: -24px;
+  width: 58px;
+  height: 26px;
+}
+.gal-big .acc2-mortarboard::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 30px;
+  height: 13px;
+  background: #111827;
+  border-radius: 0 0 7px 7px;
+}
+.gal-big .acc2-mortarboard::before {
+  content: '';
+  position: absolute;
+  top: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 56px;
+  height: 16px;
+  background: #1f2937;
+  clip-path: polygon(50% 0, 100% 45%, 50% 90%, 0 45%);
+}
+.gal-big .acc2-mortarboard .btn {
+  position: absolute;
+  top: 9px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #fde047;
+  z-index: 1;
+}
+.gal-big .acc2-mortarboard .tassel {
+  position: absolute;
+  top: 10px;
+  left: 62%;
+  width: 3px;
+  height: 20px;
+  background: #fde047;
+  z-index: 1;
+}
+.gal-big .acc2-mortarboard .tassel::after {
+  content: '';
+  position: absolute;
+  bottom: -5px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 8px;
+  height: 10px;
+  border-radius: 50%;
+  background: #facc15;
+}
+
 /* size comparison strip (1 · 2 · 3, on one baseline) */
 .gal-compare-title {
   text-align: center;
