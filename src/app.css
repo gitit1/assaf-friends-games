@@ -6329,3 +6329,70 @@ button {
   font-size: 2.6rem;
   filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.25));
 }
+
+/* ===================== צביעה לפי מספר (colour by number) ===================== */
+.cbn-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  margin: 4px 0 10px;
+}
+.cbn-swatch {
+  width: 50px;
+  height: 50px;
+  border-radius: 14px;
+  border: 3px solid rgba(255, 255, 255, 0.7);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
+  font-family: 'Fredoka', 'Heebo', sans-serif;
+  font-weight: 800;
+  font-size: 1.4rem;
+  color: #15233a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.cbn-swatch.is-active {
+  border-color: var(--accent);
+  transform: scale(1.12);
+  box-shadow: 0 0 0 3px var(--accent), 0 3px 6px rgba(0, 0, 0, 0.3);
+}
+.cbn-stage {
+  flex: 1 1 0;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 18px;
+}
+.cbn-grid {
+  display: grid;
+  gap: 2px;
+  background: rgba(255, 255, 255, 0.06);
+  padding: 4px;
+  border-radius: 10px;
+}
+.cbn-grid.is-done {
+  animation: color-cheer 0.7s ease;
+}
+.cbn-cell {
+  width: 100%;
+  height: 100%;
+  border-radius: 4px;
+  font-family: 'Fredoka', 'Heebo', sans-serif;
+  font-weight: 800;
+  font-size: 0.85rem;
+  color: #cbd5e1;
+  background: rgba(255, 255, 255, 0.14);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  touch-action: manipulation;
+}
+.cbn-cell.cbn-empty {
+  background: transparent;
+  pointer-events: none;
+}
+.cbn-cell.is-filled {
+  color: transparent;
+}
