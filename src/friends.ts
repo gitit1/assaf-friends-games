@@ -34,6 +34,17 @@ export const FRIENDS: Friend[] = [
   { color: '#7c3aed', name: 'יויו', say: 'יוֹיוֹ' }, // 18
   { color: '#c026d3', name: 'סופי', say: 'סוֹפִי' }, // 19
   { color: '#be123c', name: 'קיקי', say: 'קִיקִי' }, // 20
+  // 21–30 — the biggest friends (deepest, jewel-tone rainbow); colours match BIG
+  { color: '#be185d', name: 'רומי', say: 'רוֹמִי' }, // 21
+  { color: '#c2410c', name: 'ניני', say: 'נִינִי' }, // 22
+  { color: '#a16207', name: 'פופי', say: 'פּוּפִּי' }, // 23
+  { color: '#4d7c0f', name: 'תותי', say: 'תּוּתִי' }, // 24
+  { color: '#047857', name: 'מישי', say: 'מִישִׁי' }, // 25
+  { color: '#0e7490', name: 'בוזי', say: 'בּוּזִי' }, // 26
+  { color: '#1d4ed8', name: 'דגי', say: 'דַּגִּי' }, // 27
+  { color: '#6d28d9', name: 'לאלה', say: 'לַאלָה' }, // 28
+  { color: '#a21caf', name: 'חומי', say: 'חוּמִי' }, // 29
+  { color: '#9f1239', name: 'צוצי', say: 'צוּצִי' }, // 30
 ]
 
 export function friendColor(index: number) {

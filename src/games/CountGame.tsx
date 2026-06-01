@@ -9,7 +9,7 @@ import { numberWord, randInt } from './util'
 
 // Show one friend and count its segments one-by-one out loud (1, 2, 3...),
 // lighting each unit from the bottom up — then the friend wakes and cheers.
-const MAX = 20 // count up to 20 (a sane spoken cap, even as the roster grows)
+const MAX = 30 // count up to 30 — the whole current roster (friends 1–30)
 
 export default function CountGame({ onExit }: GameProps) {
   const [value, setValue] = useState(() => randInt(1, MAX))

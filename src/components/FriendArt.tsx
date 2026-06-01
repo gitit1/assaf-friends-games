@@ -24,6 +24,17 @@ export type FriendKind =
   | 'yoyo'
   | 'sofi'
   | 'kiki'
+  // 21–30 — the biggest friends (also rows of bumps)
+  | 'romi'
+  | 'nini'
+  | 'pupi'
+  | 'tuti'
+  | 'mishi'
+  | 'buzi'
+  | 'dagi'
+  | 'lala'
+  | 'chumi'
+  | 'tsutsi'
 
 // Friend index (0-based) → kind. Friend #1 (לולו) is index 0.
 export const FRIEND_KINDS: FriendKind[] = [
@@ -47,6 +58,16 @@ export const FRIEND_KINDS: FriendKind[] = [
   'yoyo',
   'sofi',
   'kiki',
+  'romi',
+  'nini',
+  'pupi',
+  'tuti',
+  'mishi',
+  'buzi',
+  'dagi',
+  'lala',
+  'chumi',
+  'tsutsi',
 ]
 
 // ---- 11–20: the bigger friends ----
@@ -56,6 +77,8 @@ export const FRIEND_KINDS: FriendKind[] = [
 export const BIG_KINDS = [
   'toto', 'lili', 'momo', 'riki', 'shushu',
   'gili', 'roni', 'yoyo', 'sofi', 'kiki',
+  'romi', 'nini', 'pupi', 'tuti', 'mishi',
+  'buzi', 'dagi', 'lala', 'chumi', 'tsutsi',
 ] as const
 type BigKind = (typeof BIG_KINDS)[number]
 export type BigAccessory =
@@ -83,6 +106,16 @@ export const BIG: Record<BigKind, {
   yoyo:   { rows: [3, 4, 4, 4, 3], bc: '#7c3aed', shoe: '#22c55e', acc: 'propeller', face: 'plain' }, // 18
   sofi:   { rows: [3, 4, 5, 4, 3], bc: '#c026d3', shoe: '#f59e0b', acc: 'tiara',     face: 'girl' }, // 19 ◆
   kiki:   { rows: [5, 5, 5, 5],    bc: '#be123c', shoe: '#1e3a8a', acc: 'crown',     face: 'girl' }, // 20
+  romi:   { rows: [4, 4, 5, 4, 4], bc: '#be185d', shoe: '#1e3a8a', acc: 'cap',       face: 'plain' }, // 21
+  nini:   { rows: [4, 5, 4, 5, 4], bc: '#c2410c', shoe: '#db2777', acc: 'bow',       face: 'girl' }, // 22
+  pupi:   { rows: [4, 5, 5, 5, 4], bc: '#a16207', shoe: '#f59e0b', acc: 'propeller', face: 'plain' }, // 23
+  tuti:   { rows: [4, 5, 6, 5, 4], bc: '#4d7c0f', shoe: '#b91c1c', acc: 'flower',    face: 'girl' }, // 24 ◆
+  mishi:  { rows: [5, 5, 5, 5, 5], bc: '#047857', shoe: '#0e7490', acc: 'glasses',   face: 'plain' }, // 25 ■
+  buzi:   { rows: [5, 5, 6, 5, 5], bc: '#0e7490', shoe: '#f43f5e', acc: 'star',      face: 'plain' }, // 26
+  dagi:   { rows: [5, 6, 5, 6, 5], bc: '#1d4ed8', shoe: '#22c55e', acc: 'cone',      face: 'plain' }, // 27
+  lala:   { rows: [5, 6, 6, 6, 5], bc: '#6d28d9', shoe: '#f59e0b', acc: 'tiara',     face: 'girl' }, // 28
+  chumi:  { rows: [6, 6, 5, 6, 6], bc: '#a21caf', shoe: '#1e3a8a', acc: 'earmuffs',  face: 'plain' }, // 29
+  tsutsi: { rows: [6, 6, 6, 6, 6], bc: '#9f1239', shoe: '#facc15', acc: 'crown',     face: 'girl' }, // 30 ■
 }
 
 const bigNatural = Object.fromEntries(

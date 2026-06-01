@@ -9,7 +9,7 @@ import { numberWord, randInt } from './util'
 
 // A target number is shown as an empty outline; tap to add one segment at a
 // time, building the friend up from the bottom until it's complete and wakes.
-const MAX = 20 // build up to 20 (a sane cap, even as the roster grows)
+const MAX = 30 // build up to 30 — the whole current roster (friends 1–30)
 
 export default function AddGame({ onExit }: GameProps) {
   const [target, setTarget] = useState(() => randInt(2, MAX))
