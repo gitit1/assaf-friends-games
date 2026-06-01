@@ -1,9 +1,8 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import GameShell from '../components/GameShell'
 import FriendArt, {
   FRIEND_NATURAL,
   friendKindForIndex,
-  friendMaxDim,
   friendPartCount,
 } from '../components/FriendArt'
 import type { GameProps } from './registry'
@@ -16,7 +15,9 @@ import { randInt } from './util'
 // empty). Pick a colour, then tap each bump to fill it in. No timer, no wrong:
 // any colour anywhere is fine. When every bump is filled the friend wakes and
 // cheers. The friend is drawn from the whole roster (◀ ▶ to choose, 🎲 random).
-const PALETTE: { color: string; name: string }[] = [
+type Swatch = { color: string; name: string }
+
+const PALETTE: Swatch[] = [
   { color: '#ef4444', name: 'אדום' },
   { color: '#f97316', name: 'כתום' },
   { color: '#facc15', name: 'צהוב' },
@@ -31,19 +32,51 @@ const PALETTE: { color: string; name: string }[] = [
   { color: '#9ca3af', name: 'אפור' },
 ]
 
-const STAGE = 240 // target on-screen size of the friend (px)
+// the "more colours" pop-up — 10 hue families × 3 shades + neutrals
+const MORE_COLORS: Swatch[] = [
+  { color: '#7f1d1d', name: 'בורדו' }, { color: '#ef4444', name: 'אדום' }, { color: '#fca5a5', name: 'אדום בהיר' },
+  { color: '#9a3412', name: 'חום-כתום' }, { color: '#f97316', name: 'כתום' }, { color: '#fdba74', name: 'כתום בהיר' },
+  { color: '#854d0e', name: 'חרדל' }, { color: '#facc15', name: 'צהוב' }, { color: '#fef08a', name: 'צהוב בהיר' },
+  { color: '#3f6212', name: 'ירוק כהה' }, { color: '#22c55e', name: 'ירוק' }, { color: '#86efac', name: 'ירוק בהיר' },
+  { color: '#0f766e', name: 'טורקיז כהה' }, { color: '#14b8a6', name: 'טורקיז' }, { color: '#5eead4', name: 'טורקיז בהיר' },
+  { color: '#0c4a6e', name: 'כחול כהה' }, { color: '#3b82f6', name: 'כחול' }, { color: '#93c5fd', name: 'כחול בהיר' },
+  { color: '#4c1d95', name: 'סגול כהה' }, { color: '#8b5cf6', name: 'סגול' }, { color: '#c4b5fd', name: 'סגול בהיר' },
+  { color: '#9d174d', name: 'ורוד כהה' }, { color: '#ec4899', name: 'ורוד' }, { color: '#f9a8d4', name: 'ורוד בהיר' },
+  { color: '#451a03', name: 'חום כהה' }, { color: '#a16207', name: 'חום' }, { color: '#d6a77a', name: 'חום בהיר' },
+  { color: '#000000', name: 'שחור' }, { color: '#6b7280', name: 'אפור' }, { color: '#f8fafc', name: 'לבן' },
+]
+
+// All friends are scaled by the SAME factor, so the picture grows with the
+// number: tiny friends (לולו=1) stay small, big-number friends (and their many
+// bumps) come out large enough to colour. 278 = the widest natural friend.
+const MAX_NAT = 278
+
+function useIsWide() {
+  const [wide, setWide] = useState(() =>
+    typeof window !== 'undefined' ? window.matchMedia('(min-width: 720px)').matches : false,
+  )
+  useEffect(() => {
+    const mq = window.matchMedia('(min-width: 720px)')
+    const onChange = () => setWide(mq.matches)
+    mq.addEventListener('change', onChange)
+    return () => mq.removeEventListener('change', onChange)
+  }, [])
+  return wide
+}
 
 export default function ColorFriends({ onExit }: GameProps) {
   const [index, setIndex] = useState(() => randInt(0, FRIENDS.length - 1))
   const [colors, setColors] = useState<(string | null)[]>(() =>
     Array(friendPartCount(friendKindForIndex(index))).fill(null),
   )
-  const [picked, setPicked] = useState(0)
+  const [sel, setSel] = useState<Swatch>(PALETTE[0])
   const [done, setDone] = useState(false)
+  const [more, setMore] = useState(false)
+  const wide = useIsWide()
 
   const kind = friendKindForIndex(index)
   const nat = FRIEND_NATURAL[kind]
-  const scale = STAGE / friendMaxDim(index)
+  const scale = (wide ? 440 : 290) / MAX_NAT
 
   function goTo(next: number) {
     setIndex(next)
@@ -58,17 +91,16 @@ export default function ColorFriends({ onExit }: GameProps) {
     playTap()
   }
 
-  function pickColor(i: number) {
+  function pickColor(s: Swatch) {
     unlockAudio()
-    setPicked(i)
+    setSel(s)
     playTap()
-    speak(PALETTE[i].name)
+    speak(s.name)
   }
 
   function paintPart(i: number) {
     if (done) return
     unlockAudio()
-    const sel = PALETTE[picked]
     const next = colors.slice()
     next[i] = sel.color
     setColors(next)
@@ -82,6 +114,8 @@ export default function ColorFriends({ onExit }: GameProps) {
       }, 260)
     }
   }
+
+  const customActive = !PALETTE.some((p) => p.color === sel.color)
 
   return (
     <GameShell title="צובעים חבר" emoji="🖌️" onExit={onExit}>
@@ -110,23 +144,37 @@ export default function ColorFriends({ onExit }: GameProps) {
           className={`color-fit ${done ? 'is-done' : ''}`}
           style={{ width: nat.w * scale, height: nat.h * scale }}
         >
-          <span style={{ width: nat.w, transform: `scale(${scale})`, transformOrigin: 'top left', display: 'inline-block' }}>
+          <span
+            style={{ width: nat.w, transform: `scale(${scale})`, transformOrigin: 'top left', display: 'inline-block' }}
+          >
             <FriendArt kind={kind} showHalo={false} paint={{ colors, onPick: paintPart }} />
           </span>
         </span>
       </div>
 
       <div className="color-palette">
-        {PALETTE.map((p, i) => (
+        {PALETTE.map((p) => (
           <button
             key={p.color}
             type="button"
-            className={`color-swatch ${i === picked ? 'is-active' : ''}`}
+            className={`color-swatch ${sel.color === p.color ? 'is-active' : ''}`}
             style={{ background: p.color }}
-            onClick={() => pickColor(i)}
+            onClick={() => pickColor(p)}
             aria-label={p.name}
           />
         ))}
+        <button
+          type="button"
+          className={`color-swatch color-more-btn ${customActive ? 'is-active' : ''}`}
+          style={customActive ? { background: sel.color } : undefined}
+          onClick={() => {
+            playTap()
+            setMore(true)
+          }}
+          aria-label="עוד צבעים"
+        >
+          <span aria-hidden="true">➕</span>
+        </button>
       </div>
 
       <div className="color-actions">
@@ -137,6 +185,32 @@ export default function ColorFriends({ onExit }: GameProps) {
           🎲 חבר חדש
         </button>
       </div>
+
+      {more && (
+        <div className="color-more-overlay" onClick={() => setMore(false)}>
+          <div className="color-more-card" onClick={(e) => e.stopPropagation()}>
+            <button className="hint-close" onClick={() => setMore(false)} aria-label="סגור">
+              ✕
+            </button>
+            <h3 className="color-more-title">🌈 עוד צבעים</h3>
+            <div className="color-more-grid">
+              {MORE_COLORS.map((p, i) => (
+                <button
+                  key={`${p.color}-${i}`}
+                  type="button"
+                  className={`color-swatch ${sel.color === p.color ? 'is-active' : ''}`}
+                  style={{ background: p.color }}
+                  onClick={() => {
+                    pickColor(p)
+                    setMore(false)
+                  }}
+                  aria-label={p.name}
+                />
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
     </GameShell>
   )
 }
