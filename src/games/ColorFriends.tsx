@@ -105,9 +105,11 @@ export default function ColorFriends({ onExit }: GameProps) {
   }
 
   function clearAll() {
-    setColors(blank(friendPartCount(kind)))
-    setUndoStack([])
+    // clearing is itself undoable — keep the history so ↺ brings the colours
+    // back. Only switching friend (goTo) or leaving the game resets it.
+    setUndoStack((s) => [...s, colors])
     setRedoStack([])
+    setColors(blank(friendPartCount(kind)))
     setDone(false)
     playTap()
   }

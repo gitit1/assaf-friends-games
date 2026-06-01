@@ -5692,7 +5692,7 @@ button {
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  margin: 6px 0 18px; /* 18px above the palette */
+  margin: 6px 0 24px; /* 24px above the palette */
 }
 .color-fit {
   position: relative;
