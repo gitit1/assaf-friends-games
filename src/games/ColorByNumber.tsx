@@ -6,6 +6,7 @@ import type { GameProps } from './registry'
 import { playNudge, playPop, playTap, playWin, unlockAudio } from '../audio'
 import { speak } from '../speech'
 import { numberWord, randInt } from './util'
+import { PICTURES } from './cbnPictures'
 
 // "Color by number" — a picture drawn on a grid where every cell holds a
 // number. Pick the colour for a number, then tap the cells with that number to
@@ -20,62 +21,6 @@ const COLORS: Record<number, { color: string; name: string }> = {
   6: { color: '#8b5cf6', name: 'סגול' },
   7: { color: '#ec4899', name: 'ורוד' },
 }
-
-type Picture = { name: string; grid: number[][] }
-const PICTURES: Picture[] = [
-  {
-    name: 'בית',
-    grid: [
-      [0, 0, 0, 1, 1, 0, 0, 0],
-      [0, 0, 1, 1, 1, 1, 0, 0],
-      [0, 1, 1, 1, 1, 1, 1, 0],
-      [1, 1, 1, 1, 1, 1, 1, 1],
-      [0, 3, 3, 3, 3, 3, 3, 0],
-      [0, 3, 3, 5, 5, 3, 3, 0],
-      [0, 3, 3, 5, 5, 3, 3, 0],
-      [0, 3, 3, 5, 5, 3, 3, 0],
-    ],
-  },
-  {
-    name: 'פרח',
-    grid: [
-      [0, 0, 0, 7, 7, 7, 0, 0, 0],
-      [0, 0, 7, 7, 7, 7, 7, 0, 0],
-      [0, 7, 7, 7, 3, 7, 7, 7, 0],
-      [0, 7, 7, 3, 3, 3, 7, 7, 0],
-      [0, 7, 7, 7, 3, 7, 7, 7, 0],
-      [0, 0, 7, 7, 7, 7, 7, 0, 0],
-      [0, 0, 0, 7, 4, 7, 0, 0, 0],
-      [0, 0, 0, 0, 4, 0, 0, 0, 0],
-      [0, 0, 4, 4, 4, 4, 4, 0, 0],
-    ],
-  },
-  {
-    name: 'פרצוף',
-    grid: [
-      [0, 0, 3, 3, 3, 3, 0, 0],
-      [0, 3, 3, 3, 3, 3, 3, 0],
-      [3, 3, 5, 3, 3, 5, 3, 3],
-      [3, 3, 5, 3, 3, 5, 3, 3],
-      [3, 3, 3, 3, 3, 3, 3, 3],
-      [3, 1, 3, 3, 3, 3, 1, 3],
-      [0, 3, 1, 1, 1, 1, 3, 0],
-      [0, 0, 3, 3, 3, 3, 0, 0],
-    ],
-  },
-  {
-    name: 'דג',
-    grid: [
-      [0, 0, 0, 0, 5, 5, 0, 0, 0],
-      [0, 5, 5, 5, 5, 5, 5, 0, 0],
-      [5, 5, 5, 5, 5, 5, 5, 5, 2],
-      [5, 5, 3, 5, 5, 5, 5, 2, 2],
-      [5, 5, 5, 5, 5, 5, 5, 5, 2],
-      [0, 5, 5, 5, 5, 5, 5, 0, 0],
-      [0, 0, 0, 0, 5, 5, 0, 0, 0],
-    ],
-  },
-]
 
 function present(grid: number[][]) {
   return [...new Set(grid.flat().filter((v) => v > 0))].sort((a, b) => a - b)
