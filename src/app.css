@@ -6367,6 +6367,7 @@ button {
 }
 .cbn-grid {
   display: grid;
+  direction: ltr; /* keep the picture from being mirrored by RTL */
   gap: 2px;
   background: rgba(255, 255, 255, 0.06);
   padding: 4px;
@@ -6417,6 +6418,7 @@ button {
 }
 .dn-pad {
   display: flex;
+  direction: ltr; /* keep digits + their columns left-to-right (not mirrored by RTL) */
   align-items: flex-start;
   justify-content: center;
   touch-action: none;
