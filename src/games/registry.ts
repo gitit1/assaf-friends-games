@@ -16,6 +16,7 @@ import Tamagotchi from './Tamagotchi'
 import ColorFriends from './ColorFriends'
 import ConnectDots from './ConnectDots'
 import RollDice from './RollDice'
+import DrawBoard from './DrawBoard'
 
 // Every game gets a callback to return to the home screen.
 export type GameProps = {
@@ -189,6 +190,14 @@ export const GAMES: GameDef[] = [
     color: 'linear-gradient(160deg, #38bdf8, #6366f1)',
     category: 'create',
     Component: ConnectDots,
+  },
+  {
+    id: 'draw',
+    title: 'ציור חופשי',
+    emoji: '🖍️',
+    color: 'linear-gradient(160deg, #34d399, #0ea5e9)',
+    category: 'create',
+    Component: DrawBoard,
   },
 ]
 
