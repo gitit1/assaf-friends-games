@@ -225,7 +225,12 @@ type Props = {
   /** Dress-up items worn on the friend. A filled slot replaces the matching
    *  built-in accessory; clearing it brings the built-in one back. */
   outfit?: Outfit
+  /** Colouring mode — each body bump becomes a tappable, paint-it-in button.
+   *  `colors[i]` is the chosen colour for part i (null = still blank). */
+  paint?: PaintProps
 }
+
+export type PaintProps = { colors: (string | null)[]; onPick: (i: number) => void }
 
 // The persona accessory worn by each big friend (11–20). Anchored at the top
 // of the head (or, for glasses, on the face) by the .acc2 rules in app.css.
@@ -408,10 +413,31 @@ function bigAccessory(acc: BigAccessory) {
   }
 }
 
-export default function FriendArt({ kind, number, showHalo = false, litUnits, eating = false, outfit }: Props) {
+export default function FriendArt({
+  kind,
+  number,
+  showHalo = false,
+  litUnits,
+  eating = false,
+  outfit,
+  paint,
+}: Props) {
   const order = PART_ORDER[kind]
   const lit = litUnits ?? order.length
-  const parts = order.map((cls, i) => <span key={cls} className={`${cls} ${i < lit ? '' : 'is-off'}`} />)
+  const parts = order.map((cls, i) =>
+    paint ? (
+      <button
+        key={cls}
+        type="button"
+        className={`${cls} paint-bump ${paint.colors[i] ? '' : 'is-off'}`}
+        style={paint.colors[i] ? ({ '--bc': paint.colors[i] } as React.CSSProperties) : undefined}
+        onClick={() => paint.onPick(i)}
+        aria-label={`חלק ${i + 1}`}
+      />
+    ) : (
+      <span key={cls} className={`${cls} ${i < lit ? '' : 'is-off'}`} />
+    ),
+  )
 
   const isBig = (BIG_KINDS as readonly string[]).includes(kind)
   // which slots are dressed → hide the matching built-in accessory
@@ -491,9 +517,21 @@ export default function FriendArt({ kind, number, showHalo = false, litUnits, ea
     const rows = spec.rows.map((count, r) => (
       <span className="gal-big-row" key={r}>
         {Array.from({ length: count }).map((_, c) => {
-          const on = n < lit
+          const idx = n
           n++
-          return <span key={c} className={`bump ${on ? '' : 'is-off'}`} />
+          if (paint) {
+            return (
+              <button
+                key={c}
+                type="button"
+                className={`bump paint-bump ${paint.colors[idx] ? '' : 'is-off'}`}
+                style={paint.colors[idx] ? ({ '--bc': paint.colors[idx] } as React.CSSProperties) : undefined}
+                onClick={() => paint.onPick(idx)}
+                aria-label={`חלק ${idx + 1}`}
+              />
+            )
+          }
+          return <span key={c} className={`bump ${idx < lit ? '' : 'is-off'}`} />
         })}
       </span>
     ))

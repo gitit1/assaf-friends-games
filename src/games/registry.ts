@@ -13,6 +13,7 @@ import MathChallenge from './MathChallenge'
 import WhoGame from './WhoGame'
 import PianoFriends from './PianoFriends'
 import Tamagotchi from './Tamagotchi'
+import ColorFriends from './ColorFriends'
 
 // Every game gets a callback to return to the home screen.
 export type GameProps = {
@@ -21,7 +22,7 @@ export type GameProps = {
 
 // Home-screen sections. Games are grouped so the home screen stays tidy as the
 // roster of games grows. Empty categories are simply not shown.
-export type CategoryId = 'numbers' | 'thinking' | 'fun' | 'letters'
+export type CategoryId = 'numbers' | 'thinking' | 'fun' | 'create' | 'letters'
 
 export type Category = {
   id: CategoryId
@@ -35,6 +36,7 @@ export const CATEGORIES: Category[] = [
   { id: 'numbers', title: 'מספרים', emoji: '🔢', color: 'linear-gradient(160deg, #6366f1, #4338ca)' },
   { id: 'thinking', title: 'חשיבה', emoji: '🧠', color: 'linear-gradient(160deg, #22c55e, #15803d)' },
   { id: 'fun', title: 'כיף', emoji: '🎉', color: 'linear-gradient(160deg, #f97316, #db2777)' },
+  { id: 'create', title: 'יצירה', emoji: '🎨', color: 'linear-gradient(160deg, #facc15, #ec4899)' },
   { id: 'letters', title: 'אותיות', emoji: '🔤', color: 'linear-gradient(160deg, #a855f7, #7c3aed)' },
 ]
 
@@ -161,6 +163,14 @@ export const GAMES: GameDef[] = [
     color: 'linear-gradient(160deg, #86efac, #16a34a)',
     category: 'fun',
     Component: Tamagotchi,
+  },
+  {
+    id: 'colorme',
+    title: 'צובעים חבר',
+    emoji: '🖌️',
+    color: 'linear-gradient(160deg, #f472b6, #be185d)',
+    category: 'create',
+    Component: ColorFriends,
   },
 ]
 
