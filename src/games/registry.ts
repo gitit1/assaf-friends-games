@@ -18,6 +18,7 @@ import ConnectDots from './ConnectDots'
 import RollDice from './RollDice'
 import DrawBoard from './DrawBoard'
 import ColorByNumber from './ColorByNumber'
+import DrawNumber from './DrawNumber'
 
 // Every game gets a callback to return to the home screen.
 export type GameProps = {
@@ -207,6 +208,14 @@ export const GAMES: GameDef[] = [
     color: 'linear-gradient(160deg, #fbbf24, #16a34a)',
     category: 'create',
     Component: ColorByNumber,
+  },
+  {
+    id: 'drawnum',
+    title: 'מציירים מספר',
+    emoji: '✍️',
+    color: 'linear-gradient(160deg, #fb923c, #db2777)',
+    category: 'create',
+    Component: DrawNumber,
   },
 ]
 
