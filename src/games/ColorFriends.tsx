@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import GameShell from '../components/GameShell'
 import FriendArt, {
   FRIEND_NATURAL,
@@ -47,12 +47,9 @@ const MORE_COLORS: Swatch[] = [
 ]
 
 // Sizing: small-number friends (1–10) scale gently with the number so לולו(1)
-// stays small. Friends above 10 have many small bumps, so they get a bigger,
-// fill-the-width scale so each bump is comfortable to colour. 278 = widest
-// natural small friend; 269 = widest natural big friend (so all big friends
-// share one scale and stay consistent).
+// stays small. Friends above 10 have many small bumps, so they're blown up to
+// fill ~96% of the screen width (measured live) — big bumps, easy to colour.
 const MAX_NAT = 278
-const MAX_BIG_NAT = 269
 
 function useIsWide() {
   const [wide, setWide] = useState(() =>
@@ -77,11 +74,28 @@ export default function ColorFriends({ onExit }: GameProps) {
   const [more, setMore] = useState(false)
   const wide = useIsWide()
 
+  // measure the play area so big friends can fill ~96% of its width live
+  const stageRef = useRef<HTMLDivElement>(null)
+  const [stageW, setStageW] = useState(0)
+  useEffect(() => {
+    const el = stageRef.current
+    if (!el) return
+    const update = () => setStageW(el.clientWidth)
+    update()
+    const ro = new ResizeObserver(update)
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [])
+
   const kind = friendKindForIndex(index)
   const nat = FRIEND_NATURAL[kind]
-  // friends above 10 are drawn bigger (fill the width) so their many small
-  // bumps are easy to colour; 1–10 stay gently sized with the number.
-  const scale = index >= 10 ? (wide ? 500 : 320) / MAX_BIG_NAT : (wide ? 440 : 290) / MAX_NAT
+  // friends above 10 fill ~96% of the available width (but not too tall) so
+  // their many small bumps are easy to colour; 1–10 stay gently sized.
+  const vh = typeof window !== 'undefined' ? window.innerHeight : 700
+  const scale =
+    index >= 10 && stageW > 0
+      ? Math.min((stageW * 0.96) / nat.w, (vh * 0.62) / nat.h)
+      : (wide ? 440 : 290) / MAX_NAT
 
   function goTo(next: number) {
     setIndex(next)
@@ -144,20 +158,12 @@ export default function ColorFriends({ onExit }: GameProps) {
         </button>
       </div>
 
-      <div className="color-stage">
+      <div className="color-stage" ref={stageRef}>
         <span
           className={`color-fit ${done ? 'is-done' : ''}`}
           style={{ width: nat.w * scale, height: nat.h * scale }}
         >
-          <span
-            style={{
-              width: nat.w,
-              transform: `scale(${scale})`,
-              transformOrigin: 'top left',
-              display: 'inline-block',
-              textAlign: 'center',
-            }}
-          >
+          <span className="color-scaler" style={{ width: nat.w, transform: `scale(${scale})` }}>
             <FriendArt kind={kind} showHalo={false} paint={{ colors, onPick: paintPart }} />
           </span>
         </span>

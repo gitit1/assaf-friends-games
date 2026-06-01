@@ -5644,14 +5644,26 @@ button {
   text-align: center;
 }
 .color-stage {
-  display: grid;
-  place-items: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   min-height: 46vh;
   margin: 2px 0 8px;
 }
 .color-fit {
+  position: relative;
   display: inline-block;
   transition: transform 0.2s ease;
+}
+/* pinned to the physical top-left (so RTL never shoves it to the side) and
+   scaled from there to exactly fill .color-fit; the friend itself is centred. */
+.color-scaler {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: inline-block;
+  transform-origin: top left;
+  text-align: center;
 }
 .color-fit.is-done {
   animation: color-cheer 0.7s ease;
