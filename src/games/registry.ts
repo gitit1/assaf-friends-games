@@ -14,6 +14,7 @@ import WhoGame from './WhoGame'
 import PianoFriends from './PianoFriends'
 import Tamagotchi from './Tamagotchi'
 import ColorFriends from './ColorFriends'
+import ConnectDots from './ConnectDots'
 
 // Every game gets a callback to return to the home screen.
 export type GameProps = {
@@ -171,6 +172,14 @@ export const GAMES: GameDef[] = [
     color: 'linear-gradient(160deg, #f472b6, #be185d)',
     category: 'create',
     Component: ColorFriends,
+  },
+  {
+    id: 'dots',
+    title: 'חיבור נקודות',
+    emoji: '✏️',
+    color: 'linear-gradient(160deg, #38bdf8, #6366f1)',
+    category: 'create',
+    Component: ConnectDots,
   },
 ]
 

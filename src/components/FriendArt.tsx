@@ -189,6 +189,31 @@ export function friendPartCount(kind: FriendKind) {
   return PART_ORDER[kind].length
 }
 
+// Bump centres for a big friend (11–30), in its own cluster pixels, listed in
+// COUNT ORDER (matches how litUnits lights them up). The connect-the-dots game
+// uses this so each numbered dot sits exactly on a bump. Returns null for the
+// hand-placed small friends (1–10). w/h are the cluster's natural size.
+export function bigBumpLayout(
+  kind: FriendKind,
+): { centers: { x: number; y: number }[]; w: number; h: number } | null {
+  if (!(BIG_KINDS as readonly string[]).includes(kind)) return null
+  const rows = BIG[kind as BigKind].rows
+  const stepH = BU * (1 - H_OVER) // horizontal distance between bump centres
+  const stepV = BU * (1 - V_OVER) // vertical distance between row centres
+  const maxCols = Math.max(...rows)
+  const w = BU + (maxCols - 1) * stepH
+  const h = BU + (rows.length - 1) * stepV
+  const centers: { x: number; y: number }[] = []
+  rows.forEach((c, r) => {
+    const rowW = BU + (c - 1) * stepH
+    const rowLeft = (w - rowW) / 2
+    const y = r * stepV + BU / 2
+    // rows are flex + RTL, so DOM index 0 is the right-most bump
+    for (let j = 0; j < c; j++) centers.push({ x: rowLeft + rowW - BU / 2 - j * stepH, y })
+  })
+  return { centers, w, h }
+}
+
 // What a dressed-up friend can wear.
 export type Outfit = { hat?: string; face?: string; body?: string; held?: string }
 
