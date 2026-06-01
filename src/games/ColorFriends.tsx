@@ -46,10 +46,13 @@ const MORE_COLORS: Swatch[] = [
   { color: '#000000', name: 'שחור' }, { color: '#6b7280', name: 'אפור' }, { color: '#f8fafc', name: 'לבן' },
 ]
 
-// All friends are scaled by the SAME factor, so the picture grows with the
-// number: tiny friends (לולו=1) stay small, big-number friends (and their many
-// bumps) come out large enough to colour. 278 = the widest natural friend.
+// Sizing: small-number friends (1–10) scale gently with the number so לולו(1)
+// stays small. Friends above 10 have many small bumps, so they get a bigger,
+// fill-the-width scale so each bump is comfortable to colour. 278 = widest
+// natural small friend; 269 = widest natural big friend (so all big friends
+// share one scale and stay consistent).
 const MAX_NAT = 278
+const MAX_BIG_NAT = 269
 
 function useIsWide() {
   const [wide, setWide] = useState(() =>
@@ -76,7 +79,9 @@ export default function ColorFriends({ onExit }: GameProps) {
 
   const kind = friendKindForIndex(index)
   const nat = FRIEND_NATURAL[kind]
-  const scale = (wide ? 440 : 290) / MAX_NAT
+  // friends above 10 are drawn bigger (fill the width) so their many small
+  // bumps are easy to colour; 1–10 stay gently sized with the number.
+  const scale = index >= 10 ? (wide ? 500 : 320) / MAX_BIG_NAT : (wide ? 440 : 290) / MAX_NAT
 
   function goTo(next: number) {
     setIndex(next)
@@ -145,7 +150,13 @@ export default function ColorFriends({ onExit }: GameProps) {
           style={{ width: nat.w * scale, height: nat.h * scale }}
         >
           <span
-            style={{ width: nat.w, transform: `scale(${scale})`, transformOrigin: 'top left', display: 'inline-block' }}
+            style={{
+              width: nat.w,
+              transform: `scale(${scale})`,
+              transformOrigin: 'top left',
+              display: 'inline-block',
+              textAlign: 'center',
+            }}
           >
             <FriendArt kind={kind} showHalo={false} paint={{ colors, onPick: paintPart }} />
           </span>
