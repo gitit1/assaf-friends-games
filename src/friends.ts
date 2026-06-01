@@ -60,6 +60,16 @@ export function friendSay(index: number) {
   return FRIENDS[index % FRIENDS.length].say
 }
 
+// Simple, kid-friendly colour name per friend (for the spoken "my colour is…").
+const COLOR_NAMES = [
+  'אדום', 'כתום', 'צהוב', 'ירוק', 'טורקיז', 'תכלת', 'כחול', 'סגול', 'ורוד', 'ורוד',
+  'אדום', 'כתום', 'צהוב', 'ירוק', 'טורקיז', 'תכלת', 'כחול', 'סגול', 'ורוד', 'אדום',
+  'ורוד', 'כתום', 'צהוב', 'ירוק', 'ירוק', 'טורקיז', 'כחול', 'סגול', 'ורוד', 'אדום',
+]
+export function friendColorName(index: number) {
+  return COLOR_NAMES[index % COLOR_NAMES.length]
+}
+
 // Each friend's number identity (לולו = 1, טוקי = 2, ...).
 export function friendNumber(index: number) {
   return index + 1

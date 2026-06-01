@@ -1,21 +1,30 @@
 import GameShell from './GameShell'
 import Friend from './Friend'
 import { FRIENDS } from '../friends'
-import type { GameProps } from '../games/registry'
+import { playTap, unlockAudio } from '../audio'
 
-// Not a game — a calm "meet the cast" screen. Tap any friend and it jumps,
-// makes its sound, and says its name. Names also shown for the grown-ups.
-export default function MeetFriends({ onExit }: GameProps) {
+// Not a game — "meet the cast". Tap any friend to enter its own little WORLD
+// (it introduces itself, and you can give it a high-five / hug / kiss).
+export default function MeetFriends({ onExit, onOpen }: { onExit: () => void; onOpen: (index: number) => void }) {
   return (
     <GameShell title="החברים שלי" emoji="⭐" onExit={onExit}>
-      <p className="meet-intro">געו בחברים — הם יגידו שלום! 👋</p>
+      <p className="meet-intro">געו בחבר כדי להיכנס לעולם שלו! 👋</p>
 
       <div className="meet-grid">
         {FRIENDS.map((friend, i) => (
-          <div className="meet-friend" key={friend.name}>
-            <Friend index={i} scale={0.5} interactive />
+          <button
+            className="meet-friend"
+            key={friend.name}
+            onClick={() => {
+              unlockAudio()
+              playTap()
+              onOpen(i)
+            }}
+            aria-label={friend.name}
+          >
+            <Friend index={i} scale={0.5} showNumber={false} />
             <span className="meet-name">{friend.name}</span>
-          </div>
+          </button>
         ))}
       </div>
     </GameShell>

@@ -2,8 +2,10 @@ import { useEffect, useState } from 'react'
 import HomeScreen from './components/HomeScreen'
 import CategoryScreen from './components/CategoryScreen'
 import MeetFriends from './components/MeetFriends'
+import FriendWorld from './components/FriendWorld'
 import DesignGallery from './components/DesignGallery'
 import { GAMES, CATEGORIES } from './games/registry'
+import { FRIENDS } from './friends'
 
 // Tiny hash router so a refresh keeps you on the same screen and the browser
 // Back button works (handy for testing). Routes:
@@ -16,6 +18,7 @@ type Route =
   | { kind: 'home' }
   | { kind: 'meet' }
   | { kind: 'gallery' }
+  | { kind: 'friend'; id: string }
   | { kind: 'cat'; id: string }
   | { kind: 'game'; id: string }
 
@@ -27,6 +30,7 @@ function parse(hash: string): Route {
   const [seg, id] = h.split('/')
   if (seg === 'cat' && id) return { kind: 'cat', id }
   if (seg === 'game' && id) return { kind: 'game', id }
+  if (seg === 'friend' && id) return { kind: 'friend', id }
   return { kind: 'home' }
 }
 
@@ -53,7 +57,10 @@ export default function App() {
   let view = <HomeScreen onOpen={(id) => go(id)} onOpenCategory={(id) => go(`cat/${id}`)} />
 
   if (route.kind === 'meet') {
-    view = <MeetFriends onExit={home} />
+    view = <MeetFriends onExit={home} onOpen={(i) => go(`friend/${i}`)} />
+  } else if (route.kind === 'friend') {
+    const i = Number(route.id)
+    if (i >= 0 && i < FRIENDS.length) view = <FriendWorld index={i} onExit={() => go('meet')} />
   } else if (route.kind === 'gallery') {
     view = <DesignGallery onExit={home} />
   } else if (route.kind === 'game') {

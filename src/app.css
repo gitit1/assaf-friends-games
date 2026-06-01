@@ -6445,3 +6445,70 @@ button {
 .dn-cell.blank {
   background: transparent;
 }
+
+/* ===================== עולם החבר (a friend's own world) ===================== */
+.world-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.world-stage {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 46vh;
+  width: 100%;
+}
+.world-fx-layer {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.world-fx {
+  position: absolute;
+  bottom: 30%;
+  font-size: 2.2rem;
+  animation: world-float 1.3s ease-out forwards;
+}
+@keyframes world-float {
+  0% {
+    transform: translateY(0) scale(0.6);
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-180px) scale(1.15);
+    opacity: 0;
+  }
+}
+.world-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+  margin: 12px 0 6px;
+}
+.world-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  width: 76px;
+  padding: 10px 6px;
+  border-radius: 18px;
+  background: var(--panel-strong);
+  box-shadow: var(--shadow);
+  font-family: 'Fredoka', 'Heebo', sans-serif;
+  font-weight: 800;
+  font-size: 0.95rem;
+}
+.world-btn:active {
+  transform: scale(0.94);
+}
+.world-btn-emoji {
+  font-size: 1.9rem;
+}
