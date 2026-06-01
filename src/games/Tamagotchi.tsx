@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import GameShell from '../components/GameShell'
 import Friend from '../components/Friend'
+import Stepper from '../components/Stepper'
 import { friendMaxDim } from '../components/FriendArt'
 import type { GameProps } from './registry'
 import { playFriend, playMunch, playPop, playSuccess, playTap, unlockAudio } from '../audio'
@@ -416,17 +417,15 @@ export default function Tamagotchi({ onExit }: GameProps) {
     return (
       <GameShell title="החבר שלי" emoji="🐣" onExit={onExit}>
         <p className="pet-pick-title">איזה חבר תרצו לגדל?</p>
-        <div className="pet-picker">
-          <button className="pill pet-arrow" onClick={() => setPick((p) => (p + FRIENDS.length - 1) % FRIENDS.length)} aria-label="הקודם">
-            ◀
-          </button>
-          <span className="pet-pick-figure">
-            <Friend index={pick} scale={150 / friendMaxDim(pick)} showNumber={false} />
-          </span>
-          <button className="pill pet-arrow" onClick={() => setPick((p) => (p + 1) % FRIENDS.length)} aria-label="הבא">
-            ▶
-          </button>
-        </div>
+        <Stepper
+          label={
+            <span className="pet-pick-figure">
+              <Friend index={pick} scale={150 / friendMaxDim(pick)} showNumber={false} />
+            </span>
+          }
+          onPrev={() => setPick((p) => (p + FRIENDS.length - 1) % FRIENDS.length)}
+          onNext={() => setPick((p) => (p + 1) % FRIENDS.length)}
+        />
         <p className="pet-pick-name">
           {friendName(pick)} · {pick + 1}
         </p>

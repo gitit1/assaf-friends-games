@@ -4254,6 +4254,8 @@ button {
 .pet-pick-figure {
   display: inline-flex;
   align-items: flex-end;
+  justify-content: center;
+  min-height: 170px;
 }
 .pet-arrow {
   font-size: 1.4rem;
