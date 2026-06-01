@@ -83,6 +83,13 @@ export default function SettingsPanel() {
               onChange={(next) => updateSettings({ sound: next })}
             />
 
+            <Toggle
+              label="🗣️ שמות החברים"
+              hint="להשמיע את שם/מספר החבר בלחיצה"
+              value={settings.sayNames}
+              onChange={(next) => updateSettings({ sayNames: next })}
+            />
+
             <div className="settings-row settings-row-static">
               <span className="settings-row-text">
                 <span className="settings-row-label">⏱️ החלפת חבר</span>

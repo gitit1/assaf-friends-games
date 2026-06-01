@@ -30,15 +30,16 @@ export default function HomeScreen({ onOpen, onOpenCategory }: HomeScreenProps) 
   return (
     <div className="home-screen">
       <header className="home-header">
-        <SettingsPanel />
-        <button className="gallery-button" aria-label="גלריית עיצובים" onClick={() => open('gallery')}>
-          🎨
-        </button>
-        <FullscreenButton />
+        <div className="home-controls">
+          <button className="gallery-button" aria-label="גלריית עיצובים" onClick={() => open('gallery')}>
+            🎨
+          </button>
+          <FullscreenButton />
+          <SettingsPanel />
+        </div>
         <h1 className="home-title">
           <span aria-hidden="true">🌟</span> עולם החברים
         </h1>
-        <p className="home-subtitle">המשחקים של אסף</p>
       </header>
 
       {/* Featured: meet the friends */}

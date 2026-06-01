@@ -1,6 +1,6 @@
 import { useState, type CSSProperties } from 'react'
 import { playFriend, unlockAudio } from '../audio'
-import { speak } from '../speech'
+import { speakName } from '../speech'
 import { friendName, friendNumber, friendSay } from '../friends'
 import FriendArt, { FRIEND_KINDS, FRIEND_NATURAL, type Outfit } from './FriendArt'
 
@@ -41,7 +41,7 @@ export default function Friend({
   function poke() {
     unlockAudio()
     playFriend(index)
-    speak(friendSay(index))
+    speakName(friendSay(index))
     setPoked(true)
     window.setTimeout(() => setPoked(false), 550)
   }

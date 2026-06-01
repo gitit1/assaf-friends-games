@@ -81,6 +81,19 @@ button {
   text-align: center;
   margin: 8px 0 22px;
 }
+/* the top controls sit in a row ABOVE the title (no longer overlapping it) */
+.home-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin-bottom: 10px;
+}
+.home-controls .settings-gear,
+.home-controls .gallery-button,
+.home-controls .fullscreen-button {
+  position: static;
+}
 
 .home-title {
   font-family: 'Fredoka', 'Heebo', sans-serif;

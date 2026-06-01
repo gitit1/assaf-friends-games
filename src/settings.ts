@@ -1,6 +1,6 @@
 import { useSyncExternalStore } from 'react'
 import { setMuted } from './audio'
-import { setSpeechEnabled } from './speech'
+import { setNamesEnabled, setSpeechEnabled } from './speech'
 
 // Small persisted settings store. Parents can turn the Hebrew voice or the
 // sound effects on/off; choices survive a refresh via localStorage.
@@ -8,12 +8,14 @@ import { setSpeechEnabled } from './speech'
 export type Settings = {
   voice: boolean
   sound: boolean
+  /** Say a friend's name/number out loud when tapped. */
+  sayNames: boolean
   /** Seconds between switching the "catch" target friend (30 or 60). */
   catchSeconds: number
 }
 
 const STORAGE_KEY = 'assaf-games:settings'
-const DEFAULTS: Settings = { voice: true, sound: true, catchSeconds: 30 }
+const DEFAULTS: Settings = { voice: true, sound: true, sayNames: true, catchSeconds: 30 }
 
 function load(): Settings {
   try {
@@ -31,6 +33,7 @@ const listeners = new Set<() => void>()
 function applySideEffects() {
   setMuted(!current.sound)
   setSpeechEnabled(current.voice)
+  setNamesEnabled(current.sayNames)
 }
 
 // Reflect persisted settings into the audio/speech modules at startup.
