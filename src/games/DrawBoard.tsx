@@ -8,6 +8,7 @@ import type { GameProps } from './registry'
 import { playPop, playTap, unlockAudio } from '../audio'
 import { FRIENDS, friendName } from '../friends'
 import { randInt } from './util'
+import { MORE_COLORS } from './palette'
 
 // Free-draw board: draw with your finger in any colour + brush size, and stamp
 // friends (= numbers) or fun stickers anywhere on the page. No timer, no rules.
@@ -30,6 +31,63 @@ export default function DrawBoard({ onExit }: GameProps) {
   const [stamp, setStamp] = useState<'friend' | string | null>(null) // null = pen
   const [stampFriend, setStampFriend] = useState(0)
   const [stamps, setStamps] = useState<Stamp[]>([])
+  const [more, setMore] = useState(false)
+
+  // undo / redo — a list of {canvas image, stamps} snapshots with a cursor
+  type Snap = { img: string | null; stamps: Stamp[] }
+  const hist = useRef<Snap[]>([{ img: null, stamps: [] }])
+  const cursor = useRef(0)
+  const [canUndo, setCanUndo] = useState(false)
+  const [canRedo, setCanRedo] = useState(false)
+  function flags() {
+    setCanUndo(cursor.current > 0)
+    setCanRedo(cursor.current < hist.current.length - 1)
+  }
+  function commit(nextStamps: Stamp[]) {
+    const img = canvasRef.current?.toDataURL() ?? null
+    hist.current = hist.current.slice(0, cursor.current + 1)
+    hist.current.push({ img, stamps: nextStamps })
+    if (hist.current.length > 30) hist.current.shift()
+    cursor.current = hist.current.length - 1
+    flags()
+  }
+  function restoreCanvas(dataUrl: string | null) {
+    const ctx = ctxRef.current
+    const canvas = canvasRef.current
+    if (!ctx || !canvas) return
+    const dpr = window.devicePixelRatio || 1
+    ctx.setTransform(1, 0, 0, 1, 0, 0)
+    ctx.clearRect(0, 0, canvas.width, canvas.height)
+    if (dataUrl) {
+      const img = new Image()
+      img.onload = () => {
+        ctx.drawImage(img, 0, 0)
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
+      }
+      img.src = dataUrl
+    } else {
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
+    }
+  }
+  function restore(i: number) {
+    const snap = hist.current[i]
+    setStamps(snap.stamps)
+    restoreCanvas(snap.img)
+  }
+  function undo() {
+    if (cursor.current <= 0) return
+    cursor.current -= 1
+    restore(cursor.current)
+    flags()
+    playTap()
+  }
+  function redo() {
+    if (cursor.current >= hist.current.length - 1) return
+    cursor.current += 1
+    restore(cursor.current)
+    flags()
+    playTap()
+  }
 
   // size the canvas to the board (crisp on retina)
   useEffect(() => {
@@ -78,7 +136,9 @@ export default function DrawBoard({ onExit }: GameProps) {
     const p = pos(e)
     if (stamp) {
       const s: Stamp = { id: idRef.current++, x: p.x, y: p.y, ...(stamp === 'friend' ? { friend: stampFriend } : { emoji: stamp }) }
-      setStamps((prev) => [...prev, s])
+      const next = [...stamps, s]
+      setStamps(next)
+      commit(next)
       playPop()
       return
     }
@@ -93,8 +153,10 @@ export default function DrawBoard({ onExit }: GameProps) {
     last.current = p
   }
   function up() {
+    if (!drawing.current) return
     drawing.current = false
     last.current = null
+    commit(stamps) // a completed stroke
   }
 
   function clearAll() {
@@ -107,6 +169,7 @@ export default function DrawBoard({ onExit }: GameProps) {
       ctx.restore()
     }
     setStamps([])
+    commit([])
     playTap()
   }
 
@@ -134,6 +197,17 @@ export default function DrawBoard({ onExit }: GameProps) {
               aria-label="צבע"
             />
           ))}
+          <button
+            className={`color-swatch color-more-btn ${!stamp && !COLORS.includes(color) ? 'is-active' : ''}`}
+            style={!stamp && !COLORS.includes(color) ? { background: color } : undefined}
+            onClick={() => {
+              playTap()
+              setMore(true)
+            }}
+            aria-label="עוד צבעים"
+          >
+            <span aria-hidden="true">➕</span>
+          </button>
           {BRUSHES.map((b, i) => (
             <button
               key={b}
@@ -199,10 +273,46 @@ export default function DrawBoard({ onExit }: GameProps) {
         </div>
 
         <div className="color-actions">
+          <IconButton icon="↺" label="ביטול" onClick={undo} disabled={!canUndo} />
+          <IconButton icon="↻" label="חזרה" onClick={redo} disabled={!canRedo} />
           <IconButton icon="🧽" label="מנקים הכול" onClick={clearAll} />
-          <IconButton icon="🎲" label="חבר אקראי למדבקה" onClick={() => { setStampFriend(randInt(0, FRIENDS.length - 1)); setStamp('friend'); playTap() }} />
+          <IconButton
+            icon="🎲"
+            label="חבר אקראי למדבקה"
+            onClick={() => {
+              setStampFriend(randInt(0, FRIENDS.length - 1))
+              setStamp('friend')
+              playTap()
+            }}
+          />
         </div>
       </div>
+
+      {more && (
+        <div className="color-more-overlay" onClick={() => setMore(false)}>
+          <div className="color-more-card" onClick={(e) => e.stopPropagation()}>
+            <button className="hint-close" onClick={() => setMore(false)} aria-label="סגור">
+              ✕
+            </button>
+            <h3 className="color-more-title">🌈 עוד צבעים</h3>
+            <div className="color-more-grid">
+              {MORE_COLORS.map((p, i) => (
+                <button
+                  key={`${p.color}-${i}`}
+                  type="button"
+                  className={`color-swatch ${!stamp && color === p.color ? 'is-active' : ''}`}
+                  style={{ background: p.color }}
+                  onClick={() => {
+                    pickColor(p.color)
+                    setMore(false)
+                  }}
+                  aria-label={p.name}
+                />
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
     </GameShell>
   )
 }

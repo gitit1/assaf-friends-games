@@ -6260,16 +6260,16 @@ button {
   flex-wrap: wrap;
 }
 .stamp-friend {
-  width: 64px;
-  height: 64px;
+  width: 70px;
+  height: 70px;
   border-radius: 16px;
   background: var(--panel-strong);
   box-shadow: var(--shadow);
   border: 3px solid transparent;
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   justify-content: center;
-  padding-bottom: 2px;
+  padding: 0;
 }
 .stamp-friend.is-active {
   border-color: var(--accent);
