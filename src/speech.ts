@@ -42,6 +42,11 @@ export function hasHebrewVoice() {
   return voice !== null
 }
 
+// Whether the voice is on (used by the pre-recorded clip player).
+export function speechOn() {
+  return enabled
+}
+
 type SpeakOptions = { rate?: number; pitch?: number }
 
 export function speak(text: string, { rate = 0.92, pitch = 1.05 }: SpeakOptions = {}) {

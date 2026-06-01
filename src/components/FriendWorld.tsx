@@ -4,8 +4,8 @@ import Friend from './Friend'
 import { friendMaxDim } from './FriendArt'
 import { friendColorName, friendName, friendNumber, friendSay } from '../friends'
 import { playCount, playFriend, playSuccess, playWin, unlockAudio } from '../audio'
-import { speak, stopSpeech } from '../speech'
 import { numberWord } from '../games/util'
+import { playClip, stopClip } from '../voice'
 
 // A friend's own little "world": tap into it from "החברים שלי" and the friend
 // introduces itself (spoken description + animation, like a tiny narrated clip),
@@ -45,8 +45,7 @@ export default function FriendWorld({ index, onExit }: { index: number; onExit: 
     const about = `שלום! אני ${friendSay(index)}, אני המספר ${numberWord(n)}! הצבע שלי ${friendColorName(
       index,
     )}. הכי כיף לי ${LIKES[index % LIKES.length]}. בואו נשחק!`
-    stopSpeech()
-    speak(about)
+    playClip(`intro-${index}`, about)
     setBounce(true)
     later(() => setBounce(false), 600)
   }
@@ -81,38 +80,38 @@ export default function FriendWorld({ index, onExit }: { index: number; onExit: 
     hop()
     burst('🙌')
     playSuccess()
-    speak('כיף!')
+    playClip('fx-five', 'כיף!')
   }
   function hug() {
     unlockAudio()
     hop()
     burst('❤️')
     playFriend(index)
-    speak('חיבוק גדול!')
+    playClip('fx-hug', 'חיבוק גדול!')
   }
   function kiss() {
     unlockAudio()
     hop()
     burst('💋')
     playFriend(index)
-    speak('מְמְמוּאָה! נשיקה!')
+    playClip('fx-kiss', 'מְמְמוּאָה! נשיקה!')
   }
   function count() {
     unlockAudio()
     clearTimers()
-    stopSpeech()
+    stopClip()
     setLit(0)
     for (let i = 1; i <= n; i++) {
       later(() => {
         setLit(i)
         playCount(i)
-        speak(numberWord(i))
+        playClip(`num-${i}`, numberWord(i))
       }, i * 600)
     }
     later(() => {
       setLit(undefined)
       playWin()
-      speak(`${numberWord(n)}! ${friendSay(index)}`)
+      playClip(`num-${n}`, numberWord(n))
     }, n * 600 + 500)
   }
 
