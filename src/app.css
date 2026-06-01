@@ -5629,26 +5629,70 @@ button {
   cursor: pointer;
 }
 
-.color-head {
+/* ---- shared controls (reused across games) ---- */
+/* a round, icon-only button */
+.icon-button {
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  background: var(--panel-strong);
+  box-shadow: var(--shadow);
+  font-size: 1.7rem;
+  line-height: 1;
   display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.icon-button:active {
+  transform: scale(0.92);
+}
+.icon-button:disabled {
+  opacity: 0.38;
+}
+/* ◀ label ▶ stepper. direction:ltr keeps the arrows on the correct side in RTL */
+.stepper {
+  display: flex;
+  direction: ltr;
   align-items: center;
   justify-content: center;
   gap: 14px;
-  margin-bottom: 6px;
 }
-.color-name {
-  font-family: 'Fredoka', 'Heebo', sans-serif;
-  font-weight: 800;
-  font-size: 1.4rem;
-  min-width: 120px;
-  text-align: center;
-}
-.color-stage {
+.stepper-arrow {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: var(--panel-strong);
+  box-shadow: var(--shadow);
+  font-size: 1.15rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 46vh;
-  margin: 2px 0 10px;
+}
+.stepper-arrow:active {
+  transform: scale(0.92);
+}
+.stepper-label {
+  direction: rtl;
+  font-family: 'Fredoka', 'Heebo', sans-serif;
+  font-weight: 800;
+  font-size: 1.3rem;
+  min-width: 130px;
+  text-align: center;
+}
+
+/* ---- colour-a-friend layout (bottom-anchored column) ---- */
+.color-screen {
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100svh - 96px);
+}
+.color-stage {
+  flex: 1 1 0;
+  min-height: 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  margin: 6px 0 18px; /* 18px above the palette */
 }
 .color-fit {
   position: relative;
@@ -5686,10 +5730,10 @@ button {
 .color-palette {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 8px;
   justify-content: center;
   max-width: 460px;
-  margin: 12px auto 14px;
+  margin: 0 auto 24px; /* 24px above the bottom buttons */
 }
 /* the "more colours" swatch — a rainbow with a + */
 .color-swatch.color-more-btn {
@@ -5749,8 +5793,8 @@ button {
   justify-items: center;
 }
 .color-swatch {
-  width: 46px;
-  height: 46px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   border: 3px solid rgba(255, 255, 255, 0.7);
   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
@@ -5770,6 +5814,11 @@ button {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 14px;
-  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 24px; /* 24px before the bottom */
+}
+/* the more-colours grid swatches keep the bigger size for easy tapping */
+.color-more-grid .color-swatch {
+  width: 46px;
+  height: 46px;
 }

@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react'
 import GameShell from '../components/GameShell'
+import IconButton from '../components/IconButton'
+import Stepper from '../components/Stepper'
 import FriendArt, {
   FRIEND_NATURAL,
   friendKindForIndex,
@@ -13,9 +15,10 @@ import { randInt } from './util'
 
 // "Color a friend" — a friend appears as a blank outline (its body bumps are
 // empty). Pick a colour, then tap each bump to fill it in. No timer, no wrong:
-// any colour anywhere is fine. When every bump is filled the friend wakes and
-// cheers. The friend is drawn from the whole roster (◀ ▶ to choose, 🎲 random).
+// any colour anywhere is fine. Undo/redo, clear, and 🎲 for a new random friend.
+// When every bump is filled the friend wakes and cheers.
 type Swatch = { color: string; name: string }
+type Grid = (string | null)[]
 
 const PALETTE: Swatch[] = [
   { color: '#ef4444', name: 'אדום' },
@@ -46,10 +49,8 @@ const MORE_COLORS: Swatch[] = [
   { color: '#000000', name: 'שחור' }, { color: '#6b7280', name: 'אפור' }, { color: '#f8fafc', name: 'לבן' },
 ]
 
-// Sizing: small-number friends (1–10) scale gently with the number so לולו(1)
-// stays small. Friends above 10 have many small bumps, so they're blown up to
-// fill ~96% of the screen width (measured live) — big bumps, easy to colour.
 const MAX_NAT = 278
+const blank = (n: number): Grid => Array(n).fill(null)
 
 function useIsWide() {
   const [wide, setWide] = useState(() =>
@@ -66,9 +67,9 @@ function useIsWide() {
 
 export default function ColorFriends({ onExit }: GameProps) {
   const [index, setIndex] = useState(() => randInt(0, FRIENDS.length - 1))
-  const [colors, setColors] = useState<(string | null)[]>(() =>
-    Array(friendPartCount(friendKindForIndex(index))).fill(null),
-  )
+  const [colors, setColors] = useState<Grid>(() => blank(friendPartCount(friendKindForIndex(index))))
+  const [undoStack, setUndoStack] = useState<Grid[]>([])
+  const [redoStack, setRedoStack] = useState<Grid[]>([])
   const [sel, setSel] = useState<Swatch>(PALETTE[0])
   const [done, setDone] = useState(false)
   const [more, setMore] = useState(false)
@@ -88,23 +89,25 @@ export default function ColorFriends({ onExit }: GameProps) {
   const kind = friendKindForIndex(index)
   const nat = FRIEND_NATURAL[kind]
   // Friends above 10 are sized so the WHOLE friend (arms included, hence +14)
-  // spans ~98% of the screen width — big bumps, easy to colour. The friend is
-  // flex-centred, so it stays in the middle even while overflowing the padded
-  // content box a touch. Height is capped so a tall friend never runs off.
+  // spans ~98% of the screen width; height is capped so the stack still fits.
   const scale =
     index >= 10
-      ? Math.min((win.w * 0.98) / (nat.w + 14), (win.h * 0.6) / nat.h)
+      ? Math.min((win.w * 0.98) / (nat.w + 14), (win.h * 0.46) / nat.h)
       : (wide ? 440 : 290) / MAX_NAT
 
   function goTo(next: number) {
     setIndex(next)
-    setColors(Array(friendPartCount(friendKindForIndex(next))).fill(null))
+    setColors(blank(friendPartCount(friendKindForIndex(next))))
+    setUndoStack([])
+    setRedoStack([])
     setDone(false)
     playTap()
   }
 
   function clearAll() {
-    setColors(Array(friendPartCount(kind)).fill(null))
+    setColors(blank(friendPartCount(kind)))
+    setUndoStack([])
+    setRedoStack([])
     setDone(false)
     playTap()
   }
@@ -117,89 +120,97 @@ export default function ColorFriends({ onExit }: GameProps) {
   }
 
   function paintPart(i: number) {
-    if (done) return
     unlockAudio()
+    setUndoStack((s) => [...s, colors])
+    setRedoStack([])
     const next = colors.slice()
     next[i] = sel.color
     setColors(next)
     playPop()
     speak(sel.name)
-    if (next.every((c) => c !== null)) {
+    const full = next.every((c) => c !== null)
+    if (full && !done) {
       setDone(true)
       window.setTimeout(() => {
         playSuccess()
         speak(`כל הכבוד! צבעת את ${friendSay(index)}`)
       }, 260)
+    } else if (!full && done) {
+      setDone(false)
     }
   }
 
-  const customActive = !PALETTE.some((p) => p.color === sel.color)
+  function undo() {
+    if (!undoStack.length) return
+    const prev = undoStack[undoStack.length - 1]
+    setUndoStack((s) => s.slice(0, -1))
+    setRedoStack((r) => [...r, colors])
+    setColors(prev)
+    setDone(prev.every((c) => c !== null))
+    playTap()
+  }
+
+  function redo() {
+    if (!redoStack.length) return
+    const nxt = redoStack[redoStack.length - 1]
+    setRedoStack((r) => r.slice(0, -1))
+    setUndoStack((s) => [...s, colors])
+    setColors(nxt)
+    setDone(nxt.every((c) => c !== null))
+    playTap()
+  }
 
   return (
     <GameShell title="צובעים חבר" emoji="🖌️" onExit={onExit}>
-      <div className="color-head">
-        <button
-          className="pill pet-arrow"
-          onClick={() => goTo((index + FRIENDS.length - 1) % FRIENDS.length)}
-          aria-label="הקודם"
-        >
-          ◀
-        </button>
-        <span className="color-name">
-          {friendName(index)} · {index + 1}
-        </span>
-        <button
-          className="pill pet-arrow"
-          onClick={() => goTo((index + 1) % FRIENDS.length)}
-          aria-label="הבא"
-        >
-          ▶
-        </button>
-      </div>
+      <div className="color-screen">
+        <Stepper
+          label={`${friendName(index)} · ${index + 1}`}
+          onPrev={() => goTo((index + FRIENDS.length - 1) % FRIENDS.length)}
+          onNext={() => goTo((index + 1) % FRIENDS.length)}
+        />
 
-      <div className="color-stage">
-        <span
-          className={`color-fit ${done ? 'is-done' : ''}`}
-          style={{ width: nat.w * scale, height: nat.h * scale }}
-        >
-          <span className="color-scaler" style={{ width: nat.w, transform: `scale(${scale})` }}>
-            <FriendArt kind={kind} showHalo={false} paint={{ colors, onPick: paintPart }} />
+        <div className="color-stage">
+          <span
+            className={`color-fit ${done ? 'is-done' : ''}`}
+            style={{ width: nat.w * scale, height: nat.h * scale }}
+          >
+            <span className="color-scaler" style={{ width: nat.w, transform: `scale(${scale})` }}>
+              <FriendArt kind={kind} showHalo={false} paint={{ colors, onPick: paintPart }} />
+            </span>
           </span>
-        </span>
-      </div>
+        </div>
 
-      <div className="color-palette">
-        {PALETTE.map((p) => (
+        <div className="color-palette">
+          {PALETTE.map((p) => (
+            <button
+              key={p.color}
+              type="button"
+              className={`color-swatch ${sel.color === p.color ? 'is-active' : ''}`}
+              style={{ background: p.color }}
+              onClick={() => pickColor(p)}
+              aria-label={p.name}
+            />
+          ))}
           <button
-            key={p.color}
             type="button"
-            className={`color-swatch ${sel.color === p.color ? 'is-active' : ''}`}
-            style={{ background: p.color }}
-            onClick={() => pickColor(p)}
-            aria-label={p.name}
-          />
-        ))}
-        <button
-          type="button"
-          className={`color-swatch color-more-btn ${customActive ? 'is-active' : ''}`}
-          style={customActive ? { background: sel.color } : undefined}
-          onClick={() => {
-            playTap()
-            setMore(true)
-          }}
-          aria-label="עוד צבעים"
-        >
-          <span aria-hidden="true">➕</span>
-        </button>
-      </div>
+            className={`color-swatch color-more-btn ${!PALETTE.some((p) => p.color === sel.color) ? 'is-active' : ''}`}
+            style={!PALETTE.some((p) => p.color === sel.color) ? { background: sel.color } : undefined}
+            onClick={() => {
+              playTap()
+              setMore(true)
+            }}
+            aria-label="עוד צבעים"
+          >
+            <span aria-hidden="true">➕</span>
+          </button>
+        </div>
 
-      <div className="color-actions">
-        <button className="pill" onClick={clearAll}>
-          🧽 מנקים
-        </button>
-        <button className="big-button" onClick={() => goTo(randInt(0, FRIENDS.length - 1))}>
-          🎲 חבר חדש
-        </button>
+        <div className="color-actions">
+          <IconButton icon="↺" label="ביטול" onClick={undo} disabled={!undoStack.length} />
+          <IconButton icon="↻" label="חזרה" onClick={redo} disabled={!redoStack.length} />
+          <IconButton icon="🧽" label="מחיקה" onClick={clearAll} />
+          <IconButton icon="🎲" label="חבר חדש" onClick={() => goTo(randInt(0, FRIENDS.length - 1))} />
+        </div>
       </div>
 
       {more && (
