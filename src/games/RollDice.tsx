@@ -5,13 +5,13 @@ import { friendMaxDim } from '../components/FriendArt'
 import type { GameProps } from './registry'
 import { playDice, playSuccess, playTap, unlockAudio } from '../audio'
 import { speak } from '../speech'
-import { friendSay } from '../friends'
+import { FRIENDS, friendSay } from '../friends'
 import { numberWord, randInt } from './util'
 
-// "Roll a dice" — tap the die (or the big button) to roll: it rattles, the
-// faces flicker, then it lands on a number. The friend that IS that number
-// pops up to say hello. With two dice you also get the sum (a little addition).
-// No timer, no losing — just an endless, satisfying roll.
+// "Roll a dice" — pick a dice TYPE, add as many dice as you like, tap to roll:
+// they rattle, flicker, and land. The total is added up live and read out, and
+// when the total is a friend (1–30) that friend pops up. No timer, no losing —
+// just keep rolling and adding more dice.
 const PIPS: Record<number, number[]> = {
   1: [4],
   2: [0, 8],
@@ -21,22 +21,43 @@ const PIPS: Record<number, number[]> = {
   6: [0, 2, 3, 5, 6, 8],
 }
 
-function Die({ value, rolling, onClick }: { value: number; rolling: boolean; onClick: () => void }) {
+type DiceType = { key: string; label: string; sides: number; dots: boolean; color: string }
+const DICE_TYPES: DiceType[] = [
+  { key: 'dots', label: '⚄', sides: 6, dots: true, color: '#ffffff' },
+  { key: 'n6', label: '6', sides: 6, dots: false, color: '#fca5a5' },
+  { key: 'n10', label: '10', sides: 10, dots: false, color: '#93c5fd' },
+  { key: 'n12', label: '12', sides: 12, dots: false, color: '#86efac' },
+  { key: 'n20', label: '20', sides: 20, dots: false, color: '#fcd34d' },
+]
+const MIN_DICE = 1
+const MAX_DICE = 6
+
+function Die({ value, type, rolling, onClick }: { value: number; type: DiceType; rolling: boolean; onClick: () => void }) {
   return (
-    <button type="button" className={`die ${rolling ? 'is-rolling' : ''}`} onClick={onClick} aria-label="קובייה">
-      {Array.from({ length: 9 }).map((_, i) => (
-        <span key={i} className={`pip ${PIPS[value].includes(i) ? 'on' : ''}`} aria-hidden="true" />
-      ))}
+    <button
+      type="button"
+      className={`die ${rolling ? 'is-rolling' : ''} ${type.dots ? '' : 'die-num'}`}
+      style={type.dots ? undefined : { background: `linear-gradient(150deg, #ffffff, ${type.color})` }}
+      onClick={onClick}
+      aria-label="קובייה"
+    >
+      {type.dots ? (
+        Array.from({ length: 9 }).map((_, i) => (
+          <span key={i} className={`pip ${PIPS[value].includes(i) ? 'on' : ''}`} aria-hidden="true" />
+        ))
+      ) : (
+        <span className="die-value">{value}</span>
+      )}
     </button>
   )
 }
 
 export default function RollDice({ onExit }: GameProps) {
-  const [count, setCount] = useState(1) // 1 or 2 dice
-  const [values, setValues] = useState<number[]>([6])
+  const [typeIdx, setTypeIdx] = useState(0)
+  const [values, setValues] = useState<number[]>([3, 4])
   const [rolling, setRolling] = useState(false)
-  const [revealed, setRevealed] = useState(true)
-  const [rollId, setRollId] = useState(0) // bumps each settle so the reveal re-animates
+  const [settled, setSettled] = useState(true)
+  const [rollId, setRollId] = useState(0)
 
   const interval = useRef<number | null>(null)
   const timeout = useRef<number | null>(null)
@@ -48,78 +69,98 @@ export default function RollDice({ onExit }: GameProps) {
   }
   useEffect(() => clearTimers, [])
 
+  const type = DICE_TYPES[typeIdx]
+  const n = values.length
   const sum = values.reduce((a, b) => a + b, 0)
 
   function roll() {
     if (rolling) return
     unlockAudio()
     clearTimers()
-    setRevealed(false)
+    setSettled(false)
     setRolling(true)
     playDice()
-    // flicker through random faces while "tumbling"
     interval.current = window.setInterval(() => {
-      setValues(Array.from({ length: count }, () => randInt(1, 6)))
+      setValues((vs) => vs.map(() => randInt(1, type.sides)))
     }, 90)
     timeout.current = window.setTimeout(() => {
       clearTimers()
-      const final = Array.from({ length: count }, () => randInt(1, 6))
+      const final = values.map(() => randInt(1, type.sides))
       setValues(final)
       setRolling(false)
-      setRevealed(true)
+      setSettled(true)
       setRollId((r) => r + 1)
       const s = final.reduce((a, b) => a + b, 0)
       playSuccess()
-      if (count === 1) {
-        speak(`${numberWord(final[0])}! ${friendSay(final[0] - 1)}`)
-      } else {
-        speak(`${numberWord(final[0])} ועוד ${numberWord(final[1])}, ${numberWord(s)}! ${friendSay(s - 1)}`)
-      }
+      if (s >= 1 && s <= FRIENDS.length) speak(`${numberWord(s)}! ${friendSay(s - 1)}`)
+      else speak(numberWord(s))
     }, 1000)
   }
 
-  function setDice(c: number) {
+  function addDie() {
+    if (rolling || n >= MAX_DICE) return
+    playTap()
+    setValues((vs) => [...vs, randInt(1, type.sides)])
+    setSettled(true)
+  }
+  function removeDie() {
+    if (rolling || n <= MIN_DICE) return
+    playTap()
+    setValues((vs) => vs.slice(0, -1))
+    setSettled(true)
+  }
+  function chooseType(i: number) {
     if (rolling) return
     playTap()
-    clearTimers()
-    setCount(c)
-    setValues(Array.from({ length: c }, () => 6))
-    setRevealed(true)
+    setTypeIdx(i)
+    setValues((vs) => vs.map(() => randInt(1, DICE_TYPES[i].sides)))
+    setSettled(true)
   }
 
-  const friendIdx = sum - 1
-  const friendScale = 150 / friendMaxDim(friendIdx)
+  const hasFriend = settled && !rolling && sum >= 1 && sum <= FRIENDS.length
 
   return (
     <GameShell title="מגלגלים קובייה" emoji="🎲" onExit={onExit}>
       <div className="roll-screen">
-        <div className="roll-toggle">
-          <button className={`pill ${count === 1 ? 'pill-active' : ''}`} onClick={() => setDice(1)}>
-            🎲 אחת
+        <div className="dice-types">
+          {DICE_TYPES.map((t, i) => (
+            <button
+              key={t.key}
+              className={`die-type-chip ${i === typeIdx ? 'is-active' : ''}`}
+              style={t.dots ? undefined : { background: t.color }}
+              onClick={() => chooseType(i)}
+              aria-label={t.dots ? 'קובייה עם נקודות' : `קובייה עד ${t.sides}`}
+            >
+              {t.label}
+            </button>
+          ))}
+        </div>
+
+        <div className="dice-count">
+          <button className="icon-button" onClick={removeDie} disabled={rolling || n <= MIN_DICE} aria-label="פחות קוביות">
+            ➖
           </button>
-          <button className={`pill ${count === 2 ? 'pill-active' : ''}`} onClick={() => setDice(2)}>
-            🎲🎲 שתיים
+          <span className="dice-count-label">{n} קוביות</span>
+          <button className="icon-button" onClick={addDie} disabled={rolling || n >= MAX_DICE} aria-label="עוד קובייה">
+            ➕
           </button>
         </div>
 
         <div className="dice-stage">
           {values.map((v, i) => (
-            <Die key={i} value={v} rolling={rolling} onClick={roll} />
+            <Die key={i} value={v} type={type} rolling={rolling} onClick={roll} />
           ))}
         </div>
 
         <div className="roll-result">
-          {revealed && !rolling && (
-            <>
-              {count === 2 && (
-                <p className="roll-eq" aria-hidden="true">
-                  {values[0]} <span className="roll-op">+</span> {values[1]} <span className="roll-op">=</span> {sum}
-                </p>
-              )}
-              <span key={rollId} className="roll-friend is-in">
-                <Friend index={friendIdx} scale={friendScale} bouncing showNumber />
-              </span>
-            </>
+          <div className="roll-sum" aria-label={`סך הכל ${sum}`}>
+            <span className="roll-sum-label">סך הכל</span>
+            <span className="roll-sum-num">{sum}</span>
+          </div>
+          {hasFriend && (
+            <span key={rollId} className="roll-friend is-in">
+              <Friend index={sum - 1} scale={110 / friendMaxDim(sum - 1)} bouncing showNumber={false} />
+            </span>
           )}
         </div>
 

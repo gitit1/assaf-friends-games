@@ -6035,22 +6035,60 @@ button {
   align-items: center;
   gap: 16px;
 }
-.roll-toggle {
+.dice-types {
   display: flex;
-  gap: 10px;
+  gap: 8px;
   justify-content: center;
+  flex-wrap: wrap;
+}
+.die-type-chip {
+  min-width: 48px;
+  height: 48px;
+  padding: 0 10px;
+  border-radius: 14px;
+  background: var(--panel-strong);
+  box-shadow: var(--shadow);
+  font-family: 'Fredoka', 'Heebo', sans-serif;
+  font-weight: 800;
+  font-size: 1.2rem;
+  color: #15233a;
+  border: 3px solid transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.die-type-chip.is-active {
+  border-color: var(--accent);
+  transform: scale(1.06);
+}
+.dice-count {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+}
+.dice-count-label {
+  font-family: 'Fredoka', 'Heebo', sans-serif;
+  font-weight: 800;
+  font-size: 1.2rem;
+  min-width: 96px;
+  text-align: center;
 }
 .dice-stage {
   display: flex;
+  flex-wrap: wrap;
   justify-content: center;
-  gap: 20px;
-  min-height: 104px;
+  align-items: center;
+  gap: 14px;
+  min-height: 88px;
+  max-width: 420px;
+  margin: 0 auto;
 }
 .die {
-  width: 96px;
-  height: 96px;
-  padding: 14px;
-  border-radius: 18px;
+  width: 78px;
+  height: 78px;
+  padding: 11px;
+  border-radius: 16px;
   background: linear-gradient(150deg, #ffffff, #dbe2ea);
   box-shadow: inset 0 -6px 10px rgba(0, 0, 0, 0.12), inset 0 4px 8px rgba(255, 255, 255, 0.8),
     0 8px 14px rgba(0, 0, 0, 0.3);
@@ -6061,6 +6099,15 @@ button {
   cursor: pointer;
   touch-action: manipulation;
 }
+.die.die-num {
+  display: flex;
+}
+.die-value {
+  font-family: 'Fredoka', 'Heebo', sans-serif;
+  font-weight: 800;
+  font-size: 2.2rem;
+  color: #15233a;
+}
 .die:active {
   transform: scale(0.96);
 }
@@ -6070,8 +6117,8 @@ button {
   border-radius: 50%;
 }
 .pip.on {
-  width: 16px;
-  height: 16px;
+  width: 13px;
+  height: 13px;
   background: radial-gradient(circle at 38% 32%, #475569, #0f172a);
   box-shadow: inset 0 -1px 1px rgba(0, 0, 0, 0.4);
 }
@@ -6103,16 +6150,23 @@ button {
   min-height: 190px;
   justify-content: center;
 }
-.roll-eq {
+.roll-sum {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1;
+}
+.roll-sum-label {
   font-family: 'Fredoka', 'Heebo', sans-serif;
   font-weight: 800;
-  font-size: 1.7rem;
-  margin: 0;
-  color: var(--text);
+  font-size: 1rem;
+  color: var(--text-soft);
 }
-.roll-op {
+.roll-sum-num {
+  font-family: 'Fredoka', 'Heebo', sans-serif;
+  font-weight: 800;
+  font-size: 3.4rem;
   color: var(--accent);
-  margin: 0 2px;
 }
 .roll-friend.is-in {
   animation: roll-pop 0.45s ease;
