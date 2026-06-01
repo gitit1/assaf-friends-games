@@ -1,25 +1,26 @@
 // One-time generator for the natural-voice clips (replaces the robotic TTS for
-// fixed lines), using Google's **Gemini TTS**. Writes .wav files to public/voice/
-// which the app plays (see src/voice.ts). If a clip is missing the app simply
-// falls back to the browser voice, so nothing breaks.
+// fixed lines). Writes .mp3 files to public/voice/ which the app plays
+// (src/voice.ts). Missing clips just fall back to the browser voice.
 //
-//   1) Get a free key (one click): https://aistudio.google.com/apikey
-//   2) Run (PowerShell):  $env:GEMINI_API_KEY="YOUR_KEY"; node scripts/gen-voice.mjs
-//      Run (bash):        GEMINI_API_KEY=YOUR_KEY node scripts/gen-voice.mjs
-//   3) git add public/voice && git commit -m "voice clips" && git push
+// Pick a provider with VOICE_PROVIDER (default: elevenlabs).
 //
-// Pick a voice with GEMINI_TTS_VOICE (default 'Leda', a bright young voice).
-// Others: Aoede, Callirrhoe, Kore, Puck, Zephyr, Leda, Sulafat, Vindemiatrix…
+//  ── elevenlabs ──  (no credit card, free ~10k chars/month, one run does all)
+//     key: https://elevenlabs.io  →  Profile → API key
+//     PowerShell:  $env:ELEVENLABS_API_KEY="KEY"; node scripts/gen-voice.mjs
+//     (optional voice: $env:ELEVENLABS_VOICE_ID="...")
+//
+//  ── google ──  (best Hebrew; may require enabling billing on the project,
+//     but stays within the free tier — no charge)
+//     key: https://console.cloud.google.com → enable "Cloud Text-to-Speech API"
+//          → Credentials → API key
+//     PowerShell:  $env:VOICE_PROVIDER="google"; $env:GOOGLE_TTS_KEY="KEY"; node scripts/gen-voice.mjs
+//     (optional voice: $env:GOOGLE_TTS_VOICE="he-IL-Wavenet-D")
+//
+// Then:  git add public/voice && git commit -m "voice clips" && git push
 import { writeFileSync, mkdirSync } from 'node:fs'
 
-const KEY = process.env.GEMINI_API_KEY
-const VOICE = process.env.GEMINI_TTS_VOICE || 'Leda'
-const MODEL = process.env.GEMINI_TTS_MODEL || 'gemini-2.5-flash-preview-tts'
-const DELAY = Number(process.env.GEMINI_DELAY || 1500) // ms between calls (free-tier rate limits)
-if (!KEY) {
-  console.error('❌ חסר מפתח. הריצי:  GEMINI_API_KEY=... node scripts/gen-voice.mjs')
-  process.exit(1)
-}
+const PROVIDER = process.env.VOICE_PROVIDER || 'elevenlabs'
+const DELAY = Number(process.env.VOICE_DELAY || 500) // ms between calls
 
 // keep these in sync with the app (friends.ts / util.ts / FriendWorld.tsx)
 const SAY = ['לוּלוּ','טוּקִי','בּוּבִּי','גוּגוּ','מִימִי','נוּנִי','פִּיקוֹ','דוּדִי','זוּזוּ','קוּקוֹ','טוֹטוֹ','לִילִי','מוֹמוֹ','רִיקִי','שׁוּשׁוּ','גִילִי','רוֹנִי','יוֹיוֹ','סוֹפִי','קִיקִי','רוֹמִי','נִינִי','פּוּפִּי','תּוּתִי','מִישִׁי','בּוּזִי','דַּגִּי','לַאלָה','חוּמִי','צוּצִי']
@@ -36,64 +37,59 @@ lines.push({ id: 'fx-five', text: 'כיף!' }, { id: 'fx-hug', text: 'חיבוק
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
 
-function wavHeader(dataLen, rate = 24000, channels = 1, bits = 16) {
-  const b = Buffer.alloc(44)
-  b.write('RIFF', 0)
-  b.writeUInt32LE(36 + dataLen, 4)
-  b.write('WAVE', 8)
-  b.write('fmt ', 12)
-  b.writeUInt32LE(16, 16)
-  b.writeUInt16LE(1, 20)
-  b.writeUInt16LE(channels, 22)
-  b.writeUInt32LE(rate, 24)
-  b.writeUInt32LE((rate * channels * bits) / 8, 28)
-  b.writeUInt16LE((channels * bits) / 8, 32)
-  b.writeUInt16LE(bits, 34)
-  b.write('data', 36)
-  b.writeUInt32LE(dataLen, 40)
-  return b
-}
-
-async function synth(text, tries = 2) {
-  const res = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${KEY}`,
-    {
+let synth
+if (PROVIDER === 'google') {
+  const KEY = process.env.GOOGLE_TTS_KEY
+  const VOICE = process.env.GOOGLE_TTS_VOICE || 'he-IL-Wavenet-B'
+  if (!KEY) throw new Error('חסר GOOGLE_TTS_KEY')
+  console.log(`ספק: Google Cloud TTS · קול ${VOICE}`)
+  synth = async (text) => {
+    const res = await fetch(`https://texttospeech.googleapis.com/v1/text:synthesize?key=${KEY}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: `Read aloud in a warm, cheerful, friendly voice for a small child:\n${text}` }] }],
-        generationConfig: {
-          responseModalities: ['AUDIO'],
-          speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: VOICE } } },
-        },
-      }),
-    },
-  )
-  if (res.status === 429 && tries > 0) {
-    console.log('  …מחכה (rate limit)')
-    await sleep(20000)
-    return synth(text, tries - 1)
+      body: JSON.stringify({ input: { text }, voice: { languageCode: 'he-IL', name: VOICE }, audioConfig: { audioEncoding: 'MP3', speakingRate: 0.96 } }),
+    })
+    if (!res.ok) throw new Error(`${res.status} ${await res.text()}`)
+    return Buffer.from((await res.json()).audioContent, 'base64')
   }
-  if (!res.ok) throw new Error(`${res.status} ${await res.text()}`)
-  const json = await res.json()
-  const part = json?.candidates?.[0]?.content?.parts?.find((p) => p.inlineData)
-  if (!part) throw new Error('no audio in response')
-  const rate = Number((String(part.inlineData.mimeType).match(/rate=(\d+)/) || [])[1]) || 24000
-  const pcm = Buffer.from(part.inlineData.data, 'base64')
-  return Buffer.concat([wavHeader(pcm.length, rate), pcm])
+} else {
+  const KEY = process.env.ELEVENLABS_API_KEY
+  const VOICE_ID = process.env.ELEVENLABS_VOICE_ID || 'EXAVITQu4vr4xnSDxMaL' // "Sarah"
+  if (!KEY) throw new Error('חסר ELEVENLABS_API_KEY')
+  console.log(`ספק: ElevenLabs · voice ${VOICE_ID}`)
+  synth = async (text) => {
+    const res = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${VOICE_ID}`, {
+      method: 'POST',
+      headers: { 'xi-api-key': KEY, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text, model_id: 'eleven_multilingual_v2', voice_settings: { stability: 0.5, similarity_boost: 0.75 } }),
+    })
+    if (res.status === 429) throw new Error('429 rate limit')
+    if (!res.ok) throw new Error(`${res.status} ${await res.text()}`)
+    return Buffer.from(await res.arrayBuffer())
+  }
 }
 
 mkdirSync('public/voice', { recursive: true })
 let ok = 0
 for (const l of lines) {
-  try {
-    const wav = await synth(l.text)
-    writeFileSync(`public/voice/${l.id}.wav`, wav)
-    ok++
-    console.log(`✓ ${l.id}`)
-  } catch (e) {
-    console.error(`❌ ${l.id}: ${e.message}`)
+  let done = false
+  for (let attempt = 0; attempt < 3 && !done; attempt++) {
+    try {
+      const mp3 = await synth(l.text)
+      writeFileSync(`public/voice/${l.id}.mp3`, mp3)
+      ok++
+      done = true
+      console.log(`✓ ${l.id}`)
+    } catch (e) {
+      if (String(e.message).includes('429') && attempt < 2) {
+        console.log('  …מחכה (rate limit)')
+        await sleep(15000)
+      } else {
+        console.error(`❌ ${l.id}: ${e.message}`)
+        done = true
+      }
+    }
   }
   await sleep(DELAY)
 }
-console.log(`\nנוצרו ${ok}/${lines.length} קליפים ב-public/voice/ עם הקול ${VOICE} (${MODEL})`)
+console.log(`\nנוצרו ${ok}/${lines.length} קליפים ב-public/voice/`)
