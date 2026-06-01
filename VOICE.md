@@ -1,26 +1,24 @@
 # 🎙️ קול טבעי לחברים (במקום הקול הרובוטי)
 
-המשפטים הקבועים (היכרות כל חבר, ספירה, "כיף/חיבוק/נשיקה") יכולים להתנגן מקובץ-קול **טבעי** מוקלט-מראש. אם הקובץ חסר — האפליקציה פשוט מקריאה בקול-הדפדפן (אז הכול עובד גם בלי זה).
+המשפטים הקבועים (היכרות כל חבר, ספירה, "כיף/חיבוק/נשיקה") יכולים להתנגן מקובץ-קול **טבעי** מוקלט-מראש, בעזרת **Gemini TTS**. אם הקובץ חסר — האפליקציה פשוט מקריאה בקול-הדפדפן (אז הכול עובד גם בלי זה).
 
 ## איך מייצרים את הקליפים (פעם אחת, חינם)
 
-1. נכנסים ל-https://console.cloud.google.com → יוצרים פרויקט.
-2. מפעילים את **Cloud Text-to-Speech API** (Enable).
-3. **Credentials → Create credentials → API key** → מעתיקים את המפתח.
-   *(נפח הקליפים שלנו זעיר — בתוך השכבה החינמית של גוגל.)*
-4. מריצים מהתיקייה של הפרויקט:
+1. נכנסים ל-**https://aistudio.google.com/apikey** → לוחצים **Get API key** → מעתיקים.
+   *(זהו — בלי פרויקט/חיוב בענן. הנפח שלנו זעיר, בתוך השכבה החינמית.)*
+2. מריצים מהתיקייה של הפרויקט:
 
    **Windows / PowerShell:**
    ```powershell
-   $env:GOOGLE_TTS_KEY="המפתח_שלך"; node scripts/gen-voice.mjs
+   $env:GEMINI_API_KEY="המפתח_שלך"; node scripts/gen-voice.mjs
    ```
 
    **Mac / Linux:**
    ```bash
-   GOOGLE_TTS_KEY=המפתח_שלך node scripts/gen-voice.mjs
+   GEMINI_API_KEY=המפתח_שלך node scripts/gen-voice.mjs
    ```
 
-5. מעלים את הקליפים:
+3. מעלים את הקליפים:
    ```bash
    git add public/voice && git commit -m "voice clips" && git push
    ```
@@ -28,12 +26,14 @@
 
 ## בחירת קול
 
-ברירת המחדל היא `he-IL-Wavenet-B`. אפשר לבחור אחר:
+ברירת המחדל היא `Leda` (קול צעיר ובהיר). אפשר לבחור אחר:
 ```powershell
-$env:GOOGLE_TTS_VOICE="he-IL-Wavenet-D"; $env:GOOGLE_TTS_KEY="..."; node scripts/gen-voice.mjs
+$env:GEMINI_TTS_VOICE="Aoede"; $env:GEMINI_API_KEY="..."; node scripts/gen-voice.mjs
 ```
-קולות עבריים: `he-IL-Wavenet-A/B/C/D` (טבעיים) · `he-IL-Standard-A/B/C/D`.
+קולות לדוגמה: `Leda` · `Aoede` · `Callirrhoe` · `Kore` · `Puck` · `Zephyr` · `Sulafat`.
+(אם השכבה החינמית מגבילה קצב — הסקריפט ממתין אוטומטית; אפשר להאריך עם `GEMINI_DELAY=3000`.)
 
 ## אם תעדיפי קול שלך / קול אחר
 
-אפשר גם פשוט להניח קבצי `mp3` משלך בתיקייה `public/voice/` עם אותם שמות (`intro-0.mp3` … `intro-29.mp3`, `num-1.mp3` … `num-30.mp3`, `fx-five.mp3`, `fx-hug.mp3`, `fx-kiss.mp3`) — האפליקציה תנגן אותם כמו שהם.
+אפשר גם להניח קבצי `wav` משלך בתיקייה `public/voice/` עם אותם שמות:
+`intro-0.wav` … `intro-29.wav`, `num-1.wav` … `num-30.wav`, `fx-five.wav`, `fx-hug.wav`, `fx-kiss.wav` — האפליקציה תנגן אותם כמו שהם.

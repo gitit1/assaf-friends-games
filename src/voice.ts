@@ -23,7 +23,7 @@ export function playClip(id: string, fallback: string) {
     speak(fallback)
     return
   }
-  const audio = new Audio(`${import.meta.env.BASE_URL}voice/${id}.mp3`)
+  const audio = new Audio(`${import.meta.env.BASE_URL}voice/${id}.wav`)
   current = audio
   let failed = false
   const onFail = () => {
