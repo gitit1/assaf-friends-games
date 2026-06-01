@@ -3691,8 +3691,83 @@ button {
   left: 0;
   display: inline-block;
 }
-.friend-holder.is-jumping {
+.friend-holder.is-jumping,
+.friend-holder.move-jump {
   animation: friend-jump 0.5s ease;
+}
+/* extra "alive" moves, picked at random when a friend is tapped */
+.friend-holder.move-wiggle {
+  animation: friend-wiggle 0.6s ease;
+}
+.friend-holder.move-spin {
+  animation: friend-spin 0.7s ease-in-out;
+}
+.friend-holder.move-nod {
+  animation: friend-nod 0.55s ease;
+}
+.friend-holder.move-tada {
+  animation: friend-tada 0.8s ease;
+}
+@keyframes friend-wiggle {
+  0%,
+  100% {
+    transform: rotate(0);
+  }
+  20% {
+    transform: rotate(-9deg);
+  }
+  40% {
+    transform: rotate(7deg);
+  }
+  60% {
+    transform: rotate(-5deg);
+  }
+  80% {
+    transform: rotate(3deg);
+  }
+}
+@keyframes friend-spin {
+  0% {
+    transform: rotate(0) scale(1);
+  }
+  60% {
+    transform: rotate(360deg) scale(1.05);
+  }
+  100% {
+    transform: rotate(360deg) scale(1);
+  }
+}
+@keyframes friend-nod {
+  0%,
+  100% {
+    transform: translateY(0) scaleY(1);
+  }
+  40% {
+    transform: translateY(7px) scaleY(0.86);
+  }
+  70% {
+    transform: translateY(-5px) scaleY(1.05);
+  }
+}
+@keyframes friend-tada {
+  0% {
+    transform: scale(1) rotate(0);
+  }
+  15% {
+    transform: scale(0.92) rotate(-5deg);
+  }
+  30%,
+  50%,
+  70% {
+    transform: scale(1.1) rotate(4deg);
+  }
+  40%,
+  60% {
+    transform: scale(1.1) rotate(-4deg);
+  }
+  100% {
+    transform: scale(1) rotate(0);
+  }
 }
 
 /* ---------- catch-the-friend game ---------- */
@@ -5880,6 +5955,16 @@ button {
   top: 0;
   left: 0;
   z-index: 1;
+}
+/* the dots + line layer — fades out cleanly when the friend is fully revealed */
+.dots-overlay {
+  position: absolute;
+  inset: 0;
+  transition: opacity 0.45s ease;
+}
+.dots-overlay.is-hidden {
+  opacity: 0;
+  pointer-events: none;
 }
 .dots-svg {
   position: absolute;

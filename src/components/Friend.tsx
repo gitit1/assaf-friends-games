@@ -23,6 +23,9 @@ type Props = {
   outfit?: Outfit
 }
 
+// The little moves a friend can do when tapped (besides jumping).
+const MOVES = ['jump', 'wiggle', 'spin', 'nod', 'tada'] as const
+
 export default function Friend({
   index,
   scale = 1,
@@ -33,7 +36,7 @@ export default function Friend({
   eating = false,
   outfit,
 }: Props) {
-  const [poked, setPoked] = useState(false)
+  const [move, setMove] = useState<string | null>(null)
   const kind = FRIEND_KINDS[index % FRIEND_KINDS.length]
   const n = friendNumber(index)
   const nat = FRIEND_NATURAL[kind]
@@ -42,13 +45,16 @@ export default function Friend({
     unlockAudio()
     playFriend(index)
     speakName(friendSay(index))
-    setPoked(true)
-    window.setTimeout(() => setPoked(false), 550)
+    // a different little move each tap, so the friends feel alive (not just jump)
+    const pick = MOVES[Math.floor(Math.random() * MOVES.length)]
+    setMove(pick)
+    window.setTimeout(() => setMove(null), 850)
   }
 
   const holderStyle: CSSProperties = { width: nat.w * scale, height: nat.h * scale }
   const scaleStyle: CSSProperties = { width: nat.w, transform: `scale(${scale})`, transformOrigin: 'top left' }
-  const className = `friend-holder ${bouncing || poked ? 'is-jumping' : ''}`
+  const moveClass = move ? `move-${move}` : bouncing ? 'move-jump' : ''
+  const className = `friend-holder ${moveClass}`
 
   const inner = (
     <span className="friend-scale" style={scaleStyle}>

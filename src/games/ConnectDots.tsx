@@ -96,31 +96,34 @@ export default function ConnectDots({ onExit }: GameProps) {
               <FriendArt kind={kind} litUnits={connected} showHalo={false} />
             </div>
 
-            <svg
-              className="dots-svg"
-              viewBox={`0 0 ${layout.w} ${layout.h}`}
-              style={{ width: layout.w * s, height: layout.h * s }}
-              aria-hidden="true"
-            >
-              {connected > 1 && <polyline className="dots-line" points={linePoints} vectorEffect="non-scaling-stroke" />}
-            </svg>
+            {/* the dots + connecting line fade away once the friend is revealed */}
+            <div className={`dots-overlay ${done ? 'is-hidden' : ''}`}>
+              <svg
+                className="dots-svg"
+                viewBox={`0 0 ${layout.w} ${layout.h}`}
+                style={{ width: layout.w * s, height: layout.h * s }}
+                aria-hidden="true"
+              >
+                {connected > 1 && <polyline className="dots-line" points={linePoints} vectorEffect="non-scaling-stroke" />}
+              </svg>
 
-            {layout.centers.map((c, i) => {
-              const n = i + 1
-              const state = n <= connected ? 'is-done' : n === connected + 1 ? 'is-next' : 'is-pending'
-              return (
-                <button
-                  key={i}
-                  type="button"
-                  className={`dot ${state}`}
-                  style={{ left: c.x * s, top: c.y * s }}
-                  onClick={() => tapDot(n)}
-                  aria-label={`נקודה ${n}`}
-                >
-                  {n <= connected ? '' : n}
-                </button>
-              )
-            })}
+              {layout.centers.map((c, i) => {
+                const n = i + 1
+                const state = n <= connected ? 'is-done' : n === connected + 1 ? 'is-next' : 'is-pending'
+                return (
+                  <button
+                    key={i}
+                    type="button"
+                    className={`dot ${state}`}
+                    style={{ left: c.x * s, top: c.y * s }}
+                    onClick={() => tapDot(n)}
+                    aria-label={`נקודה ${n}`}
+                  >
+                    {n <= connected ? '' : n}
+                  </button>
+                )
+              })}
+            </div>
           </div>
         </div>
 
