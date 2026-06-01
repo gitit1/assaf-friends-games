@@ -2,7 +2,7 @@ import { useState, type CSSProperties } from 'react'
 import { playFriend, unlockAudio } from '../audio'
 import { speak } from '../speech'
 import { friendName, friendNumber, friendSay } from '../friends'
-import FriendArt, { FRIEND_KINDS, FRIEND_NATURAL } from './FriendArt'
+import FriendArt, { FRIEND_KINDS, FRIEND_NATURAL, type Outfit } from './FriendArt'
 
 type Props = {
   /** 0-based position → fixed friend identity (name + number + look + voice). */
@@ -19,8 +19,8 @@ type Props = {
   showNumber?: boolean
   /** Open + chew the mouth (for the eating animation). */
   eating?: boolean
-  /** Hide the friend's built-in accessory (so dress-up items replace it). */
-  bare?: boolean
+  /** Dress-up items worn on the friend (a filled slot replaces its built-in accessory). */
+  outfit?: Outfit
 }
 
 export default function Friend({
@@ -31,7 +31,7 @@ export default function Friend({
   interactive = false,
   showNumber = true,
   eating = false,
-  bare = false,
+  outfit,
 }: Props) {
   const [poked, setPoked] = useState(false)
   const kind = FRIEND_KINDS[index % FRIEND_KINDS.length]
@@ -52,7 +52,7 @@ export default function Friend({
 
   const inner = (
     <span className="friend-scale" style={scaleStyle}>
-      <FriendArt kind={kind} number={n} showHalo={showNumber} litUnits={litUnits} eating={eating} bare={bare} />
+      <FriendArt kind={kind} number={n} showHalo={showNumber} litUnits={litUnits} eating={eating} outfit={outfit} />
     </span>
   )
 

@@ -152,6 +152,30 @@ export function friendPartCount(kind: FriendKind) {
   return PART_ORDER[kind].length
 }
 
+// What a dressed-up friend can wear.
+export type Outfit = { hat?: string; face?: string; body?: string; held?: string }
+
+// Where worn items sit on each friend, in the friend's OWN design coordinates:
+// x is always centred (50% — every face is symmetric), so we only need the
+// vertical anchor (% of the design box) per slot, plus a head width (natural px)
+// that drives the item size. Items render inside the design box, so they scale
+// with the friend automatically. hat = on top of the head, eye = over the eyes,
+// body = on the torso, held = beside the friend.
+type DressAnchor = { hat: number; eye: number; body: number; heldTop: number; heldLeft: number; hw: number }
+const DRESS: Record<string, DressAnchor> = {
+  lulu: { hat: 8, eye: 39, body: 66, heldTop: 70, heldLeft: 90, hw: 66 },
+  toki: { hat: 2, eye: 35, body: 62, heldTop: 68, heldLeft: 86, hw: 64 },
+  bobby: { hat: 2, eye: 19, body: 60, heldTop: 70, heldLeft: 86, hw: 84 },
+  gogo: { hat: 4, eye: 31, body: 60, heldTop: 72, heldLeft: 86, hw: 90 },
+  moki: { hat: -2, eye: 14, body: 62, heldTop: 76, heldLeft: 86, hw: 80 },
+  nuni: { hat: 2, eye: 27, body: 58, heldTop: 70, heldLeft: 88, hw: 78 },
+  piko: { hat: 6, eye: 47, body: 74, heldTop: 82, heldLeft: 86, hw: 80 },
+  dudi: { hat: 2, eye: 28, body: 60, heldTop: 70, heldLeft: 88, hw: 88 },
+  zuzu: { hat: 4, eye: 46, body: 72, heldTop: 82, heldLeft: 86, hw: 86 },
+  koko: { hat: 2, eye: 25, body: 54, heldTop: 62, heldLeft: 88, hw: 64 },
+  big: { hat: -6, eye: 40, body: 72, heldTop: 80, heldLeft: 84, hw: 54 },
+}
+
 type Props = {
   kind: FriendKind
   /** Number shown on the floating halo above the head. */
@@ -161,8 +185,9 @@ type Props = {
   litUnits?: number
   /** Open + chew the mouth (eating animation). */
   eating?: boolean
-  /** Hide the built-in accessory (for dress-up). */
-  bare?: boolean
+  /** Dress-up items worn on the friend. A filled slot replaces the matching
+   *  built-in accessory; clearing it brings the built-in one back. */
+  outfit?: Outfit
 }
 
 // The persona accessory worn by each big friend (11–20). Anchored at the top
@@ -246,10 +271,45 @@ function bigAccessory(acc: BigAccessory) {
   }
 }
 
-export default function FriendArt({ kind, number, showHalo = false, litUnits, eating = false, bare = false }: Props) {
+export default function FriendArt({ kind, number, showHalo = false, litUnits, eating = false, outfit }: Props) {
   const order = PART_ORDER[kind]
   const lit = litUnits ?? order.length
   const parts = order.map((cls, i) => <span key={cls} className={`${cls} ${i < lit ? '' : 'is-off'}`} />)
+
+  const isBig = (BIG_KINDS as readonly string[]).includes(kind)
+  // which slots are dressed → hide the matching built-in accessory
+  const wHat = !!outfit?.hat
+  const wFace = !!outfit?.face
+  const wBody = !!outfit?.body
+  // the worn items, rendered inside the design box so they sit on the friend
+  const A = DRESS[isBig ? 'big' : kind] ?? DRESS.big
+  const dress = outfit ? (
+    <>
+      {outfit.held && (
+        <span
+          className="don"
+          style={{ top: `${A.heldTop}%`, left: `${A.heldLeft}%`, fontSize: `${Math.round(A.hw * 0.6)}px` }}
+        >
+          {outfit.held}
+        </span>
+      )}
+      {outfit.body && (
+        <span className="don" style={{ top: `${A.body}%`, left: '50%', fontSize: `${A.hw}px` }}>
+          {outfit.body}
+        </span>
+      )}
+      {outfit.face && (
+        <span className="don" style={{ top: `${A.eye}%`, left: '50%', fontSize: `${Math.round(A.hw * 0.82)}px` }}>
+          {outfit.face}
+        </span>
+      )}
+      {outfit.hat && (
+        <span className="don" style={{ top: `${A.hat}%`, left: '50%', fontSize: `${A.hw}px` }}>
+          {outfit.hat}
+        </span>
+      )}
+    </>
+  ) : null
 
   const halo = showHalo && number ? <span className="gal-halo">{number}</span> : null
   const face = (
@@ -287,8 +347,6 @@ export default function FriendArt({ kind, number, showHalo = false, litUnits, ea
     </span>
   )
 
-  const isBig = (BIG_KINDS as readonly string[]).includes(kind)
-
   let design: React.ReactElement
   if (isBig) {
     const spec = BIG[kind as BigKind]
@@ -302,6 +360,9 @@ export default function FriendArt({ kind, number, showHalo = false, litUnits, ea
         })}
       </span>
     ))
+    // the persona accessory is glasses for momo (a face item); the rest are
+    // worn on the head — hide whichever slot the child has dressed.
+    const showAcc = spec.acc === 'glasses' ? !wFace : !wHat
     design = (
       <div
         className={`gal-big big-${kind}`}
@@ -318,7 +379,8 @@ export default function FriendArt({ kind, number, showHalo = false, litUnits, ea
         ) : (
           face
         )}
-        {bigAccessory(spec.acc)}
+        {showAcc && bigAccessory(spec.acc)}
+        {dress}
         {halo}
       </div>
     )
@@ -329,11 +391,14 @@ export default function FriendArt({ kind, number, showHalo = false, litUnits, ea
         {parts}
         {feet}
         {face}
-        <span className="acc-bow">
-          <span className="loop l" />
-          <span className="loop r" />
-          <span className="knot" />
-        </span>
+        {!wHat && (
+          <span className="acc-bow">
+            <span className="loop l" />
+            <span className="loop r" />
+            <span className="knot" />
+          </span>
+        )}
+        {dress}
         {halo}
       </div>
     )
@@ -344,11 +409,14 @@ export default function FriendArt({ kind, number, showHalo = false, litUnits, ea
         {parts}
         {feet}
         {face}
-        <span className="acc-hat">
-          <span className="brim" />
-          <span className="dome" />
-          <span className="pom" />
-        </span>
+        {!wHat && (
+          <span className="acc-hat">
+            <span className="brim" />
+            <span className="dome" />
+            <span className="pom" />
+          </span>
+        )}
+        {dress}
         {halo}
       </div>
     )
@@ -359,10 +427,13 @@ export default function FriendArt({ kind, number, showHalo = false, litUnits, ea
         {parts}
         {feet}
         {face}
-        <span className="acc-tie">
-          <span className="bow" />
-          <span className="knot" />
-        </span>
+        {!wBody && (
+          <span className="acc-tie">
+            <span className="bow" />
+            <span className="knot" />
+          </span>
+        )}
+        {dress}
         {halo}
       </div>
     )
@@ -374,9 +445,12 @@ export default function FriendArt({ kind, number, showHalo = false, litUnits, ea
         {feet}
         {eyes}
         {lips}
-        <span className="necklace">
-          <span className="pendant" />
-        </span>
+        {!wBody && (
+          <span className="necklace">
+            <span className="pendant" />
+          </span>
+        )}
+        {dress}
         {halo}
       </div>
     )
@@ -386,15 +460,18 @@ export default function FriendArt({ kind, number, showHalo = false, litUnits, ea
         {arms}
         {parts}
         {feet}
-        <span className="cowlick" />
+        {!wHat && <span className="cowlick" />}
         {face}
         <span className="brow l" />
         <span className="brow r" />
-        <span className="glasses">
-          <span className="lens" />
-          <span className="bridge" />
-          <span className="lens" />
-        </span>
+        {!wFace && (
+          <span className="glasses">
+            <span className="lens" />
+            <span className="bridge" />
+            <span className="lens" />
+          </span>
+        )}
+        {dress}
         {halo}
       </div>
     )
@@ -404,18 +481,21 @@ export default function FriendArt({ kind, number, showHalo = false, litUnits, ea
         {arms}
         {parts}
         {feet}
-        <span className="earring l" />
-        <span className="earring r" />
+        {!wHat && <span className="earring l" />}
+        {!wHat && <span className="earring r" />}
         {eyes}
         {lips}
-        <span className="flower">
-          <i />
-          <i />
-          <i />
-          <i />
-          <i />
-          <b />
-        </span>
+        {!wHat && (
+          <span className="flower">
+            <i />
+            <i />
+            <i />
+            <i />
+            <i />
+            <b />
+          </span>
+        )}
+        {dress}
         {halo}
       </div>
     )
@@ -426,11 +506,14 @@ export default function FriendArt({ kind, number, showHalo = false, litUnits, ea
         {parts}
         {feet}
         {face}
-        <span className="crown">
-          <i />
-          <i />
-          <i />
-        </span>
+        {!wHat && (
+          <span className="crown">
+            <i />
+            <i />
+            <i />
+          </span>
+        )}
+        {dress}
         {halo}
       </div>
     )
@@ -441,11 +524,14 @@ export default function FriendArt({ kind, number, showHalo = false, litUnits, ea
         {parts}
         {feet}
         {face}
-        <span className="headphones">
-          <span className="band" />
-          <span className="cup l" />
-          <span className="cup r" />
-        </span>
+        {!wHat && (
+          <span className="headphones">
+            <span className="band" />
+            <span className="cup l" />
+            <span className="cup r" />
+          </span>
+        )}
+        {dress}
         {halo}
       </div>
     )
@@ -453,11 +539,12 @@ export default function FriendArt({ kind, number, showHalo = false, litUnits, ea
     design = (
       <div className="gal-zuzu">
         {arms}
-        <span className="pigtail l" />
-        <span className="pigtail r" />
+        {!wHat && <span className="pigtail l" />}
+        {!wHat && <span className="pigtail r" />}
         {parts}
         {feet}
         {face}
+        {dress}
         {halo}
       </div>
     )
@@ -469,15 +556,18 @@ export default function FriendArt({ kind, number, showHalo = false, litUnits, ea
         {feet}
         {eyes}
         {lips}
-        <span className="tiara">
-          <i />
-          <i />
-          <i />
-        </span>
+        {!wHat && (
+          <span className="tiara">
+            <i />
+            <i />
+            <i />
+          </span>
+        )}
+        {dress}
         {halo}
       </div>
     )
   }
 
-  return <div className={`friend-art ${eating ? 'is-eating' : ''} ${bare ? 'is-bare' : ''}`}>{design}</div>
+  return <div className={`friend-art ${eating ? 'is-eating' : ''}`}>{design}</div>
 }

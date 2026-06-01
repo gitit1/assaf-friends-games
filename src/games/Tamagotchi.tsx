@@ -127,11 +127,14 @@ function FriendDressed({
 }) {
   return (
     <span className={`pet-figure ${eating ? 'is-eating' : ''}`} style={{ fontSize: `${px}px` }}>
-      <Friend index={index} scale={px / friendMaxDim(index)} showNumber={false} bouncing={bouncing} eating={eating} bare />
-      {outfit.held && <span className="dress dress-held">{outfit.held}</span>}
-      {outfit.body && <span className="dress dress-body">{outfit.body}</span>}
-      {outfit.face && <span className="dress dress-face">{outfit.face}</span>}
-      {outfit.hat && <span className="dress dress-hat">{outfit.hat}</span>}
+      <Friend
+        index={index}
+        scale={px / friendMaxDim(index)}
+        showNumber={false}
+        bouncing={bouncing}
+        eating={eating}
+        outfit={outfit}
+      />
     </span>
   )
 }

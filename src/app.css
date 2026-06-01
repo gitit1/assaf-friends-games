@@ -3807,51 +3807,16 @@ button {
   position: relative;
   display: inline-block;
 }
-.dress {
+/* a worn dress-up item — rendered inside the friend's design box and centred on
+   its anchor point, so it sits ON the friend (and scales with it). */
+.don {
   position: absolute;
   line-height: 1;
+  display: block;
+  transform: translate(-50%, -50%);
   pointer-events: none;
+  z-index: 30;
   filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.3));
-}
-.dress-hat {
-  top: -0.05em; /* sits on top of the head */
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 0.5em;
-}
-.dress-face {
-  top: 0.34em; /* over the eyes */
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 0.34em;
-}
-.dress-body {
-  top: 0.58em; /* on the body */
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 0.46em;
-}
-.dress-held {
-  bottom: 0.06em;
-  right: -0.16em;
-  font-size: 0.42em;
-}
-/* when bare, hide the friend's built-in accessory so dress-up replaces it */
-.friend-art.is-bare .acc-bow,
-.friend-art.is-bare .acc-hat,
-.friend-art.is-bare .acc-tie,
-.friend-art.is-bare .crown,
-.friend-art.is-bare .glasses,
-.friend-art.is-bare .necklace,
-.friend-art.is-bare .flower,
-.friend-art.is-bare .earring,
-.friend-art.is-bare .pigtail,
-.friend-art.is-bare .cowlick,
-.friend-art.is-bare .brow,
-.friend-art.is-bare .tiara,
-.friend-art.is-bare .headphones,
-.friend-art.is-bare .acc2 {
-  display: none;
 }
 .pet-poop,
 .pet-mood {
