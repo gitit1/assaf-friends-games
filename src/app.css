@@ -5644,11 +5644,18 @@ button {
   text-align: center;
 }
 .color-stage {
+  /* full-bleed: span the whole screen width so big friends can really fill it,
+     regardless of the page's side padding */
+  position: relative;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100vw;
   display: flex;
   align-items: center;
   justify-content: center;
   min-height: 46vh;
-  margin: 2px 0 8px;
+  margin: 2px 0 10px;
+  overflow-x: clip;
 }
 .color-fit {
   position: relative;
@@ -5670,16 +5677,16 @@ button {
 }
 @keyframes color-cheer {
   0% {
-    transform: scale(1);
+    transform: translateY(0) rotate(0);
   }
-  40% {
-    transform: scale(1.08) rotate(-2deg);
+  30% {
+    transform: translateY(-12px) rotate(-3deg);
   }
-  70% {
-    transform: scale(1.04) rotate(2deg);
+  60% {
+    transform: translateY(0) rotate(3deg);
   }
   100% {
-    transform: scale(1) rotate(0);
+    transform: translateY(0) rotate(0);
   }
 }
 

@@ -89,12 +89,15 @@ export default function ColorFriends({ onExit }: GameProps) {
 
   const kind = friendKindForIndex(index)
   const nat = FRIEND_NATURAL[kind]
-  // friends above 10 fill ~96% of the available width (but not too tall) so
-  // their many small bumps are easy to colour; 1–10 stay gently sized.
+  // friends above 10 fill ~98% of the screen width (the stage is full-bleed, so
+  // stageW ≈ the screen). The 0.93 box factor leaves room for the arms that
+  // stick out past the design box, so the whole friend lands ≈98% wide without
+  // overflowing. Height is capped so a tall friend never runs off-screen.
   const vh = typeof window !== 'undefined' ? window.innerHeight : 700
+  const screenW = stageW > 0 ? stageW : typeof window !== 'undefined' ? window.innerWidth : 360
   const scale =
-    index >= 10 && stageW > 0
-      ? Math.min((stageW * 0.96) / nat.w, (vh * 0.62) / nat.h)
+    index >= 10
+      ? Math.min((screenW * 0.93) / nat.w, (vh * 0.6) / nat.h)
       : (wide ? 440 : 290) / MAX_NAT
 
   function goTo(next: number) {
