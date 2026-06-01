@@ -10,9 +10,20 @@ import { numberWord, randInt, shuffle } from './util'
 
 // "Match the number to the quantity" — a big numeral is shown; pick the group
 // that has exactly that many friends. No timer, wrong picks give a gentle
-// nudge. The count is capped (counting huge groups isn't useful) but the friend
-// shown is drawn from the whole roster, so new friends appear here too.
-const MAXT = 10
+// nudge. Counts go all the way up the roster (Assaf can count high), and the
+// friend shown is drawn from the whole roster, so every friend appears here.
+const MAXT = 30
+
+// How big each little friend is drawn, shrinking as the groups grow so even a
+// group of 30 fits a phone card. The SAME size is used on every card in a round
+// (driven by the largest group) so size is never a hint to the answer.
+function tokenPx(maxCount: number) {
+  if (maxCount <= 5) return 34
+  if (maxCount <= 10) return 28
+  if (maxCount <= 16) return 22
+  if (maxCount <= 22) return 18
+  return 15
+}
 
 type Round = { target: number; token: number; counts: number[] }
 
@@ -36,7 +47,7 @@ export default function QtyMatch({ onExit }: GameProps) {
   const [wrong, setWrong] = useState<number | null>(null)
   const [solved, setSolved] = useState(false)
 
-  const tokenScale = 34 / friendMaxDim(round.token)
+  const tokenScale = tokenPx(Math.max(...round.counts)) / friendMaxDim(round.token)
 
   function say() {
     speak(`מצאו ${numberWord(round.target)}`)
