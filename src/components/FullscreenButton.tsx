@@ -19,8 +19,11 @@ function fsElement(d: FsDoc) {
 export default function FullscreenButton() {
   const [supported] = useState(() => {
     if (typeof document === 'undefined') return false
-    const d = document as FsDoc
-    return !!(d.fullscreenEnabled || d.webkitFullscreenEnabled)
+    // Check the actual request method exists (more reliable than
+    // fullscreenEnabled, which some in-app browsers report false even when it
+    // works). iOS Safari has neither for regular elements, so it stays hidden.
+    const el = document.documentElement as FsEl
+    return !!(el.requestFullscreen || el.webkitRequestFullscreen)
   })
   const [active, setActive] = useState(false)
 
