@@ -53,6 +53,21 @@ function makeProblem(level: number) {
   return { text, ans, choices: numberChoices(ans, 3, Math.max(0, ans - 6), ans + 6) }
 }
 
+const CLOUDS = ['☁️', '⛅', '☁️', '🌤️', '☁️']
+const SCENERY = ['🌳', '🏠', '🌲', '🏡', '🌳', '⛰️', '🌴', '🏠', '🌻', '🌲']
+
+function SceneRow({ items, dur, className }: { items: string[]; dur: number; className: string }) {
+  return (
+    <div className={`scene-row ${className}`} style={{ animationDuration: `${dur}s` }} aria-hidden="true">
+      {[...items, ...items].map((e, i) => (
+        <span className="scene-item" key={i}>
+          {e}
+        </span>
+      ))}
+    </div>
+  )
+}
+
 function Car({ color, driver }: { color: string; driver: number }) {
   return (
     <span className="car" style={{ '--car': color } as React.CSSProperties}>
@@ -74,7 +89,6 @@ export default function CarRace({ onExit }: GameProps) {
   const [carColor, setCarColor] = useState<string>(() => friendColor(driver))
   const [level, setLevel] = useState(1)
 
-  const [rival, setRival] = useState({ driver: 0, color: '#111827' })
   const [playerProg, setPlayerProg] = useState(0)
   const [rivalProg, setRivalProg] = useState(0)
   const [problem, setProblem] = useState(() => makeProblem(1))
@@ -84,11 +98,6 @@ export default function CarRace({ onExit }: GameProps) {
   function startRace() {
     unlockAudio()
     playTap()
-    let r = randInt(0, FRIENDS.length - 1)
-    if (r === driver) r = (r + 1) % FRIENDS.length
-    let rc = CAR_COLORS[randInt(0, CAR_COLORS.length - 1)]
-    if (rc === carColor) rc = CAR_COLORS[(CAR_COLORS.indexOf(rc) + 1) % CAR_COLORS.length]
-    setRival({ driver: r, color: rc })
     setPlayerProg(0)
     setRivalProg(0)
     setResult(null)
@@ -198,12 +207,23 @@ export default function CarRace({ onExit }: GameProps) {
           <span className="race-level">רמה: {LEVELS[level].name}</span>
         </div>
 
-        <div className="race-track">
-          <span className="race-finish" aria-hidden="true" />
-          <span className="race-car rival" style={{ left: `${rivalProg * 80}%` }}>
-            <Car color={rival.color} driver={rival.driver} />
+        <div className="race-progress" aria-hidden="true">
+          <span className="race-pin rival" style={{ left: `${6 + rivalProg * 82}%` }}>
+            🚗
           </span>
-          <span className={`race-car player ${result === 'win' ? 'is-win' : ''}`} style={{ left: `${playerProg * 80}%` }}>
+          <span className="race-pin player" style={{ left: `${6 + playerProg * 82}%` }}>
+            🏎️
+          </span>
+          <span className="race-flag">🏁</span>
+        </div>
+
+        <div className="road-scene">
+          <SceneRow items={CLOUDS} dur={22} className="layer-clouds" />
+          <SceneRow items={SCENERY} dur={7} className="layer-scenery" />
+          <div className="road" aria-hidden="true">
+            <div className="road-line" />
+          </div>
+          <span className={`scene-car ${result === 'win' ? 'is-win' : ''}`}>
             <Car color={carColor} driver={driver} />
           </span>
         </div>

@@ -6939,3 +6939,143 @@ button {
   gap: 12px;
   align-items: center;
 }
+
+/* progress bar — you (🏎️) vs the rival (🚗) heading to the 🏁 */
+.race-progress {
+  position: relative;
+  height: 30px;
+  background: var(--panel);
+  border-radius: 999px;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.35);
+  direction: ltr;
+}
+.race-flag {
+  position: absolute;
+  right: 4px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1.3rem;
+}
+.race-pin {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 1.4rem;
+  transition: left 0.4s ease;
+}
+.race-pin.rival {
+  opacity: 0.85;
+}
+
+/* the driving scene — scenery scrolls past so the car looks like it's moving */
+.road-scene {
+  position: relative;
+  height: 200px;
+  border-radius: 18px;
+  overflow: hidden;
+  direction: ltr;
+  background: linear-gradient(180deg, #bae6fd 0 55%, #86efac 55% 68%, #586273 68% 100%);
+  box-shadow: var(--shadow);
+}
+.scene-row {
+  position: absolute;
+  left: 0;
+  display: flex;
+  gap: 60px;
+  white-space: nowrap;
+  animation-name: scene-scroll;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+.layer-clouds {
+  top: 10px;
+  font-size: 1.6rem;
+  opacity: 0.95;
+}
+.layer-scenery {
+  bottom: 56px;
+  font-size: 2.2rem;
+}
+@keyframes scene-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+.road {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 64px;
+  background: #586273;
+  z-index: 1;
+}
+.road-line {
+  position: absolute;
+  top: 28px;
+  left: 0;
+  width: 100%;
+  height: 6px;
+  background: repeating-linear-gradient(90deg, #fde68a 0 30px, transparent 30px 64px);
+  animation: road-dash 0.5s linear infinite;
+}
+@keyframes road-dash {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: -64px 0;
+  }
+}
+.scene-car {
+  position: absolute;
+  bottom: 8px;
+  left: 26%;
+  z-index: 5;
+}
+.scene-car .car {
+  animation: car-bob 0.5s ease-in-out infinite;
+}
+.scene-car .car-wheel {
+  animation: wheel-spin 0.5s linear infinite;
+}
+.scene-car.is-win {
+  animation: car-cheer 0.8s ease;
+}
+@keyframes car-bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-3px);
+  }
+}
+@keyframes wheel-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+/* a hubcap dot so the spinning wheel reads as turning */
+.car-wheel::before {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 50%;
+  width: 5px;
+  height: 5px;
+  margin-left: -2.5px;
+  border-radius: 50%;
+  background: #cbd5e1;
+}
+@media (prefers-reduced-motion: reduce) {
+  .scene-row,
+  .road-line,
+  .scene-car .car,
+  .scene-car .car-wheel {
+    animation: none !important;
+  }
+}
