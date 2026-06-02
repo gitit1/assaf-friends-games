@@ -24,16 +24,14 @@
   box-sizing: border-box;
 }
 
+/* definite height chain so .app-shell can be a real scroll container */
 html,
 body,
 #app {
-  min-height: 100%;
+  height: 100%;
 }
-
-/* allow vertical scrolling when a screen is taller than the viewport (finger on
-   mobile, scrollbar on desktop), but never horizontal */
-html {
-  overflow-x: hidden;
+body {
+  overflow: hidden; /* the scrolling happens inside .app-shell, not the page */
 }
 
 body {
@@ -55,13 +53,14 @@ button {
 /* ---------- shell ---------- */
 
 .app-shell {
-  /* the app's scroll container: fixed to the viewport height, scrolls
-     vertically when a screen is taller (finger on mobile, scrollbar on
-     desktop), horizontal clipped */
-  height: 100svh;
+  /* the app's scroll container: fills the page and scrolls vertically when a
+     screen is taller (finger on mobile, scrollbar on desktop), horizontal
+     clipped */
+  height: 100%;
   overflow-y: auto;
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
   /* Respect notches / home indicators on phones. */
   padding: max(16px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right))
     max(16px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
