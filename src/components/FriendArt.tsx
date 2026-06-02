@@ -35,6 +35,17 @@ export type FriendKind =
   | 'lala'
   | 'chumi'
   | 'tsutsi'
+  // 31–40 — a fresh bright "candy" rainbow (still rows of bumps)
+  | 'tino'
+  | 'rozi'
+  | 'leo'
+  | 'mika'
+  | 'guzi'
+  | 'bino'
+  | 'tofi'
+  | 'kimi'
+  | 'shumi'
+  | 'dini'
 
 // Friend index (0-based) → kind. Friend #1 (לולו) is index 0.
 export const FRIEND_KINDS: FriendKind[] = [
@@ -68,6 +79,16 @@ export const FRIEND_KINDS: FriendKind[] = [
   'lala',
   'chumi',
   'tsutsi',
+  'tino',
+  'rozi',
+  'leo',
+  'mika',
+  'guzi',
+  'bino',
+  'tofi',
+  'kimi',
+  'shumi',
+  'dini',
 ]
 
 // ---- 11–20: the bigger friends ----
@@ -79,6 +100,8 @@ export const BIG_KINDS = [
   'gili', 'roni', 'yoyo', 'sofi', 'kiki',
   'romi', 'nini', 'pupi', 'tuti', 'mishi',
   'buzi', 'dagi', 'lala', 'chumi', 'tsutsi',
+  'tino', 'rozi', 'leo', 'mika', 'guzi',
+  'bino', 'tofi', 'kimi', 'shumi', 'dini',
 ] as const
 type BigKind = (typeof BIG_KINDS)[number]
 export type BigAccessory =
@@ -88,6 +111,9 @@ export type BigAccessory =
   | 'bunnyears' | 'sunglasses' | 'catears' | 'beret' | 'feather'
   | 'headband' | 'antennae' | 'mohawk' | 'sprout' | 'wizardhat'
   | 'horns' | 'toque' | 'bandana' | 'mustache' | 'mortarboard'
+  // 31–40
+  | 'fez' | 'sunhat' | 'heart' | 'halo' | 'topknot'
+  | 'rainbow' | 'pompoms' | 'bell' | 'moon' | 'flowercrown'
 
 const BU = 46 // bump size (px) for big friends — keep in sync with .gal-big --u
 const H_OVER = 0.16 // horizontal overlap of bumps within a row
@@ -120,6 +146,16 @@ export const BIG: Record<BigKind, {
   lala:   { rows: [5, 6, 6, 6, 5], bc: '#6d28d9', shoe: '#f59e0b', acc: 'bandana',   face: 'girl' }, // 28
   chumi:  { rows: [6, 6, 5, 6, 6], bc: '#a21caf', shoe: '#1e3a8a', acc: 'mustache',  face: 'plain' }, // 29
   tsutsi: { rows: [6, 6, 6, 6, 6], bc: '#9f1239', shoe: '#facc15', acc: 'mortarboard',face: 'girl' }, // 30 ■
+  tino:   { rows: [5, 7, 7, 7, 5],    bc: '#dc2626', shoe: '#1e3a8a', acc: 'fez',        face: 'plain' }, // 31 ◆
+  rozi:   { rows: [6, 7, 6, 7, 6],    bc: '#f59e0b', shoe: '#0e7490', acc: 'sunhat',     face: 'girl' }, // 32
+  leo:    { rows: [6, 7, 7, 7, 6],    bc: '#eab308', shoe: '#b91c1c', acc: 'heart',      face: 'plain' }, // 33
+  mika:   { rows: [6, 7, 8, 7, 6],    bc: '#84cc16', shoe: '#db2777', acc: 'halo',       face: 'girl' }, // 34 ◆
+  guzi:   { rows: [7, 7, 7, 7, 7],    bc: '#10b981', shoe: '#f59e0b', acc: 'topknot',    face: 'girl' }, // 35 ■
+  bino:   { rows: [6, 6, 6, 6, 6, 6], bc: '#06b6d4', shoe: '#f43f5e', acc: 'rainbow',    face: 'plain' }, // 36 ■
+  tofi:   { rows: [6, 6, 7, 6, 6, 6], bc: '#0ea5e9', shoe: '#1e3a8a', acc: 'pompoms',    face: 'girl' }, // 37
+  kimi:   { rows: [6, 7, 6, 7, 6, 6], bc: '#6366f1', shoe: '#facc15', acc: 'bell',       face: 'plain' }, // 38
+  shumi:  { rows: [6, 7, 7, 7, 6, 6], bc: '#a855f7', shoe: '#22c55e', acc: 'moon',       face: 'plain' }, // 39
+  dini:   { rows: [6, 7, 7, 7, 7, 6], bc: '#d946ef', shoe: '#0e7490', acc: 'flowercrown',face: 'girl' }, // 40
 }
 
 const bigNatural = Object.fromEntries(
@@ -431,6 +467,53 @@ function bigAccessory(acc: BigAccessory) {
         <span className="acc2 acc2-mortarboard">
           <i className="btn" />
           <i className="tassel" />
+        </span>
+      )
+    case 'fez':
+      return (
+        <span className="acc2 acc2-fez">
+          <i className="tassel" />
+        </span>
+      )
+    case 'sunhat':
+      return (
+        <span className="acc2 acc2-sunhat">
+          <i className="band" />
+        </span>
+      )
+    case 'heart':
+      return <span className="acc2 acc2-heart" />
+    case 'halo':
+      return <span className="acc2 acc2-halo" />
+    case 'topknot':
+      return (
+        <span className="acc2 acc2-topknot">
+          <i className="band" />
+        </span>
+      )
+    case 'rainbow':
+      return <span className="acc2 acc2-rainbow" />
+    case 'pompoms':
+      return (
+        <span className="acc2 acc2-pompoms">
+          <i className="l" />
+          <i className="r" />
+        </span>
+      )
+    case 'bell':
+      return (
+        <span className="acc2 acc2-bell">
+          <i className="top" />
+        </span>
+      )
+    case 'moon':
+      return <span className="acc2 acc2-moon" />
+    case 'flowercrown':
+      return (
+        <span className="acc2 acc2-flowercrown">
+          <i />
+          <i />
+          <i />
         </span>
       )
     default:

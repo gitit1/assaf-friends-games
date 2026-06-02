@@ -3657,6 +3657,300 @@ button {
   background: #facc15;
 }
 
+/* ===== 31–40 persona accessories ===== */
+
+/* 31 טינו — fez + tassel */
+.gal-big .acc2-fez {
+  top: -34px;
+  width: 40px;
+  height: 38px;
+}
+.gal-big .acc2-fez::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 38px;
+  height: 32px;
+  background: linear-gradient(#dc2626, #991b1b);
+  border-radius: 6px 6px 9px 9px;
+}
+.gal-big .acc2-fez::after {
+  content: '';
+  position: absolute;
+  top: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 38px;
+  height: 9px;
+  background: #ef4444;
+  border-radius: 50%;
+}
+.gal-big .acc2-fez .tassel {
+  position: absolute;
+  top: 6px;
+  right: 5px;
+  width: 3px;
+  height: 24px;
+  background: #1f2937;
+  z-index: 1;
+}
+.gal-big .acc2-fez .tassel::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 9px;
+  height: 11px;
+  border-radius: 50%;
+  background: #111827;
+}
+
+/* 32 רוזי — straw sun hat */
+.gal-big .acc2-sunhat {
+  top: -20px;
+  width: 80px;
+  height: 26px;
+}
+.gal-big .acc2-sunhat::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80px;
+  height: 14px;
+  background: linear-gradient(#fcd34d, #d97706);
+  border-radius: 50%;
+}
+.gal-big .acc2-sunhat::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 44px;
+  height: 22px;
+  background: linear-gradient(#fde68a, #f59e0b);
+  border-radius: 50% 50% 40% 40%;
+}
+.gal-big .acc2-sunhat .band {
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 44px;
+  height: 7px;
+  background: #ef4444;
+  border-radius: 4px;
+  z-index: 1;
+}
+
+/* 33 ליאו — heart bobble */
+.gal-big .acc2-heart {
+  top: -30px;
+  width: 34px;
+  height: 30px;
+  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.25));
+}
+.gal-big .acc2-heart::before,
+.gal-big .acc2-heart::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  width: 17px;
+  height: 27px;
+  background: linear-gradient(#fb7185, #e11d48);
+  border-radius: 17px 17px 0 0;
+}
+.gal-big .acc2-heart::before {
+  left: 17px;
+  transform: rotate(-45deg);
+  transform-origin: 0 100%;
+}
+.gal-big .acc2-heart::after {
+  left: 0;
+  transform: rotate(45deg);
+  transform-origin: 100% 100%;
+}
+
+/* 34 מיקה — angel halo */
+.gal-big .acc2-halo {
+  top: -22px;
+  width: 48px;
+  height: 18px;
+}
+.gal-big .acc2-halo::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border: 4px solid #fde047;
+  border-radius: 50%;
+  box-shadow: 0 0 7px rgba(253, 224, 71, 0.85);
+}
+
+/* 35 גוזי — hair bun (topknot) */
+.gal-big .acc2-topknot {
+  top: -22px;
+  width: 30px;
+  height: 24px;
+}
+.gal-big .acc2-topknot::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 24px;
+  height: 20px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 38% 32%, #fbbf24, #b45309);
+}
+.gal-big .acc2-topknot .band {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 18px;
+  height: 8px;
+  background: #db2777;
+  border-radius: 4px;
+}
+
+/* 36 בינו — rainbow arc */
+.gal-big .acc2-rainbow {
+  top: -22px;
+  width: 60px;
+  height: 30px;
+  border-radius: 60px 60px 0 0;
+  overflow: hidden;
+  background: radial-gradient(
+    circle at 50% 100%,
+    transparent 0 9px,
+    #8b5cf6 9px 12px,
+    #3b82f6 12px 15px,
+    #22c55e 15px 18px,
+    #fde047 18px 21px,
+    #f59e0b 21px 24px,
+    #ef4444 24px 27px,
+    transparent 27px
+  );
+}
+
+/* 37 טופי — side hair puffs */
+.gal-big .acc2-pompoms {
+  top: -6px;
+  width: 88px;
+  height: 26px;
+}
+.gal-big .acc2-pompoms .l,
+.gal-big .acc2-pompoms .r {
+  position: absolute;
+  top: 0;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 38% 32%, #fbcfe8, #db2777);
+}
+.gal-big .acc2-pompoms .l {
+  left: -2px;
+}
+.gal-big .acc2-pompoms .r {
+  right: -2px;
+}
+
+/* 38 קימי — jingle bell */
+.gal-big .acc2-bell {
+  top: -28px;
+  width: 30px;
+  height: 30px;
+  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.25));
+}
+.gal-big .acc2-bell::before {
+  content: '';
+  position: absolute;
+  bottom: 2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 24px;
+  height: 22px;
+  background: linear-gradient(#fde047, #eab308);
+  border-radius: 50% 50% 32% 32%;
+}
+.gal-big .acc2-bell::after {
+  content: '';
+  position: absolute;
+  bottom: 1px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #a16207;
+}
+.gal-big .acc2-bell .top {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 9px;
+  height: 9px;
+  border: 2px solid #a16207;
+  border-radius: 50%;
+  background: transparent;
+}
+
+/* 39 שומי — crescent moon */
+.gal-big .acc2-moon {
+  top: -30px;
+  width: 30px;
+  height: 30px;
+  background: linear-gradient(#fde047, #f59e0b);
+  border-radius: 50%;
+  -webkit-mask: radial-gradient(circle 16px at 72% 34%, transparent 98%, #000 100%);
+  mask: radial-gradient(circle 16px at 72% 34%, transparent 98%, #000 100%);
+  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.2));
+}
+
+/* 40 דיני — flower crown */
+.gal-big .acc2-flowercrown {
+  top: -16px;
+  width: 66px;
+  height: 22px;
+}
+.gal-big .acc2-flowercrown::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 62px;
+  height: 9px;
+  background: #16a34a;
+  border-radius: 6px;
+}
+.gal-big .acc2-flowercrown i {
+  position: absolute;
+  bottom: 6px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 50%, #fde047 0 30%, transparent 31%), #f472b6;
+}
+.gal-big .acc2-flowercrown i:nth-child(1) {
+  left: 5px;
+}
+.gal-big .acc2-flowercrown i:nth-child(2) {
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 9px;
+}
+.gal-big .acc2-flowercrown i:nth-child(3) {
+  right: 5px;
+}
+
 /* size comparison strip (1 · 2 · 3, on one baseline) */
 .gal-compare-title {
   text-align: center;
