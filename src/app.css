@@ -7065,6 +7065,23 @@ button {
 }
 
 /* ===================== צביעה לפי מספר (colour by number) ===================== */
+/* filter boards by colour-count */
+.cbn-filter {
+  direction: ltr;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin: 2px 0 8px;
+}
+.cbn-filter-label {
+  font-family: 'Fredoka', 'Heebo', sans-serif;
+  font-weight: 800;
+  font-size: 0.95rem;
+  color: var(--text-soft);
+  direction: rtl;
+}
 .cbn-legend {
   display: flex;
   flex-wrap: wrap;

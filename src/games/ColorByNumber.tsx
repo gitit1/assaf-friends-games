@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import GameShell from '../components/GameShell'
 import IconButton from '../components/IconButton'
 import Stepper from '../components/Stepper'
@@ -52,6 +52,18 @@ function countCells(grid: number[][]) {
   return grid.flat().filter((v) => v > 0).length
 }
 
+// How many colours each picture uses — for the "filter by number of colours"
+// control (fewer colours = easier).
+const COLOR_COUNT = PICTURES.map((p) => present(p.grid).length)
+const FILTERS: { id: string; label: string; test: (n: number) => boolean }[] = [
+  { id: 'all', label: 'הכל', test: () => true },
+  { id: 'f23', label: '2–3', test: (n) => n <= 3 },
+  { id: 'f45', label: '4–5', test: (n) => n === 4 || n === 5 },
+  { id: 'f68', label: '6–8', test: (n) => n >= 6 && n <= 8 },
+  { id: 'f9', label: '9+', test: (n) => n >= 9 },
+]
+const FILTER_HAS = FILTERS.map((f) => COLOR_COUNT.some((n) => f.test(n)))
+
 export default function ColorByNumber({ onExit }: GameProps) {
   const [pic, setPic] = useState(() => randInt(0, PICTURES.length - 1))
   const [filled, setFilled] = useState<Set<string>>(new Set())
@@ -60,6 +72,11 @@ export default function ColorByNumber({ onExit }: GameProps) {
   const [zoom, setZoom] = useState(1) // child can enlarge/shrink the board
   const [past, setPast] = useState<Set<string>[]>([]) // undo / redo history of filled cells
   const [future, setFuture] = useState<Set<string>[]>([])
+  const [filterId, setFilterId] = useState('all') // show only boards with N colours
+  const pool = useMemo(() => {
+    const f = FILTERS.find((x) => x.id === filterId) ?? FILTERS[0]
+    return PICTURES.map((_, i) => i).filter((i) => f.test(COLOR_COUNT[i]))
+  }, [filterId])
 
   const [win, setWin] = useState(() => ({
     w: typeof window !== 'undefined' ? window.innerWidth : 360,
@@ -123,6 +140,20 @@ export default function ColorByNumber({ onExit }: GameProps) {
     playTap()
     setZoom((z) => Math.min(2.6, Math.max(0.6, Math.round((z + d) * 100) / 100)))
   }
+  function step(d: number) {
+    if (pool.length === 0) return
+    const pos = pool.indexOf(pic)
+    const i = pos < 0 ? 0 : (pos + d + pool.length) % pool.length
+    goTo(pool[i])
+  }
+  function chooseFilter(id: string) {
+    if (id === filterId) return
+    playTap()
+    setFilterId(id)
+    const f = FILTERS.find((x) => x.id === id) ?? FILTERS[0]
+    const p = PICTURES.map((_, i) => i).filter((i) => f.test(COLOR_COUNT[i]))
+    if (p.length) goTo(p[randInt(0, p.length - 1)])
+  }
   function pickNumber(num: number) {
     unlockAudio()
     setSelected(num)
@@ -151,9 +182,24 @@ export default function ColorByNumber({ onExit }: GameProps) {
           // keep it a mystery — show only the picture's number until it's done,
           // then reveal what it turned out to be
           label={done ? `🎉 ${picture.name}` : `תמונה ${pic + 1}`}
-          onPrev={() => goTo((pic + PICTURES.length - 1) % PICTURES.length)}
-          onNext={() => goTo((pic + 1) % PICTURES.length)}
+          onPrev={() => step(-1)}
+          onNext={() => step(1)}
         />
+
+        {/* filter the boards by how many colours they use (fewer = easier) */}
+        <div className="cbn-filter">
+          <span className="cbn-filter-label">🎨 צבעים:</span>
+          {FILTERS.map((f, i) => (
+            <button
+              key={f.id}
+              className={`pill pill-small ${filterId === f.id ? 'pill-active' : ''}`}
+              onClick={() => chooseFilter(f.id)}
+              disabled={!FILTER_HAS[i]}
+            >
+              {f.label}
+            </button>
+          ))}
+        </div>
 
         <div className="cbn-legend">
           {legend.map((num) => (
@@ -202,7 +248,11 @@ export default function ColorByNumber({ onExit }: GameProps) {
           <IconButton icon={<span className="cbn-zoomic">🔍−</span>} label="להקטין" onClick={() => zoomBy(-0.25)} />
           <IconButton icon={<span className="cbn-zoomic">🔍+</span>} label="להגדיל" onClick={() => zoomBy(0.25)} />
           <IconButton icon="🧽" label="מתחילים מחדש" onClick={clearAll} />
-          <IconButton icon="🎲" label="תמונה חדשה" onClick={() => goTo(randInt(0, PICTURES.length - 1))} />
+          <IconButton
+            icon="🎲"
+            label="תמונה חדשה"
+            onClick={() => pool.length && goTo(pool[randInt(0, pool.length - 1)])}
+          />
         </div>
       </div>
     </GameShell>
