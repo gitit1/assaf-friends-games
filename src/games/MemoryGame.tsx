@@ -9,6 +9,7 @@ import { FRIENDS, friendName, friendSay } from '../friends'
 import { shuffle } from './util'
 import { getSettings } from '../settings'
 import { levelForTier } from '../difficulty'
+import { useViewport } from '../useViewport'
 
 type Level = { label: string; pairs: number }
 const LEVELS: Level[] = [
@@ -41,10 +42,14 @@ export default function MemoryGame({ onExit }: GameProps) {
   const [matched, setMatched] = useState<number[]>([])
   const [locked, setLocked] = useState(false)
 
+  const vp = useViewport()
   const won = matched.length === level.pairs
-  // Friend body size + column count — denser boards use smaller cards.
-  const cardPx = level.pairs <= 3 ? 78 : level.pairs <= 6 ? 56 : level.pairs <= 8 ? 50 : 44
+  // column count by density; the board fills up to 720px so it's big on a
+  // desktop, and each friend fills its (responsive) card.
   const cols = level.pairs <= 3 ? 3 : level.pairs <= 8 ? 4 : 5
+  const boardW = Math.min(720, vp.w * 0.92)
+  const cardSize = (boardW - (cols - 1) * 12) / cols
+  const friendPx = cardSize * 0.72
 
   function reset(next: Level = level) {
     setLevel(next)
@@ -115,7 +120,7 @@ export default function MemoryGame({ onExit }: GameProps) {
 
       <div
         className={`memory-grid ${cols >= 5 ? 'is-wide-board' : ''}`}
-        style={{ '--cols': cols } as React.CSSProperties}
+        style={{ '--cols': cols, maxWidth: boardW } as React.CSSProperties}
       >
         {deck.map((card, index) => {
           const isMatched = matched.includes(card.friend)
@@ -128,7 +133,7 @@ export default function MemoryGame({ onExit }: GameProps) {
               aria-label={isOpen ? friendName(card.friend) : 'קלף סגור'}
             >
               {isOpen ? (
-                <Friend index={card.friend} scale={cardPx / friendMaxDim(card.friend)} showNumber={false} />
+                <Friend index={card.friend} scale={friendPx / friendMaxDim(card.friend)} showNumber={false} />
               ) : (
                 <span className="memory-face" aria-hidden="true">
                   ❓

@@ -4675,12 +4675,12 @@ button {
   gap: 14px;
   justify-content: center;
   align-items: stretch;
-  max-width: 620px;
+  max-width: 840px;
   margin: 0 auto;
 }
 .qty-card {
-  flex: 1 1 150px;
-  max-width: 200px;
+  flex: 1 1 170px;
+  max-width: 260px;
   min-height: 150px;
   display: flex;
   align-items: center;

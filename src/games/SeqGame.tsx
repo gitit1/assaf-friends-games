@@ -9,6 +9,7 @@ import { FRIENDS, friendSay } from '../friends'
 import { numberWord, randInt, shuffle } from './util'
 import { getSettings } from '../settings'
 import { levelForTier } from '../difficulty'
+import { screenScale, useViewport } from '../useViewport'
 
 // "Missing friend in the sequence" — a run of friends follows a rule (counting,
 // jumps, times-tables, doubling) with one gap; pick the friend that completes
@@ -166,11 +167,13 @@ export default function SeqGame({ onExit }: GameProps) {
   const [done, setDone] = useState(false)
   const timers = useRef<number[]>([])
 
+  const vp = useViewport()
   const missing = round.terms[round.gapPos]
   const frames = buildFrames(round)
   const changing: 'left' | 'right' = round.type === 'add' ? 'right' : 'left'
-  const seqScale = (n: number) => 78 / friendMaxDim(n - 1)
-  const choiceScale = (n: number) => 84 / friendMaxDim(n - 1)
+  const f = screenScale(vp.w)
+  const seqScale = (n: number) => (78 * f) / friendMaxDim(n - 1)
+  const choiceScale = (n: number) => (84 * f) / friendMaxDim(n - 1)
 
   function clearTimers() {
     timers.current.forEach((t) => window.clearTimeout(t))

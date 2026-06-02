@@ -9,6 +9,7 @@ import { FRIENDS, friendSay } from '../friends'
 import { randInt, shuffle } from './util'
 import { getSettings } from '../settings'
 import { levelForTier } from '../difficulty'
+import { screenScale, useViewport } from '../useViewport'
 
 // "Who's missing?" — look at a group of friends, cover them when ready (the
 // child controls the timing → no time pressure), one hides, and recall who's
@@ -46,7 +47,8 @@ export default function WhoGame({ onExit }: GameProps) {
   const [score, setScore] = useState(0)
   const [wrong, setWrong] = useState<number | null>(null)
 
-  const scaleTo = (px: number, n: number) => px / friendMaxDim(n)
+  const vp = useViewport()
+  const scaleTo = (px: number, n: number) => (px * screenScale(vp.w)) / friendMaxDim(n)
 
   useEffect(() => {
     if (phase === 'guess') speak('מי נעלם?')

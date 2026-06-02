@@ -7,6 +7,7 @@ import { playNudge, playSuccess, playWin, unlockAudio } from '../audio'
 import { speak } from '../speech'
 import { FRIENDS } from '../friends'
 import { numberWord, randInt, shuffle } from './util'
+import { screenScale, useViewport } from '../useViewport'
 
 // "Match the number to the quantity" — a big numeral is shown; pick the group
 // that has exactly that many friends. No timer, wrong picks give a gentle
@@ -46,8 +47,9 @@ export default function QtyMatch({ onExit }: GameProps) {
   const [score, setScore] = useState(0)
   const [wrong, setWrong] = useState<number | null>(null)
   const [solved, setSolved] = useState(false)
+  const vp = useViewport()
 
-  const tokenScale = tokenPx(Math.max(...round.counts)) / friendMaxDim(round.token)
+  const tokenScale = (tokenPx(Math.max(...round.counts)) * screenScale(vp.w)) / friendMaxDim(round.token)
 
   function say() {
     speak(`מצאו ${numberWord(round.target)}`)
