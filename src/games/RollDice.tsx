@@ -33,6 +33,12 @@ const DICE_TYPES: DiceType[] = [
 ]
 const MIN_S = 40 // smallest a die shrinks to (drives the screen-based max count)
 const GAP = 10
+const SAY_EACH = 6 // up to this many dice, read the sum out as an addition sentence
+
+// "שש ועוד ארבע ועוד ארבע, ביחד ארבע-עשרה" — each die read aloud, then the total.
+function spokenAddition(vals: number[], sum: number) {
+  return `${vals.map((v) => numberWord(v)).join(' ועוד ')}, ביחד ${numberWord(sum)}`
+}
 
 function Die({ value, type, size, rolling, onClick }: { value: number; type: DiceType; size: number; rolling: boolean; onClick: () => void }) {
   return (
@@ -121,8 +127,11 @@ export default function RollDice({ onExit }: GameProps) {
       setRollId((r) => r + 1)
       const s = final.reduce((a, b) => a + b, 0)
       playSuccess()
-      if (s >= 1 && s <= FRIENDS.length) speak(`${numberWord(s)}! ${friendSay(s - 1)}`)
-      else speak(numberWord(s))
+      const tail = s >= 1 && s <= FRIENDS.length ? `! ${friendSay(s - 1)}` : ''
+      // with a few dice, read the addition aloud ("6 ועוד 4 ועוד 4, ביחד 14");
+      // with many, just the total so it doesn't drone on
+      if (final.length >= 2 && final.length <= SAY_EACH) speak(`${spokenAddition(final, s)}${tail}`)
+      else speak(`${numberWord(s)}${tail}`)
     }, 1000)
   }
 
@@ -182,6 +191,11 @@ export default function RollDice({ onExit }: GameProps) {
         </div>
 
         <div className="roll-result">
+          {settled && !rolling && n >= 2 && n <= 12 && (
+            <div className="roll-expr" dir="ltr" aria-hidden="true">
+              {values.join(' + ')} = {sum}
+            </div>
+          )}
           <div className="roll-sum" aria-label={`סך הכל ${sum}`}>
             <span className="roll-sum-label">סך הכל</span>
             <span className="roll-sum-num">{sum}</span>

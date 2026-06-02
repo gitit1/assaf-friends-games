@@ -922,6 +922,53 @@ button {
   color: var(--accent);
 }
 
+/* place-value strip (מוסיפים): tens as "10" tiles + a ten-frame of ones.
+   direction:ltr so tens sit left and ones right, like the written number. */
+.pv {
+  display: flex;
+  direction: ltr;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin: 14px 0 2px;
+  min-height: 50px;
+}
+.pv-tens {
+  display: flex;
+  gap: 6px;
+}
+.pv-ten {
+  width: 32px;
+  height: 48px;
+  border-radius: 9px;
+  background: linear-gradient(160deg, #34d399, #059669);
+  color: #fff;
+  font-family: 'Fredoka', 'Heebo', sans-serif;
+  font-weight: 800;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow);
+}
+.pv-ones {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 5px;
+}
+.pv-one {
+  width: 18px;
+  height: 18px;
+  border-radius: 5px;
+  background: var(--line);
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+.pv-one.on {
+  background: linear-gradient(160deg, #fbbf24, #d97706);
+  box-shadow: var(--shadow);
+}
+
 @keyframes friend-jump {
   0%, 100% { transform: translateY(0) scale(1); }
   35% { transform: translateY(-26px) scale(1.08); }
@@ -5965,6 +6012,46 @@ button {
 }
 .calc-key-eq {
   background: var(--success);
+  grid-column: 1 / -1; /* a wide bottom bar (the grid now has a 5th row) */
+  aspect-ratio: auto;
+  padding: 14px;
+}
+
+/* composite big number: the real friends that add up to it (42 = 40 + 2).
+   the row is LTR so it reads like a maths expression. */
+.calc-compose {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+.calc-compose-row {
+  direction: ltr;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.calc-compose-cell {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.calc-plus {
+  font-family: 'Fredoka', 'Heebo', sans-serif;
+  font-weight: 800;
+  font-size: 1.8rem;
+  color: var(--text-soft);
+}
+.calc-compose-sum {
+  font-family: 'Fredoka', 'Heebo', sans-serif;
+  font-weight: 800;
+  font-size: 1.7rem;
+  color: var(--accent);
+  background: rgba(255, 255, 255, 0.92);
+  border-radius: 999px;
+  padding: 2px 16px;
 }
 .calc-key-clear {
   background: #ff7f8d;
@@ -6517,6 +6604,14 @@ button {
   gap: 4px;
   min-height: 190px;
   justify-content: center;
+}
+.roll-expr {
+  font-family: 'Fredoka', 'Heebo', sans-serif;
+  font-weight: 800;
+  font-size: 1.25rem;
+  color: var(--text-soft);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.5px;
 }
 .roll-sum {
   display: flex;

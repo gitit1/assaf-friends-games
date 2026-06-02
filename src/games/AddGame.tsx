@@ -16,6 +16,9 @@ export default function AddGame({ onExit }: GameProps) {
   const [built, setBuilt] = useState(0)
 
   const done = built === target
+  // place value: how many full tens, and the leftover ones (a ten-frame)
+  const tens = Math.floor(built / 10)
+  const ones = built % 10
 
   function addOne() {
     if (built >= target) return
@@ -52,6 +55,23 @@ export default function AddGame({ onExit }: GameProps) {
 
       <div className="friends-stage">
         <Friend index={target - 1} scale={0.9} litUnits={built} bouncing={done} />
+      </div>
+
+      {/* same number a second way: tens as "10" tiles + ones in a ten-frame, so
+          the carry from 9→10 is visible (place value) */}
+      <div className="pv" aria-hidden="true">
+        <div className="pv-tens">
+          {Array.from({ length: tens }).map((_, i) => (
+            <span className="pv-ten" key={i}>
+              10
+            </span>
+          ))}
+        </div>
+        <div className="pv-ones">
+          {Array.from({ length: 10 }).map((_, i) => (
+            <span className={`pv-one ${i < ones ? 'on' : ''}`} key={i} />
+          ))}
+        </div>
       </div>
 
       {done ? (

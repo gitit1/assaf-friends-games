@@ -5,17 +5,32 @@ import type { GameProps } from './registry'
 import { playTap, playWin, unlockAudio } from '../audio'
 import { speak } from '../speech'
 import { friendColor, friendName } from '../friends'
-import { FRIEND_KINDS } from '../components/FriendArt'
+import { FRIEND_KINDS, friendMaxDim } from '../components/FriendArt'
 import { numberWord } from './util'
 
 const REAL_FRIENDS = FRIEND_KINDS.length // numbers up to here have a real friend
 
-type Op = '+' | '-' | '×'
+type Op = '+' | '-' | '×' | '÷'
 
 function compute(a: number, op: Op, b: number) {
   if (op === '+') return a + b
   if (op === '-') return a - b
+  if (op === '÷') return b === 0 ? a : Math.round((a / b) * 100) / 100 // never /0; keep it tidy
   return a * b
+}
+
+// Express a big number as a sum of friend-sized chunks (each ≤ the biggest
+// friend), e.g. 42 → [40, 2], 90 → [40, 40, 10]. Lets a number with no single
+// friend be shown as a little crowd of real friends that add up to it.
+function decompose(value: number): number[] {
+  const chunks: number[] = []
+  let rest = value
+  while (rest > REAL_FRIENDS) {
+    chunks.push(REAL_FRIENDS)
+    rest -= REAL_FRIENDS
+  }
+  if (rest > 0) chunks.push(rest)
+  return chunks
 }
 
 // Layout switches to a side-by-side split on wider screens (e.g. iPad).
@@ -56,10 +71,40 @@ function BigFriend({ value, scale }: { value: number; scale: number }) {
   )
 }
 
+// A number with no single friend, shown as the real friends that add up to it
+// (42 = friend 40 + friend 2). Each chunk is normalised to a uniform box so the
+// crowd fits, and shows its own number.
+function CompositeFriend({ value, scale }: { value: number; scale: number }) {
+  const chunks = decompose(value)
+  const room = scale >= 0.8 ? 300 : 196
+  const per = Math.max(46, Math.min(96, Math.floor(room / chunks.length)))
+  return (
+    <div className="calc-compose">
+      <div className="calc-compose-row">
+        {chunks.map((c, i) => (
+          <span className="calc-compose-cell" key={i}>
+            {i > 0 && <span className="calc-plus">+</span>}
+            <Friend index={c - 1} scale={per / friendMaxDim(c - 1)} showNumber />
+          </span>
+        ))}
+      </div>
+      <span className="calc-compose-sum">= {value}</span>
+    </div>
+  )
+}
+
 // What the friends panel shows for the number currently on the display.
 function NumberView({ value, scale }: { value: number; scale: number }) {
-  if (value >= 1 && value <= REAL_FRIENDS) return <Friend index={value - 1} scale={scale} />
-  if (value > REAL_FRIENDS) return <BigFriend value={value} scale={scale} />
+  if (Number.isInteger(value) && value >= 1 && value <= REAL_FRIENDS)
+    return <Friend index={value - 1} scale={scale} />
+  if (Number.isInteger(value) && value > REAL_FRIENDS) {
+    // a small crowd of friends if it decomposes into a few; otherwise the chunky big-friend
+    return decompose(value).length <= 5 ? (
+      <CompositeFriend value={value} scale={scale} />
+    ) : (
+      <BigFriend value={value} scale={scale} />
+    )
+  }
   return <span className="calc-bignum">{value}</span>
 }
 
@@ -107,7 +152,14 @@ export default function CalcFriends({ onExit }: GameProps) {
     setOp(null)
     setFresh(true)
     playWin()
-    if (r >= 1 && r <= REAL_FRIENDS) speak(`${numberWord(r)}. ${friendName(r - 1)}`)
+    if (Number.isInteger(r) && r >= 1 && r <= REAL_FRIENDS) {
+      speak(`${numberWord(r)}. ${friendName(r - 1)}`)
+    } else if (Number.isInteger(r) && r > REAL_FRIENDS) {
+      const chunks = decompose(r)
+      // "ארבעים ועוד שתיים, ביחד 42" — hear the number built from its friends
+      if (chunks.length <= 5) speak(`${chunks.map((c) => numberWord(c)).join(' ועוד ')}, ביחד ${numberWord(r)}`)
+      else speak(numberWord(r))
+    }
   }
 
   function clear() {
@@ -140,18 +192,19 @@ export default function CalcFriends({ onExit }: GameProps) {
     { label: '7', kind: 'num', onClick: () => digit('7') },
     { label: '8', kind: 'num', onClick: () => digit('8') },
     { label: '9', kind: 'num', onClick: () => digit('9') },
-    { label: '✖️', kind: 'op', onClick: () => chooseOp('×') },
+    { label: '➗', kind: 'op', onClick: () => chooseOp('÷') },
     { label: '4', kind: 'num', onClick: () => digit('4') },
     { label: '5', kind: 'num', onClick: () => digit('5') },
     { label: '6', kind: 'num', onClick: () => digit('6') },
-    { label: '➖', kind: 'op', onClick: () => chooseOp('-') },
+    { label: '✖️', kind: 'op', onClick: () => chooseOp('×') },
     { label: '1', kind: 'num', onClick: () => digit('1') },
     { label: '2', kind: 'num', onClick: () => digit('2') },
     { label: '3', kind: 'num', onClick: () => digit('3') },
-    { label: '➕', kind: 'op', onClick: () => chooseOp('+') },
+    { label: '➖', kind: 'op', onClick: () => chooseOp('-') },
+    { label: 'C', kind: 'clear', onClick: clear },
     { label: '0', kind: 'num', onClick: () => digit('0') },
     { label: '⌫', kind: 'back', onClick: back },
-    { label: 'C', kind: 'clear', onClick: clear },
+    { label: '➕', kind: 'op', onClick: () => chooseOp('+') },
     { label: '=', kind: 'eq', onClick: equals },
   ]
 
