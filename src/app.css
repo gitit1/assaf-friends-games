@@ -7453,6 +7453,66 @@ button {
   pointer-events: none;
 }
 
+/* mode selector (smileys / numbers / letters / friends) */
+.sort-modes {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin: 2px 0 8px;
+}
+/* centre an item's number/letter/friend (Face stays absolutely positioned) */
+.sort-blob {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.sort-blob.is-friend {
+  background: none;
+  box-shadow: none;
+}
+.sort-sym {
+  font-family: 'Fredoka', 'Heebo', sans-serif;
+  font-weight: 800;
+  font-size: 1.7rem;
+  line-height: 1;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+}
+/* each basket sits in a little column with its counter beneath (non-smiley modes) */
+.sort-basket-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+.sort-basket-label {
+  position: absolute;
+  inset: 8px 0 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Fredoka', 'Heebo', sans-serif;
+  font-weight: 800;
+  line-height: 1;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  pointer-events: none;
+}
+.sort-basket-friend {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+.sort-count-below {
+  font-family: 'Fredoka', 'Heebo', sans-serif;
+  font-weight: 800;
+  font-size: 1.2rem;
+  line-height: 1;
+  color: var(--text);
+}
+
 /* ===================== איזה חבר? (which friend starts with…) ===================== */
 .which-head {
   display: flex;

@@ -141,7 +141,7 @@ export const GAMES: GameDef[] = [
   },
   {
     id: 'sort',
-    title: 'מיון לפי צבע',
+    title: 'מיון',
     emoji: '🧺',
     color: 'linear-gradient(160deg, #34d399, #0d9488)',
     category: 'thinking',
