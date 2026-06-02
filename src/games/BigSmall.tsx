@@ -6,7 +6,7 @@ import type { GameProps } from './registry'
 import { playNudge, playSuccess, playWin, unlockAudio } from '../audio'
 import { speak } from '../speech'
 import { friendSay, friendSize } from '../friends'
-import { randInt } from './util'
+import { numberWordNiqqud, randInt } from './util'
 import { screenScale, useViewport } from '../useViewport'
 
 // "Bigger or smaller?" — two friends appear (each IS its number, so the bigger
@@ -60,9 +60,13 @@ export default function BigSmall({ onExit }: GameProps) {
       setLocked(true)
       const ns = score + 1
       setScore(ns)
-      if (ns % 5 === 0) playWin()
-      else playSuccess()
-      speak(friendSay(n - 1))
+      if (ns % 5 === 0) {
+        playWin()
+        speak(`${numberWordNiqqud(ns)}!`) // calm milestone: announce the running count
+      } else {
+        playSuccess()
+        speak(friendSay(n - 1))
+      }
       window.setTimeout(() => {
         setRound((r) => newRound(r))
         setLocked(false)

@@ -6,7 +6,7 @@ import type { GameProps } from './registry'
 import { playNudge, playSuccess, playWin, unlockAudio } from '../audio'
 import { speak } from '../speech'
 import { FRIENDS } from '../friends'
-import { numberWord, randInt, shuffle } from './util'
+import { numberWord, numberWordNiqqud, randInt, shuffle } from './util'
 import { screenScale, useViewport } from '../useViewport'
 
 // "Match the number to the quantity" — a big numeral is shown; pick the group
@@ -67,9 +67,13 @@ export default function QtyMatch({ onExit }: GameProps) {
       setSolved(true)
       const ns = score + 1
       setScore(ns)
-      if (ns % 5 === 0) playWin()
-      else playSuccess()
-      speak(`${numberWord(round.target)}! כל הכבוד`)
+      if (ns % 5 === 0) {
+        playWin()
+        speak(`${numberWordNiqqud(ns)}!`) // calm milestone: announce the running count
+      } else {
+        playSuccess()
+        speak(`${numberWord(round.target)}! כל הכבוד`)
+      }
       window.setTimeout(() => {
         setRound(newRound())
         setSolved(false)
