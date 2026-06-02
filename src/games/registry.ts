@@ -4,7 +4,7 @@ import CountGame from './CountGame'
 import AddGame from './AddGame'
 import CatchFriend from './CatchFriend'
 import CalcFriends from './CalcFriends'
-import MathRace from './MathRace'
+import CarRace from './CarRace'
 import PopFriends from './PopFriends'
 import BigSmall from './BigSmall'
 import SeqGame from './SeqGame'
@@ -109,11 +109,11 @@ export const GAMES: GameDef[] = [
   },
   {
     id: 'race',
-    title: 'מירוץ חשבון',
-    emoji: '🏁',
+    title: 'מרוץ מכוניות',
+    emoji: '🏎️',
     color: 'linear-gradient(160deg, #f43f5e, #be123c)',
     category: 'numbers',
-    Component: MathRace,
+    Component: CarRace,
   },
   {
     id: 'challenge',
