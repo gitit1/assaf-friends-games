@@ -1,10 +1,15 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import GameShell from './GameShell'
 import Friend from './Friend'
+import { FRIEND_KINDS, FRIEND_NATURAL } from './FriendArt'
 import { FRIENDS } from '../friends'
 import { playTap, unlockAudio } from '../audio'
 
 const PER_PAGE = 10
+// widest friend in the whole cast — used to size them all so the biggest reaches
+// ~90% of the screen width (the smaller numbers stay proportionally smaller, so
+// the "bigger number = bigger friend" staircase is kept).
+const MAX_W = Math.max(...FRIEND_KINDS.map((k) => FRIEND_NATURAL[k].w))
 
 // Not a game — "meet the cast". The roster grows toward 100, so instead of one
 // long wall of friends we chunk them into groups of ten. A number-range selector
@@ -17,6 +22,15 @@ export default function MeetFriends({ onExit, onOpen }: { onExit: () => void; on
   const [group, setGroup] = useState(0)
   const start = group * PER_PAGE
   const end = Math.min(start + PER_PAGE, FRIENDS.length)
+
+  const [vw, setVw] = useState(() => (typeof window !== 'undefined' ? window.innerWidth : 360))
+  useEffect(() => {
+    const onResize = () => setVw(window.innerWidth)
+    window.addEventListener('resize', onResize)
+    return () => window.removeEventListener('resize', onResize)
+  }, [])
+  // biggest friend fills ~90% of the available width (.meet-grid maxes at 560)
+  const scale = (0.9 * Math.min(vw - 16, 560)) / MAX_W
 
   return (
     <GameShell title="החברים שלי" emoji="⭐" onExit={onExit}>
@@ -58,7 +72,7 @@ export default function MeetFriends({ onExit, onOpen }: { onExit: () => void; on
               }}
               aria-label={friend.name}
             >
-              <Friend index={i} scale={0.5} showNumber={false} />
+              <Friend index={i} scale={scale} showNumber={false} />
               <span className="meet-name">{friend.name}</span>
             </button>
           )

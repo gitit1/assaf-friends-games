@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import GameShell from './GameShell'
-import FriendArt, { BIG_KINDS, FRIEND_NATURAL, type FriendKind } from './FriendArt'
+import FriendArt, { BIG_KINDS, type FriendKind } from './FriendArt'
 import type { GameProps } from '../games/registry'
 
 const PAGES: { kind: FriendKind; title: string }[] = [
@@ -125,16 +125,6 @@ export default function DesignGallery({ onExit }: GameProps) {
   const [group, setGroup] = useState(0) // which decade (0 = 1–10, 1 = 11–20, …)
   const [slot, setSlot] = useState(0) // position within the decade (0–9)
 
-  const [win, setWin] = useState(() => ({
-    w: typeof window !== 'undefined' ? window.innerWidth : 360,
-    h: typeof window !== 'undefined' ? window.innerHeight : 700,
-  }))
-  useEffect(() => {
-    const onResize = () => setWin({ w: window.innerWidth, h: window.innerHeight })
-    window.addEventListener('resize', onResize)
-    return () => window.removeEventListener('resize', onResize)
-  }, [])
-
   const groupStart = group * GROUP_SIZE
   const groupPages = PAGES.slice(groupStart, groupStart + GROUP_SIZE)
   const safeSlot = Math.min(slot, groupPages.length - 1)
@@ -143,12 +133,6 @@ export default function DesignGallery({ onExit }: GameProps) {
   // 1–10 are drawn with bigger bumps than the newer friends, so shrink them a
   // touch in the stage to keep the gallery scale consistent up toward 100.
   const small = !BIG_SET.has(current.kind)
-  // The big friends (11+) are CSS-drawn at modest natural widths, so the narrow
-  // ones looked small. Scale them up to fill ~95% of the screen width (capped by
-  // height and a sensible max) so they're easy to see; small friends keep size.
-  const nat = FRIEND_NATURAL[current.kind]
-  const fit = small ? 0.8 : Math.min((win.w * 0.95) / nat.w, (win.h * 0.48) / nat.h)
-  const stageMinH = Math.max(290, Math.round(nat.h * fit) + 48)
 
   return (
     <GameShell title="גלריית עיצובים" emoji="🎨" onExit={onExit}>
@@ -182,8 +166,8 @@ export default function DesignGallery({ onExit }: GameProps) {
           </button>
         </div>
 
-        <div className="gal-big-stage" style={{ minHeight: stageMinH }}>
-          <span className="gal-stage-fit" style={{ transform: `scale(${fit})` }}>
+        <div className="gal-big-stage">
+          <span className="gal-stage-fit" style={{ transform: `scale(${small ? 0.8 : 1})` }}>
             <FriendArt kind={current.kind} number={number} showHalo />
           </span>
         </div>
