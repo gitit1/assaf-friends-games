@@ -5,17 +5,27 @@ import type { GameProps } from './registry'
 import { playRise, playWin, unlockAudio } from '../audio'
 import { speak } from '../speech'
 import { friendSay } from '../friends'
-import { numberWord, randInt } from './util'
+import { numberWordNiqqud, randInt } from './util'
 import { fitScale, useViewport } from '../useViewport'
 
-// Show one friend and count its segments one-by-one out loud (1, 2, 3...),
-// lighting each unit from the bottom up — then the friend wakes and cheers.
-const MAX = 30 // count up to 30 — the whole current roster (friends 1–30)
+// Show one friend and count its blocks out loud, lighting them up. Like the
+// Numberblocks "Step Squad": you can count by 1 / 2 / 5 / 10, go up or down, and
+// pick the pace. No timer, no pressure — the friend wakes and cheers at the end.
+const MAX = 30
+const STEPS = [1, 2, 5, 10]
+const SPEEDS: { label: string; ms: number }[] = [
+  { label: 'איטי', ms: 950 },
+  { label: 'רגיל', ms: 620 },
+  { label: 'מהיר', ms: 380 },
+]
 
 export default function CountGame({ onExit }: GameProps) {
   const [value, setValue] = useState(() => randInt(1, MAX))
   const [lit, setLit] = useState(0)
   const [counting, setCounting] = useState(false)
+  const [step, setStep] = useState(1)
+  const [dir, setDir] = useState<'up' | 'down'>('up')
+  const [speed, setSpeed] = useState(SPEEDS[1].ms)
   const vp = useViewport()
 
   const timers = useRef<number[]>([])
@@ -25,29 +35,42 @@ export default function CountGame({ onExit }: GameProps) {
   }
   useEffect(() => clearTimers, [])
 
-  function startCount(n: number = value) {
+  function startCount() {
     unlockAudio()
     clearTimers()
     setCounting(true)
-    setLit(0)
-    for (let i = 1; i <= n; i++) {
+    const n = value
+    // the sequence of "how many are lit" at each beat
+    const seq: number[] = []
+    if (dir === 'up') {
+      setLit(0)
+      for (let v = step; v < n; v += step) seq.push(v)
+      seq.push(n)
+    } else {
+      setLit(n)
+      speak(numberWordNiqqud(n))
+      for (let v = n - step; v > 0; v -= step) seq.push(v)
+      seq.push(0)
+    }
+
+    seq.forEach((litVal, idx) => {
       timers.current.push(
         window.setTimeout(() => {
-          setLit(i)
-          playRise(i - 1) // each number climbs the scale → counting becomes a little tune
-          speak(numberWord(i))
-        }, i * 750),
+          setLit(litVal)
+          playRise(idx) // climbing notes → the count sings
+          if (litVal > 0) speak(numberWordNiqqud(litVal))
+        }, (idx + 1) * speed),
       )
-    }
+    })
+
     timers.current.push(
       window.setTimeout(
         () => {
           setCounting(false)
           playWin()
-          // The friend's number is the total — then it says its name.
-          speak(`${numberWord(n)}. ${friendSay(n - 1)}`)
+          speak(dir === 'up' ? `${numberWordNiqqud(n)}. ${friendSay(n - 1)}` : friendSay(n - 1))
         },
-        n * 750 + 550,
+        (seq.length + 1) * speed + 250,
       ),
     )
   }
@@ -68,11 +91,36 @@ export default function CountGame({ onExit }: GameProps) {
       </div>
 
       <div className="count-readout" aria-hidden="true">
-        {counting ? lit || '' : lit === value ? value : '👆'}
+        {counting ? lit : lit === value ? value : '👆'}
+      </div>
+
+      <div className="count-opts">
+        <div className="count-opt-row">
+          <span className="count-opt-label">קפיצות</span>
+          {STEPS.map((s) => (
+            <button key={s} className={`pill pill-small ${step === s ? 'pill-active' : ''}`} onClick={() => setStep(s)} disabled={counting}>
+              {s}
+            </button>
+          ))}
+        </div>
+        <div className="count-opt-row">
+          <button
+            className="pill pill-small"
+            onClick={() => setDir((d) => (d === 'up' ? 'down' : 'up'))}
+            disabled={counting}
+          >
+            {dir === 'up' ? '⬆️ עולה' : '⬇️ יורד'}
+          </button>
+          {SPEEDS.map((sp) => (
+            <button key={sp.ms} className={`pill pill-small ${speed === sp.ms ? 'pill-active' : ''}`} onClick={() => setSpeed(sp.ms)} disabled={counting}>
+              {sp.label}
+            </button>
+          ))}
+        </div>
       </div>
 
       <div className="counting-next">
-        <button className="big-button" onClick={() => startCount()} disabled={counting}>
+        <button className="big-button" onClick={startCount} disabled={counting}>
           👆 סופרים!
         </button>
         <button className="pill" onClick={newNumber}>

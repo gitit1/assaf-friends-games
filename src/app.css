@@ -910,6 +910,27 @@ button {
   min-height: 3.4rem;
   margin-bottom: 8px;
 }
+/* advanced-counting options (skip / direction / speed) */
+.count-opts {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 14px;
+}
+.count-opt-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.count-opt-label {
+  font-family: 'Fredoka', 'Heebo', sans-serif;
+  font-weight: 800;
+  font-size: 0.95rem;
+  color: var(--text-soft);
+}
 
 .count-target {
   text-align: center;
