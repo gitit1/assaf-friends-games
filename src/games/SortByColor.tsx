@@ -153,9 +153,20 @@ export default function SortByColor({ onExit }: GameProps) {
   }
   function up(e: React.PointerEvent) {
     if (!drag) return
-    const el = document.elementFromPoint(e.clientX, e.clientY) as HTMLElement | null
-    const basket = el?.closest('[data-basket]') as HTMLElement | null
-    if (basket && basket.dataset.basket === drag.key) {
+    // forgiving: snap to the NEAREST basket (no need to land exactly on it), as
+    // long as it's the right one and the drop is reasonably close to it
+    let basket: HTMLElement | null = null
+    let bestD = Infinity
+    document.querySelectorAll<HTMLElement>('[data-basket]').forEach((t) => {
+      const r = t.getBoundingClientRect()
+      const d = Math.hypot(e.clientX - (r.left + r.width / 2), e.clientY - (r.top + r.height / 2))
+      if (d < bestD) {
+        bestD = d
+        basket = t
+      }
+    })
+    const tol = Math.max(bw, bh) * 1.15
+    if (basket && bestD <= tol && (basket as HTMLElement).dataset.basket === drag.key) {
       const newCount = (counts[drag.key] ?? 0) + 1
       setCounts((c) => ({ ...c, [drag.key]: newCount }))
       const left = blobs.filter((x) => x.id !== drag.id)

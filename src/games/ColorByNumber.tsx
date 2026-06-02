@@ -61,8 +61,19 @@ const FILTERS: { id: string; label: string; test: (n: number) => boolean }[] = [
   { id: 'f45', label: '4–5', test: (n) => n === 4 || n === 5 },
   { id: 'f68', label: '6–8', test: (n) => n >= 6 && n <= 8 },
   { id: 'f9', label: '9+', test: (n) => n >= 9 },
+  { id: 'fav', label: '❤️', test: () => false }, // pool is the favourites set (special-cased)
 ]
 const FILTER_HAS = FILTERS.map((f) => COLOR_COUNT.some((n) => f.test(n)))
+
+const FAV_KEY = 'assaf-games:cbn-favs'
+function loadFavs(): Set<number> {
+  try {
+    const raw = localStorage.getItem(FAV_KEY)
+    return new Set<number>(raw ? JSON.parse(raw) : [])
+  } catch {
+    return new Set()
+  }
+}
 
 export default function ColorByNumber({ onExit }: GameProps) {
   const [pic, setPic] = useState(() => randInt(0, PICTURES.length - 1))
@@ -73,10 +84,12 @@ export default function ColorByNumber({ onExit }: GameProps) {
   const [past, setPast] = useState<Set<string>[]>([]) // undo / redo history of filled cells
   const [future, setFuture] = useState<Set<string>[]>([])
   const [filterId, setFilterId] = useState('all') // show only boards with N colours
+  const [favs, setFavs] = useState<Set<number>>(loadFavs)
   const pool = useMemo(() => {
+    if (filterId === 'fav') return PICTURES.map((_, i) => i).filter((i) => favs.has(i))
     const f = FILTERS.find((x) => x.id === filterId) ?? FILTERS[0]
     return PICTURES.map((_, i) => i).filter((i) => f.test(COLOR_COUNT[i]))
-  }, [filterId])
+  }, [filterId, favs])
 
   const [win, setWin] = useState(() => ({
     w: typeof window !== 'undefined' ? window.innerWidth : 360,
@@ -150,9 +163,25 @@ export default function ColorByNumber({ onExit }: GameProps) {
     if (id === filterId) return
     playTap()
     setFilterId(id)
-    const f = FILTERS.find((x) => x.id === id) ?? FILTERS[0]
-    const p = PICTURES.map((_, i) => i).filter((i) => f.test(COLOR_COUNT[i]))
+    const p =
+      id === 'fav'
+        ? PICTURES.map((_, i) => i).filter((i) => favs.has(i))
+        : PICTURES.map((_, i) => i).filter((i) => (FILTERS.find((x) => x.id === id) ?? FILTERS[0]).test(COLOR_COUNT[i]))
     if (p.length) goTo(p[randInt(0, p.length - 1)])
+  }
+  function toggleFav() {
+    playTap()
+    setFavs((prev) => {
+      const next = new Set(prev)
+      if (next.has(pic)) next.delete(pic)
+      else next.add(pic)
+      try {
+        localStorage.setItem(FAV_KEY, JSON.stringify([...next]))
+      } catch {
+        // storage off — favourites just won't persist
+      }
+      return next
+    })
   }
   function pickNumber(num: number) {
     unlockAudio()
@@ -194,7 +223,7 @@ export default function ColorByNumber({ onExit }: GameProps) {
               key={f.id}
               className={`pill pill-small ${filterId === f.id ? 'pill-active' : ''}`}
               onClick={() => chooseFilter(f.id)}
-              disabled={!FILTER_HAS[i]}
+              disabled={f.id === 'fav' ? favs.size === 0 : !FILTER_HAS[i]}
             >
               {f.label}
             </button>
@@ -248,6 +277,7 @@ export default function ColorByNumber({ onExit }: GameProps) {
           <IconButton icon={<span className="cbn-zoomic">🔍−</span>} label="להקטין" onClick={() => zoomBy(-0.25)} />
           <IconButton icon={<span className="cbn-zoomic">🔍+</span>} label="להגדיל" onClick={() => zoomBy(0.25)} />
           <IconButton icon="🧽" label="מתחילים מחדש" onClick={clearAll} />
+          <IconButton icon={favs.has(pic) ? '❤️' : '🤍'} label="מועדף" onClick={toggleFav} />
           <IconButton
             icon="🎲"
             label="תמונה חדשה"
