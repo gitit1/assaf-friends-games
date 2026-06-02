@@ -46,7 +46,7 @@ const PAGES: { kind: FriendKind; title: string }[] = [
   { kind: 'dini', title: 'דיני · 40' },
 ]
 
-const NOTES: Record<FriendKind, string> = {
+const NOTES: Partial<Record<FriendKind, string>> = {
   lulu: 'לולו (1) — הבסיס: בלוב עגול וחמוד, צבע אחד. הכי קטן מבין החברים.',
   toki: 'טוקי (2) — שתי כיפות מחוברות, שני צבעים, עם שקע רך טבעי. גדול מלולו.',
   bobby: 'בובי (3) — שלושה עיגולים במשולש, שלושה צבעים. גדול יותר מטוקי.',
@@ -172,7 +172,7 @@ export default function DesignGallery({ onExit }: GameProps) {
           </span>
         </div>
 
-        <p className="gal-note">{NOTES[current.kind]}</p>
+        <p className="gal-note">{NOTES[current.kind] ?? ''}</p>
 
         <h3 className="gal-compare-title">הגדלים גדלים עם המספר</h3>
         <SizeStrip pages={groupPages} activeIndex={safeSlot} onSelect={setSlot} />

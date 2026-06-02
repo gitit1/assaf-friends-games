@@ -56,6 +56,17 @@ export const FRIENDS: Friend[] = [
   { color: '#6366f1', name: 'קימי', say: 'קִימִי' }, // 38
   { color: '#a855f7', name: 'שומי', say: 'שׁוּמִי' }, // 39
   { color: '#d946ef', name: 'דיני', say: 'דִּינִי' }, // 40
+  // 41–50 — a brighter pastel rainbow (a fresh set); colours match BIG
+  { color: '#e23670', name: 'פפו', say: 'פַּפּוֹ' }, // 41
+  { color: '#fb923c', name: 'ניבי', say: 'נִיבִּי' }, // 42
+  { color: '#fcd34d', name: 'לוקי', say: 'לוּקִי' }, // 43
+  { color: '#a3e635', name: 'ריו', say: 'רִיוֹ' }, // 44
+  { color: '#34d399', name: 'מיו', say: 'מִיוֹ' }, // 45
+  { color: '#2dd4bf', name: 'גוני', say: 'גוֹנִי' }, // 46
+  { color: '#38bdf8', name: 'בובא', say: 'בּוּבָּה' }, // 47
+  { color: '#818cf8', name: 'קלי', say: 'קָלִי' }, // 48
+  { color: '#c084fc', name: 'שיר', say: 'שִׁיר' }, // 49
+  { color: '#f0abfc', name: 'דנה', say: 'דָּנָה' }, // 50
 ]
 
 export function friendColor(index: number) {
@@ -77,6 +88,7 @@ const COLOR_NAMES = [
   'אדום', 'כתום', 'צהוב', 'ירוק', 'טורקיז', 'תכלת', 'כחול', 'סגול', 'ורוד', 'אדום',
   'ורוד', 'כתום', 'צהוב', 'ירוק', 'ירוק', 'טורקיז', 'כחול', 'סגול', 'ורוד', 'אדום',
   'אדום', 'כתום', 'צהוב', 'ירוק', 'ירוק', 'טורקיז', 'תכלת', 'כחול', 'סגול', 'ורוד',
+  'ורוד', 'כתום', 'צהוב', 'ירוק', 'ירוק', 'טורקיז', 'תכלת', 'כחול', 'סגול', 'ורוד',
 ]
 export function friendColorName(index: number) {
   return COLOR_NAMES[index % COLOR_NAMES.length]

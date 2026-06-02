@@ -4,7 +4,7 @@ export function randInt(min: number, max: number) {
   return Math.floor(Math.random() * (max - min + 1)) + min
 }
 
-// Hebrew number words (feminine, for counting things), 1–40.
+// Hebrew number words (feminine, for counting things), 1–50.
 const NUM_WORDS = [
   'אחת', 'שתיים', 'שלוש', 'ארבע', 'חמש', 'שש', 'שבע', 'שמונה', 'תשע', 'עשר',
   'אחת עשרה', 'שתים עשרה', 'שלוש עשרה', 'ארבע עשרה', 'חמש עשרה',
@@ -13,6 +13,8 @@ const NUM_WORDS = [
   'עשרים ושש', 'עשרים ושבע', 'עשרים ושמונה', 'עשרים ותשע', 'שלושים',
   'שלושים ואחת', 'שלושים ושתיים', 'שלושים ושלוש', 'שלושים וארבע', 'שלושים וחמש',
   'שלושים ושש', 'שלושים ושבע', 'שלושים ושמונה', 'שלושים ותשע', 'ארבעים',
+  'ארבעים ואחת', 'ארבעים ושתיים', 'ארבעים ושלוש', 'ארבעים וארבע', 'ארבעים וחמש',
+  'ארבעים ושש', 'ארבעים ושבע', 'ארבעים ושמונה', 'ארבעים ותשע', 'חמישים',
 ]
 export function numberWord(n: number) {
   return NUM_WORDS[n - 1] ?? String(n)

@@ -3998,6 +3998,309 @@ button {
   right: 5px;
 }
 
+/* ===== 41–50 persona accessories ===== */
+
+/* 41 פפו — unicorn horn */
+.gal-big .acc2-unicornhorn {
+  top: -40px;
+  width: 20px;
+  height: 42px;
+  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.25));
+}
+.gal-big .acc2-unicornhorn::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 18px;
+  height: 40px;
+  background: repeating-linear-gradient(135deg, #fde047 0 4px, #f59e0b 4px 8px);
+  clip-path: polygon(50% 0, 100% 100%, 0 100%);
+}
+
+/* 42 ניבי — donut with sprinkles */
+.gal-big .acc2-donut {
+  top: -30px;
+  width: 36px;
+  height: 36px;
+}
+.gal-big .acc2-donut::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 10px solid #f9a8d4;
+  box-sizing: border-box;
+  box-shadow: inset 0 -2px 3px rgba(0, 0, 0, 0.15), 0 3px 4px rgba(0, 0, 0, 0.2);
+}
+.gal-big .acc2-donut i {
+  position: absolute;
+  width: 5px;
+  height: 3px;
+  border-radius: 2px;
+}
+.gal-big .acc2-donut i:nth-child(1) {
+  top: 3px;
+  left: 14px;
+  background: #34d399;
+  transform: rotate(20deg);
+}
+.gal-big .acc2-donut i:nth-child(2) {
+  top: 9px;
+  right: 4px;
+  background: #60a5fa;
+  transform: rotate(-30deg);
+}
+.gal-big .acc2-donut i:nth-child(3) {
+  bottom: 6px;
+  left: 6px;
+  background: #fde047;
+  transform: rotate(50deg);
+}
+
+/* 43 לוקי — swirl lollipop */
+.gal-big .acc2-lollipop {
+  top: -44px;
+  width: 26px;
+  height: 48px;
+}
+.gal-big .acc2-lollipop::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: repeating-conic-gradient(from 0deg, #ef4444 0 30deg, #ffffff 30deg 60deg);
+  box-shadow: 0 2px 3px rgba(0, 0, 0, 0.25);
+}
+.gal-big .acc2-lollipop::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 24px;
+  background: #e5e7eb;
+  border-radius: 2px;
+}
+
+/* 44 ריו — clover / shamrock */
+.gal-big .acc2-clover {
+  top: -28px;
+  width: 32px;
+  height: 30px;
+}
+.gal-big .acc2-clover i {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #16a34a;
+}
+.gal-big .acc2-clover i:nth-child(1) {
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+}
+.gal-big .acc2-clover i:nth-child(2) {
+  top: 9px;
+  left: 0;
+}
+.gal-big .acc2-clover i:nth-child(3) {
+  top: 9px;
+  right: 0;
+}
+.gal-big .acc2-clover .stem {
+  width: 3px;
+  height: 12px;
+  border-radius: 2px;
+  background: #15803d;
+  top: auto;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* 45 מיו — little wings */
+.gal-big .acc2-wings {
+  top: -4px;
+  width: 86px;
+  height: 30px;
+}
+.gal-big .acc2-wings .l,
+.gal-big .acc2-wings .r {
+  position: absolute;
+  top: 0;
+  width: 28px;
+  height: 28px;
+  background: linear-gradient(#ffffff, #e0f2fe);
+  border: 2px solid #bae6fd;
+}
+.gal-big .acc2-wings .l {
+  left: -8px;
+  border-radius: 80% 20% 55% 45% / 100% 55% 45% 0;
+}
+.gal-big .acc2-wings .r {
+  right: -8px;
+  border-radius: 20% 80% 45% 55% / 55% 100% 0 45%;
+}
+
+/* 46 גוני — snorkel/diving mask (on the face) */
+.gal-big .acc2-snorkelmask {
+  top: 40%;
+  transform: translate(-50%, -50%);
+  width: 66px;
+  height: 26px;
+}
+.gal-big .acc2-snorkelmask::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 8px;
+  right: 8px;
+  height: 24px;
+  background: rgba(34, 211, 238, 0.5);
+  border: 3px solid #0e7490;
+  border-radius: 12px;
+}
+.gal-big .acc2-snorkelmask .l,
+.gal-big .acc2-snorkelmask .r {
+  position: absolute;
+  top: 9px;
+  width: 10px;
+  height: 5px;
+  background: #0e7490;
+}
+.gal-big .acc2-snorkelmask .l {
+  left: -2px;
+}
+.gal-big .acc2-snorkelmask .r {
+  right: -2px;
+}
+
+/* 47 בובא — ice-cream scoop on a cone */
+.gal-big .acc2-icecream {
+  top: -42px;
+  width: 34px;
+  height: 46px;
+}
+.gal-big .acc2-icecream::before {
+  content: '';
+  position: absolute;
+  top: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 30px;
+  height: 26px;
+  border-radius: 50% 50% 45% 45%;
+  background: radial-gradient(circle at 38% 30%, #fbcfe8, #f472b6);
+}
+.gal-big .acc2-icecream::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 22px;
+  height: 22px;
+  background: repeating-linear-gradient(45deg, #d6a77a 0 4px, #b45309 4px 8px);
+  clip-path: polygon(50% 100%, 0 0, 100% 0);
+}
+.gal-big .acc2-icecream .cherry {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ef4444;
+  z-index: 1;
+}
+
+/* 48 קלי — lightning bolt */
+.gal-big .acc2-lightning {
+  top: -38px;
+  width: 26px;
+  height: 40px;
+  background: linear-gradient(#fde047, #f59e0b);
+  clip-path: polygon(52% 0, 8% 58%, 42% 58%, 26% 100%, 92% 38%, 54% 38%, 78% 0);
+  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.25));
+}
+
+/* 49 שיר — music note */
+.gal-big .acc2-musicnote {
+  top: -36px;
+  width: 30px;
+  height: 40px;
+  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.2));
+}
+.gal-big .acc2-musicnote::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 3px;
+  width: 16px;
+  height: 12px;
+  border-radius: 50%;
+  background: #6d28d9;
+  transform: rotate(-20deg);
+}
+.gal-big .acc2-musicnote::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 17px;
+  width: 4px;
+  height: 34px;
+  background: #6d28d9;
+  border-radius: 2px;
+}
+.gal-big .acc2-musicnote .flag {
+  position: absolute;
+  top: 0;
+  left: 19px;
+  width: 11px;
+  height: 14px;
+  background: #6d28d9;
+  border-radius: 0 60% 60% 0;
+}
+
+/* 50 דנה — superhero mask (on the face) */
+.gal-big .acc2-supermask {
+  top: 40%;
+  transform: translate(-50%, -50%);
+  width: 62px;
+  height: 22px;
+}
+.gal-big .acc2-supermask::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(#7c3aed, #5b21b6);
+  clip-path: polygon(0 18%, 100% 18%, 100% 68%, 70% 100%, 30% 100%, 0 68%);
+}
+.gal-big .acc2-supermask .l,
+.gal-big .acc2-supermask .r {
+  position: absolute;
+  top: 6px;
+  width: 12px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ffffff;
+}
+.gal-big .acc2-supermask .l {
+  left: 12px;
+}
+.gal-big .acc2-supermask .r {
+  right: 12px;
+}
+
 /* size comparison strip (1 · 2 · 3, on one baseline) */
 .gal-compare-title {
   text-align: center;

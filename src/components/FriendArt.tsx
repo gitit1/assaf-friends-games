@@ -46,6 +46,17 @@ export type FriendKind =
   | 'kimi'
   | 'shumi'
   | 'dini'
+  // 41–50 — a brighter pastel rainbow
+  | 'papo'
+  | 'nibi'
+  | 'luki'
+  | 'rio'
+  | 'mio'
+  | 'goni'
+  | 'buba'
+  | 'kali'
+  | 'shir'
+  | 'dana'
 
 // Friend index (0-based) → kind. Friend #1 (לולו) is index 0.
 export const FRIEND_KINDS: FriendKind[] = [
@@ -89,6 +100,16 @@ export const FRIEND_KINDS: FriendKind[] = [
   'kimi',
   'shumi',
   'dini',
+  'papo',
+  'nibi',
+  'luki',
+  'rio',
+  'mio',
+  'goni',
+  'buba',
+  'kali',
+  'shir',
+  'dana',
 ]
 
 // ---- 11–20: the bigger friends ----
@@ -102,6 +123,8 @@ export const BIG_KINDS = [
   'buzi', 'dagi', 'lala', 'chumi', 'tsutsi',
   'tino', 'rozi', 'leo', 'mika', 'guzi',
   'bino', 'tofi', 'kimi', 'shumi', 'dini',
+  'papo', 'nibi', 'luki', 'rio', 'mio',
+  'goni', 'buba', 'kali', 'shir', 'dana',
 ] as const
 type BigKind = (typeof BIG_KINDS)[number]
 export type BigAccessory =
@@ -114,6 +137,9 @@ export type BigAccessory =
   // 31–40
   | 'fez' | 'sunhat' | 'heart' | 'halo' | 'topknot'
   | 'rainbow' | 'pompoms' | 'bell' | 'moon' | 'flowercrown'
+  // 41–50
+  | 'unicornhorn' | 'donut' | 'lollipop' | 'clover' | 'wings'
+  | 'snorkelmask' | 'icecream' | 'lightning' | 'musicnote' | 'supermask'
 
 const BU = 46 // bump size (px) for big friends — keep in sync with .gal-big --u
 const H_OVER = 0.16 // horizontal overlap of bumps within a row
@@ -156,6 +182,16 @@ export const BIG: Record<BigKind, {
   kimi:   { rows: [6, 7, 6, 7, 6, 6], bc: '#6366f1', shoe: '#facc15', acc: 'bell',       face: 'plain' }, // 38
   shumi:  { rows: [6, 7, 7, 7, 6, 6], bc: '#a855f7', shoe: '#22c55e', acc: 'moon',       face: 'plain' }, // 39
   dini:   { rows: [6, 7, 7, 7, 7, 6], bc: '#d946ef', shoe: '#0e7490', acc: 'flowercrown',face: 'girl' }, // 40
+  papo:   { rows: [6, 7, 8, 7, 7, 6],    bc: '#e23670', shoe: '#1e3a8a', acc: 'unicornhorn', face: 'plain' }, // 41
+  nibi:   { rows: [7, 7, 7, 7, 7, 7],    bc: '#fb923c', shoe: '#0e7490', acc: 'donut',       face: 'girl' }, // 42 ■
+  luki:   { rows: [7, 7, 8, 7, 7, 7],    bc: '#fcd34d', shoe: '#b91c1c', acc: 'lollipop',    face: 'plain' }, // 43
+  rio:    { rows: [7, 8, 7, 8, 7, 7],    bc: '#a3e635', shoe: '#7c3aed', acc: 'clover',      face: 'plain' }, // 44
+  mio:    { rows: [7, 8, 8, 8, 7, 7],    bc: '#34d399', shoe: '#db2777', acc: 'wings',       face: 'girl' }, // 45
+  goni:   { rows: [7, 8, 8, 8, 8, 7],    bc: '#2dd4bf', shoe: '#f59e0b', acc: 'snorkelmask', face: 'plain' }, // 46
+  buba:   { rows: [8, 8, 8, 7, 8, 8],    bc: '#38bdf8', shoe: '#1e3a8a', acc: 'icecream',    face: 'girl' }, // 47
+  kali:   { rows: [8, 8, 8, 8, 8, 8],    bc: '#818cf8', shoe: '#f43f5e', acc: 'lightning',   face: 'girl' }, // 48 ■
+  shir:   { rows: [8, 8, 9, 8, 8, 8],    bc: '#c084fc', shoe: '#15803d', acc: 'musicnote',   face: 'girl' }, // 49
+  dana:   { rows: [8, 9, 8, 9, 8, 8],    bc: '#f0abfc', shoe: '#0e7490', acc: 'supermask',   face: 'girl' }, // 50
 }
 
 const bigNatural = Object.fromEntries(
@@ -516,6 +552,62 @@ function bigAccessory(acc: BigAccessory) {
           <i />
         </span>
       )
+    case 'unicornhorn':
+      return <span className="acc2 acc2-unicornhorn" />
+    case 'donut':
+      return (
+        <span className="acc2 acc2-donut">
+          <i />
+          <i />
+          <i />
+        </span>
+      )
+    case 'lollipop':
+      return <span className="acc2 acc2-lollipop" />
+    case 'clover':
+      return (
+        <span className="acc2 acc2-clover">
+          <i />
+          <i />
+          <i />
+          <i className="stem" />
+        </span>
+      )
+    case 'wings':
+      return (
+        <span className="acc2 acc2-wings">
+          <i className="l" />
+          <i className="r" />
+        </span>
+      )
+    case 'snorkelmask':
+      return (
+        <span className="acc2 acc2-snorkelmask">
+          <i className="l" />
+          <i className="r" />
+        </span>
+      )
+    case 'icecream':
+      return (
+        <span className="acc2 acc2-icecream">
+          <i className="cherry" />
+        </span>
+      )
+    case 'lightning':
+      return <span className="acc2 acc2-lightning" />
+    case 'musicnote':
+      return (
+        <span className="acc2 acc2-musicnote">
+          <i className="flag" />
+        </span>
+      )
+    case 'supermask':
+      return (
+        <span className="acc2 acc2-supermask">
+          <i className="l" />
+          <i className="r" />
+        </span>
+      )
     default:
       return null
   }
@@ -646,7 +738,12 @@ export default function FriendArt({
     // some persona accessories sit on the face (glasses / shades / mustache) —
     // those are replaced by the dress-up "face" slot; the rest sit on the head
     // and are replaced by the "hat" slot. Hide whichever the child has dressed.
-    const faceAcc = spec.acc === 'glasses' || spec.acc === 'sunglasses' || spec.acc === 'mustache'
+    const faceAcc =
+      spec.acc === 'glasses' ||
+      spec.acc === 'sunglasses' ||
+      spec.acc === 'mustache' ||
+      spec.acc === 'snorkelmask' ||
+      spec.acc === 'supermask'
     const showAcc = faceAcc ? !wFace : !wHat
     design = (
       <div
