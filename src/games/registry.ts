@@ -20,6 +20,7 @@ import DrawBoard from './DrawBoard'
 import ColorByNumber from './ColorByNumber'
 import DrawNumber from './DrawNumber'
 import SortByColor from './SortByColor'
+import WhichFriend from './WhichFriend'
 
 // Every game gets a callback to return to the home screen.
 export type GameProps = {
@@ -225,6 +226,14 @@ export const GAMES: GameDef[] = [
     color: 'linear-gradient(160deg, #fb923c, #db2777)',
     category: 'create',
     Component: DrawNumber,
+  },
+  {
+    id: 'letter',
+    title: 'איזה חבר?',
+    emoji: '🔤',
+    color: 'linear-gradient(160deg, #a855f7, #6d28d9)',
+    category: 'letters',
+    Component: WhichFriend,
   },
 ]
 
