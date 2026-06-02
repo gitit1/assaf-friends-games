@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import GameShell from '../components/GameShell'
 import type { GameProps } from './registry'
 import { playNudge, playSuccess, playTap, playWin, unlockAudio } from '../audio'
@@ -58,9 +58,20 @@ export default function SortByColor({ onExit }: GameProps) {
   const [counts, setCounts] = useState<Record<string, number>>({})
   const [drag, setDrag] = useState<{ id: number; color: string; x: number; y: number } | null>(null)
 
-  // baskets shrink as more are added so up to 20 still fit (they wrap to rows)
-  const bw = numColors <= 6 ? 72 : numColors <= 12 ? 58 : 46
-  const bh = Math.round(bw * 0.86)
+  const [vw, setVw] = useState(() => (typeof window !== 'undefined' ? window.innerWidth : 360))
+  useEffect(() => {
+    const onResize = () => setVw(window.innerWidth)
+    window.addEventListener('resize', onResize)
+    return () => window.removeEventListener('resize', onResize)
+  }, [])
+
+  // baskets fill the screen width: a roughly square-ish wrap, sized from the
+  // available width (so they're big on a computer) and capped per basket.
+  const availW = Math.min(vw - 20, 760)
+  const perRow = Math.min(numColors, Math.ceil(Math.sqrt(numColors * 1.6)))
+  const bw = Math.max(46, Math.min(170, Math.floor((availW - (perRow - 1) * 14) / perRow)))
+  const bh = Math.round(bw * 0.84)
+  const countFont = Math.round(bw * 0.42)
 
   function newRound() {
     playTap()
@@ -149,7 +160,9 @@ export default function SortByColor({ onExit }: GameProps) {
               aria-label={`${col.name} — ${counts[col.c] ?? 0}`}
             >
               <span className="sort-basket-lip" />
-              <span className="sort-count">{counts[col.c] ?? 0}</span>
+              <span className="sort-count" style={{ fontSize: countFont }}>
+                {counts[col.c] ?? 0}
+              </span>
             </div>
           ))}
         </div>
