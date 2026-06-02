@@ -102,10 +102,11 @@ export default function SortByColor({ onExit }: GameProps) {
     return () => window.removeEventListener('resize', onResize)
   }, [])
 
-  // baskets fill the screen width (big on a computer), wrap to rows, sized down as more are added
+  // baskets fill the screen width, wrap to rows, sized down as more are added —
+  // capped at a comfortable medium so they don't balloon on a big monitor
   const availW = Math.min(vw - 20, 760)
   const perRow = Math.min(numCats, Math.ceil(Math.sqrt(numCats * 1.6)))
-  const bw = Math.max(46, Math.min(170, Math.floor((availW - (perRow - 1) * 14) / perRow)))
+  const bw = Math.max(46, Math.min(108, Math.floor((availW - (perRow - 1) * 14) / perRow)))
   const bh = Math.round(bw * 0.84)
   const countFont = Math.round(bw * 0.42)
   const labelFont = Math.round(bw * 0.5)
