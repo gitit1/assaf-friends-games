@@ -6774,18 +6774,18 @@ button {
 .car-wheel {
   position: absolute;
   bottom: 0;
-  width: 30px;
-  height: 30px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
   background: radial-gradient(circle at 50% 50%, #6b7280 0 22%, #1f2937 24%);
   border: 3px solid #0b1220;
   z-index: 3;
 }
 .car-wheel.l {
-  left: 14px;
+  left: 18px;
 }
 .car-wheel.r {
-  right: 14px;
+  right: 18px;
 }
 
 .garage {
@@ -7075,7 +7075,72 @@ button {
   .scene-row,
   .road-line,
   .scene-car .car,
-  .scene-car .car-wheel {
+  .scene-car .car-wheel,
+  .env-overlay {
     animation: none !important;
   }
+}
+
+/* correct-answer counter */
+.race-count {
+  font-family: 'Fredoka', 'Heebo', sans-serif;
+  font-weight: 800;
+  font-size: 1.05rem;
+  color: var(--accent);
+}
+
+/* changing environments */
+.env-name {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  z-index: 7;
+  background: rgba(0, 0, 0, 0.35);
+  color: #fff;
+  font-family: 'Fredoka', 'Heebo', sans-serif;
+  font-weight: 800;
+  font-size: 0.9rem;
+  padding: 3px 12px;
+  border-radius: 999px;
+}
+.env-rainbow {
+  position: absolute;
+  top: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 5rem;
+  z-index: 4;
+}
+.env-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  pointer-events: none;
+}
+.env-overlay.rain {
+  background-image: repeating-linear-gradient(105deg, rgba(255, 255, 255, 0.4) 0 1px, transparent 1px 8px);
+  background-size: 26px 26px;
+  animation: rain-fall 0.35s linear infinite;
+}
+@keyframes rain-fall {
+  to {
+    background-position: -8px 26px;
+  }
+}
+.env-overlay.snow {
+  background-image: radial-gradient(circle, #fff 1.6px, transparent 2.4px),
+    radial-gradient(circle, #fff 1.3px, transparent 2px);
+  background-size: 44px 44px, 64px 64px;
+  background-position: 0 0, 22px 0;
+  animation: snow-fall 3.2s linear infinite;
+}
+@keyframes snow-fall {
+  to {
+    background-position: 8px 210px, 30px 210px;
+  }
+}
+.env-overlay.stars {
+  background-image: radial-gradient(circle, #fff 1.3px, transparent 2px);
+  background-size: 48px 48px;
+  opacity: 0.85;
 }

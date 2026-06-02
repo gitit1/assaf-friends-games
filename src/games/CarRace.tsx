@@ -7,18 +7,39 @@ import type { GameProps } from './registry'
 import { playNudge, playSuccess, playTap, playWin, unlockAudio } from '../audio'
 import { speak } from '../speech'
 import { FRIENDS, friendColor, friendName } from '../friends'
-import { numberChoices, randInt } from './util'
+import { numberChoices, randInt, shuffle } from './util'
 
-// "Garage + race" — first build a car (driver friend + colour), then race a
-// (slow) rival by solving maths. Every correct answer drives YOU forward. NO
-// timer — take all the time you like; a wrong answer just doesn't move you.
+// "Garage + race" — build a car (driver friend + colour), then race a slow rival
+// by solving maths. Every correct answer drives YOU forward. NO timer. A race is
+// 15 questions, and the scenery changes every 5 correct answers, picking from 10
+// random environments per game.
 const CAR_COLORS = ['#ef4444', '#f97316', '#facc15', '#22c55e', '#3b82f6', '#8b5cf6', '#ec4899', '#111827']
-const LEVELS = [
-  { name: 'קל' },
-  { name: 'בינוני' },
-  { name: 'אלוף' },
+const LEVELS = [{ name: 'קל' }, { name: 'בינוני' }, { name: 'אלוף' }]
+const WIN = 15 // correct answers to finish a race
+const SEGMENT = 5 // environment changes every 5 correct answers
+
+type Env = {
+  name: string
+  skyTop: string
+  skyBottom: string
+  ground: string
+  road: string
+  clouds: string[]
+  scenery: string[]
+  overlay?: 'rain' | 'snow' | 'stars' | 'rainbow'
+}
+const ENVIRONMENTS: Env[] = [
+  { name: 'יער', skyTop: '#bae6fd', skyBottom: '#dcfce7', ground: '#4ade80', road: '#586273', clouds: ['☁️', '⛅'], scenery: ['🌲', '🌳', '🍄', '🦌', '🌲', '🌳'] },
+  { name: 'חוף ים', skyTop: '#7dd3fc', skyBottom: '#bae6fd', ground: '#fde68a', road: '#cbb58a', clouds: ['☁️', '🌤️'], scenery: ['🌴', '⛱️', '🏖️', '🐚', '🦀', '🌴'] },
+  { name: 'חורף', skyTop: '#cfe8f5', skyBottom: '#eef6fb', ground: '#e5eef5', road: '#9aa7b3', clouds: ['☁️', '🌫️'], scenery: ['🌲', '🏔️', '⛄', '🌲'] },
+  { name: 'גשם', skyTop: '#94a3b8', skyBottom: '#cbd5e1', ground: '#65a30d', road: '#4b5563', clouds: ['☁️', '🌧️', '☁️'], scenery: ['🌳', '🏠', '🌳', '☂️'], overlay: 'rain' },
+  { name: 'שלג', skyTop: '#dbeafe', skyBottom: '#eff6ff', ground: '#eef6fb', road: '#94a3b8', clouds: ['🌨️', '☁️'], scenery: ['⛄', '🌲', '🏔️', '🌲'], overlay: 'snow' },
+  { name: 'מדבר', skyTop: '#fdba74', skyBottom: '#fde68a', ground: '#fbbf24', road: '#d6a77a', clouds: ['☀️', '🌤️'], scenery: ['🌵', '🏜️', '🐫', '🌵', '🦂'] },
+  { name: 'קשת בענן', skyTop: '#bfdbfe', skyBottom: '#e0f2fe', ground: '#86efac', road: '#586273', clouds: ['☁️', '☁️'], scenery: ['🌳', '🏠', '🌷', '🌳'], overlay: 'rainbow' },
+  { name: 'לילה', skyTop: '#1e293b', skyBottom: '#334155', ground: '#1f3d2f', road: '#2f3a49', clouds: ['🌙', '⭐'], scenery: ['🏠', '🌲', '🦉', '🌲'], overlay: 'stars' },
+  { name: 'עיר', skyTop: '#93c5fd', skyBottom: '#dbeafe', ground: '#9ca3af', road: '#4b5563', clouds: ['☁️', '🏙️'], scenery: ['🏢', '🏬', '🚦', '🏢', '🏪'] },
+  { name: 'הרים', skyTop: '#a5d8f3', skyBottom: '#dceefb', ground: '#86efac', road: '#586273', clouds: ['☁️', '🦅'], scenery: ['⛰️', '🏔️', '🌲', '🏕️', '⛰️'] },
 ]
-const WIN = 6 // correct answers to reach the finish
 
 function makeProblem(level: number) {
   let text: string
@@ -53,8 +74,9 @@ function makeProblem(level: number) {
   return { text, ans, choices: numberChoices(ans, 3, Math.max(0, ans - 6), ans + 6) }
 }
 
-const CLOUDS = ['☁️', '⛅', '☁️', '🌤️', '☁️']
-const SCENERY = ['🌳', '🏠', '🌲', '🏡', '🌳', '⛰️', '🌴', '🏠', '🌻', '🌲']
+function pickEnvs() {
+  return shuffle(ENVIRONMENTS).slice(0, 3)
+}
 
 function SceneRow({ items, dur, className }: { items: string[]; dur: number; className: string }) {
   return (
@@ -89,16 +111,21 @@ export default function CarRace({ onExit }: GameProps) {
   const [carColor, setCarColor] = useState<string>(() => friendColor(driver))
   const [level, setLevel] = useState(1)
 
-  const [playerProg, setPlayerProg] = useState(0)
+  const [correct, setCorrect] = useState(0)
   const [rivalProg, setRivalProg] = useState(0)
+  const [envSeq, setEnvSeq] = useState<Env[]>(pickEnvs)
   const [problem, setProblem] = useState(() => makeProblem(1))
   const [wrong, setWrong] = useState<number | null>(null)
   const [result, setResult] = useState<null | 'win' | 'lose'>(null)
 
+  const env = envSeq[Math.min(envSeq.length - 1, Math.floor(correct / SEGMENT))]
+  const playerProg = correct / WIN
+
   function startRace() {
     unlockAudio()
     playTap()
-    setPlayerProg(0)
+    setEnvSeq(pickEnvs())
+    setCorrect(0)
     setRivalProg(0)
     setResult(null)
     setProblem(makeProblem(level))
@@ -107,7 +134,8 @@ export default function CarRace({ onExit }: GameProps) {
 
   function raceAgain() {
     playTap()
-    setPlayerProg(0)
+    setEnvSeq(pickEnvs())
+    setCorrect(0)
     setRivalProg(0)
     setResult(null)
     setProblem(makeProblem(level))
@@ -116,18 +144,17 @@ export default function CarRace({ onExit }: GameProps) {
   function answer(choice: number) {
     if (result) return
     unlockAudio()
-    const correct = choice === problem.ans
-    const nextRival = rivalProg + 1 / (WIN + 5) // rival is slower than a steady stream of correct answers
-    if (correct) {
-      const np = playerProg + 1 / WIN
-      if (np >= 1) {
-        setPlayerProg(1)
+    const isCorrect = choice === problem.ans
+    const nextRival = rivalProg + 1 / (WIN + 8) // slower than a steady stream of correct answers
+    if (isCorrect) {
+      const nc = correct + 1
+      setCorrect(nc)
+      if (nc >= WIN) {
         setResult('win')
         playWin()
         speak('ניצחת!')
         return
       }
-      setPlayerProg(np)
       playSuccess()
       setProblem(makeProblem(level))
     } else {
@@ -135,7 +162,7 @@ export default function CarRace({ onExit }: GameProps) {
       playNudge()
       window.setTimeout(() => setWrong(null), 450)
     }
-    if (nextRival >= 1 && !correct) {
+    if (nextRival >= 1 && !isCorrect) {
       setRivalProg(1)
       setResult('lose')
       speak('כמעט! עוד פעם?')
@@ -204,7 +231,8 @@ export default function CarRace({ onExit }: GameProps) {
           <button className="pill" onClick={() => setPhase('garage')}>
             🔧 מוסך
           </button>
-          <span className="race-level">רמה: {LEVELS[level].name}</span>
+          <span className="race-count">✅ {correct} / {WIN}</span>
+          <span className="race-level">{LEVELS[level].name}</span>
         </div>
 
         <div className="race-progress" aria-hidden="true">
@@ -217,10 +245,24 @@ export default function CarRace({ onExit }: GameProps) {
           <span className="race-flag">🏁</span>
         </div>
 
-        <div className="road-scene">
-          <SceneRow items={CLOUDS} dur={22} className="layer-clouds" />
-          <SceneRow items={SCENERY} dur={7} className="layer-scenery" />
-          <div className="road" aria-hidden="true">
+        <div
+          className="road-scene"
+          style={{
+            background: `linear-gradient(180deg, ${env.skyTop} 0%, ${env.skyBottom} 54%, ${env.ground} 54%, ${env.ground} 100%)`,
+          }}
+        >
+          <span className="env-name">{env.name}</span>
+          <SceneRow items={env.clouds} dur={22} className="layer-clouds" />
+          <SceneRow items={env.scenery} dur={7} className="layer-scenery" />
+          {env.overlay === 'rainbow' && (
+            <span className="env-rainbow" aria-hidden="true">
+              🌈
+            </span>
+          )}
+          {(env.overlay === 'rain' || env.overlay === 'snow' || env.overlay === 'stars') && (
+            <div className={`env-overlay ${env.overlay}`} aria-hidden="true" />
+          )}
+          <div className="road" aria-hidden="true" style={{ background: env.road }}>
             <div className="road-line" />
           </div>
           <span className={`scene-car ${result === 'win' ? 'is-win' : ''}`}>
