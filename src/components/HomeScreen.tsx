@@ -31,8 +31,8 @@ export default function HomeScreen({ onOpen, onOpenCategory }: HomeScreenProps) 
     <div className="home-screen">
       <header className="home-header">
         <div className="home-controls">
-          <button className="gallery-button" aria-label="גלריית עיצובים" onClick={() => open('gallery')}>
-            🎨
+          <button className="gallery-button" aria-label="החברים בתלת מימד" onClick={() => open('gallery')}>
+            🧊
           </button>
           <FullscreenButton />
           <SettingsPanel />

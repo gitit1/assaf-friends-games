@@ -7196,6 +7196,33 @@ button {
 }
 
 /* ===================== עולם החבר (a friend's own world) ===================== */
+/* 3D friend (Three.js) screen */
+.three-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+.three-canvas {
+  width: 100%;
+  max-width: 560px;
+  height: 56vh;
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  touch-action: none; /* drag-to-spin shouldn't scroll the page */
+}
+.three-canvas canvas {
+  display: block;
+}
+.three-loading {
+  text-align: center;
+  font-family: 'Fredoka', 'Heebo', sans-serif;
+  font-size: 1.3rem;
+  color: var(--text-soft);
+  margin-top: 30vh;
+}
+
 .world-screen {
   display: flex;
   flex-direction: column;

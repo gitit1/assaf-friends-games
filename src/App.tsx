@@ -1,17 +1,20 @@
-import { useEffect, useState } from 'react'
+import { lazy, Suspense, useEffect, useState } from 'react'
 import HomeScreen from './components/HomeScreen'
 import CategoryScreen from './components/CategoryScreen'
 import MeetFriends from './components/MeetFriends'
 import FriendWorld from './components/FriendWorld'
-import DesignGallery from './components/DesignGallery'
 import { GAMES, CATEGORIES } from './games/registry'
 import { FRIENDS } from './friends'
+
+// 3D screen pulls in Three.js — load it only when opened, so it never weighs
+// down the first paint of the rest of the app.
+const Friend3D = lazy(() => import('./components/Friend3D'))
 
 // Tiny hash router so a refresh keeps you on the same screen and the browser
 // Back button works (handy for testing). Routes:
 //   #/                home (category cubes)
 //   #/meet            meet the friends
-//   #/gallery         design gallery
+//   #/gallery         3D friend (Three.js)
 //   #/cat/<id>        a category's game list
 //   #/game/<id>       a game
 type Route =
@@ -63,7 +66,11 @@ export default function App() {
     if (i >= 0 && i < FRIENDS.length)
       view = <FriendWorld index={i} onExit={() => go('meet')} onNavigate={(j) => go(`friend/${j}`)} />
   } else if (route.kind === 'gallery') {
-    view = <DesignGallery onExit={home} />
+    view = (
+      <Suspense fallback={<p className="three-loading">טוען תלת מימד… 🧊</p>}>
+        <Friend3D onExit={home} />
+      </Suspense>
+    )
   } else if (route.kind === 'game') {
     const game = GAMES.find((g) => g.id === route.id)
     if (game) view = <game.Component onExit={home} />
