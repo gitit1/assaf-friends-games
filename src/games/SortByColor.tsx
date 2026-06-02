@@ -30,9 +30,19 @@ const PALETTE = [
   { c: '#0e7490', name: 'כחול ים' },
   { c: '#1f2937', name: 'שחור' },
   { c: '#94a3b8', name: 'אפור' },
+  { c: '#db2777', name: 'מג׳נטה' },
+  { c: '#06b6d4', name: 'ציאן' },
+  { c: '#d9b88f', name: 'בז׳' },
+  { c: '#991b1b', name: 'בורדו' },
+  { c: '#86efac', name: 'ירוק בהיר' },
+  { c: '#bae6fd', name: 'תכלת בהיר' },
+  { c: '#5b21b6', name: 'סגול כהה' },
+  { c: '#f59e0b', name: 'ענבר' },
+  { c: '#e879f9', name: 'לילך' },
+  { c: '#cbd5e1', name: 'אפור בהיר' },
 ]
 const MIN_COLORS = 2
-const MAX_COLORS = 20
+const MAX_COLORS = 30
 
 type Blob = { id: number; color: string }
 let SEQ = 0
