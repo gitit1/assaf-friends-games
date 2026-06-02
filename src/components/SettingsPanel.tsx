@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { updateSettings, useSettings } from '../settings'
+import { DIFFICULTY_TIERS } from '../difficulty'
 import { hasHebrewVoice, speak } from '../speech'
 import { playTap, unlockAudio } from '../audio'
 
@@ -89,6 +90,27 @@ export default function SettingsPanel() {
               value={settings.sayNames}
               onChange={(next) => updateSettings({ sayNames: next })}
             />
+
+            <div className="settings-row settings-row-static settings-row-stack">
+              <span className="settings-row-text">
+                <span className="settings-row-label">🎯 רמת קושי</span>
+                <span className="settings-row-hint">איך כל משחק מתחיל (אפשר לשנות גם בתוך המשחק)</span>
+              </span>
+              <span className="settings-choice settings-choice-wide">
+                {DIFFICULTY_TIERS.map((label, i) => (
+                  <button
+                    key={label}
+                    className={`pill pill-small ${settings.difficulty === i ? 'pill-active' : ''}`}
+                    onClick={() => {
+                      playTap()
+                      updateSettings({ difficulty: i })
+                    }}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </span>
+            </div>
 
             <div className="settings-row settings-row-static">
               <span className="settings-row-text">

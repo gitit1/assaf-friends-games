@@ -6,6 +6,8 @@ import { playNudge, playSuccess, playWin, unlockAudio } from '../audio'
 import { speak } from '../speech'
 import { FRIENDS, friendSay } from '../friends'
 import { numberWord, randInt, shuffle } from './util'
+import { getSettings } from '../settings'
+import { levelForTier } from '../difficulty'
 
 // "Math challenge" — multi-step expressions (a × b ± c) for a number-strong kid
 // who already does combined operations in his head. Multiple choice, no timer,
@@ -17,6 +19,8 @@ const LEVELS: Level[] = [
   { label: 'בינוני', maxFactor: 9, maxC: 9, ops: ['+', '-'] },
   { label: 'קשה', maxFactor: 10, maxC: 12, ops: ['+', '-'] },
 ]
+// קל / בינוני / קשה on the canonical scale (no אלוף → "אלוף" falls back to קשה)
+const LEVEL_TIERS = [0, 1, 2]
 
 type Problem = { a: number; b: number; op: Op; c: number; answer: number; choices: number[] }
 
@@ -44,8 +48,8 @@ function makeProblem(level: Level): Problem {
 }
 
 export default function MathChallenge({ onExit }: GameProps) {
-  const [level, setLevel] = useState(0)
-  const [problem, setProblem] = useState<Problem>(() => makeProblem(LEVELS[0]))
+  const [level, setLevel] = useState(() => levelForTier(LEVEL_TIERS, getSettings().difficulty))
+  const [problem, setProblem] = useState<Problem>(() => makeProblem(LEVELS[levelForTier(LEVEL_TIERS, getSettings().difficulty)]))
   const [score, setScore] = useState(0)
   const [wrong, setWrong] = useState<number | null>(null)
   const [locked, setLocked] = useState(false)

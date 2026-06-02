@@ -7,6 +7,8 @@ import { playNudge, playSuccess, playWin, unlockAudio } from '../audio'
 import { speak } from '../speech'
 import { FRIENDS, friendSay } from '../friends'
 import { randInt, shuffle } from './util'
+import { getSettings } from '../settings'
+import { levelForTier } from '../difficulty'
 
 // "Who's missing?" — look at a group of friends, cover them when ready (the
 // child controls the timing → no time pressure), one hides, and recall who's
@@ -18,6 +20,8 @@ const LEVELS = [
   { label: 'רגיל', k: 4 },
   { label: 'אתגר', k: 6 },
 ]
+// קל / רגיל(≈בינוני) / אתגר(≈אלוף) on the canonical scale
+const LEVEL_TIERS = [0, 1, 3]
 
 type Phase = 'show' | 'hide' | 'guess'
 
@@ -32,8 +36,9 @@ function pickChoices(missing: number, outsiders: number[], count: number): numbe
 }
 
 export default function WhoGame({ onExit }: GameProps) {
-  const [levelIdx, setLevelIdx] = useState(1)
-  const [group, setGroup] = useState<number[]>(() => newGroup(LEVELS[1].k))
+  const initialIdx = levelForTier(LEVEL_TIERS, getSettings().difficulty)
+  const [levelIdx, setLevelIdx] = useState(initialIdx)
+  const [group, setGroup] = useState<number[]>(() => newGroup(LEVELS[initialIdx].k))
   const [phase, setPhase] = useState<Phase>('show')
   const [missing, setMissing] = useState<number | null>(null)
   const [choices, setChoices] = useState<number[]>([])

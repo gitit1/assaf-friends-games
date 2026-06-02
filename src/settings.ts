@@ -12,10 +12,12 @@ export type Settings = {
   sayNames: boolean
   /** Seconds between switching the "catch" target friend (30 or 60). */
   catchSeconds: number
+  /** Default difficulty every game opens at (0 קל · 1 בינוני · 2 קשה · 3 אלוף). */
+  difficulty: number
 }
 
 const STORAGE_KEY = 'assaf-games:settings'
-const DEFAULTS: Settings = { voice: true, sound: true, sayNames: true, catchSeconds: 30 }
+const DEFAULTS: Settings = { voice: true, sound: true, sayNames: true, catchSeconds: 30, difficulty: 1 }
 
 function load(): Settings {
   try {

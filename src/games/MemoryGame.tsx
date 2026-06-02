@@ -7,6 +7,8 @@ import { playSuccess, playTap, playWin, unlockAudio } from '../audio'
 import { speak } from '../speech'
 import { FRIENDS, friendName, friendSay } from '../friends'
 import { shuffle } from './util'
+import { getSettings } from '../settings'
+import { levelForTier } from '../difficulty'
 
 type Level = { label: string; pairs: number }
 const LEVELS: Level[] = [
@@ -15,6 +17,8 @@ const LEVELS: Level[] = [
   { label: 'קשה', pairs: 8 },
   { label: 'אלוף', pairs: 10 },
 ]
+// קל / רגיל / קשה / אלוף on the canonical scale
+const LEVEL_TIERS = [0, 1, 2, 3]
 
 type Card = { id: number; friend: number }
 
@@ -30,8 +34,9 @@ function buildDeck(pairs: number): Card[] {
 
 // Find the matching friends by color/face — when two match, that friend says hi.
 export default function MemoryGame({ onExit }: GameProps) {
-  const [level, setLevel] = useState<Level>(LEVELS[0])
-  const [deck, setDeck] = useState<Card[]>(() => buildDeck(LEVELS[0].pairs))
+  const initial = LEVELS[levelForTier(LEVEL_TIERS, getSettings().difficulty)]
+  const [level, setLevel] = useState<Level>(initial)
+  const [deck, setDeck] = useState<Card[]>(() => buildDeck(initial.pairs))
   const [flipped, setFlipped] = useState<number[]>([])
   const [matched, setMatched] = useState<number[]>([])
   const [locked, setLocked] = useState(false)

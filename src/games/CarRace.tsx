@@ -8,6 +8,8 @@ import { playNudge, playSuccess, playTap, playWin, unlockAudio } from '../audio'
 import { speak } from '../speech'
 import { FRIENDS, friendColor, friendName } from '../friends'
 import { numberChoices, randInt, shuffle } from './util'
+import { getSettings } from '../settings'
+import { levelForTier } from '../difficulty'
 
 // "Garage + race" — build a car (driver friend + colour), then race a slow rival
 // by solving maths. Every correct answer drives YOU forward. NO timer. A race is
@@ -15,6 +17,8 @@ import { numberChoices, randInt, shuffle } from './util'
 // random environments per game.
 const CAR_COLORS = ['#ef4444', '#f97316', '#facc15', '#22c55e', '#3b82f6', '#8b5cf6', '#ec4899', '#111827']
 const LEVELS = [{ name: 'קל' }, { name: 'בינוני' }, { name: 'אלוף' }]
+// קל / בינוני / אלוף on the canonical scale (no קשה → "קשה" falls back to בינוני)
+const LEVEL_TIERS = [0, 1, 3]
 const WIN = 15 // correct answers to finish a race
 const SEGMENT = 5 // environment changes every 5 correct answers
 
@@ -109,12 +113,12 @@ export default function CarRace({ onExit }: GameProps) {
   const [phase, setPhase] = useState<'garage' | 'race'>('garage')
   const [driver, setDriver] = useState(() => randInt(0, FRIENDS.length - 1))
   const [carColor, setCarColor] = useState<string>(() => friendColor(driver))
-  const [level, setLevel] = useState(1)
+  const [level, setLevel] = useState(() => levelForTier(LEVEL_TIERS, getSettings().difficulty))
 
   const [correct, setCorrect] = useState(0)
   const [rivalProg, setRivalProg] = useState(0)
   const [envSeq, setEnvSeq] = useState<Env[]>(pickEnvs)
-  const [problem, setProblem] = useState(() => makeProblem(1))
+  const [problem, setProblem] = useState(() => makeProblem(levelForTier(LEVEL_TIERS, getSettings().difficulty)))
   const [wrong, setWrong] = useState<number | null>(null)
   const [result, setResult] = useState<null | 'win' | 'lose'>(null)
 

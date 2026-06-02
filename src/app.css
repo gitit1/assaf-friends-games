@@ -3862,6 +3862,23 @@ button {
   flex: none;
 }
 
+/* difficulty row: stack the label over a full-width row of tier pills so all
+   four (קל/בינוני/קשה/אלוף) fit comfortably on a phone */
+.settings-row-stack {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 12px;
+}
+.settings-choice-wide {
+  display: flex;
+  gap: 8px;
+}
+.settings-choice-wide .pill {
+  flex: 1;
+  padding-inline: 6px;
+  text-align: center;
+}
+
 /* ---------- who's missing? ---------- */
 .who-head {
   display: flex;

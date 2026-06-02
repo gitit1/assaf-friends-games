@@ -7,6 +7,8 @@ import { playFriend, playNudge, playSuccess, playWin, unlockAudio } from '../aud
 import { speak, stopSpeech } from '../speech'
 import { FRIENDS, friendSay } from '../friends'
 import { numberWord, randInt, shuffle } from './util'
+import { getSettings } from '../settings'
+import { levelForTier } from '../difficulty'
 
 // "Missing friend in the sequence" — a run of friends follows a rule (counting,
 // jumps, times-tables, doubling) with one gap; pick the friend that completes
@@ -25,6 +27,8 @@ type Frame = { left: number; op: Op; right: number; result: number; target: numb
 type Bottom = { leftVal: number | null; op: Op | null; rightVal: number | null; eq: boolean; res: number | '?' | null }
 
 const LEVELS = ['קל', 'רגיל', 'קשה', 'אתגר']
+// קל / רגיל(≈בינוני) / קשה / אתגר(≈אלוף) on the canonical scale
+const LEVEL_TIERS = [0, 1, 2, 3]
 const OPW: Record<Op, string> = { '+': 'ועוד', '−': 'פחות', '×': 'כפול' }
 // slow, comfortable pacing (ms)
 const ENTER = 750 // gap between elements entering (first equation)
@@ -149,8 +153,9 @@ function SmallNum({ v }: { v: number }) {
 const EMPTY_BOTTOM: Bottom = { leftVal: null, op: null, rightVal: null, eq: false, res: null }
 
 export default function SeqGame({ onExit }: GameProps) {
-  const [levelIdx, setLevelIdx] = useState(0)
-  const [round, setRound] = useState<Round>(() => genRound(0))
+  const initialLevel = levelForTier(LEVEL_TIERS, getSettings().difficulty)
+  const [levelIdx, setLevelIdx] = useState(initialLevel)
+  const [round, setRound] = useState<Round>(() => genRound(initialLevel))
   const [score, setScore] = useState(0)
   const [wrong, setWrong] = useState<number | null>(null)
   const [solved, setSolved] = useState(false)
