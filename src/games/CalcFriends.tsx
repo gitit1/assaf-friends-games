@@ -2,11 +2,12 @@ import { useEffect, useState } from 'react'
 import GameShell from '../components/GameShell'
 import Friend from '../components/Friend'
 import type { GameProps } from './registry'
-import { playTap, playWin, unlockAudio } from '../audio'
+import { playNudge, playTap, playWin, unlockAudio } from '../audio'
 import { speak } from '../speech'
 import { friendColor, friendName } from '../friends'
 import { FRIEND_KINDS, friendMaxDim } from '../components/FriendArt'
-import { numberWord } from './util'
+import { numberWord, numberWordNiqqud, randInt } from './util'
+import { getSettings } from '../settings'
 
 const REAL_FRIENDS = FRIEND_KINDS.length // numbers up to here have a real friend
 
@@ -93,6 +94,17 @@ function CompositeFriend({ value, scale }: { value: number; scale: number }) {
   )
 }
 
+// "Build N" challenge: a target number + two hint numbers that make it (one way;
+// the child can reach it however they like). Range grows with difficulty.
+type Goal = { target: number; hint: number[] }
+function newGoal(tier: number): Goal {
+  const maxF = [6, 9, 10, 12][Math.min(3, tier)]
+  const a = randInt(2, maxF)
+  const b = randInt(2, maxF)
+  const target = tier >= 1 && Math.random() < 0.5 ? a * b : a + b
+  return { target, hint: [a, b] }
+}
+
 // What the friends panel shows for the number currently on the display.
 function NumberView({ value, scale }: { value: number; scale: number }) {
   if (Number.isInteger(value) && value >= 1 && value <= REAL_FRIENDS)
@@ -110,12 +122,25 @@ function NumberView({ value, scale }: { value: number; scale: number }) {
 
 export default function CalcFriends({ onExit }: GameProps) {
   const wide = useIsWide()
+  const tier = getSettings().difficulty
   const [display, setDisplay] = useState('0')
   const [acc, setAcc] = useState<number | null>(null)
   const [op, setOp] = useState<Op | null>(null)
   const [fresh, setFresh] = useState(true)
+  const [mode, setMode] = useState<'free' | 'goal'>('free')
+  const [goal, setGoal] = useState<Goal>(() => newGoal(tier))
 
   const value = Number(display)
+
+  function chooseMode(m: 'free' | 'goal') {
+    playTap()
+    setMode(m)
+    setDisplay('0')
+    setAcc(null)
+    setOp(null)
+    setFresh(true)
+    if (m === 'goal') setGoal(newGoal(tier))
+  }
 
   function digit(d: string) {
     unlockAudio()
@@ -151,6 +176,20 @@ export default function CalcFriends({ onExit }: GameProps) {
     setAcc(null)
     setOp(null)
     setFresh(true)
+    if (mode === 'goal') {
+      if (r === goal.target) {
+        playWin()
+        speak(`${numberWordNiqqud(r)}! כל הכבוד!`)
+        window.setTimeout(() => {
+          setGoal(newGoal(tier))
+          setDisplay('0')
+        }, 1400)
+      } else {
+        playNudge()
+        speak('כמעט! נסו שוב')
+      }
+      return
+    }
     playWin()
     if (Number.isInteger(r) && r >= 1 && r <= REAL_FRIENDS) {
       speak(`${numberWord(r)}. ${friendName(r - 1)}`)
@@ -210,6 +249,25 @@ export default function CalcFriends({ onExit }: GameProps) {
 
   return (
     <GameShell title="מחשבון" emoji="🧮" onExit={onExit}>
+      <div className="calc-modes">
+        <button className={`pill pill-small ${mode === 'free' ? 'pill-active' : ''}`} onClick={() => chooseMode('free')}>
+          🧮 מחשבון
+        </button>
+        <button className={`pill pill-small ${mode === 'goal' ? 'pill-active' : ''}`} onClick={() => chooseMode('goal')}>
+          🎯 אתגר
+        </button>
+      </div>
+
+      {mode === 'goal' && (
+        <div className="calc-goal">
+          <span className="calc-goal-label">תרכיבו</span>
+          <span className="calc-goal-target">{goal.target}</span>
+          <span className="calc-goal-hint" aria-hidden="true">
+            💡 {goal.hint[0]} · {goal.hint[1]}
+          </span>
+        </div>
+      )}
+
       <div className={`calc-layout ${wide ? 'is-wide' : ''}`}>
         <div className="calc-panel">
           <NumberView value={value} scale={wide ? 0.85 : 0.5} />

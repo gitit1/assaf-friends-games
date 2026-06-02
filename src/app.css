@@ -6294,6 +6294,41 @@ button {
 
 /* ---------- friends calculator ---------- */
 
+/* calculator mode toggle + "build N" challenge banner */
+.calc-modes {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin: 0 0 12px;
+}
+.calc-goal {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin: 0 auto 14px;
+  padding: 8px 18px;
+  max-width: 360px;
+  background: var(--panel-strong);
+  border-radius: 18px;
+  box-shadow: var(--shadow);
+  font-family: 'Fredoka', 'Heebo', sans-serif;
+}
+.calc-goal-label {
+  font-weight: 800;
+  font-size: 1.2rem;
+  color: var(--text-soft);
+}
+.calc-goal-target {
+  font-weight: 800;
+  font-size: 2.4rem;
+  color: var(--accent);
+}
+.calc-goal-hint {
+  font-weight: 800;
+  font-size: 1rem;
+  color: var(--text-soft);
+}
 .calc-layout {
   display: flex;
   flex-direction: column;
