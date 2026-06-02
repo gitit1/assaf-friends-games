@@ -60,7 +60,8 @@ export default function App() {
     view = <MeetFriends onExit={home} onOpen={(i) => go(`friend/${i}`)} />
   } else if (route.kind === 'friend') {
     const i = Number(route.id)
-    if (i >= 0 && i < FRIENDS.length) view = <FriendWorld index={i} onExit={() => go('meet')} />
+    if (i >= 0 && i < FRIENDS.length)
+      view = <FriendWorld index={i} onExit={() => go('meet')} onNavigate={(j) => go(`friend/${j}`)} />
   } else if (route.kind === 'gallery') {
     view = <DesignGallery onExit={home} />
   } else if (route.kind === 'game') {

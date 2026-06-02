@@ -1,9 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
 import GameShell from './GameShell'
 import Friend from './Friend'
+import IconButton from './IconButton'
 import { friendMaxDim } from './FriendArt'
-import { friendColorName, friendName, friendNumber, friendSay } from '../friends'
-import { playCount, playFriend, playSuccess, playWin, unlockAudio } from '../audio'
+import { FRIENDS, friendColorName, friendName, friendNumber, friendSay } from '../friends'
+import { playCount, playFriend, playSuccess, playTap, playWin, unlockAudio } from '../audio'
+import { stopSpeech } from '../speech'
 import { numberWord } from '../games/util'
 import { playClip, stopClip } from '../voice'
 
@@ -27,8 +29,27 @@ const LIKES = [
 
 type Fx = { id: number; emoji: string; x: number }
 
-export default function FriendWorld({ index, onExit }: { index: number; onExit: () => void }) {
+export default function FriendWorld({
+  index,
+  onExit,
+  onNavigate,
+}: {
+  index: number
+  onExit: () => void
+  onNavigate: (index: number) => void
+}) {
   const n = friendNumber(index)
+  const total = FRIENDS.length
+  // browse to the friend before / after this one, wrapping around the whole
+  // cast so there's never a dead-end (no disabled buttons to puzzle a child)
+  const goPrev = () => {
+    playTap()
+    onNavigate((index - 1 + total) % total)
+  }
+  const goNext = () => {
+    playTap()
+    onNavigate((index + 1) % total)
+  }
   const [bounce, setBounce] = useState(false)
   const [lit, setLit] = useState<number | undefined>(undefined)
   const [fx, setFx] = useState<Fx[]>([])
@@ -50,12 +71,17 @@ export default function FriendWorld({ index, onExit }: { index: number; onExit: 
     later(() => setBounce(false), 600)
   }
 
-  // narrate on entry (and whenever you switch friend)
+  // narrate on entry (and whenever you switch friend); when the friend changes
+  // we also cut off the previous one's narration so they don't talk over it
   useEffect(() => {
     unlockAudio()
     const id = window.setTimeout(describe, 350)
     timers.current.push(id)
-    return clearTimers
+    return () => {
+      clearTimers()
+      stopClip()
+      stopSpeech()
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [index])
 
@@ -120,6 +146,15 @@ export default function FriendWorld({ index, onExit }: { index: number; onExit: 
   return (
     <GameShell title={friendName(index)} emoji="⭐" onExit={onExit}>
       <div className="world-screen">
+        {/* prev-friend / home / next-friend. direction:ltr (in CSS) keeps the
+            arrows on the right side for RTL: ◀ goes to the lower number, ▶ to
+            the higher, matching the number-line order. */}
+        <div className="world-nav">
+          <IconButton icon="◀" label="החבר הקודם" onClick={goPrev} />
+          <IconButton icon="🏠" label="חזרה לחברים" onClick={onExit} />
+          <IconButton icon="▶" label="החבר הבא" onClick={goNext} />
+        </div>
+
         <div className="world-stage">
           <Friend index={index} scale={scale} showNumber bouncing={bounce} litUnits={lit} />
           <div className="world-fx-layer" aria-hidden="true">
