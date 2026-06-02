@@ -7979,7 +7979,10 @@ button {
 /* the driving scene — scenery scrolls past so the car looks like it's moving */
 .road-scene {
   position: relative;
-  height: 200px;
+  height: clamp(200px, 24vw, 300px); /* taller scene on a bigger screen */
+  max-width: 760px;
+  margin: 0 auto;
+  width: 100%;
   border-radius: 18px;
   overflow: hidden;
   direction: ltr;
@@ -8044,6 +8047,16 @@ button {
   bottom: 8px;
   left: 26%;
   z-index: 5;
+  transform-origin: bottom center;
+}
+/* bigger car on a wide screen (the bob/cheer live on the inner .car, so this is safe) */
+@media (min-width: 760px) {
+  .scene-car {
+    transform: scale(1.5);
+  }
+  .garage-preview {
+    transform: scale(2.2);
+  }
 }
 .scene-car .car {
   animation: car-bob 0.5s ease-in-out infinite;
