@@ -271,6 +271,21 @@ button {
 
 /* ---------- meet the friends screen ---------- */
 
+/* number-range selector for the friends page (groups of ten). LTR so the
+   ranges read like a number line; wraps to a second row once the cast is big. */
+.meet-decades {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  max-width: 560px;
+  margin: 0 auto 14px;
+}
+.meet-decade {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.5px;
+}
+
 .meet-intro {
   text-align: center;
   font-family: 'Fredoka', 'Heebo', sans-serif;
