@@ -5017,6 +5017,47 @@ button {
   display: block;
   margin: 0 auto 18px;
 }
+/* visual cue showing WHAT we want — a small vs big shape with the wanted one lit */
+.bs-goal {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin: 4px 0 10px;
+  min-height: 56px;
+}
+.bs-goal-arrow {
+  font-size: 1.9rem;
+}
+.bs-goal-dot {
+  border-radius: 50%;
+  background: var(--accent);
+  opacity: 0.35;
+}
+.bs-goal-dot.small {
+  width: 22px;
+  height: 22px;
+}
+.bs-goal-dot.big {
+  width: 48px;
+  height: 48px;
+}
+.bs-goal-dot.is-target {
+  opacity: 1;
+  background: var(--success);
+  box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.35), 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+.bs-goal-near {
+  font-family: 'Fredoka', 'Heebo', sans-serif;
+}
+.bs-goal-bull {
+  font-size: 2rem;
+}
+.bs-goal-num {
+  font-weight: 800;
+  font-size: 2.6rem;
+  color: var(--accent);
+}
 .bs-pair {
   display: flex;
   align-items: flex-end;

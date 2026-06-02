@@ -8,46 +8,66 @@ import { speak } from '../speech'
 import { friendSay, friendSize } from '../friends'
 import { numberWordNiqqud, randInt } from './util'
 import { screenScale, useViewport } from '../useViewport'
+import { getSettings } from '../settings'
 
-// "Bigger or smaller?" — two friends appear (each IS its number, so the bigger
-// number is also the bigger friend); tap the one the question asks for. No
-// timer, wrong taps give a gentle nudge with no penalty.
-const MAXN = 10 // compare friends 1..MAXN (clear, steadily growing sizes)
+// "Bigger / smaller / closest?" — two friends appear (each IS its number, so the
+// bigger number is also the bigger friend). A visual cue SHOWS what we're after
+// (a small vs big shape, the wanted one lit + an arrow) because the words alone
+// don't mean much to a non-reader. No timer; wrong taps give a gentle nudge.
+// Difficulty (from Settings): wider number range, and "closest to X" from קשה up.
+type Goal = 'big' | 'small' | 'near'
+type Round = { a: number; b: number; goal: Goal; target: number }
 
-type Goal = 'big' | 'small'
-type Round = { a: number; b: number; goal: Goal } // a, b are 1-based numbers
+const RANGE = [10, 12, 16, 20] // friends 1..N by difficulty tier
 
-function newRound(prev?: Round): Round {
-  const a = randInt(1, MAXN)
-  let b = randInt(1, MAXN)
-  while (b === a) b = randInt(1, MAXN)
-  const goal: Goal = randInt(0, 1) === 0 ? 'big' : 'small'
-  // avoid repeating the exact same question back-to-back
-  if (prev && prev.goal === goal && Math.max(prev.a, prev.b) === Math.max(a, b) && Math.min(prev.a, prev.b) === Math.min(a, b)) {
-    return newRound(prev)
+function sameQuestion(p: Round, a: number, b: number, goal: Goal) {
+  return p.goal === goal && Math.max(p.a, p.b) === Math.max(a, b) && Math.min(p.a, p.b) === Math.min(a, b)
+}
+
+function makeRound(maxn: number, allowNear: boolean, prev?: Round): Round {
+  const a = randInt(1, maxn)
+  let b = randInt(1, maxn)
+  while (b === a) b = randInt(1, maxn)
+  if (allowNear && Math.random() < 0.4) {
+    let x = randInt(1, maxn)
+    let guard = 0
+    while (Math.abs(a - x) === Math.abs(b - x) && guard++ < 60) x = randInt(1, maxn)
+    return { a, b, goal: 'near', target: x }
   }
-  return { a, b, goal }
+  const goal: Goal = randInt(0, 1) === 0 ? 'big' : 'small'
+  if (prev && sameQuestion(prev, a, b, goal)) return makeRound(maxn, allowNear, prev)
+  return { a, b, goal, target: 0 }
 }
 
 export default function BigSmall({ onExit }: GameProps) {
-  const [round, setRound] = useState<Round>(() => newRound())
+  const tier = getSettings().difficulty
+  const maxn = RANGE[Math.min(3, tier)]
+  const allowNear = tier >= 2
+  const [round, setRound] = useState<Round>(() => makeRound(maxn, allowNear))
   const [score, setScore] = useState(0)
   const [wrong, setWrong] = useState<number | null>(null)
   const [locked, setLocked] = useState(false)
   const vp = useViewport()
 
-  const correct = round.goal === 'big' ? Math.max(round.a, round.b) : Math.min(round.a, round.b)
-  const prompt = round.goal === 'big' ? 'מי הגדול?' : 'מי הקטן?'
+  const correct =
+    round.goal === 'big'
+      ? Math.max(round.a, round.b)
+      : round.goal === 'small'
+        ? Math.min(round.a, round.b)
+        : Math.abs(round.a - round.target) < Math.abs(round.b - round.target)
+          ? round.a
+          : round.b
 
-  // Read the question aloud for a non-reader (respects the voice setting).
+  const prompt =
+    round.goal === 'big' ? 'מי הגדול?' : round.goal === 'small' ? 'מי הקטן?' : `מי הכי קרוב ל-${round.target}?`
+  const spoken =
+    round.goal === 'near' ? `מי הכי קרוב ל-${numberWordNiqqud(round.target)}` : prompt
+
   useEffect(() => {
-    speak(prompt)
+    speak(spoken)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [round])
 
-  // Size each friend by its NUMBER (always growing) so the bigger number really
-  // looks bigger — scaled up on a big screen, and capped so the two always fit
-  // side by side on a phone.
   function scaleFor(n: number) {
     const px = Math.min(friendSize(n, 86, 12, 200) * screenScale(vp.w), vp.w * 0.42, vp.h * 0.42)
     return px / friendMaxDim(n - 1)
@@ -62,13 +82,13 @@ export default function BigSmall({ onExit }: GameProps) {
       setScore(ns)
       if (ns % 5 === 0) {
         playWin()
-        speak(`${numberWordNiqqud(ns)}!`) // calm milestone: announce the running count
+        speak(`${numberWordNiqqud(ns)}!`)
       } else {
         playSuccess()
         speak(friendSay(n - 1))
       }
       window.setTimeout(() => {
-        setRound((r) => newRound(r))
+        setRound((r) => makeRound(maxn, allowNear, r))
         setLocked(false)
       }, 950)
     } else {
@@ -86,7 +106,22 @@ export default function BigSmall({ onExit }: GameProps) {
           ⭐ {score}
         </span>
       </div>
-      <button className="pill bs-say" onClick={() => speak(prompt)}>
+
+      {/* show the SHAPE of what we want, not just the words */}
+      {round.goal === 'near' ? (
+        <div className="bs-goal bs-goal-near" aria-hidden="true">
+          <span className="bs-goal-bull">🎯</span>
+          <span className="bs-goal-num">{round.target}</span>
+        </div>
+      ) : (
+        <div className="bs-goal" aria-hidden="true">
+          <span className="bs-goal-arrow">{round.goal === 'big' ? '⬆️' : '⬇️'}</span>
+          <span className={`bs-goal-dot small ${round.goal === 'small' ? 'is-target' : ''}`} />
+          <span className={`bs-goal-dot big ${round.goal === 'big' ? 'is-target' : ''}`} />
+        </div>
+      )}
+
+      <button className="pill bs-say" onClick={() => speak(spoken)}>
         🔊 שמע שוב
       </button>
 
