@@ -7,6 +7,7 @@ import type { GameProps } from './registry'
 import { playFriend, playMunch, playPop, playSuccess, playTap, unlockAudio } from '../audio'
 import { speak } from '../speech'
 import { FRIENDS, friendName, friendSay } from '../friends'
+import { screenScale, useViewport } from '../useViewport'
 
 // foods in the fridge — tapping one says its name and the friend eats it
 const FOODS: { name: string; emoji: string }[] = [
@@ -227,6 +228,8 @@ function PlayScene({ kind, friend, outfit, buddy }: { kind: string; friend: numb
 
 export default function Tamagotchi({ onExit }: GameProps) {
   const [pet, setPet] = useState<Pet | null>(load)
+  const vp = useViewport()
+  const petPx = Math.round(150 * screenScale(vp.w)) // main pet grows on a desktop
   const [choosing, setChoosing] = useState(() => pet === null)
   const [pick, setPick] = useState(0)
   const [wardrobe, setWardrobe] = useState(false)
@@ -420,7 +423,7 @@ export default function Tamagotchi({ onExit }: GameProps) {
         <Stepper
           label={
             <span className="pet-pick-figure">
-              <Friend index={pick} scale={150 / friendMaxDim(pick)} showNumber={false} />
+              <Friend index={pick} scale={petPx / friendMaxDim(pick)} showNumber={false} />
             </span>
           }
           onPrev={() => setPick((p) => (p + FRIENDS.length - 1) % FRIENDS.length)}
@@ -479,7 +482,7 @@ export default function Tamagotchi({ onExit }: GameProps) {
           <PlayScene kind={playing.kind} friend={pet.friend} outfit={pet.outfit} buddy={buddy} />
         ) : (
         <button className="pet-tap" onClick={pokePet} aria-label={friendName(pet.friend)}>
-          <FriendDressed index={pet.friend} px={150} outfit={pet.outfit} bouncing={bounce} eating={!!eatFood} />
+          <FriendDressed index={pet.friend} px={petPx} outfit={pet.outfit} bouncing={bounce} eating={!!eatFood} />
           {eatFood && (
           <>
             <span
