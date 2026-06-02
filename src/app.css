@@ -6735,57 +6735,59 @@ button {
 .car-driver {
   position: absolute;
   left: 50%;
-  bottom: 40px;
+  bottom: 42px;
   transform: translateX(-50%);
-  z-index: 2;
+  z-index: 4;
+}
+/* wheels sit BEHIND the body so only the lower half peeks out (wheel wells),
+   instead of being stuck on top of the car */
+.car-wheel {
+  position: absolute;
+  bottom: 0;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 50%, #6b7280 0 22%, #1f2937 24%);
+  border: 3px solid #0b1220;
+  z-index: 1;
+}
+.car-wheel.l {
+  left: 16px;
+}
+.car-wheel.r {
+  right: 16px;
 }
 .car-body {
   position: absolute;
-  bottom: 14px;
+  bottom: 18px;
   left: 2px;
   width: 120px;
   height: 42px;
   background: radial-gradient(circle at 38% 22%, rgba(255, 255, 255, 0.45), transparent 55%), var(--car);
   border-radius: 30px 40px 14px 14px;
   box-shadow: inset 0 -7px 9px rgba(0, 0, 0, 0.28), inset 0 4px 6px rgba(255, 255, 255, 0.22), 0 7px 11px rgba(0, 0, 0, 0.3);
-  z-index: 1;
+  z-index: 2;
 }
 .car-stripe {
   position: absolute;
-  bottom: 30px;
+  bottom: 34px;
   left: 12px;
   width: 100px;
   height: 6px;
   border-radius: 3px;
   background: rgba(255, 255, 255, 0.5);
-  z-index: 1;
+  z-index: 3;
 }
 .car-light {
   position: absolute;
-  bottom: 28px;
+  bottom: 32px;
   right: 4px;
   width: 9px;
   height: 9px;
   border-radius: 50%;
   background: #fde68a;
   box-shadow: 0 0 6px #fbbf24;
-  z-index: 2;
-}
-.car-wheel {
-  position: absolute;
-  bottom: 0;
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  background: radial-gradient(circle at 50% 50%, #6b7280 0 22%, #1f2937 24%);
-  border: 3px solid #0b1220;
   z-index: 3;
-}
-.car-wheel.l {
-  left: 18px;
-}
-.car-wheel.r {
-  right: 18px;
 }
 
 .garage {
