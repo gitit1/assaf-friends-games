@@ -159,4 +159,23 @@ const PATTERNS3: Picture[] = [
   rings(11, [11, 12, 13, 14, 15, 16], 'מטרת ים'),
 ]
 
-export const PICTURES: Picture[] = [...OBJECTS, ...OBJECTS2, ...SCENES, ...PATTERNS, ...PATTERNS2, ...PATTERNS3]
+// ---- "rich" boards that really use lots of colours (18–30 in one picture) ----
+const ALL20 = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
+const ALL30 = [...ALL20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30]
+const RICH: Picture[] = [
+  stripesH(12, 20, ALL20, 'כל ה-20 צבעים'),
+  stripesV(20, 12, ALL20, 'מגדל הצבעים'),
+  diag(16, 14, ALL20, 'אלכסון 20 צבעים'),
+  stripesH(10, 30, ALL30, 'כל ה-30 צבעים'),
+  diag(16, 16, ALL30, 'אלכסון 30 צבעים'),
+]
+
+export const PICTURES: Picture[] = [
+  ...OBJECTS,
+  ...OBJECTS2,
+  ...SCENES,
+  ...PATTERNS,
+  ...PATTERNS2,
+  ...PATTERNS3,
+  ...RICH,
+]
