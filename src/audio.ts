@@ -80,6 +80,20 @@ export function playCount(step: number) {
   tone({ freq, duration: 0.16, type: 'triangle', volume: 0.16 })
 }
 
+// One rising note for the "counting becomes a melody" games (count / connect-
+// the-dots / draw-a-number). `step` is 0-based; the pitch climbs a major
+// pentatonic scale across three octaves and then wraps, so a count of ANY length
+// sounds like a pleasant tune that keeps going up — and never lands on a sour
+// note. Honours mute via tone().
+const RISE_PENTA = [0, 2, 4, 7, 9] // major-pentatonic semitone offsets
+export function playRise(step: number) {
+  const i = ((Math.floor(step) % 15) + 15) % 15 // 3-octave climbing riff, then wraps
+  const semis = RISE_PENTA[i % RISE_PENTA.length] + Math.floor(i / RISE_PENTA.length) * 12
+  const freq = 261.63 * Math.pow(2, semis / 12)
+  tone({ freq, duration: 0.22, type: 'triangle', volume: 0.16 })
+  tone({ freq: freq * 2, duration: 0.14, type: 'sine', volume: 0.045 }) // soft sparkle
+}
+
 // A friend's little "voice" boop when poked — each friend a distinct pitch.
 export function playFriend(index: number) {
   // Two octaves so friends 1–20 each sound different.

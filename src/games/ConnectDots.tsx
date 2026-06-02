@@ -4,7 +4,7 @@ import IconButton from '../components/IconButton'
 import Stepper from '../components/Stepper'
 import FriendArt, { FRIEND_NATURAL, friendKindForIndex } from '../components/FriendArt'
 import type { GameProps } from './registry'
-import { playCount, playNudge, playWin, unlockAudio } from '../audio'
+import { playNudge, playRise, playWin, unlockAudio } from '../audio'
 import { speak } from '../speech'
 import { FRIENDS, friendName, friendSay } from '../friends'
 import { numberWord, randInt } from './util'
@@ -57,7 +57,7 @@ export default function ConnectDots({ onExit }: GameProps) {
     setIndex(next)
     setConnected(0)
     setWrong(false)
-    playCount(1)
+    playRise(0)
   }
 
   function tapDot(n: number) {
@@ -69,7 +69,7 @@ export default function ConnectDots({ onExit }: GameProps) {
         playWin()
         speak(`${numberWord(total)}! ${friendSay(index)}`)
       } else {
-        playCount(n)
+        playRise(n - 1) // climbing note per dot → the count sings as the friend appears
         speak(numberWord(n))
       }
     } else {

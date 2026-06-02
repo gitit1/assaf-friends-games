@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import GameShell from '../components/GameShell'
 import Friend from '../components/Friend'
 import type { GameProps } from './registry'
-import { playCount, playWin, unlockAudio } from '../audio'
+import { playRise, playWin, unlockAudio } from '../audio'
 import { speak } from '../speech'
 import { friendSay } from '../friends'
 import { numberWord, randInt } from './util'
@@ -32,7 +32,7 @@ export default function CountGame({ onExit }: GameProps) {
       timers.current.push(
         window.setTimeout(() => {
           setLit(i)
-          playCount(i)
+          playRise(i - 1) // each number climbs the scale → counting becomes a little tune
           speak(numberWord(i))
         }, i * 750),
       )

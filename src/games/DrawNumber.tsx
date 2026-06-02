@@ -3,9 +3,9 @@ import GameShell from '../components/GameShell'
 import Friend from '../components/Friend'
 import IconButton from '../components/IconButton'
 import Stepper from '../components/Stepper'
-import { friendMaxDim } from '../components/FriendArt'
+import { friendKindForIndex, friendMaxDim, friendPartCount } from '../components/FriendArt'
 import type { GameProps } from './registry'
-import { playPop, playTap, playWin, unlockAudio } from '../audio'
+import { playRise, playTap, playWin, unlockAudio } from '../audio'
 import { speak } from '../speech'
 import { FRIENDS, friendColor, friendName, friendSay } from '../friends'
 import { numberWord, randInt } from './util'
@@ -31,6 +31,10 @@ export default function DrawNumber({ onExit }: GameProps) {
   const [filled, setFilled] = useState<Set<number>>(new Set())
   const [done, setDone] = useState(false)
   const painting = useRef(false)
+  // filledRef mirrors `filled` synchronously so we can pitch the climbing note
+  // off the true count without a state-updater side effect; lastNote throttles it
+  const filledRef = useRef<Set<number>>(new Set())
+  const lastNote = useRef(0)
 
   const [win, setWin] = useState(() => ({
     w: typeof window !== 'undefined' ? window.innerWidth : 360,
@@ -64,13 +68,17 @@ export default function DrawNumber({ onExit }: GameProps) {
 
   function goTo(next: number) {
     setIndex(next)
+    filledRef.current = new Set()
     setFilled(new Set())
     setDone(false)
+    lastNote.current = 0
     playTap()
   }
   function clearAll() {
+    filledRef.current = new Set()
     setFilled(new Set())
     setDone(false)
+    lastNote.current = 0
     playTap()
   }
 
@@ -79,13 +87,17 @@ export default function DrawNumber({ onExit }: GameProps) {
     const ds = el?.dataset?.cell
     if (ds == null) return
     const i = Number(ds)
-    setFilled((prev) => {
-      if (prev.has(i)) return prev
-      const next = new Set(prev)
-      next.add(i)
-      return next
-    })
-    playPop()
+    if (filledRef.current.has(i)) return
+    filledRef.current.add(i)
+    const size = filledRef.current.size
+    setFilled(new Set(filledRef.current))
+    // a climbing note per block → drawing the number sounds like a rising tune.
+    // throttle so a fast drag stays a pleasant arpeggio rather than a buzz.
+    const t = typeof performance !== 'undefined' ? performance.now() : 0
+    if (t - lastNote.current > 70) {
+      playRise(size - 1)
+      lastNote.current = t
+    }
   }
   function down(e: React.PointerEvent) {
     unlockAudio()
@@ -111,7 +123,13 @@ export default function DrawNumber({ onExit }: GameProps) {
 
         <div className="dn-stage">
           <span className={`dn-friend ${done ? 'is-done' : ''}`}>
-            <Friend index={index} scale={72 / friendMaxDim(index)} showNumber={false} bouncing={done} />
+            <Friend
+              index={index}
+              scale={72 / friendMaxDim(index)}
+              showNumber={false}
+              bouncing={done}
+              litUnits={done ? undefined : Math.round((total ? filled.size / total : 0) * friendPartCount(friendKindForIndex(index)))}
+            />
           </span>
 
           <div className={`dn-pad ${done ? 'is-done' : ''}`} style={{ gap: cell }} onPointerDown={down} onPointerMove={move} onPointerUp={up} onPointerCancel={up}>
