@@ -6,18 +6,15 @@ import type { GameProps } from './registry'
 import { playNudge, playSuccess, playWin, unlockAudio } from '../audio'
 import { speak } from '../speech'
 import { FRIENDS } from '../friends'
-import { numberWord, numberWordNiqqud, randInt, shuffle } from './util'
+import { numberWordNiqqud, randInt, shuffle } from './util'
 import { screenScale, useViewport } from '../useViewport'
+import { getSettings } from '../settings'
 
-// "Match the number to the quantity" — a big numeral is shown; pick the group
-// that has exactly that many friends. No timer, wrong picks give a gentle
-// nudge. Counts go all the way up the roster (Assaf can count high), and the
-// friend shown is drawn from the whole roster, so every friend appears here.
+// "Match the number to the quantity" — pick the group that has exactly that many
+// friends. From קשה up it also asks "pick the group with MORE than X". Each group
+// is a MIX of different friends (same size, so size is never a hint). No timer.
 const MAXT = 30
 
-// How big each little friend is drawn, shrinking as the groups grow so even a
-// group of 30 fits a phone card. The SAME size is used on every card in a round
-// (driven by the largest group) so size is never a hint to the answer.
 function tokenPx(maxCount: number) {
   if (maxCount <= 5) return 34
   if (maxCount <= 10) return 28
@@ -26,33 +23,52 @@ function tokenPx(maxCount: number) {
   return 15
 }
 
-type Round = { target: number; token: number; counts: number[] }
+type Group = { count: number; friends: number[] }
+type Round = { mode: 'exact' | 'more'; target: number; groups: Group[]; correct: number }
 
-function newRound(): Round {
-  const target = randInt(1, MAXT)
-  const token = randInt(0, FRIENDS.length - 1)
-  const counts = new Set<number>([target])
-  let guard = 0
-  while (counts.size < 3 && guard < 200) {
-    guard++
-    const d = target + randInt(1, 3) * (randInt(0, 1) === 0 ? -1 : 1)
-    if (d >= 1 && d <= MAXT) counts.add(d)
+const cluster = (count: number): number[] => Array.from({ length: count }, () => randInt(0, FRIENDS.length - 1))
+
+function newRound(tier: number): Round {
+  if (tier >= 2 && Math.random() < 0.5) {
+    // "more than X": exactly one group is above the threshold
+    const x = randInt(2, MAXT - 4)
+    const big = randInt(x + 1, Math.min(MAXT, x + 6))
+    const lows = new Set<number>()
+    let guard = 0
+    while (lows.size < 2 && guard++ < 200) lows.add(randInt(1, x))
+    while (lows.size < 2) lows.add(lows.size + 1) // tiny x fallback
+    const counts = shuffle([big, ...lows])
+    const groups = counts.map((c) => ({ count: c, friends: cluster(c) }))
+    return { mode: 'more', target: x, groups, correct: groups.findIndex((g) => g.count === big) }
   }
-  for (let n = 1; n <= MAXT && counts.size < 3; n++) counts.add(n)
-  return { target, token, counts: shuffle([...counts]) }
+  const target = randInt(1, MAXT)
+  const set = new Set<number>([target])
+  let guard = 0
+  while (set.size < 3 && guard++ < 200) {
+    const d = target + randInt(1, 3) * (randInt(0, 1) === 0 ? -1 : 1)
+    if (d >= 1 && d <= MAXT) set.add(d)
+  }
+  for (let n = 1; n <= MAXT && set.size < 3; n++) set.add(n)
+  const counts = shuffle([...set])
+  const groups = counts.map((c) => ({ count: c, friends: cluster(c) }))
+  return { mode: 'exact', target, groups, correct: groups.findIndex((g) => g.count === target) }
 }
 
 export default function QtyMatch({ onExit }: GameProps) {
-  const [round, setRound] = useState<Round>(() => newRound())
+  const tier = getSettings().difficulty
+  const [round, setRound] = useState<Round>(() => newRound(tier))
   const [score, setScore] = useState(0)
   const [wrong, setWrong] = useState<number | null>(null)
   const [solved, setSolved] = useState(false)
   const vp = useViewport()
 
-  const tokenScale = (tokenPx(Math.max(...round.counts)) * screenScale(vp.w)) / friendMaxDim(round.token)
+  const maxCount = Math.max(...round.groups.map((g) => g.count))
+  const px = tokenPx(maxCount) * screenScale(vp.w)
+  const scaleFor = (friend: number) => px / friendMaxDim(friend)
 
   function say() {
-    speak(`מצאו ${numberWord(round.target)}`)
+    if (round.mode === 'more') speak(`הקבוצה עם יותר מ-${numberWordNiqqud(round.target)}`)
+    else speak(`מצאו ${numberWordNiqqud(round.target)}`)
   }
 
   useEffect(() => {
@@ -60,26 +76,26 @@ export default function QtyMatch({ onExit }: GameProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [round])
 
-  function pick(count: number) {
+  function pick(i: number) {
     if (solved) return
     unlockAudio()
-    if (count === round.target) {
+    if (i === round.correct) {
       setSolved(true)
       const ns = score + 1
       setScore(ns)
       if (ns % 5 === 0) {
         playWin()
-        speak(`${numberWordNiqqud(ns)}!`) // calm milestone: announce the running count
+        speak(`${numberWordNiqqud(ns)}!`)
       } else {
         playSuccess()
-        speak(`${numberWord(round.target)}! כל הכבוד`)
+        speak('כל הכבוד')
       }
       window.setTimeout(() => {
-        setRound(newRound())
+        setRound(newRound(tier))
         setSolved(false)
       }, 1100)
     } else {
-      setWrong(count)
+      setWrong(i)
       playNudge()
       window.setTimeout(() => setWrong(null), 450)
     }
@@ -94,33 +110,25 @@ export default function QtyMatch({ onExit }: GameProps) {
       </div>
 
       <div className="qty-target-row">
-        <span className="qty-prompt">מצאו</span>
-        <span className="qty-target">{round.target}</span>
+        <span className="qty-prompt">{round.mode === 'more' ? 'יותר מ' : 'מצאו'}</span>
+        <span className="qty-target">{round.mode === 'more' ? `>${round.target}` : round.target}</span>
         <button className="pill qty-say" onClick={say} aria-label="שמע שוב">
           🔊
         </button>
       </div>
 
       <div className="qty-options">
-        {round.counts.map((count) => (
+        {round.groups.map((g, i) => (
           <button
-            key={count}
-            className={`qty-card ${wrong === count ? 'is-wrong' : ''} ${
-              solved && count === round.target ? 'is-win' : ''
-            }`}
-            onClick={() => pick(count)}
+            key={i}
+            className={`qty-card ${wrong === i ? 'is-wrong' : ''} ${solved && i === round.correct ? 'is-win' : ''}`}
+            onClick={() => pick(i)}
             disabled={solved}
-            aria-label={`קבוצה של ${count}`}
+            aria-label={`קבוצה של ${g.count}`}
           >
             <span className="qty-cluster">
-              {Array.from({ length: count }).map((_, k) => (
-                <Friend
-                  key={k}
-                  index={round.token}
-                  scale={tokenScale}
-                  showNumber={false}
-                  bouncing={solved && count === round.target}
-                />
+              {g.friends.map((f, k) => (
+                <Friend key={k} index={f} scale={scaleFor(f)} showNumber={false} bouncing={solved && i === round.correct} />
               ))}
             </span>
           </button>
