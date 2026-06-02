@@ -1,12 +1,19 @@
-// Pictures for "colour by number". Each cell holds a colour number (1–10, see
+// Pictures for "colour by number". Each cell holds a colour number (1–30, see
 // COLORS in ColorByNumber); 0 = empty. A mix of hand-drawn objects + colourful
 // generated patterns, spanning a range of sizes/colour-counts (= difficulties).
 export type Picture = { name: string; grid: number[][] }
 
-// build a grid from compact rows ('.' = empty cell, 'a' = colour 10 since it's
-// two digits and wouldn't fit one character)
+// build a grid from compact rows. '.' = empty; digits 1–9 are colours 1–9; and
+// letters a–u are the two-digit colours 10–30 (a=10, b=11, … u=30) since they
+// wouldn't fit in a single character.
 const rows = (a: string[]): number[][] =>
-  a.map((s) => s.split('').map((ch) => (ch === '.' ? 0 : ch === 'a' ? 10 : Number(ch))))
+  a.map((s) =>
+    s.split('').map((ch) => {
+      if (ch === '.') return 0
+      if (ch >= 'a' && ch <= 'z') return ch.charCodeAt(0) - 97 + 10
+      return Number(ch)
+    }),
+  )
 const make = (w: number, h: number, fn: (r: number, c: number) => number): number[][] =>
   Array.from({ length: h }, (_, r) => Array.from({ length: w }, (_, c) => fn(r, c)))
 const cyc = (p: number[], i: number) => p[((i % p.length) + p.length) % p.length]
@@ -124,4 +131,32 @@ const PATTERNS2: Picture[] = [
   diamonds(11, [8, 9, 10], 'יהלום אדמה'),
 ]
 
-export const PICTURES: Picture[] = [...OBJECTS, ...OBJECTS2, ...PATTERNS, ...PATTERNS2]
+// ---- 6 hand-drawn SCENES with a full background (sky / grass / sea) ----
+const SCENES: Picture[] = [
+  { name: 'בית', grid: rows(['33bbbbbbb', 'bbbb1bbbb', 'bbb111bbb', 'bb11111bb', 'bb88888bb', 'bb8qq88bb', 'bb88888bb', 'bb88s88bb', '444444444']) },
+  { name: 'עץ', grid: rows(['bbbbbbb33', 'bbbfffbbb', 'bbfffffbb', 'bfffffffb', 'bbfffffbb', 'bbbb8bbbb', 'bbbb8bbbb', 'bbbb8bbbb', '444444444']) },
+  { name: 'סירה', grid: rows(['3bbbbbbbb', 'bbbbkbbbb', 'bbbkkkbbb', 'bbkkkkkbb', 'bbbb8bbbb', 'b8888888b', '555555555', '555555555', '555555555']) },
+  { name: 'דג בים', grid: rows(['55555q555', '5q5555555', '555222255', '52222a255', '555222255', '555555555', '555555555', '545555545', '545555545']) },
+  { name: 'יום שמשי', grid: rows(['33bbbbbbb', '333bbkkkb', '33bbkkkkk', 'bbbbbkkbb', 'bbababbbb', 'bbbbbbbbb', 'bbbbbbbbb', '444444444', '444444444']) },
+  { name: 'כוכב בלילה', grid: rows(['3eeeeeee3', 'eeeeekkke', 'eeeeekkke', 'eeee3eeee', 'eee333eee', 'ee33333ee', 'eee333eee', 'eeee3ee3e', '3eeeeeeee']) },
+]
+
+// ---- 14 more generated patterns, using the wider 1–30 palette ----
+const PATTERNS3: Picture[] = [
+  stripesH(10, 16, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16], 'קשת ענקית'),
+  stripesV(12, 10, [13, 14, 15, 16, 17, 18, 19, 20], 'מגדל גוונים'),
+  diag(11, 11, [21, 22, 23, 24, 25, 26], 'אלכסון לילך'),
+  diag(12, 10, [1, 11, 2, 12, 3, 13], 'אלכסון כפול'),
+  rings(11, [27, 28, 29, 30, 1], 'מטרת חלל'),
+  rings(9, [20, 10, 17, 1], 'עין זהב'),
+  diamonds(11, [5, 11, 26, 20], 'יהלום ים'),
+  diamonds(9, [24, 1, 13, 21], 'יהלום אש'),
+  checker(10, 8, [10, 20], 'שחמט לילה'),
+  checker(10, 10, [15, 25], 'שחמט ירוק'),
+  stripesH(11, 11, [1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21], 'פסי קשת'),
+  stripesV(10, 10, [19, 20, 23, 30], 'ערפל'),
+  diag(11, 11, [2, 4, 6, 8, 12, 17, 28], 'שקיעה'),
+  rings(11, [11, 12, 13, 14, 15, 16], 'מטרת ים'),
+]
+
+export const PICTURES: Picture[] = [...OBJECTS, ...OBJECTS2, ...SCENES, ...PATTERNS, ...PATTERNS2, ...PATTERNS3]

@@ -23,6 +23,26 @@ const COLORS: Record<number, { color: string; name: string }> = {
   8: { color: '#92400e', name: 'חום' },
   9: { color: '#14b8a6', name: 'טורקיז' },
   10: { color: '#1f2937', name: 'שחור' },
+  11: { color: '#38bdf8', name: 'תכלת' },
+  12: { color: '#84cc16', name: 'ליים' },
+  13: { color: '#fb7185', name: 'ורוד בהיר' },
+  14: { color: '#1e3a8a', name: 'כחול כהה' },
+  15: { color: '#15803d', name: 'ירוק כהה' },
+  16: { color: '#c084fc', name: 'סגול בהיר' },
+  17: { color: '#eab308', name: 'זהב' },
+  18: { color: '#c2410c', name: 'חמרה' },
+  19: { color: '#94a3b8', name: 'אפור' },
+  20: { color: '#f8fafc', name: 'לבן' },
+  21: { color: '#db2777', name: 'מג׳נטה' },
+  22: { color: '#0e7490', name: 'כחול ים' },
+  23: { color: '#d9b88f', name: 'בז׳' },
+  24: { color: '#991b1b', name: 'בורדו' },
+  25: { color: '#86efac', name: 'ירוק בהיר' },
+  26: { color: '#bae6fd', name: 'תכלת בהיר' },
+  27: { color: '#5b21b6', name: 'סגול כהה' },
+  28: { color: '#d08b3f', name: 'חום בהיר' },
+  29: { color: '#e879f9', name: 'לילך' },
+  30: { color: '#cbd5e1', name: 'אפור בהיר' },
 }
 
 function present(grid: number[][]) {
@@ -38,6 +58,8 @@ export default function ColorByNumber({ onExit }: GameProps) {
   const [selected, setSelected] = useState(() => present(PICTURES[pic].grid)[0])
   const [done, setDone] = useState(false)
   const [zoom, setZoom] = useState(1) // child can enlarge/shrink the board
+  const [past, setPast] = useState<Set<string>[]>([]) // undo / redo history of filled cells
+  const [future, setFuture] = useState<Set<string>[]>([])
 
   const [win, setWin] = useState(() => ({
     w: typeof window !== 'undefined' ? window.innerWidth : 360,
@@ -71,12 +93,31 @@ export default function ColorByNumber({ onExit }: GameProps) {
     setFilled(new Set())
     setSelected(present(PICTURES[next].grid)[0])
     setDone(false)
+    setPast([])
+    setFuture([])
     playTap()
   }
   function clearAll() {
     setFilled(new Set())
     setDone(false)
+    setPast([])
+    setFuture([])
     playTap()
+  }
+  function undo() {
+    if (past.length === 0) return
+    playTap()
+    setFuture((f) => [filled, ...f])
+    setFilled(past[past.length - 1])
+    setPast((p) => p.slice(0, -1))
+    setDone(false)
+  }
+  function redo() {
+    if (future.length === 0) return
+    playTap()
+    setPast((p) => [...p, filled])
+    setFilled(future[0])
+    setFuture((f) => f.slice(1))
   }
   function zoomBy(d: number) {
     playTap()
@@ -94,6 +135,8 @@ export default function ColorByNumber({ onExit }: GameProps) {
     const key = `${r}-${c}`
     if (filled.has(key)) return
     if (v === selected) {
+      setPast((p) => [...p, filled])
+      setFuture([])
       setFilled((prev) => new Set(prev).add(key))
       playPop()
     } else {
@@ -154,6 +197,8 @@ export default function ColorByNumber({ onExit }: GameProps) {
         {done && <p className="cbn-reveal">🎉 {picture.name}!</p>}
 
         <div className="color-actions">
+          <IconButton icon="↩️" label="אחורה" onClick={undo} disabled={past.length === 0} />
+          <IconButton icon="↪️" label="קדימה" onClick={redo} disabled={future.length === 0} />
           <IconButton icon={<span className="cbn-zoomic">🔍−</span>} label="להקטין" onClick={() => zoomBy(-0.25)} />
           <IconButton icon={<span className="cbn-zoomic">🔍+</span>} label="להגדיל" onClick={() => zoomBy(0.25)} />
           <IconButton icon="🧽" label="מתחילים מחדש" onClick={clearAll} />
