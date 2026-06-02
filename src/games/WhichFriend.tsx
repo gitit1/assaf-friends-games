@@ -80,16 +80,25 @@ export default function WhichFriend({ onExit }: GameProps) {
 
       <div className="which-options">
         {round.options.map((i) => (
-          <button
+          <div
             key={i}
             className={`which-opt ${wrong === i ? 'is-wrong' : ''} ${solved && i === round.target ? 'is-win' : ''}`}
-            onClick={() => pick(i)}
-            disabled={solved}
-            aria-label={friendName(i)}
           >
-            <Friend index={i} scale={0.42} showNumber={false} bouncing={solved && i === round.target} />
-            <span className="which-name">{friendName(i)}</span>
-          </button>
+            <button className="which-pick" onClick={() => pick(i)} disabled={solved} aria-label={friendName(i)}>
+              <Friend index={i} scale={0.42} showNumber={false} bouncing={solved && i === round.target} />
+              <span className="which-name">{friendName(i)}</span>
+            </button>
+            <button
+              className="which-hear"
+              onClick={() => {
+                unlockAudio()
+                speak(friendSay(i))
+              }}
+              aria-label={`שמע את ${friendName(i)}`}
+            >
+              🔊
+            </button>
+          </div>
         ))}
       </div>
     </GameShell>

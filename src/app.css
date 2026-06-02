@@ -6676,10 +6676,6 @@ button {
   background: var(--panel-strong);
   border: 3px solid var(--line);
   box-shadow: var(--shadow);
-  transition: transform 0.12s ease;
-}
-.which-opt:active {
-  transform: scale(0.96);
 }
 .which-opt.is-wrong {
   animation: shake 0.4s ease;
@@ -6688,9 +6684,34 @@ button {
   border-color: var(--success);
   background: rgba(134, 245, 196, 0.14);
 }
+.which-pick {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  transition: transform 0.12s ease;
+}
+.which-pick:active {
+  transform: scale(0.95);
+}
 .which-name {
   font-family: 'Fredoka', 'Heebo', sans-serif;
   font-weight: 700;
   font-size: 1.1rem;
   color: var(--text-soft);
+}
+/* the speaker under each answer — tap to hear the friend's name */
+.which-hear {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: var(--panel);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+  font-size: 1.3rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.which-hear:active {
+  transform: scale(0.92);
 }
