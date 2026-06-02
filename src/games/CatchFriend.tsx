@@ -1,12 +1,14 @@
 import { useEffect, useRef, useState } from 'react'
 import GameShell from '../components/GameShell'
 import Friend from '../components/Friend'
+import { friendMaxDim } from '../components/FriendArt'
 import type { GameProps } from './registry'
 import { playPop, playSuccess, playWin, unlockAudio } from '../audio'
 import { speak } from '../speech'
 import { FRIENDS, friendName, friendSay } from '../friends'
 import { useSettings } from '../settings'
 import { randInt, shuffle } from './util'
+import { screenScale, useViewport } from '../useViewport'
 
 const COUNT = FRIENDS.length // friend identities — the whole cast
 const BOARD = 9 // friends visible at once
@@ -146,11 +148,13 @@ export default function CatchFriend({ onExit }: GameProps) {
     }
   }
 
+  const vp = useViewport()
+  const cardPx = 50 * screenScale(vp.w) // uniform card size, bigger on a desktop
   return (
     <GameShell title="תופסים חבר" emoji="🎯" onExit={onExit}>
       <div className="catch-target">
         <span className="catch-target-label">תפסו את</span>
-        <Friend index={target} scale={0.42} />
+        <Friend index={target} scale={Math.min(74 * screenScale(vp.w), vp.w * 0.34) / friendMaxDim(target)} />
         <span className="catch-target-name">{friendName(target)}</span>
         <span className="catch-score" aria-label={`ניקוד ${score}`}>
           ⭐ {score}
@@ -168,7 +172,7 @@ export default function CatchFriend({ onExit }: GameProps) {
             onClick={() => tap(card)}
             aria-label={friendName(card.index)}
           >
-            <Friend index={card.index} scale={0.3} showNumber={false} bouncing={card.popping} />
+            <Friend index={card.index} scale={cardPx / friendMaxDim(card.index)} showNumber={false} bouncing={card.popping} />
           </button>
         ))}
       </div>

@@ -6,6 +6,7 @@ import type { GameProps } from './registry'
 import { playPop, playSuccess, playWin, unlockAudio } from '../audio'
 import { FRIENDS } from '../friends'
 import { randInt, shuffle } from './util'
+import { useViewport } from '../useViewport'
 
 // A calm "pop" game (no timer, no losing): drag across 3+ connected friends of
 // the SAME kind, then let go to pop them all. Friends above fall down and fresh
@@ -18,7 +19,6 @@ const ROWS = 6
 // every friend (incl. newly-added ones) gets to play across games.
 const PALETTE_SIZE = 5
 const MIN_CHAIN = 3 // need at least 3 connected same friends to pop
-const FRIEND_PX = 44 // on-screen size target for each friend in a cell
 
 function pickPalette(): number[] {
   return shuffle(Array.from({ length: FRIENDS.length }, (_, i) => i)).slice(0, PALETTE_SIZE)
@@ -143,6 +143,10 @@ export default function PopFriends({ onExit }: GameProps) {
   }
 
   const chainSet = new Set(chain)
+  // board fills the screen width (up to 540) so it's big on a desktop
+  const vp = useViewport()
+  const boardW = Math.min(540, vp.w * 0.94)
+  const friendPx = (boardW / COLS) * 0.62
 
   return (
     <GameShell title="פיצוץ חברים" emoji="🎈" onExit={onExit}>
@@ -161,7 +165,7 @@ export default function PopFriends({ onExit }: GameProps) {
       <div
         className="pop-board"
         ref={boardRef}
-        style={{ '--cols': COLS } as React.CSSProperties}
+        style={{ '--cols': COLS, maxWidth: boardW } as React.CSSProperties}
         onPointerDown={onDown}
         onPointerMove={onMove}
         onPointerUp={onUp}
@@ -172,7 +176,7 @@ export default function PopFriends({ onExit }: GameProps) {
             key={i}
             className={`pop-cell ${chainSet.has(i) ? 'is-picked' : ''} ${popping.has(i) ? 'is-pop' : ''}`}
           >
-            <Friend index={type} scale={FRIEND_PX / friendMaxDim(type)} showNumber={false} />
+            <Friend index={type} scale={friendPx / friendMaxDim(type)} showNumber={false} />
           </span>
         ))}
       </div>

@@ -7,6 +7,7 @@ import { playNudge, playPiano, playWin, unlockAudio } from '../audio'
 import { speak } from '../speech'
 import { FRIENDS, friendColor } from '../friends'
 import { randInt, shuffle } from './util'
+import { screenScale, useViewport } from '../useViewport'
 
 // "Friends piano" — Guitar-Hero / Just-Dance style but SELF-PACED (no timer):
 // the next note of a known kids' tune falls down its lane as a number, its key
@@ -37,6 +38,8 @@ export default function PianoFriends({ onExit }: GameProps) {
   const [band, setBand] = useState<number[]>(pickBand) // which friends sit on the keys
   const [picker, setPicker] = useState(false) // song-list pop-up
 
+  const vp = useViewport()
+  const keyPx = 40 * screenScale(vp.w)
   const song = SONGS[songIdx]
   const done = !free && pos >= song.notes.length
   const current = !free && !done ? song.notes[pos] : null
@@ -132,7 +135,7 @@ export default function PianoFriends({ onExit }: GameProps) {
             onClick={() => tap(i)}
             aria-label={`צליל ${i + 1}`}
           >
-            <Friend index={band[i]} scale={40 / friendMaxDim(band[i])} showNumber={false} bouncing={pressed === i} />
+            <Friend index={band[i]} scale={keyPx / friendMaxDim(band[i])} showNumber={false} bouncing={pressed === i} />
           </button>
         ))}
       </div>
