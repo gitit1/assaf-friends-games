@@ -30,6 +30,12 @@ body,
   min-height: 100%;
 }
 
+/* allow vertical scrolling when a screen is taller than the viewport (finger on
+   mobile, scrollbar on desktop), but never horizontal */
+html {
+  overflow-x: hidden;
+}
+
 body {
   margin: 0;
   /* Avoid the iOS tap highlight + accidental text selection during play. */
@@ -54,7 +60,9 @@ button {
   padding: max(16px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right))
     max(16px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
   position: relative;
-  overflow: hidden;
+  /* horizontal overflow (wide friends/boards) is clipped; vertical content
+     flows to the page so it can scroll */
+  overflow-x: clip;
 }
 
 .banner {
