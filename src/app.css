@@ -6175,6 +6175,20 @@ button {
   animation: pop-burst 0.32s ease forwards;
   pointer-events: none;
 }
+/* fresh friends drop in after a pop */
+.pop-board.is-settling .pop-cell {
+  animation: pop-drop 0.42s ease;
+}
+@keyframes pop-drop {
+  0% {
+    transform: translateY(-14px) scale(0.9);
+    opacity: 0.4;
+  }
+  100% {
+    transform: none;
+    opacity: 1;
+  }
+}
 @keyframes pop-burst {
   to {
     transform: scale(1.6);
@@ -7163,6 +7177,9 @@ button {
   transform: translate(-50%, -50%);
   display: inline-flex;
   align-items: flex-end;
+  pointer-events: auto; /* drag to move, tap to remove (container stays click-through) */
+  touch-action: none;
+  cursor: grab;
 }
 .draw-stamp-emoji {
   font-size: 2.6rem;

@@ -25,6 +25,8 @@ export default function DrawBoard({ onExit }: GameProps) {
   const drawing = useRef(false)
   const last = useRef<{ x: number; y: number } | null>(null)
   const idRef = useRef(0)
+  const stampsRef = useRef<Stamp[]>([])
+  const dragStamp = useRef<{ id: number; moved: boolean; sx: number; sy: number } | null>(null)
 
   const [color, setColor] = useState(COLORS[0])
   const [size, setSize] = useState(BRUSHES[1])
@@ -32,6 +34,7 @@ export default function DrawBoard({ onExit }: GameProps) {
   const [stampFriend, setStampFriend] = useState(0)
   const [stamps, setStamps] = useState<Stamp[]>([])
   const [more, setMore] = useState(false)
+  stampsRef.current = stamps // latest stamps, for the pointer handlers below
 
   // undo / redo — a list of {canvas image, stamps} snapshots with a cursor
   type Snap = { img: string | null; stamps: Stamp[] }
@@ -159,6 +162,38 @@ export default function DrawBoard({ onExit }: GameProps) {
     commit(stamps) // a completed stroke
   }
 
+  // a placed sticker can be dragged to move it, or tapped to remove it (↺ undoes)
+  function stampDown(e: React.PointerEvent, s: Stamp) {
+    e.stopPropagation()
+    unlockAudio()
+    ;(e.currentTarget as HTMLElement).setPointerCapture?.(e.pointerId)
+    dragStamp.current = { id: s.id, moved: false, sx: e.clientX, sy: e.clientY }
+  }
+  function stampMove(e: React.PointerEvent) {
+    const d = dragStamp.current
+    if (!d) return
+    e.stopPropagation()
+    if (!d.moved && Math.hypot(e.clientX - d.sx, e.clientY - d.sy) < 6) return
+    d.moved = true
+    const p = pos(e)
+    setStamps((prev) => prev.map((st) => (st.id === d.id ? { ...st, x: p.x, y: p.y } : st)))
+  }
+  function stampUp(e: React.PointerEvent) {
+    const d = dragStamp.current
+    if (!d) return
+    e.stopPropagation()
+    dragStamp.current = null
+    if (d.moved) {
+      commit(stampsRef.current)
+      playTap()
+    } else {
+      const next = stampsRef.current.filter((st) => st.id !== d.id)
+      setStamps(next)
+      commit(next)
+      playPop()
+    }
+  }
+
   function clearAll() {
     const ctx = ctxRef.current
     const canvas = canvasRef.current
@@ -263,9 +298,17 @@ export default function DrawBoard({ onExit }: GameProps) {
           onPointerCancel={up}
         >
           <canvas ref={canvasRef} className="draw-canvas" />
-          <div className="draw-stamps" aria-hidden="true">
+          <div className="draw-stamps">
             {stamps.map((s) => (
-              <span key={s.id} className={`draw-stamp ${s.emoji ? 'draw-stamp-emoji' : ''}`} style={{ left: s.x, top: s.y }}>
+              <span
+                key={s.id}
+                className={`draw-stamp ${s.emoji ? 'draw-stamp-emoji' : ''}`}
+                style={{ left: s.x, top: s.y }}
+                onPointerDown={(e) => stampDown(e, s)}
+                onPointerMove={stampMove}
+                onPointerUp={stampUp}
+                onPointerCancel={stampUp}
+              >
                 {s.emoji ?? <Friend index={s.friend!} scale={66 / friendMaxDim(s.friend!)} showNumber={false} />}
               </span>
             ))}

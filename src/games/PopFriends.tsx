@@ -59,6 +59,7 @@ export default function PopFriends({ onExit }: GameProps) {
   const [chain, setChain] = useState<number[]>([])
   const [popping, setPopping] = useState<Set<number>>(() => new Set())
   const [score, setScore] = useState(0)
+  const [settling, setSettling] = useState(false)
   const boardRef = useRef<HTMLDivElement>(null)
   const dragging = useRef(false)
   const lastCell = useRef<number | null>(null)
@@ -125,12 +126,15 @@ export default function PopFriends({ onExit }: GameProps) {
     const popped = new Set(picked)
     const gained = picked.length
     setPopping(popped)
+    if (gained >= 5) speak('וואו!') // power-up feel for a long chain
     window.setTimeout(() => {
       setGrid((g) => collapse(g, popped, palette))
       setPopping(new Set())
+      setSettling(true) // the fresh friends drop in
+      window.setTimeout(() => setSettling(false), 420)
       setScore((s) => {
         const ns = s + gained
-        if (Math.floor(ns / 25) > Math.floor(s / 25)) playWin()
+        if (gained >= 5 || Math.floor(ns / 25) > Math.floor(s / 25)) playWin()
         else playSuccess()
         return ns
       })
@@ -168,7 +172,7 @@ export default function PopFriends({ onExit }: GameProps) {
       </p>
 
       <div
-        className="pop-board"
+        className={`pop-board ${settling ? 'is-settling' : ''}`}
         ref={boardRef}
         style={{ '--cols': COLS, maxWidth: boardW } as React.CSSProperties}
         onPointerDown={onDown}
