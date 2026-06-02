@@ -3,9 +3,10 @@ import GameShell from '../components/GameShell'
 import Friend from '../components/Friend'
 import { friendMaxDim } from '../components/FriendArt'
 import type { GameProps } from './registry'
-import { playPop, playSuccess, playWin, unlockAudio } from '../audio'
+import { playNudge, playPop, playSuccess, playWin, unlockAudio } from '../audio'
+import { speak } from '../speech'
 import { FRIENDS } from '../friends'
-import { randInt, shuffle } from './util'
+import { numberWordNiqqud, randInt, shuffle } from './util'
 import { useViewport } from '../useViewport'
 
 // A calm "pop" game (no timer, no losing): drag across 3+ connected friends of
@@ -106,6 +107,7 @@ export default function PopFriends({ onExit }: GameProps) {
     if (grid[idx] === type && !prev.includes(idx) && adjacent(idx, last)) {
       playPop()
       setChainBoth([...prev, idx])
+      speak(numberWordNiqqud(prev.length + 1)) // "שתיים! שלוש! ארבע!" as the chain grows
     }
   }
 
@@ -115,7 +117,10 @@ export default function PopFriends({ onExit }: GameProps) {
     lastCell.current = null
     const picked = chainRef.current
     setChainBoth([])
-    if (picked.length < MIN_CHAIN) return
+    if (picked.length < MIN_CHAIN) {
+      if (picked.length > 0) playNudge() // not silent — needs at least 3
+      return
+    }
 
     const popped = new Set(picked)
     const gained = picked.length

@@ -3,7 +3,7 @@ import GameShell from '../components/GameShell'
 import Friend from '../components/Friend'
 import { friendMaxDim } from '../components/FriendArt'
 import type { GameProps } from './registry'
-import { playPop, playSuccess, playWin, unlockAudio } from '../audio'
+import { playNudge, playPop, playSuccess, playWin, unlockAudio } from '../audio'
 import { speak } from '../speech'
 import { FRIENDS, friendName, friendSay } from '../friends'
 import { useSettings } from '../settings'
@@ -142,7 +142,10 @@ export default function CatchFriend({ onExit }: GameProps) {
       }, 430)
       timers.current.push(t)
     } else {
+      // gentle, not silent: a soft nudge + a spoken reminder of who we're after
       setWrongId(card.id)
+      playNudge()
+      speak(`חפשו את ${friendSay(target)}`)
       const t = window.setTimeout(() => setWrongId(null), 360)
       timers.current.push(t)
     }

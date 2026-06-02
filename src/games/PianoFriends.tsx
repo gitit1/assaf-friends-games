@@ -6,7 +6,7 @@ import type { GameProps } from './registry'
 import { playNudge, playPiano, playWin, unlockAudio } from '../audio'
 import { speak } from '../speech'
 import { FRIENDS, friendColor } from '../friends'
-import { randInt, shuffle } from './util'
+import { numberWordNiqqud, randInt, shuffle } from './util'
 import { screenScale, useViewport } from '../useViewport'
 
 // "Friends piano" — Guitar-Hero / Just-Dance style but SELF-PACED (no timer):
@@ -96,6 +96,7 @@ export default function PianoFriends({ onExit }: GameProps) {
     } else {
       setWrong(i)
       playNudge()
+      if (current != null) speak(numberWordNiqqud(band[current] + 1)) // point to the right key
       window.setTimeout(() => setWrong(null), 350)
     }
   }
