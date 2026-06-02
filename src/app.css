@@ -6729,6 +6729,7 @@ button {
 /* ===================== מוסך ומרוץ (garage + car race) ===================== */
 .car {
   position: relative;
+  display: inline-block;
   width: 124px;
   height: 100px;
 }
