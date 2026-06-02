@@ -7,6 +7,7 @@ import { playNudge, playSuccess, playWin, unlockAudio } from '../audio'
 import { speak } from '../speech'
 import { friendSay, friendSize } from '../friends'
 import { randInt } from './util'
+import { screenScale, useViewport } from '../useViewport'
 
 // "Bigger or smaller?" — two friends appear (each IS its number, so the bigger
 // number is also the bigger friend); tap the one the question asks for. No
@@ -33,6 +34,7 @@ export default function BigSmall({ onExit }: GameProps) {
   const [score, setScore] = useState(0)
   const [wrong, setWrong] = useState<number | null>(null)
   const [locked, setLocked] = useState(false)
+  const vp = useViewport()
 
   const correct = round.goal === 'big' ? Math.max(round.a, round.b) : Math.min(round.a, round.b)
   const prompt = round.goal === 'big' ? 'מי הגדול?' : 'מי הקטן?'
@@ -44,9 +46,11 @@ export default function BigSmall({ onExit }: GameProps) {
   }, [round])
 
   // Size each friend by its NUMBER (always growing) so the bigger number really
-  // looks bigger, regardless of how its art is drawn.
+  // looks bigger — scaled up on a big screen, and capped so the two always fit
+  // side by side on a phone.
   function scaleFor(n: number) {
-    return friendSize(n, 86, 12, 200) / friendMaxDim(n - 1)
+    const px = Math.min(friendSize(n, 86, 12, 200) * screenScale(vp.w), vp.w * 0.42, vp.h * 0.42)
+    return px / friendMaxDim(n - 1)
   }
 
   function pick(n: number) {

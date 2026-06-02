@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react'
 import GameShell from '../components/GameShell'
 import Friend from '../components/Friend'
+import { friendMaxDim } from '../components/FriendArt'
 import type { GameProps } from './registry'
 import { playNudge, playSuccess, playWin, playTap, unlockAudio } from '../audio'
 import { speak } from '../speech'
 import { FRIENDS, friendName, friendSay } from '../friends'
 import { randInt, shuffle } from './util'
+import { screenScale, useViewport } from '../useViewport'
 
 // "Which friend?" — a Hebrew letter is shown and spoken; tap the friend whose
 // NAME starts with it. Teaches letter↔sound through friends the child knows.
@@ -26,6 +28,7 @@ function newRound(): Round {
 }
 
 export default function WhichFriend({ onExit }: GameProps) {
+  const vp = useViewport()
   const [round, setRound] = useState<Round>(newRound)
   const [score, setScore] = useState(0)
   const [wrong, setWrong] = useState<number | null>(null)
@@ -85,7 +88,7 @@ export default function WhichFriend({ onExit }: GameProps) {
             className={`which-opt ${wrong === i ? 'is-wrong' : ''} ${solved && i === round.target ? 'is-win' : ''}`}
           >
             <button className="which-pick" onClick={() => pick(i)} disabled={solved} aria-label={friendName(i)}>
-              <Friend index={i} scale={0.42} showNumber={false} bouncing={solved && i === round.target} />
+              <Friend index={i} scale={Math.min(78 * screenScale(vp.w), vp.w * 0.27) / friendMaxDim(i)} showNumber={false} bouncing={solved && i === round.target} />
               <span className="which-name">{friendName(i)}</span>
             </button>
             <button

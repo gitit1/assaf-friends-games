@@ -6,6 +6,7 @@ import { playCount, playTap, playWin, unlockAudio } from '../audio'
 import { speak } from '../speech'
 import { friendSay } from '../friends'
 import { numberWord, randInt } from './util'
+import { fitScale, useViewport } from '../useViewport'
 
 // A target number is shown as an empty outline; tap to add one segment at a
 // time, building the friend up from the bottom until it's complete and wakes.
@@ -14,6 +15,7 @@ const MAX = 30 // build up to 30 — the whole current roster (friends 1–30)
 export default function AddGame({ onExit }: GameProps) {
   const [target, setTarget] = useState(() => randInt(2, MAX))
   const [built, setBuilt] = useState(0)
+  const vp = useViewport()
 
   const done = built === target
   // place value: how many full tens, and the leftover ones (a ten-frame)
@@ -54,7 +56,7 @@ export default function AddGame({ onExit }: GameProps) {
       </p>
 
       <div className="friends-stage">
-        <Friend index={target - 1} scale={0.9} litUnits={built} bouncing={done} />
+        <Friend index={target - 1} scale={fitScale(target - 1, vp, 0.8, 0.42)} litUnits={built} bouncing={done} />
       </div>
 
       {/* same number a second way: tens as "10" tiles + ones in a ten-frame, so

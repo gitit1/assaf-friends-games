@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import GameShell from '../components/GameShell'
 import Friend from '../components/Friend'
+import { friendMaxDim } from '../components/FriendArt'
 import type { GameProps } from './registry'
 import { playNudge, playSuccess, playWin, unlockAudio } from '../audio'
 import { speak } from '../speech'
@@ -8,6 +9,7 @@ import { FRIENDS, friendSay } from '../friends'
 import { numberWord, randInt, shuffle } from './util'
 import { getSettings } from '../settings'
 import { levelForTier } from '../difficulty'
+import { screenScale, useViewport } from '../useViewport'
 
 // "Math challenge" — multi-step expressions (a × b ± c) for a number-strong kid
 // who already does combined operations in his head. Multiple choice, no timer,
@@ -48,6 +50,7 @@ function makeProblem(level: Level): Problem {
 }
 
 export default function MathChallenge({ onExit }: GameProps) {
+  const vp = useViewport()
   const [level, setLevel] = useState(() => levelForTier(LEVEL_TIERS, getSettings().difficulty))
   const [problem, setProblem] = useState<Problem>(() => makeProblem(LEVELS[levelForTier(LEVEL_TIERS, getSettings().difficulty)]))
   const [score, setScore] = useState(0)
@@ -112,7 +115,7 @@ export default function MathChallenge({ onExit }: GameProps) {
       </div>
 
       <div className="chal-mascot" aria-hidden="true">
-        <Friend index={mascot} scale={0.5} showNumber={false} bouncing={locked} />
+        <Friend index={mascot} scale={Math.min(96 * screenScale(vp.w), vp.w * 0.42) / friendMaxDim(mascot)} showNumber={false} bouncing={locked} />
       </div>
 
       <div className="math-q" dir="ltr">

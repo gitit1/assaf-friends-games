@@ -6,6 +6,7 @@ import { playRise, playWin, unlockAudio } from '../audio'
 import { speak } from '../speech'
 import { friendSay } from '../friends'
 import { numberWord, randInt } from './util'
+import { fitScale, useViewport } from '../useViewport'
 
 // Show one friend and count its segments one-by-one out loud (1, 2, 3...),
 // lighting each unit from the bottom up — then the friend wakes and cheers.
@@ -15,6 +16,7 @@ export default function CountGame({ onExit }: GameProps) {
   const [value, setValue] = useState(() => randInt(1, MAX))
   const [lit, setLit] = useState(0)
   const [counting, setCounting] = useState(false)
+  const vp = useViewport()
 
   const timers = useRef<number[]>([])
   const clearTimers = () => {
@@ -62,7 +64,7 @@ export default function CountGame({ onExit }: GameProps) {
   return (
     <GameShell title="סופרים" emoji="🔢" onExit={onExit}>
       <div className="friends-stage">
-        <Friend index={value - 1} scale={0.9} litUnits={lit} bouncing={!counting && lit === value} />
+        <Friend index={value - 1} scale={fitScale(value - 1, vp, 0.8, 0.42)} litUnits={lit} bouncing={!counting && lit === value} />
       </div>
 
       <div className="count-readout" aria-hidden="true">
