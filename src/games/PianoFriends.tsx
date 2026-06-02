@@ -27,6 +27,10 @@ const SONGS: Song[] = [
   { name: 'סירה', emoji: '🚣', notes: [0, 0, 0, 1, 2, 2, 1, 2, 3, 4] }, // Row Row Row Your Boat
   { name: 'אחינו יעקב', emoji: '😴', notes: [0, 1, 2, 0, 0, 1, 2, 0, 2, 3, 4, 2, 3, 4] }, // Frère Jacques
   { name: 'תופים', emoji: '🥁', notes: [2, 1, 0, 2, 1, 0, 0, 0, 0, 1, 1, 1, 2, 1, 0] }, // Hot Cross Buns
+  { name: 'סולם', emoji: '🪜', notes: [0, 1, 2, 3, 4, 5, 5, 4, 3, 2, 1, 0] }, // up & down the scale
+  { name: 'יום הולדת', emoji: '🎂', notes: [0, 0, 1, 0, 3, 2, 0, 0, 1, 0, 4, 3] }, // Happy Birthday (opening)
+  { name: 'לונדון', emoji: '🌉', notes: [4, 5, 4, 3, 2, 3, 4, 1, 2, 3, 2, 3, 4] }, // London Bridge
+  { name: 'דילן', emoji: '🎶', notes: [0, 2, 4, 2, 0, 0, 2, 4, 2, 0, 4, 3, 2, 1, 0] }, // playful arpeggio
 ]
 
 export default function PianoFriends({ onExit }: GameProps) {

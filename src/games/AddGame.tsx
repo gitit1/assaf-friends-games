@@ -1,8 +1,8 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import GameShell from '../components/GameShell'
 import Friend from '../components/Friend'
 import type { GameProps } from './registry'
-import { playCount, playTap, playWin, unlockAudio } from '../audio'
+import { playRise, playTap, playWin, unlockAudio } from '../audio'
 import { speak } from '../speech'
 import { friendSay } from '../friends'
 import { numberWord, randInt } from './util'
@@ -15,9 +15,17 @@ const MAX = 30 // build up to 30 — the whole current roster (friends 1–30)
 export default function AddGame({ onExit }: GameProps) {
   const [target, setTarget] = useState(() => randInt(2, MAX))
   const [built, setBuilt] = useState(0)
+  const [pop, setPop] = useState(false) // a quick "merge" jump each time a cube joins
+  const popTimer = useRef<number | undefined>(undefined)
   const vp = useViewport()
 
   const done = built === target
+
+  function bump() {
+    setPop(true)
+    window.clearTimeout(popTimer.current)
+    popTimer.current = window.setTimeout(() => setPop(false), 300)
+  }
   // place value: how many full tens, and the leftover ones (a ten-frame)
   const tens = Math.floor(built / 10)
   const ones = built % 10
@@ -27,11 +35,12 @@ export default function AddGame({ onExit }: GameProps) {
     unlockAudio()
     const next = built + 1
     setBuilt(next)
+    bump()
     if (next === target) {
       playWin()
       speak(`${numberWord(target)}! בנית את ${friendSay(target - 1)}!`)
     } else {
-      playCount(next)
+      playRise(next - 1) // each cube climbs the scale → building sings
       speak(numberWord(next))
     }
   }
@@ -56,7 +65,7 @@ export default function AddGame({ onExit }: GameProps) {
       </p>
 
       <div className="friends-stage">
-        <Friend index={target - 1} scale={fitScale(target - 1, vp, 0.8, 0.42)} litUnits={built} bouncing={done} />
+        <Friend index={target - 1} scale={fitScale(target - 1, vp, 0.8, 0.42)} litUnits={built} bouncing={done || pop} />
       </div>
 
       {/* same number a second way: tens as "10" tiles + ones in a ten-frame, so

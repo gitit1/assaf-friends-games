@@ -4,7 +4,7 @@ import IconButton from '../components/IconButton'
 import Stepper from '../components/Stepper'
 import FriendArt, { FRIEND_NATURAL, friendKindForIndex } from '../components/FriendArt'
 import type { GameProps } from './registry'
-import { playNudge, playRise, playWin, unlockAudio } from '../audio'
+import { playNudge, playRise, playTap, playWin, unlockAudio } from '../audio'
 import { speak } from '../speech'
 import { FRIENDS, friendName, friendSay } from '../friends'
 import { numberWord, randInt } from './util'
@@ -79,6 +79,12 @@ export default function ConnectDots({ onExit }: GameProps) {
     }
   }
 
+  function undo() {
+    if (connected === 0) return
+    playTap()
+    setConnected((c) => Math.max(0, c - 1))
+  }
+
   const linePoints = centers
     .slice(0, connected)
     .map((c) => `${c.x},${c.y}`)
@@ -133,6 +139,7 @@ export default function ConnectDots({ onExit }: GameProps) {
         </div>
 
         <div className="color-actions">
+          <IconButton icon="↩️" label="אחורה" onClick={undo} disabled={connected === 0} />
           <IconButton icon="🔄" label="מתחילים מחדש" onClick={() => goTo(index)} />
           <IconButton icon="🎲" label="חבר חדש" onClick={() => goTo(randInt(0, FRIENDS.length - 1))} />
         </div>
