@@ -4,32 +4,34 @@ export function randInt(min: number, max: number) {
   return Math.floor(Math.random() * (max - min + 1)) + min
 }
 
-// Hebrew number words (feminine, for counting things), 1–50.
-const NUM_WORDS = [
-  'אחת', 'שתיים', 'שלוש', 'ארבע', 'חמש', 'שש', 'שבע', 'שמונה', 'תשע', 'עשר',
-  'אחת עשרה', 'שתים עשרה', 'שלוש עשרה', 'ארבע עשרה', 'חמש עשרה',
-  'שש עשרה', 'שבע עשרה', 'שמונה עשרה', 'תשע עשרה', 'עשרים',
-  'עשרים ואחת', 'עשרים ושתיים', 'עשרים ושלוש', 'עשרים וארבע', 'עשרים וחמש',
-  'עשרים ושש', 'עשרים ושבע', 'עשרים ושמונה', 'עשרים ותשע', 'שלושים',
-  'שלושים ואחת', 'שלושים ושתיים', 'שלושים ושלוש', 'שלושים וארבע', 'שלושים וחמש',
-  'שלושים ושש', 'שלושים ושבע', 'שלושים ושמונה', 'שלושים ותשע', 'ארבעים',
-  'ארבעים ואחת', 'ארבעים ושתיים', 'ארבעים ושלוש', 'ארבעים וארבע', 'ארבעים וחמש',
-  'ארבעים ושש', 'ארבעים ושבע', 'ארבעים ושמונה', 'ארבעים ותשע', 'חמישים',
+// Hebrew feminine number words WITH niqqud (vowel points), built from parts so
+// it covers 1–59 correctly. Every place that reads a number ALOUD uses this; the
+// niqqud is what makes a Hebrew TTS pronounce it right ("עֶשְׂרִים וּשְׁתַּיִם", not a
+// mangled "20 2"). Nothing puts this on screen, so the marks are safe.
+const NIQ_ONES = ['', 'אַחַת', 'שְׁתַּיִם', 'שָׁלוֹשׁ', 'אַרְבַּע', 'חָמֵשׁ', 'שֵׁשׁ', 'שֶׁבַע', 'שְׁמוֹנֶה', 'תֵּשַׁע']
+const NIQ_TEENS = [
+  'עֶשֶׂר', 'אַחַת עֶשְׂרֵה', 'שְׁתֵּים עֶשְׂרֵה', 'שְׁלוֹשׁ עֶשְׂרֵה', 'אַרְבַּע עֶשְׂרֵה', 'חֲמֵשׁ עֶשְׂרֵה',
+  'שֵׁשׁ עֶשְׂרֵה', 'שְׁבַע עֶשְׂרֵה', 'שְׁמוֹנֶה עֶשְׂרֵה', 'תְּשַׁע עֶשְׂרֵה',
 ]
-export function numberWord(n: number) {
-  return NUM_WORDS[n - 1] ?? String(n)
+const NIQ_TENS: Record<number, string> = { 20: 'עֶשְׂרִים', 30: 'שְׁלוֹשִׁים', 40: 'אַרְבָּעִים', 50: 'חֲמִשִּׁים' }
+
+export function numberWord(n: number): string {
+  if (n >= 1 && n <= 9) return NIQ_ONES[n]
+  if (n >= 10 && n <= 19) return NIQ_TEENS[n - 10]
+  const tens = n - (n % 10)
+  const unit = n % 10
+  const tensWord = NIQ_TENS[tens]
+  if (tensWord) {
+    if (unit === 0) return tensWord
+    // the vav is "וּ" before שתיים / שמונה (they start with a shva), else "וְ"
+    const vav = unit === 2 || unit === 8 ? 'וּ' : 'וְ'
+    return `${tensWord} ${vav}${NIQ_ONES[unit]}`
+  }
+  return String(n)
 }
 
-// Vocalised (niqqud) feminine number words 1–20, for the clearest possible TTS
-// pronunciation when we read a count out loud. Falls back to the plain word.
-const NUM_WORDS_NIQQUD = [
-  'אַחַת', 'שְׁתַּיִם', 'שָׁלוֹשׁ', 'אַרְבַּע', 'חָמֵשׁ', 'שֵׁשׁ', 'שֶׁבַע', 'שְׁמוֹנֶה', 'תֵּשַׁע', 'עֶשֶׂר',
-  'אַחַת עֶשְׂרֵה', 'שְׁתֵּים עֶשְׂרֵה', 'שְׁלוֹשׁ עֶשְׂרֵה', 'אַרְבַּע עֶשְׂרֵה', 'חֲמֵשׁ עֶשְׂרֵה',
-  'שֵׁשׁ עֶשְׂרֵה', 'שְׁבַע עֶשְׂרֵה', 'שְׁמוֹנֶה עֶשְׂרֵה', 'תְּשַׁע עֶשְׂרֵה', 'עֶשְׂרִים',
-]
-export function numberWordNiqqud(n: number) {
-  return NUM_WORDS_NIQQUD[n - 1] ?? numberWord(n)
-}
+// kept as an alias so callers that explicitly asked for the vocalised form still work
+export const numberWordNiqqud = numberWord
 
 export function shuffle<T>(items: T[]): T[] {
   const copy = [...items]
