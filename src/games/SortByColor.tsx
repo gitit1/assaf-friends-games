@@ -102,14 +102,21 @@ export default function SortByColor({ onExit }: GameProps) {
     return () => window.removeEventListener('resize', onResize)
   }, [])
 
-  // baskets fill the screen width, wrap to rows, sized down as more are added —
-  // capped at a comfortable medium so they don't balloon on a big monitor
+  // Lay the baskets out to fill the width: use as many columns as comfortably
+  // fit (so a wide screen gets more columns → smaller baskets & fewer rows,
+  // instead of a few giant ones), with a square-ish minimum so a phone doesn't
+  // get too many tiny columns. The balls (tray items) track the basket size so
+  // they're never huge next to small baskets.
+  const GAP = 14
   const availW = Math.min(vw - 20, 760)
-  const perRow = Math.min(numCats, Math.ceil(Math.sqrt(numCats * 1.6)))
-  const bw = Math.max(46, Math.min(108, Math.floor((availW - (perRow - 1) * 14) / perRow)))
+  const sqrtCols = Math.ceil(Math.sqrt(numCats * 1.6))
+  const fitCols = Math.floor((availW + GAP) / (60 + GAP))
+  const perRow = Math.min(numCats, Math.max(sqrtCols, fitCols))
+  const bw = Math.max(46, Math.min(108, Math.floor((availW - (perRow - 1) * GAP) / perRow)))
   const bh = Math.round(bw * 0.84)
   const countFont = Math.round(bw * 0.42)
   const labelFont = Math.round(bw * 0.5)
+  const ballSize = Math.max(40, Math.min(74, Math.round(bw * 0.95)))
 
   function newRound() {
     playTap()
@@ -169,7 +176,7 @@ export default function SortByColor({ onExit }: GameProps) {
   // the contents of a draggable item, per mode
   function ItemInner({ cat }: { cat: number }) {
     if (mode === 'smiley') return <Face />
-    if (mode === 'friend') return <Friend index={cat} scale={56 / friendMaxDim(cat)} showNumber={false} />
+    if (mode === 'friend') return <Friend index={cat} scale={(ballSize * 0.85) / friendMaxDim(cat)} showNumber={false} />
     return (
       <span className="sort-sym" style={{ color: textOn(catColor(cat)) }}>
         {mode === 'number' ? cat + 1 : LETTERS[cat]}
@@ -205,7 +212,7 @@ export default function SortByColor({ onExit }: GameProps) {
             <button
               key={b.id}
               className={itemClass}
-              style={{ '--c': catColor(b.cat), opacity: drag?.id === b.id ? 0 : 1 } as React.CSSProperties}
+              style={{ '--c': catColor(b.cat), '--bs': `${ballSize}px`, opacity: drag?.id === b.id ? 0 : 1 } as React.CSSProperties}
               onPointerDown={(e) => down(e, b)}
               onPointerMove={move}
               onPointerUp={up}
@@ -270,7 +277,7 @@ export default function SortByColor({ onExit }: GameProps) {
       {drag && (
         <span
           className={`${itemClass} is-drag`}
-          style={{ '--c': catColor(drag.cat), left: drag.x, top: drag.y } as React.CSSProperties}
+          style={{ '--c': catColor(drag.cat), '--bs': `${ballSize}px`, left: drag.x, top: drag.y } as React.CSSProperties}
           aria-hidden="true"
         >
           <ItemInner cat={drag.cat} />

@@ -7341,8 +7341,9 @@ button {
 }
 .sort-blob {
   position: relative;
-  width: 66px;
-  height: 66px;
+  width: var(--bs, 66px);
+  height: var(--bs, 66px);
+  font-size: var(--bs, 66px); /* face + symbol scale in em off the ball size */
   border-radius: 50%;
   background: radial-gradient(circle at 38% 28%, rgba(255, 255, 255, 0.55), transparent 45%),
     radial-gradient(circle at 60% 120%, rgba(0, 0, 0, 0.38), transparent 60%), var(--c);
@@ -7361,8 +7362,8 @@ button {
 .sb-eye {
   position: absolute;
   top: 33%;
-  width: 14px;
-  height: 16px;
+  width: 0.21em;
+  height: 0.25em;
   background: #fff;
   border-radius: 50%;
 }
@@ -7375,11 +7376,11 @@ button {
 .sb-eye::after {
   content: '';
   position: absolute;
-  bottom: 2px;
+  bottom: 0.03em;
   left: 50%;
   transform: translateX(-50%);
-  width: 6px;
-  height: 6px;
+  width: 0.09em;
+  height: 0.09em;
   border-radius: 50%;
   background: #1a1a1a;
 }
@@ -7388,11 +7389,11 @@ button {
   bottom: 22%;
   left: 50%;
   transform: translateX(-50%);
-  width: 22px;
-  height: 10px;
-  border: 3px solid rgba(0, 0, 0, 0.6);
+  width: 0.33em;
+  height: 0.15em;
+  border: 0.05em solid rgba(0, 0, 0, 0.6);
   border-top: none;
-  border-radius: 0 0 14px 14px;
+  border-radius: 0 0 0.21em 0.21em;
 }
 /* add / remove baskets */
 .sort-controls {
@@ -7474,7 +7475,7 @@ button {
 .sort-sym {
   font-family: 'Fredoka', 'Heebo', sans-serif;
   font-weight: 800;
-  font-size: 1.7rem;
+  font-size: 0.5em; /* scales with the ball (--bs) */
   line-height: 1;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
 }
