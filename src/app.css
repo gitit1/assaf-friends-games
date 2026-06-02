@@ -55,14 +55,17 @@ button {
 /* ---------- shell ---------- */
 
 .app-shell {
-  min-height: 100svh;
+  /* the app's scroll container: fixed to the viewport height, scrolls
+     vertically when a screen is taller (finger on mobile, scrollbar on
+     desktop), horizontal clipped */
+  height: 100svh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
   /* Respect notches / home indicators on phones. */
   padding: max(16px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right))
     max(16px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
   position: relative;
-  /* horizontal overflow (wide friends/boards) is clipped; vertical content
-     flows to the page so it can scroll */
-  overflow-x: clip;
 }
 
 .banner {
