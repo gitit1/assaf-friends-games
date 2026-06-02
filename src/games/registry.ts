@@ -19,6 +19,7 @@ import RollDice from './RollDice'
 import DrawBoard from './DrawBoard'
 import ColorByNumber from './ColorByNumber'
 import DrawNumber from './DrawNumber'
+import SortByColor from './SortByColor'
 
 // Every game gets a callback to return to the home screen.
 export type GameProps = {
@@ -136,6 +137,14 @@ export const GAMES: GameDef[] = [
     color: 'linear-gradient(160deg, #c084fc, #7e22ce)',
     category: 'thinking',
     Component: WhoGame,
+  },
+  {
+    id: 'sort',
+    title: 'מיון לפי צבע',
+    emoji: '🧺',
+    color: 'linear-gradient(160deg, #34d399, #0d9488)',
+    category: 'thinking',
+    Component: SortByColor,
   },
   {
     id: 'catch',

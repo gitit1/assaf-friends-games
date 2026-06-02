@@ -6512,3 +6512,110 @@ button {
 .world-btn-emoji {
   font-size: 1.9rem;
 }
+
+/* ===================== מיון לפי צבע (sort by colour) ===================== */
+.sort-screen {
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100svh - 96px);
+}
+.sort-intro {
+  text-align: center;
+  font-family: 'Fredoka', 'Heebo', sans-serif;
+  font-weight: 800;
+  font-size: 1.3rem;
+  margin: 4px 0 6px;
+}
+.sort-tray {
+  flex: 1 1 0;
+  min-height: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-content: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 8px;
+}
+.sort-blob {
+  position: relative;
+  width: 66px;
+  height: 66px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 38% 28%, rgba(255, 255, 255, 0.55), transparent 45%),
+    radial-gradient(circle at 60% 120%, rgba(0, 0, 0, 0.38), transparent 60%), var(--c);
+  box-shadow: inset 0 -6px 8px rgba(0, 0, 0, 0.25), inset 0 4px 6px rgba(255, 255, 255, 0.3),
+    0 6px 10px rgba(0, 0, 0, 0.3);
+  cursor: grab;
+  touch-action: none;
+}
+.sort-blob.is-drag {
+  position: fixed;
+  z-index: 60;
+  transform: translate(-50%, -50%) scale(1.12);
+  pointer-events: none;
+  box-shadow: 0 12px 18px rgba(0, 0, 0, 0.4);
+}
+.sb-eye {
+  position: absolute;
+  top: 33%;
+  width: 14px;
+  height: 16px;
+  background: #fff;
+  border-radius: 50%;
+}
+.sb-eye:nth-child(1) {
+  left: 23%;
+}
+.sb-eye:nth-child(2) {
+  right: 23%;
+}
+.sb-eye::after {
+  content: '';
+  position: absolute;
+  bottom: 2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #1a1a1a;
+}
+.sb-mouth {
+  position: absolute;
+  bottom: 22%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 22px;
+  height: 10px;
+  border: 3px solid rgba(0, 0, 0, 0.6);
+  border-top: none;
+  border-radius: 0 0 14px 14px;
+}
+.sort-baskets {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 12px;
+  margin: 6px 0 14px;
+}
+.sort-basket {
+  position: relative;
+  width: 74px;
+  height: 64px;
+  border-radius: 10px 10px 22px 22px;
+  background: radial-gradient(circle at 50% 130%, rgba(0, 0, 0, 0.32), transparent 60%), var(--c);
+  box-shadow: inset 0 -6px 10px rgba(0, 0, 0, 0.28), 0 6px 10px rgba(0, 0, 0, 0.3);
+  border: 3px solid rgba(0, 0, 0, 0.12);
+}
+.sort-basket-lip {
+  position: absolute;
+  top: -7px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--c);
+  box-shadow: inset 0 4px 6px rgba(0, 0, 0, 0.45);
+  filter: brightness(0.8);
+}
