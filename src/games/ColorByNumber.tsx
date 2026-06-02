@@ -20,6 +20,9 @@ const COLORS: Record<number, { color: string; name: string }> = {
   5: { color: '#3b82f6', name: 'כחול' },
   6: { color: '#8b5cf6', name: 'סגול' },
   7: { color: '#ec4899', name: 'ורוד' },
+  8: { color: '#92400e', name: 'חום' },
+  9: { color: '#14b8a6', name: 'טורקיז' },
+  10: { color: '#1f2937', name: 'שחור' },
 }
 
 function present(grid: number[][]) {
@@ -34,6 +37,7 @@ export default function ColorByNumber({ onExit }: GameProps) {
   const [filled, setFilled] = useState<Set<string>>(new Set())
   const [selected, setSelected] = useState(() => present(PICTURES[pic].grid)[0])
   const [done, setDone] = useState(false)
+  const [zoom, setZoom] = useState(1) // child can enlarge/shrink the board
 
   const [win, setWin] = useState(() => ({
     w: typeof window !== 'undefined' ? window.innerWidth : 360,
@@ -51,7 +55,8 @@ export default function ColorByNumber({ onExit }: GameProps) {
   const rows = grid.length
   const legend = present(grid)
   const total = countCells(grid)
-  const cell = Math.min(Math.floor((win.w * 0.92) / cols), Math.floor((win.h * 0.4) / rows), 46)
+  const baseCell = Math.min(Math.floor((win.w * 0.92) / cols), Math.floor((win.h * 0.4) / rows), 46)
+  const cell = Math.max(14, Math.round(baseCell * zoom)) // zoom in/out for a closer look
 
   useEffect(() => {
     if (!done && total > 0 && filled.size >= total) {
@@ -72,6 +77,10 @@ export default function ColorByNumber({ onExit }: GameProps) {
     setFilled(new Set())
     setDone(false)
     playTap()
+  }
+  function zoomBy(d: number) {
+    playTap()
+    setZoom((z) => Math.min(2.6, Math.max(0.6, Math.round((z + d) * 100) / 100)))
   }
   function pickNumber(num: number) {
     unlockAudio()
@@ -96,7 +105,9 @@ export default function ColorByNumber({ onExit }: GameProps) {
     <GameShell title="צביעה לפי מספר" emoji="🧩" onExit={onExit}>
       <div className="color-screen">
         <Stepper
-          label={picture.name}
+          // keep it a mystery — show only the picture's number until it's done,
+          // then reveal what it turned out to be
+          label={done ? `🎉 ${picture.name}` : `תמונה ${pic + 1}`}
           onPrev={() => goTo((pic + PICTURES.length - 1) % PICTURES.length)}
           onNext={() => goTo((pic + 1) % PICTURES.length)}
         />
@@ -140,7 +151,11 @@ export default function ColorByNumber({ onExit }: GameProps) {
           </div>
         </div>
 
+        {done && <p className="cbn-reveal">🎉 {picture.name}!</p>}
+
         <div className="color-actions">
+          <IconButton icon={<span className="cbn-zoomic">🔍−</span>} label="להקטין" onClick={() => zoomBy(-0.25)} />
+          <IconButton icon={<span className="cbn-zoomic">🔍+</span>} label="להגדיל" onClick={() => zoomBy(0.25)} />
           <IconButton icon="🧽" label="מתחילים מחדש" onClick={clearAll} />
           <IconButton icon="🎲" label="תמונה חדשה" onClick={() => goTo(randInt(0, PICTURES.length - 1))} />
         </div>

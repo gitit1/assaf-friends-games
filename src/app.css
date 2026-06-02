@@ -6792,9 +6792,24 @@ button {
   flex: 1 1 0;
   min-height: 0;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  align-items: safe center;
+  justify-content: safe center;
   margin-bottom: 18px;
+  overflow: auto; /* when zoomed in, the board scrolls instead of overflowing */
+}
+.cbn-reveal {
+  text-align: center;
+  font-family: 'Fredoka', 'Heebo', sans-serif;
+  font-weight: 800;
+  font-size: 1.7rem;
+  color: var(--accent);
+  margin: 0 0 10px;
+  animation: color-cheer 0.6s ease;
+}
+.cbn-zoomic {
+  font-size: 1.2rem;
+  font-weight: 800;
+  white-space: nowrap;
 }
 .cbn-grid {
   display: grid;
