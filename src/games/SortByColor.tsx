@@ -3,23 +3,42 @@ import GameShell from '../components/GameShell'
 import type { GameProps } from './registry'
 import { playNudge, playSuccess, playTap, playWin, unlockAudio } from '../audio'
 import { speak } from '../speech'
-import { randInt, shuffle } from './util'
+import { numberWordNiqqud, randInt, shuffle } from './util'
 
 // "Sort by colour" — drag each little friend into the basket of its colour.
-// No timer, no losing: a wrong basket sends it gently back. Sort them all and
-// everyone cheers, then a fresh batch drops in.
-const COLORS = [
+// No timer, no losing: a wrong basket sends it gently back. You can add baskets
+// (up to 20 colours); every basket keeps a running counter of how many landed
+// in it, and each drop says the new count out loud in (vocalised) Hebrew.
+const PALETTE = [
   { c: '#ef4444', name: 'אדום' },
   { c: '#facc15', name: 'צהוב' },
   { c: '#22c55e', name: 'ירוק' },
   { c: '#3b82f6', name: 'כחול' },
+  { c: '#f97316', name: 'כתום' },
+  { c: '#8b5cf6', name: 'סגול' },
+  { c: '#ec4899', name: 'ורוד' },
+  { c: '#14b8a6', name: 'טורקיז' },
+  { c: '#38bdf8', name: 'תכלת' },
+  { c: '#92400e', name: 'חום' },
+  { c: '#84cc16', name: 'ליים' },
+  { c: '#fb7185', name: 'ורוד בהיר' },
+  { c: '#15803d', name: 'ירוק כהה' },
+  { c: '#1e3a8a', name: 'כחול כהה' },
+  { c: '#6d28d9', name: 'סגול כהה' },
+  { c: '#eab308', name: 'זהב' },
+  { c: '#c2410c', name: 'חמרה' },
+  { c: '#0e7490', name: 'כחול ים' },
+  { c: '#1f2937', name: 'שחור' },
+  { c: '#94a3b8', name: 'אפור' },
 ]
-const PER_ROUND = 6
+const MIN_COLORS = 2
+const MAX_COLORS = 20
 
 type Blob = { id: number; color: string }
 let SEQ = 0
-function freshBatch(): Blob[] {
-  return shuffle(Array.from({ length: PER_ROUND }, () => ({ id: SEQ++, color: COLORS[randInt(0, COLORS.length - 1)].c })))
+function freshBatch(colors: { c: string }[]): Blob[] {
+  const n = Math.min(12, Math.max(5, colors.length))
+  return shuffle(Array.from({ length: n }, () => ({ id: SEQ++, color: colors[randInt(0, colors.length - 1)].c })))
 }
 
 function Face() {
@@ -33,13 +52,28 @@ function Face() {
 }
 
 export default function SortByColor({ onExit }: GameProps) {
-  const [blobs, setBlobs] = useState<Blob[]>(() => freshBatch())
+  const [numColors, setNumColors] = useState(4)
+  const colors = PALETTE.slice(0, numColors)
+  const [blobs, setBlobs] = useState<Blob[]>(() => freshBatch(PALETTE.slice(0, 4)))
+  const [counts, setCounts] = useState<Record<string, number>>({})
   const [drag, setDrag] = useState<{ id: number; color: string; x: number; y: number } | null>(null)
+
+  // baskets shrink as more are added so up to 20 still fit (they wrap to rows)
+  const bw = numColors <= 6 ? 72 : numColors <= 12 ? 58 : 46
+  const bh = Math.round(bw * 0.86)
 
   function newRound() {
     playTap()
     setDrag(null)
-    setBlobs(freshBatch())
+    setBlobs(freshBatch(colors))
+  }
+  function changeColors(d: number) {
+    const next = Math.min(MAX_COLORS, Math.max(MIN_COLORS, numColors + d))
+    if (next === numColors) return
+    playTap()
+    setNumColors(next)
+    setDrag(null)
+    setBlobs(freshBatch(PALETTE.slice(0, next)))
   }
 
   function down(e: React.PointerEvent, b: Blob) {
@@ -55,16 +89,17 @@ export default function SortByColor({ onExit }: GameProps) {
     const el = document.elementFromPoint(e.clientX, e.clientY) as HTMLElement | null
     const basket = el?.closest('[data-basket]') as HTMLElement | null
     if (basket && basket.dataset.basket === drag.color) {
-      const name = COLORS.find((c) => c.c === drag.color)?.name ?? ''
+      const newCount = (counts[drag.color] ?? 0) + 1
+      setCounts((c) => ({ ...c, [drag.color]: newCount }))
       const left = blobs.filter((x) => x.id !== drag.id)
       setBlobs(left)
+      // say how many are now in that basket, in clear vocalised Hebrew
+      speak(numberWordNiqqud(newCount))
       if (left.length === 0) {
         playWin()
-        speak('כל הכבוד!')
-        window.setTimeout(() => setBlobs(freshBatch()), 1400)
+        window.setTimeout(() => setBlobs(freshBatch(colors)), 1400)
       } else {
         playSuccess()
-        speak(name)
       }
     } else {
       playNudge()
@@ -94,10 +129,27 @@ export default function SortByColor({ onExit }: GameProps) {
           ))}
         </div>
 
+        <div className="sort-controls">
+          <button className="pill" onClick={() => changeColors(-1)} disabled={numColors <= MIN_COLORS} aria-label="פחות סלים">
+            ➖
+          </button>
+          <span className="sort-controls-label">{numColors} סלים</span>
+          <button className="pill" onClick={() => changeColors(1)} disabled={numColors >= MAX_COLORS} aria-label="עוד סל">
+            ➕
+          </button>
+        </div>
+
         <div className="sort-baskets">
-          {COLORS.map((col) => (
-            <div key={col.c} className="sort-basket" data-basket={col.c} style={{ '--c': col.c } as React.CSSProperties} aria-label={col.name}>
+          {colors.map((col) => (
+            <div
+              key={col.c}
+              className="sort-basket"
+              data-basket={col.c}
+              style={{ '--c': col.c, width: bw, height: bh } as React.CSSProperties}
+              aria-label={`${col.name} — ${counts[col.c] ?? 0}`}
+            >
               <span className="sort-basket-lip" />
+              <span className="sort-count">{counts[col.c] ?? 0}</span>
             </div>
           ))}
         </div>

@@ -7350,17 +7350,33 @@ button {
   border-top: none;
   border-radius: 0 0 14px 14px;
 }
+/* add / remove baskets */
+.sort-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin: 2px 0 8px;
+}
+.sort-controls-label {
+  font-family: 'Fredoka', 'Heebo', sans-serif;
+  font-weight: 800;
+  font-size: 1.1rem;
+  min-width: 86px;
+  text-align: center;
+}
 .sort-baskets {
   display: flex;
+  flex-wrap: wrap; /* up to 20 baskets wrap onto rows */
   justify-content: center;
   align-items: flex-end;
-  gap: 12px;
+  gap: 14px 12px;
   margin: 6px 0 14px;
+  max-width: 620px;
+  margin-inline: auto;
 }
 .sort-basket {
   position: relative;
-  width: 74px;
-  height: 64px;
   border-radius: 10px 10px 22px 22px;
   background: radial-gradient(circle at 50% 130%, rgba(0, 0, 0, 0.32), transparent 60%), var(--c);
   box-shadow: inset 0 -6px 10px rgba(0, 0, 0, 0.28), 0 6px 10px rgba(0, 0, 0, 0.3);
@@ -7371,12 +7387,26 @@ button {
   top: -7px;
   left: 50%;
   transform: translateX(-50%);
-  width: 80px;
+  width: calc(100% + 8px);
   height: 16px;
   border-radius: 50%;
   background: var(--c);
   box-shadow: inset 0 4px 6px rgba(0, 0, 0, 0.45);
   filter: brightness(0.8);
+}
+/* running counter shown on each basket */
+.sort-count {
+  position: absolute;
+  inset: 6px 0 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Fredoka', 'Heebo', sans-serif;
+  font-weight: 800;
+  font-size: 1.5rem;
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.55), 0 0 4px rgba(0, 0, 0, 0.4);
+  pointer-events: none;
 }
 
 /* ===================== איזה חבר? (which friend starts with…) ===================== */

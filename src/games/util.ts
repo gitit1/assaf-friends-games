@@ -20,6 +20,17 @@ export function numberWord(n: number) {
   return NUM_WORDS[n - 1] ?? String(n)
 }
 
+// Vocalised (niqqud) feminine number words 1–20, for the clearest possible TTS
+// pronunciation when we read a count out loud. Falls back to the plain word.
+const NUM_WORDS_NIQQUD = [
+  'אַחַת', 'שְׁתַּיִם', 'שָׁלוֹשׁ', 'אַרְבַּע', 'חָמֵשׁ', 'שֵׁשׁ', 'שֶׁבַע', 'שְׁמוֹנֶה', 'תֵּשַׁע', 'עֶשֶׂר',
+  'אַחַת עֶשְׂרֵה', 'שְׁתֵּים עֶשְׂרֵה', 'שְׁלוֹשׁ עֶשְׂרֵה', 'אַרְבַּע עֶשְׂרֵה', 'חֲמֵשׁ עֶשְׂרֵה',
+  'שֵׁשׁ עֶשְׂרֵה', 'שְׁבַע עֶשְׂרֵה', 'שְׁמוֹנֶה עֶשְׂרֵה', 'תְּשַׁע עֶשְׂרֵה', 'עֶשְׂרִים',
+]
+export function numberWordNiqqud(n: number) {
+  return NUM_WORDS_NIQQUD[n - 1] ?? numberWord(n)
+}
+
 export function shuffle<T>(items: T[]): T[] {
   const copy = [...items]
   for (let i = copy.length - 1; i > 0; i--) {
