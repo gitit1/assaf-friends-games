@@ -5139,6 +5139,14 @@ button {
 .pet-meter-emoji {
   font-size: 1.3rem;
 }
+.pet-meter-num {
+  font-family: 'Fredoka', 'Heebo', sans-serif;
+  font-weight: 800;
+  font-size: 0.85rem;
+  color: var(--text-soft);
+  min-width: 22px;
+  text-align: center;
+}
 .pet-bar {
   flex: 1;
   height: 14px;

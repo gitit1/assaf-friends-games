@@ -7,6 +7,7 @@ import type { GameProps } from './registry'
 import { playFriend, playMunch, playPop, playSuccess, playTap, unlockAudio } from '../audio'
 import { speak } from '../speech'
 import { FRIENDS, friendName, friendSay } from '../friends'
+import { numberWordNiqqud } from './util'
 import { screenScale, useViewport } from '../useViewport'
 
 // foods in the fridge — tapping one says its name and the friend eats it
@@ -409,10 +410,17 @@ export default function Tamagotchi({ onExit }: GameProps) {
       setBuddy(b)
     }
     setPlaying(a)
-    setPet((p) => (p ? { ...p, happy: clamp(p.happy + 30) } : p))
+    const newHappy = clamp(pet.happy + 30)
+    setPet((p) => (p ? { ...p, happy: newHappy } : p))
     playSuccess()
     speak(`${a.label}!`)
-    eatTimers.current.push(window.setTimeout(() => setPlaying(null), 4000))
+    eatTimers.current.push(
+      window.setTimeout(() => {
+        setPlaying(null)
+        // spoken recap: what we did + the new happiness number
+        speak(`${a.label} עם ${friendSay(pet.friend)} היה כיף! השמחה ${numberWordNiqqud(newHappy)}`)
+      }, 4000),
+    )
   }
 
   // ---- pick-a-friend screen ----
@@ -473,6 +481,7 @@ export default function Tamagotchi({ onExit }: GameProps) {
                 style={{ width: `${m.value}%`, background: m.value < 30 ? '#f87171' : m.value < 60 ? '#fbbf24' : '#4ade80' }}
               />
             </span>
+            <span className="pet-meter-num">{m.value}</span>
           </span>
         ))}
       </div>

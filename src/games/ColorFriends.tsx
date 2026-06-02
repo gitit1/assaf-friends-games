@@ -128,6 +128,20 @@ export default function ColorFriends({ onExit }: GameProps) {
     }
   }
 
+  // "magic" — fill the whole friend with a pleasant rainbow in one tap (undoable),
+  // with a random starting hue so it looks different each time
+  function magic() {
+    unlockAudio()
+    const rainbow = ['#ef4444', '#f97316', '#facc15', '#22c55e', '#14b8a6', '#3b82f6', '#8b5cf6', '#ec4899']
+    const start = randInt(0, rainbow.length - 1)
+    setUndoStack((s) => [...s, colors])
+    setRedoStack([])
+    setColors(colors.map((_, i) => rainbow[(i + start) % rainbow.length]))
+    setDone(true)
+    playSuccess()
+    speak('קסם!')
+  }
+
   function undo() {
     if (!undoStack.length) return
     const prev = undoStack[undoStack.length - 1]
@@ -197,6 +211,7 @@ export default function ColorFriends({ onExit }: GameProps) {
           <IconButton icon="↺" label="ביטול" onClick={undo} disabled={!undoStack.length} />
           <IconButton icon="↻" label="חזרה" onClick={redo} disabled={!redoStack.length} />
           <IconButton icon="🧽" label="מחיקה" onClick={clearAll} />
+          <IconButton icon="✨" label="קסם" onClick={magic} />
           <IconButton icon="🎲" label="חבר חדש" onClick={() => goTo(randInt(0, FRIENDS.length - 1))} />
         </div>
       </div>
