@@ -376,10 +376,10 @@ const DRESS: Record<string, DressAnchor> = {
   big: { hat: -6, eye: 40, body: 72, heldTop: 80, heldLeft: 84, hw: 54 },
 }
 
-// Pool of UNIQUE personal items, one per friend from #51 onward (index 50 =
-// friend 51, index 51 = friend 52, …). Built out toward friend #100 — keep every
-// entry distinct so no two friends share an item. `slot` = where it sits on the
-// friend: worn on the head / face / body, or held beside the hand.
+// Pool of 100 UNIQUE personal items, one per friend from #51 onward (index 0 =
+// friend 51, index 49 = friend 100, with 50 more in reserve as the cast grows).
+// Keep every entry distinct so no two friends share an item. `slot` = where it
+// sits on the friend: worn on the head / face / body, or held beside the hand.
 type ItemSlot = 'hat' | 'face' | 'body' | 'held'
 export const ITEMS: { emoji: string; slot: ItemSlot }[] = [
   { emoji: '👜', slot: 'held' }, // 51 bag
@@ -432,6 +432,57 @@ export const ITEMS: { emoji: string; slot: ItemSlot }[] = [
   { emoji: '📸', slot: 'held' }, // 98 camera
   { emoji: '🎨', slot: 'held' }, // 99 paint palette
   { emoji: '🏆', slot: 'held' }, // 100 trophy
+  // 101+ reserve — more unique items as the cast keeps growing
+  { emoji: '🐶', slot: 'held' },
+  { emoji: '🐰', slot: 'held' },
+  { emoji: '🐢', slot: 'held' },
+  { emoji: '🐝', slot: 'held' },
+  { emoji: '🐠', slot: 'held' },
+  { emoji: '🐧', slot: 'held' },
+  { emoji: '🦊', slot: 'held' },
+  { emoji: '🐼', slot: 'held' },
+  { emoji: '🦁', slot: 'held' },
+  { emoji: '🐸', slot: 'held' },
+  { emoji: '🐙', slot: 'held' },
+  { emoji: '🦉', slot: 'held' },
+  { emoji: '🐞', slot: 'held' },
+  { emoji: '🐳', slot: 'held' },
+  { emoji: '🦜', slot: 'held' },
+  { emoji: '🐴', slot: 'held' },
+  { emoji: '🐮', slot: 'held' },
+  { emoji: '🐷', slot: 'held' },
+  { emoji: '🐵', slot: 'held' },
+  { emoji: '🦓', slot: 'held' },
+  { emoji: '🍉', slot: 'held' },
+  { emoji: '🍇', slot: 'held' },
+  { emoji: '🍒', slot: 'held' },
+  { emoji: '🍍', slot: 'held' },
+  { emoji: '🥕', slot: 'held' },
+  { emoji: '🌽', slot: 'held' },
+  { emoji: '🍄', slot: 'held' },
+  { emoji: '🍩', slot: 'held' },
+  { emoji: '🍪', slot: 'held' },
+  { emoji: '🍫', slot: 'held' },
+  { emoji: '🍿', slot: 'held' },
+  { emoji: '🧃', slot: 'held' },
+  { emoji: '🚗', slot: 'held' },
+  { emoji: '🚂', slot: 'held' },
+  { emoji: '✈️', slot: 'held' },
+  { emoji: '⛵', slot: 'held' },
+  { emoji: '🚲', slot: 'held' },
+  { emoji: '🎠', slot: 'held' },
+  { emoji: '🎡', slot: 'held' },
+  { emoji: '🪂', slot: 'held' },
+  { emoji: '⛄', slot: 'held' },
+  { emoji: '🔥', slot: 'held' },
+  { emoji: '❄️', slot: 'held' },
+  { emoji: '💎', slot: 'held' },
+  { emoji: '🔮', slot: 'held' },
+  { emoji: '🧩', slot: 'held' },
+  { emoji: '🎲', slot: 'held' },
+  { emoji: '🪅', slot: 'held' },
+  { emoji: '🎯', slot: 'held' },
+  { emoji: '🏐', slot: 'held' },
 ]
 function itemStyle(slot: ItemSlot, A: DressAnchor): React.CSSProperties {
   if (slot === 'hat') return { top: `${A.hat}%`, left: '50%', fontSize: `${A.hw}px` }
