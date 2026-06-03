@@ -28,7 +28,7 @@ export default function GoalGame({ onExit }: GameProps) {
   const samples = useRef<{ x: number; y: number; t: number }[]>([])
   const raf = useRef(0)
 
-  const goalHalf = () => size.current.w * 0.3
+  const goalHalf = () => size.current.w * 0.36
   const goalY = () => size.current.h * 0.15
   const keeperR = () => Math.max(26, size.current.w * 0.11)
 
@@ -71,7 +71,7 @@ export default function GoalGame({ onExit }: GameProps) {
     // the keeper always patrols the goal, even before the first kick
     const patrol = () => {
       const k = keep.current
-      k.phase += 0.045
+      k.phase += 0.028
       k.x = size.current.w / 2 + Math.sin(k.phase) * (goalHalf() - keeperR() * 0.7)
       drawKeeper()
       if (!ball.current.live) raf.current = requestAnimationFrame(patrol)
@@ -89,14 +89,18 @@ export default function GoalGame({ onExit }: GameProps) {
     const { w, h } = size.current
     // keeper keeps patrolling during the shot
     const k = keep.current
-    k.phase += 0.045
+    k.phase += 0.028
     k.x = w / 2 + Math.sin(k.phase) * (goalHalf() - keeperR() * 0.7)
     drawKeeper()
 
+    // aim-assist: curve the ball toward the OPEN side of the goal (kid-friendly)
+    const openX = k.x < w / 2 ? w / 2 + goalHalf() * 0.5 : w / 2 - goalHalf() * 0.5
+    b.vx += (openX - b.x) * 0.004
+
     b.x += b.vx
     b.y += b.vy
-    b.vx *= 0.992
-    b.vy *= 0.992
+    b.vx *= 0.994
+    b.vy *= 0.994
 
     if (b.x < b.r) {
       b.x = b.r
@@ -110,7 +114,7 @@ export default function GoalGame({ onExit }: GameProps) {
     // reaching the goal line (moving up)
     if (!done.current && b.vy < 0 && b.y - b.r <= goalY()) {
       const inMouth = Math.abs(b.x - w / 2) < goalHalf()
-      const saved = Math.abs(b.x - k.x) < keeperR() + b.r
+      const saved = Math.abs(b.x - k.x) < w * 0.06 + b.r // small block zone — easy to beat
       if (inMouth && !saved) {
         done.current = true
         scoreRef.current += 1
@@ -138,7 +142,7 @@ export default function GoalGame({ onExit }: GameProps) {
       // hand back to the idle keeper-patrol loop
       raf.current = requestAnimationFrame(function patrol() {
         const kk = keep.current
-        kk.phase += 0.045
+        kk.phase += 0.028
         kk.x = size.current.w / 2 + Math.sin(kk.phase) * (goalHalf() - keeperR() * 0.7)
         drawKeeper()
         if (!ball.current.live) raf.current = requestAnimationFrame(patrol)
@@ -169,15 +173,15 @@ export default function GoalGame({ onExit }: GameProps) {
     const GAIN = 14
     let vx = ((z.x - a.x) / dt) * GAIN
     let vy = ((z.y - a.y) / dt) * GAIN
-    if (vy > -3) {
-      playNudge() // needs an upward flick to kick toward the goal
-      return
-    }
-    const { w } = size.current
-    const cap = w * 0.16
-    vx = Math.max(-cap, Math.min(cap, vx))
-    vy = Math.max(-cap * 1.4, vy)
+    const { w, h } = size.current
     const b = ball.current
+    const cap = w * 0.2
+    // always kick toward the goal with enough power to reach it — so even a weak
+    // or sideways flick gets there. A harder flick still shoots faster.
+    const reach = (b.y - h * 0.15) / 90
+    vy = -Math.max(Math.abs(vy), reach)
+    vy = Math.max(-cap, vy)
+    vx = Math.max(-cap, Math.min(cap, vx))
     b.vx = vx
     b.vy = vy
     b.live = true

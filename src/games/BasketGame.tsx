@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import GameShell from '../components/GameShell'
 import Friend from '../components/Friend'
 import type { GameProps } from './registry'
-import { playNudge, playPop, playWin, unlockAudio } from '../audio'
+import { playPop, playWin, unlockAudio } from '../audio'
 import { speakNumber } from '../voice'
 import { randInt } from './util'
 import { useT } from '../i18n'
@@ -63,19 +63,22 @@ export default function BasketGame({ onExit }: GameProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  const GRAV = 0.55
+  const GRAV = 0.5
   function loop() {
     const b = ball.current
     const { w, h } = size.current
+    const hoopX = w * 0.5
     const py = b.y
     b.vy += GRAV
+    // gentle aim-assist: the ball drifts toward the hoop as it flies (kid-friendly)
+    b.vx += (hoopX - b.x) * 0.006
+    b.vx *= 0.99
     b.x += b.vx
     b.y += b.vy
-    // hoop near the top — score whenever the ball crosses the rim line within the
-    // rim's width (works even for a very hard flick that skips many px per frame)
+    // a wide, forgiving rim — score whenever the ball crosses the rim line within
+    // it (works even for a hard flick that skips many px per frame)
     const hoopY = h * 0.17
-    const hoopX = w * 0.5
-    const rim = Math.max(34, w * 0.13)
+    const rim = Math.max(48, w * 0.2)
     const crossedRim = (py - hoopY) * (b.y - hoopY) <= 0
     if (!scored.current && crossedRim && Math.abs(b.x - hoopX) < rim) {
       scored.current = true
@@ -124,16 +127,15 @@ export default function BasketGame({ onExit }: GameProps) {
     const GAIN = 13
     let vx = ((z.x - a.x) / dt) * GAIN
     let vy = ((z.y - a.y) / dt) * GAIN
-    // need an upward flick to shoot; a downward/limp flick just nudges (no throw)
-    if (vy > -3) {
-      playNudge()
-      return
-    }
-    const { w } = size.current
-    const cap = w * 0.13
-    vx = Math.max(-cap, Math.min(cap, vx))
-    vy = Math.max(-cap * 1.6, vy)
+    const { w, h } = size.current
     const b = ball.current
+    const cap = w * 0.16
+    // ALWAYS shoot upward, with at least enough power to reach the hoop — so even
+    // a weak or sideways flick scores. A harder flick still makes a bigger arc.
+    const reach = Math.sqrt(2 * GRAV * Math.max(60, b.y - h * 0.17))
+    vy = -Math.max(Math.abs(vy), reach * 1.02)
+    vy = Math.max(-cap * 2.4, vy)
+    vx = Math.max(-cap, Math.min(cap, vx))
     b.vx = vx
     b.vy = vy
     b.live = true
