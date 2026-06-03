@@ -40,6 +40,7 @@ export default function DrawBoard({ onExit }: GameProps) {
   const [grab, setGrab] = useState(false)
   const [eraser, setEraser] = useState(false) // free eraser — rubs out drawing only
   const [selectedId, setSelectedId] = useState<number | null>(null) // chosen sticker (grab mode)
+  const [boardSize, setBoardSize] = useState({ w: 0, h: 0 }) // to keep the move-pad on the canvas
   const selectedIdRef = useRef<number | null>(null)
   selectedIdRef.current = selectedId
   stampsRef.current = stamps // latest stamps, for the pointer handlers below
@@ -107,6 +108,7 @@ export default function DrawBoard({ onExit }: GameProps) {
     if (!board || !canvas) return
     const setup = () => {
       const r = board.getBoundingClientRect()
+      setBoardSize({ w: r.width, h: r.height })
       const dpr = window.devicePixelRatio || 1
       canvas.width = Math.round(r.width * dpr)
       canvas.height = Math.round(r.height * dpr)
@@ -293,6 +295,13 @@ export default function DrawBoard({ onExit }: GameProps) {
     playTap()
   }
 
+  // the move-pad floats over the canvas, centred on the selected sticker, clamped
+  // so it never spills off the board
+  const sel = grab && selectedId != null ? stamps.find((s) => s.id === selectedId) : undefined
+  const PAD = 82 // half the pad's footprint, for clamping
+  const padX = sel ? (boardSize.w ? Math.max(PAD, Math.min(boardSize.w - PAD, sel.x)) : sel.x) : 0
+  const padY = sel ? (boardSize.h ? Math.max(PAD, Math.min(boardSize.h - PAD, sel.y)) : sel.y) : 0
+
   return (
     <GameShell title="ציור חופשי" emoji="🖍️" onExit={onExit}>
       <div className="draw-screen">
@@ -405,30 +414,30 @@ export default function DrawBoard({ onExit }: GameProps) {
               </span>
             ))}
           </div>
-        </div>
 
-        {grab && (
-          <div className="draw-movepad">
-            <span className="draw-movepad-hint">{selectedId == null ? 'געו במדבקה כדי לבחור' : 'הזיזו עם החצים'}</span>
-            <button className="move-btn" onClick={() => moveSel(0, -12)} disabled={selectedId == null} aria-label="למעלה">
-              ↑
-            </button>
-            <div className="move-row">
-              <button className="move-btn" onClick={() => moveSel(-12, 0)} disabled={selectedId == null} aria-label="שמאלה">
+          {/* grab mode: a hint until something is picked, then a move-pad that
+              floats over the canvas centred on the selected sticker */}
+          {grab && !sel && <div className="draw-grabhint">געו במדבקה כדי להזיז או למחוק</div>}
+          {sel && (
+            <div className="draw-movepad" style={{ left: padX, top: padY }}>
+              <button className="move-btn mp-up" onClick={() => moveSel(0, -14)} aria-label="למעלה">
+                ↑
+              </button>
+              <button className="move-btn mp-left" onClick={() => moveSel(-14, 0)} aria-label="שמאלה">
                 ←
               </button>
-              <button className="move-btn move-del" onClick={removeSel} disabled={selectedId == null} aria-label="מחיקת מדבקה">
+              <button className="move-btn move-del mp-del" onClick={removeSel} aria-label="מחיקת מדבקה">
                 🗑️
               </button>
-              <button className="move-btn" onClick={() => moveSel(12, 0)} disabled={selectedId == null} aria-label="ימינה">
+              <button className="move-btn mp-right" onClick={() => moveSel(14, 0)} aria-label="ימינה">
                 →
               </button>
+              <button className="move-btn mp-down" onClick={() => moveSel(0, 14)} aria-label="למטה">
+                ↓
+              </button>
             </div>
-            <button className="move-btn" onClick={() => moveSel(0, 12)} disabled={selectedId == null} aria-label="למטה">
-              ↓
-            </button>
-          </div>
-        )}
+          )}
+        </div>
 
         <div className="color-actions">
           <IconButton
