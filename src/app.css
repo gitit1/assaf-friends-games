@@ -8695,3 +8695,82 @@ button {
   height: 22%;
   z-index: 1;
 }
+
+/* ===================== בונים מספר (build a number) ===================== */
+.build-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 6px 0 18px;
+}
+.build-eq {
+  font-family: 'Fredoka', 'Heebo', sans-serif;
+  font-weight: 800;
+  font-size: clamp(2rem, 9vw, 3.2rem);
+  color: #1f2937;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  direction: ltr;
+  min-height: 1.2em;
+}
+.build-op {
+  color: #6366f1;
+}
+.build-c {
+  color: #16a34a;
+}
+.build-stage {
+  min-height: 40svh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+.build-pair {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  direction: ltr;
+}
+.build-plus {
+  font-size: 2.4rem;
+  font-weight: 800;
+  color: #6366f1;
+  transition: opacity 0.4s ease;
+}
+.build-a,
+.build-b {
+  transition: transform 0.65s cubic-bezier(0.5, 0, 0.5, 1), opacity 0.65s ease;
+}
+.build-pair.is-merging .build-a {
+  transform: translateX(46px) scale(0.7);
+  opacity: 0.25;
+}
+.build-pair.is-merging .build-b {
+  transform: translateX(-46px) scale(0.7);
+  opacity: 0.25;
+}
+.build-pair.is-merging .build-plus {
+  opacity: 0;
+}
+.build-controls {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+.build-steppers {
+  display: flex;
+  gap: 20px;
+  direction: ltr;
+}
+.build-num {
+  font-family: 'Fredoka', 'Heebo', sans-serif;
+  font-weight: 800;
+  font-size: 2rem;
+  min-width: 1.4em;
+  text-align: center;
+  color: #4338ca;
+}

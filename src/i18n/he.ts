@@ -31,6 +31,7 @@ export const HE: Dict = {
   // game titles (ids from registry)
   'game.count': { text: 'סופרים' },
   'game.add': { text: 'מוסיפים' },
+  'game.build': { text: 'בונים מספר' },
   'game.bigsmall': { text: 'גדול או קטן?' },
   'game.sequence': { text: 'חבר חסר ברצף' },
   'game.quantity': { text: 'מספר וכמות' },

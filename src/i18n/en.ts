@@ -30,6 +30,7 @@ export const EN: Dict = {
   // game titles
   'game.count': { text: 'Count' },
   'game.add': { text: 'Add' },
+  'game.build': { text: 'Build a Number' },
   'game.bigsmall': { text: 'Bigger or Smaller?' },
   'game.sequence': { text: 'Missing in the Row' },
   'game.quantity': { text: 'Number & Amount' },

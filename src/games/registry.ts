@@ -21,6 +21,7 @@ import ColorByNumber from './ColorByNumber'
 import DrawNumber from './DrawNumber'
 import SortByColor from './SortByColor'
 import WhichFriend from './WhichFriend'
+import BuildNumber from './BuildNumber'
 import BasketGame from './BasketGame'
 import GoalGame from './GoalGame'
 import HockeyGame from './HockeyGame'
@@ -79,6 +80,14 @@ export const GAMES: GameDef[] = [
     color: 'linear-gradient(160deg, #ec4899, #be185d)',
     category: 'numbers',
     Component: AddGame,
+  },
+  {
+    id: 'build',
+    title: 'בונים מספר',
+    emoji: '🧱',
+    color: 'linear-gradient(160deg, #f472b6, #7c3aed)',
+    category: 'numbers',
+    Component: BuildNumber,
   },
   {
     id: 'bigsmall',
