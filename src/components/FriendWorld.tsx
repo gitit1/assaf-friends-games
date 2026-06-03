@@ -177,7 +177,7 @@ export default function FriendWorld({
 
         <div className="world-stage">
           <div className={`world-friend ${motion ? `motion-${motion}` : ''}`}>
-            <Friend index={index} scale={scale} showNumber bouncing={bounce} litUnits={lit} />
+            <Friend index={index} scale={scale} showNumber bouncing={bounce} litUnits={lit} lively />
           </div>
           <div className="world-fx-layer" aria-hidden="true">
             {fx.map((f) => (

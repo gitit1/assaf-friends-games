@@ -78,6 +78,8 @@ export const EN: Dict = {
   'settings.sound.hint': { text: 'Taps & success chimes' },
   'settings.names': { text: '🗣️ Friend names' },
   'settings.names.hint': { text: "Say a friend's name/number on tap" },
+  'settings.motion': { text: '🌙 Calm motion' },
+  'settings.motion.hint': { text: 'Fewer animations — gentler on the eyes' },
   'settings.difficulty': { text: '🎯 Difficulty' },
   'settings.difficulty.hint': { text: 'How each game starts (changeable in-game too)' },
   'settings.catch': { text: '⏱️ Switch friend' },

@@ -8883,3 +8883,25 @@ button {
     transform: translateX(5px);
   }
 }
+
+/* ===================== "living friends" — gentle blink ===================== */
+/* a featured friend (lively) blinks slowly + staggered; calm, reduced-motion-safe */
+.friend-art.is-lively .gf-eye {
+  transform-origin: center;
+  animation: friend-blink 5.5s ease-in-out infinite;
+  animation-delay: var(--blink-delay, 0s);
+}
+@keyframes friend-blink {
+  0%, 90%, 100% {
+    transform: scaleY(1);
+  }
+  94% {
+    transform: scaleY(0.12);
+  }
+}
+/* manual "calm motion" toggle (Settings) — mirrors the device reduced-motion rule */
+.reduce-motion * {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
+}

@@ -547,6 +547,9 @@ type Props = {
   /** Colouring mode — each body bump becomes a tappable, paint-it-in button.
    *  `colors[i]` is the chosen colour for part i (null = still blank). */
   paint?: PaintProps
+  /** "Alive" mode — the friend blinks gently (for a featured friend, not the
+   *  whole grid). Calm + respects reduced-motion. */
+  lively?: boolean
 }
 
 export type PaintProps = { colors: (string | null)[]; onPick: (i: number) => void }
@@ -843,6 +846,7 @@ export default function FriendArt({
   eating = false,
   outfit,
   paint,
+  lively = false,
 }: Props) {
   const order = PART_ORDER[kind]
   const lit = litUnits ?? order.length
@@ -1184,5 +1188,11 @@ export default function FriendArt({
     )
   }
 
-  return <div className={`friend-art ${eating ? 'is-eating' : ''}`}>{design}</div>
+  // stagger the blink a touch per friend so a few lively friends don't blink in sync
+  const liveStyle = lively ? ({ '--blink-delay': `${((number ?? 1) % 5) * 0.8}s` } as React.CSSProperties) : undefined
+  return (
+    <div className={`friend-art ${eating ? 'is-eating' : ''} ${lively ? 'is-lively' : ''}`} style={liveStyle}>
+      {design}
+    </div>
+  )
 }

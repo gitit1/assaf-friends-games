@@ -110,6 +110,13 @@ export default function SettingsPanel() {
               onChange={(next) => updateSettings({ sayNames: next })}
             />
 
+            <Toggle
+              label={t('settings.motion')}
+              hint={t('settings.motion.hint')}
+              value={settings.reduceMotion}
+              onChange={(next) => updateSettings({ reduceMotion: next })}
+            />
+
             <div className="settings-row settings-row-static settings-row-stack">
               <span className="settings-row-text">
                 <span className="settings-row-label">{t('settings.difficulty')}</span>

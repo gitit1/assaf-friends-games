@@ -79,6 +79,8 @@ export const HE: Dict = {
   'settings.sound.hint': { text: 'צלילי מגע והצלחה' },
   'settings.names': { text: '🗣️ שמות החברים' },
   'settings.names.hint': { text: 'להשמיע את שם/מספר החבר בלחיצה' },
+  'settings.motion': { text: '🌙 תנועה רגועה' },
+  'settings.motion.hint': { text: 'פחות אנימציות — נעים יותר לעיניים' },
   'settings.difficulty': { text: '🎯 רמת קושי' },
   'settings.difficulty.hint': { text: 'איך כל משחק מתחיל (אפשר לשנות גם בתוך המשחק)' },
   'settings.catch': { text: '⏱️ החלפת חבר' },

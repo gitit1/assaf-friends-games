@@ -115,7 +115,7 @@ export default function BuildNumber({ onExit }: GameProps) {
             </div>
           ) : (
             <div className="build-result">
-              <Friend index={c - 1} scale={(RESULT_PX / friendMaxDim(c - 1)) * grow} showNumber bouncing />
+              <Friend index={c - 1} scale={(RESULT_PX / friendMaxDim(c - 1)) * grow} showNumber bouncing lively />
             </div>
           )}
         </div>

@@ -90,7 +90,7 @@ export default function CountGame({ onExit }: GameProps) {
   return (
     <GameShell title={t('game.count')} emoji="🔢" onExit={onExit}>
       <div className="friends-stage">
-        <Friend index={value - 1} scale={fitScale(value - 1, vp, 0.8, 0.42)} litUnits={lit} bouncing={!counting && lit === value} />
+        <Friend index={value - 1} scale={fitScale(value - 1, vp, 0.8, 0.42)} litUnits={lit} bouncing={!counting && lit === value} lively />
       </div>
 
       <div className="count-readout" aria-hidden="true">

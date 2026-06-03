@@ -17,10 +17,21 @@ export type Settings = {
   difficulty: number
   /** App language (drives text, voice, and page direction). */
   lang: Lang
+  /** Calmer motion: dampens idle/celebration animations (also auto-on if the
+   *  device asks for reduced motion). For sensory comfort. */
+  reduceMotion: boolean
 }
 
 const STORAGE_KEY = 'assaf-games:settings'
-const DEFAULTS: Settings = { voice: true, sound: true, sayNames: true, catchSeconds: 30, difficulty: 1, lang: 'he' }
+const DEFAULTS: Settings = {
+  voice: true,
+  sound: true,
+  sayNames: true,
+  catchSeconds: 30,
+  difficulty: 1,
+  lang: 'he',
+  reduceMotion: false,
+}
 
 function load(): Settings {
   try {
@@ -43,6 +54,7 @@ function applySideEffects() {
   if (typeof document !== 'undefined') {
     document.documentElement.lang = current.lang
     document.documentElement.dir = current.lang === 'he' ? 'rtl' : 'ltr'
+    document.documentElement.classList.toggle('reduce-motion', current.reduceMotion)
   }
 }
 
