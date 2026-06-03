@@ -21,6 +21,10 @@ import ColorByNumber from './ColorByNumber'
 import DrawNumber from './DrawNumber'
 import SortByColor from './SortByColor'
 import WhichFriend from './WhichFriend'
+import BasketGame from './BasketGame'
+import GoalGame from './GoalGame'
+import HockeyGame from './HockeyGame'
+import BowlingGame from './BowlingGame'
 
 // Every game gets a callback to return to the home screen.
 export type GameProps = {
@@ -29,7 +33,7 @@ export type GameProps = {
 
 // Home-screen sections. Games are grouped so the home screen stays tidy as the
 // roster of games grows. Empty categories are simply not shown.
-export type CategoryId = 'numbers' | 'thinking' | 'fun' | 'create' | 'letters'
+export type CategoryId = 'numbers' | 'thinking' | 'fun' | 'create' | 'letters' | 'sports'
 
 export type Category = {
   id: CategoryId
@@ -45,6 +49,7 @@ export const CATEGORIES: Category[] = [
   { id: 'fun', title: 'כיף', emoji: '🎉', color: 'linear-gradient(160deg, #f97316, #db2777)' },
   { id: 'create', title: 'יצירה', emoji: '🎨', color: 'linear-gradient(160deg, #facc15, #ec4899)' },
   { id: 'letters', title: 'אותיות', emoji: '🔤', color: 'linear-gradient(160deg, #a855f7, #7c3aed)' },
+  { id: 'sports', title: 'ספורט', emoji: '🏀', color: 'linear-gradient(160deg, #fb923c, #ea580c)' },
 ]
 
 export type GameDef = {
@@ -234,6 +239,38 @@ export const GAMES: GameDef[] = [
     color: 'linear-gradient(160deg, #a855f7, #6d28d9)',
     category: 'letters',
     Component: WhichFriend,
+  },
+  {
+    id: 'basket',
+    title: 'זריקה לסל',
+    emoji: '🏀',
+    color: 'linear-gradient(160deg, #fb923c, #ea580c)',
+    category: 'sports',
+    Component: BasketGame,
+  },
+  {
+    id: 'goal',
+    title: 'בעיטה לשער',
+    emoji: '⚽',
+    color: 'linear-gradient(160deg, #4ade80, #16a34a)',
+    category: 'sports',
+    Component: GoalGame,
+  },
+  {
+    id: 'hockey',
+    title: 'הוקי אוויר',
+    emoji: '🏒',
+    color: 'linear-gradient(160deg, #38bdf8, #0369a1)',
+    category: 'sports',
+    Component: HockeyGame,
+  },
+  {
+    id: 'bowling',
+    title: 'באולינג',
+    emoji: '🎳',
+    color: 'linear-gradient(160deg, #f472b6, #be185d)',
+    category: 'sports',
+    Component: BowlingGame,
   },
 ]
 

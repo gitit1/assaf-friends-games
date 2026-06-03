@@ -8198,3 +8198,294 @@ button {
   background-size: 48px 48px;
   opacity: 0.85;
 }
+
+/* ===================== ספורט (sports games) ===================== */
+.sport-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 6px 0 18px;
+  min-height: calc(100svh - 120px);
+}
+.sport-score {
+  font-family: 'Fredoka', 'Heebo', sans-serif;
+  font-weight: 800;
+  font-size: clamp(2rem, 9vw, 3.4rem);
+  color: #1f2937;
+  min-height: 1.2em;
+}
+.sport-buttons {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.sport-hint {
+  font-weight: 700;
+  opacity: 0.72;
+  text-align: center;
+  margin: 0 12px;
+}
+
+/* --- basketball --- */
+.basket-court {
+  position: relative;
+  width: min(92vw, 460px);
+  height: min(56svh, 460px);
+}
+.basket-hoop {
+  position: absolute;
+  top: 4%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 120px;
+  height: 96px;
+}
+.basket-board {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100px;
+  height: 64px;
+  border-radius: 10px;
+  background: #fef3c7;
+  border: 5px solid #f59e0b;
+}
+.basket-rim {
+  position: absolute;
+  top: 58px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 84px;
+  height: 16px;
+  border-radius: 50%;
+  border: 6px solid #ef4444;
+}
+.basket-net {
+  position: absolute;
+  top: 68px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 66px;
+  height: 40px;
+  background: linear-gradient(transparent, rgba(255, 255, 255, 0.6));
+  clip-path: polygon(0 0, 100% 0, 78% 100%, 22% 100%);
+}
+.basket-ball {
+  position: absolute;
+  bottom: 3%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+.basket-ball.is-flying {
+  animation: basket-shoot 0.85s cubic-bezier(0.35, -0.15, 0.5, 1) forwards;
+}
+@keyframes basket-shoot {
+  0% {
+    transform: translateX(-50%) translateY(0) scale(1);
+  }
+  60% {
+    transform: translateX(-50%) translateY(-40svh) scale(0.6);
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(-50%) translateY(-36svh) scale(0.4);
+    opacity: 0.15;
+  }
+}
+
+/* --- soccer --- */
+.goal-field {
+  position: relative;
+  width: min(92vw, 460px);
+  height: min(52svh, 420px);
+  background: linear-gradient(#bbf7d0, #86efac);
+  border-radius: 18px;
+  overflow: hidden;
+}
+.goal-net {
+  position: absolute;
+  top: 6%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 72%;
+  height: 30%;
+}
+.goal-post {
+  position: absolute;
+  top: 0;
+  width: 8px;
+  height: 100%;
+  background: #fff;
+  border-radius: 4px;
+}
+.goal-post.l {
+  left: 0;
+}
+.goal-post.r {
+  right: 0;
+}
+.goal-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 8px;
+  background: #fff;
+  border-radius: 4px;
+}
+.goal-mesh {
+  position: absolute;
+  inset: 8px 8px 0;
+  background-image: linear-gradient(90deg, rgba(255, 255, 255, 0.55) 1px, transparent 1px),
+    linear-gradient(rgba(255, 255, 255, 0.55) 1px, transparent 1px);
+  background-size: 13px 13px;
+}
+.goal-ball {
+  position: absolute;
+  bottom: 3%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+.goal-ball.is-kicking {
+  animation: goal-kick 0.8s ease-in forwards;
+}
+@keyframes goal-kick {
+  0% {
+    transform: translateX(-50%) translateY(0) scale(1);
+  }
+  100% {
+    transform: translateX(-50%) translateY(-34svh) scale(0.45);
+    opacity: 0.15;
+  }
+}
+
+/* --- bowling --- */
+.bowl-lane {
+  position: relative;
+  width: min(82vw, 360px);
+  height: min(52svh, 430px);
+  margin: 0 auto;
+  background: linear-gradient(#fde68a, #fbbf24);
+  border: 3px solid #f59e0b;
+  border-radius: 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 16px;
+  overflow: hidden;
+}
+.bowl-pins {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+.bowl-row {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+.bowl-pin {
+  transition: transform 0.45s ease, opacity 0.45s ease;
+}
+.bowl-pin.is-down {
+  transform: rotate(72deg) translateY(14px);
+  opacity: 0.4;
+}
+.bowl-ball {
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #60a5fa, #1d4ed8);
+  box-shadow: var(--shadow);
+}
+.bowl-ball.is-rolling {
+  animation: bowl-roll 0.65s ease-in forwards;
+}
+@keyframes bowl-roll {
+  0% {
+    bottom: 12px;
+    transform: translateX(-50%) scale(1);
+  }
+  100% {
+    bottom: 64%;
+    transform: translateX(-50%) scale(0.65);
+  }
+}
+
+/* --- air hockey --- */
+.hockey-table {
+  position: relative;
+  width: min(92vw, 420px);
+  height: min(58svh, 560px);
+  background: linear-gradient(#e0f2fe, #bae6fd);
+  border: 6px solid #0369a1;
+  border-radius: 18px;
+  overflow: hidden;
+}
+.hockey-goal {
+  position: absolute;
+  top: -6px;
+  left: 29%;
+  width: 42%;
+  height: 12px;
+  background: #f59e0b;
+  border-radius: 0 0 8px 8px;
+}
+.hockey-mid {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: rgba(3, 105, 161, 0.35);
+}
+.hockey-circle {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 90px;
+  height: 90px;
+  transform: translate(-50%, -50%);
+  border: 4px solid rgba(3, 105, 161, 0.35);
+  border-radius: 50%;
+}
+.hockey-puck {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #475569, #0f172a);
+  box-shadow: var(--shadow);
+  will-change: transform;
+}
+.hockey-paddle {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #fb7185, #be123c);
+  border: 4px solid #fff;
+  box-shadow: var(--shadow);
+  will-change: transform;
+}

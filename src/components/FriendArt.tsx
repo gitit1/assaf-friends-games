@@ -57,6 +57,17 @@ export type FriendKind =
   | 'kali'
   | 'shir'
   | 'dana'
+  // 51–60 — a bright neon rainbow
+  | 'roki'
+  | 'nana'
+  | 'pino'
+  | 'moli'
+  | 'miki'
+  | 'libi'
+  | 'domi'
+  | 'nati'
+  | 'peli'
+  | 'ziv'
 
 // Friend index (0-based) → kind. Friend #1 (לולו) is index 0.
 export const FRIEND_KINDS: FriendKind[] = [
@@ -110,6 +121,16 @@ export const FRIEND_KINDS: FriendKind[] = [
   'kali',
   'shir',
   'dana',
+  'roki',
+  'nana',
+  'pino',
+  'moli',
+  'miki',
+  'libi',
+  'domi',
+  'nati',
+  'peli',
+  'ziv',
 ]
 
 // ---- 11–20: the bigger friends ----
@@ -125,6 +146,8 @@ export const BIG_KINDS = [
   'bino', 'tofi', 'kimi', 'shumi', 'dini',
   'papo', 'nibi', 'luki', 'rio', 'mio',
   'goni', 'buba', 'kali', 'shir', 'dana',
+  'roki', 'nana', 'pino', 'moli', 'miki',
+  'libi', 'domi', 'nati', 'peli', 'ziv',
 ] as const
 type BigKind = (typeof BIG_KINDS)[number]
 export type BigAccessory =
@@ -192,6 +215,16 @@ export const BIG: Record<BigKind, {
   kali:   { rows: [8, 8, 8, 8, 8, 8],    bc: '#818cf8', shoe: '#f43f5e', acc: 'lightning',   face: 'girl' }, // 48 ■
   shir:   { rows: [8, 8, 9, 8, 8, 8],    bc: '#c084fc', shoe: '#15803d', acc: 'musicnote',   face: 'girl' }, // 49
   dana:   { rows: [8, 9, 8, 9, 8, 8],    bc: '#f0abfc', shoe: '#0e7490', acc: 'supermask',   face: 'girl' }, // 50
+  roki:   { rows: [8, 9, 9, 9, 8, 8],     bc: '#fb7185', shoe: '#1e3a8a', acc: 'tiara',     face: 'girl' }, // 51
+  nana:   { rows: [8, 9, 9, 9, 9, 8],     bc: '#fdba74', shoe: '#0e7490', acc: 'crown',     face: 'plain' }, // 52
+  pino:   { rows: [9, 9, 9, 9, 9, 8],     bc: '#fde047', shoe: '#b91c1c', acc: 'bow',       face: 'girl' }, // 53
+  moli:   { rows: [9, 9, 9, 9, 9, 9],     bc: '#a3e635', shoe: '#db2777', acc: 'flower',    face: 'girl' }, // 54 ■
+  miki:   { rows: [9, 9, 10, 9, 9, 9],    bc: '#34d399', shoe: '#f59e0b', acc: 'cone',      face: 'plain' }, // 55
+  libi:   { rows: [9, 10, 9, 10, 9, 9],   bc: '#22d3ee', shoe: '#f43f5e', acc: 'cap',       face: 'plain' }, // 56
+  domi:   { rows: [9, 10, 10, 10, 9, 9],  bc: '#60a5fa', shoe: '#22c55e', acc: 'star',      face: 'plain' }, // 57
+  nati:   { rows: [9, 10, 10, 10, 10, 9], bc: '#818cf8', shoe: '#facc15', acc: 'glasses',   face: 'plain' }, // 58
+  peli:   { rows: [10, 10, 10, 9, 10, 10],   bc: '#c084fc', shoe: '#15803d', acc: 'propeller', face: 'plain' }, // 59
+  ziv:    { rows: [10, 10, 10, 10, 10, 10],  bc: '#e879f9', shoe: '#7c3aed', acc: 'earmuffs',  face: 'girl' }, // 60 ■
 }
 
 const bigNatural = Object.fromEntries(

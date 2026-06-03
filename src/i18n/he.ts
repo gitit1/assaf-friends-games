@@ -17,6 +17,7 @@ export const HE: Dict = {
   'cat.fun': { text: 'כיף' },
   'cat.create': { text: 'יצירה' },
   'cat.letters': { text: 'אותיות' },
+  'cat.sports': { text: 'ספורט' },
 
   // shared frame
   'nav.home': { text: 'בית' },
@@ -50,6 +51,10 @@ export const HE: Dict = {
   'game.paintnum': { text: 'צביעה לפי מספר' },
   'game.drawnum': { text: 'מציירים מספר' },
   'game.letter': { text: 'איזה חבר?' },
+  'game.basket': { text: 'זריקה לסל' },
+  'game.goal': { text: 'בעיטה לשער' },
+  'game.hockey': { text: 'הוקי אוויר' },
+  'game.bowling': { text: 'באולינג' },
 
   // count game
   'count.step': { text: 'קפיצות' },

@@ -26,7 +26,7 @@ const DELAY = Number(process.env.VOICE_DELAY || 600)
 //   • "לשחק" (not "נשחק").
 //   Kept in sync with friends.ts / FriendWorld.tsx. 1–50, no colours.
 const HAMISPAR = '[hamisˈpaʁ]{ipa}' // "the number" — plain reads as מסַפֵּר
-const NAME = ['לולו','טוקי','בובי','גוגו','מימי','נוני','פיקו','דודי','זוזו','קוקו','טוטו','לילי','מומו','ריקי','שושו','גילי','רוני','יויו','סופי','קיקי','רומי','ניני','פופי','תותי','מישי','בוזי','דגי','לאלה','חומי','צוצי','טינו','רוזי','ליאו','מיקה','גוזי','בינו','טופי','קימי','שומי','דיני','פפו','ניבי','לוקי','ריו','מיו','גוני','בובה','קלי','שיר','דנה']
+const NAME = ['לולו','טוקי','בובי','גוגו','מימי','נוני','פיקו','דודי','זוזו','קוקו','טוטו','לילי','מומו','ריקי','שושו','גילי','רוני','יויו','סופי','קיקי','רומי','ניני','פופי','תותי','מישי','בוזי','דגי','לאלה','חומי','צוצי','טינו','רוזי','ליאו','מיקה','גוזי','בינו','טופי','קימי','שומי','דיני','פפו','ניבי','לוקי','ריו','מיו','גוני','בובה','קלי','שיר','דנה','רוקי','ננה','פינו','מולי','מיקי','ליבי','דומי','נטי','פלי','זיו']
 // IPA override per name index — only where the plain reading is wrong. Grows as QA finds more.
 const NAME_IPA = { 4: '[ˈmimi]{ipa}' } // 5 מימי → "Mimi", not "meimi"
 const nameToken = (i) => NAME_IPA[i] || NAME[i]
@@ -47,7 +47,7 @@ const TEMPLATES = [
 
 const ONES = ['', 'אחת', 'שתיים', 'שלוש', 'ארבע', 'חמש', 'שש', 'שבע', 'שמונה', 'תשע']
 const TEENS = ['עשר', 'אחת עשרה', 'שתים עשרה', 'שלוש עשרה', 'ארבע עשרה', 'חמש עשרה', 'שש עשרה', 'שבע עשרה', 'שמונה עשרה', 'תשע עשרה']
-const TENS = { 20: 'עשרים', 30: 'שלושים', 40: 'ארבעים', 50: 'חמישים' }
+const TENS = { 20: 'עשרים', 30: 'שלושים', 40: 'ארבעים', 50: 'חמישים', 60: 'שישים' }
 function numWord(n) {
   if (n <= 9) return ONES[n]
   if (n <= 19) return TEENS[n - 10]
@@ -57,9 +57,10 @@ function numWord(n) {
   return String(n)
 }
 
+const COUNT = 60 // friends / numbers covered
 const lines = []
-for (let k = 1; k <= 50; k++) lines.push({ id: `num-${k}`, text: numWord(k) })
-for (let i = 0; i < 50; i++) {
+for (let k = 1; k <= COUNT; k++) lines.push({ id: `num-${k}`, text: numWord(k) })
+for (let i = 0; i < COUNT; i++) {
   const intro = TEMPLATES[i % TEMPLATES.length](nameToken(i), numWord(i + 1), LIKES[i % LIKES.length])
   lines.push({ id: `intro-${i}`, text: intro })
 }

@@ -16,6 +16,7 @@ export const EN: Dict = {
   'cat.fun': { text: 'Fun' },
   'cat.create': { text: 'Create' },
   'cat.letters': { text: 'Letters' },
+  'cat.sports': { text: 'Sports' },
 
   // shared frame
   'nav.home': { text: 'Home' },
@@ -49,6 +50,10 @@ export const EN: Dict = {
   'game.paintnum': { text: 'Colour by Number' },
   'game.drawnum': { text: 'Draw the Number' },
   'game.letter': { text: 'Which Friend?' },
+  'game.basket': { text: 'Basketball' },
+  'game.goal': { text: 'Score a Goal' },
+  'game.hockey': { text: 'Air Hockey' },
+  'game.bowling': { text: 'Bowling' },
 
   // count game
   'count.step': { text: 'Skip' },
