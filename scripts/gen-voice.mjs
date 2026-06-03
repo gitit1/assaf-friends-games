@@ -2,17 +2,18 @@
 // public/voice/ which the app plays (src/voice.ts); a missing clip falls back to
 // the browser voice, so everything works with or without these.
 //
-// DEFAULT provider is 'gtx' — Google Translate's FREE TTS (no key, no payment).
-// It speaks Hebrew numbers correctly, which is the whole point (the browser
-// voice mispronounces 2 / 9 / 13 …). Just run:
-//     node scripts/gen-voice.mjs
+// DEFAULT provider is 'edge' — Microsoft's NATURAL neural voices via the Edge
+// Read-Aloud service: FREE, no key, no card. Hebrew = he-IL-HilaNeural (natural,
+// not robotic). Just run:
+//     node scripts/gen-voice.mjs                     // Hebrew (voice/he)
+//     $env:VOICE_LANG="en"; node scripts/gen-voice.mjs   // English (voice/en)
 // then:  git add public/voice && git commit -m "voice clips" && git push
 //
-// Optional paid/better providers stay available:
-//   $env:VOICE_PROVIDER="google";  $env:GOOGLE_TTS_KEY="KEY";   node scripts/gen-voice.mjs
+// Other providers stay available: 'gtx' (Google-translate free, robotic),
+// 'azure' (needs key), 'google' (needs key). Pick a voice with EDGE_VOICE.
 import { writeFileSync, mkdirSync } from 'node:fs'
 
-const PROVIDER = process.env.VOICE_PROVIDER || 'gtx'
+const PROVIDER = process.env.VOICE_PROVIDER || 'edge'
 const LANG = process.env.VOICE_LANG || 'he' // writes to public/voice/<LANG>/
 const SPEED = Number(process.env.VOICE_SPEED || 0.9)
 const DELAY = Number(process.env.VOICE_DELAY || 600)
@@ -46,7 +47,39 @@ const OUT = `public/voice/${LANG}`
 mkdirSync(OUT, { recursive: true })
 
 let synth
-if (PROVIDER === 'gtx') {
+if (PROVIDER === 'edge') {
+  // Microsoft Edge neural voices — natural, free, no key.
+  const { MsEdgeTTS, OUTPUT_FORMAT } = await import('msedge-tts')
+  const VOICE = process.env.EDGE_VOICE || (LANG === 'he' ? 'he-IL-HilaNeural' : 'en-US-AvaNeural')
+  console.log(`ספק: Edge Neural (חינם, בלי מפתח) · קול ${VOICE} · שפה ${LANG} · ${lines.length} קליפים`)
+  const connect = async () => {
+    const t = new MsEdgeTTS()
+    await t.setMetadata(VOICE, OUTPUT_FORMAT.AUDIO_24KHZ_48KBITRATE_MONO_MP3)
+    return t
+  }
+  let tts = await connect()
+  synth = async (text) => {
+    let lastErr
+    for (let i = 0; i < 2; i++) {
+      try {
+        const { audioStream } = await tts.toStream(text)
+        const chunks = []
+        await new Promise((res, rej) => {
+          audioStream.on('data', (c) => chunks.push(c))
+          audioStream.on('end', res)
+          audioStream.on('error', rej)
+        })
+        const buf = Buffer.concat(chunks)
+        if (buf.length < 800) throw new Error('empty')
+        return buf
+      } catch (e) {
+        lastErr = e
+        tts = await connect() // reconnect and retry once
+      }
+    }
+    throw lastErr
+  }
+} else if (PROVIDER === 'gtx') {
   console.log(`ספק: Google Translate (חינם, בלי מפתח) · ${lines.length} קליפים`)
   synth = async (text) => {
     const url = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(text)}&tl=he&client=tw-ob&total=1&idx=0&textlen=${text.length}`
