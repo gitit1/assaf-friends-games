@@ -197,9 +197,6 @@ export const BIG: Record<BigKind, {
   shoe: string
   acc: BigAccessory
   face: 'plain' | 'girl'
-  // a UNIQUE personal item (emoji) shown floating beside the friend — used for
-  // 51+ so each has its own (bag / watch / doll …) instead of a repeated hat.
-  item?: string
 }> = {
   toto:   { rows: [3, 5, 3],       bc: '#e11d48', shoe: '#1e3a8a', acc: 'cone',      face: 'plain' }, // 11
   lili:   { rows: [2, 4, 4, 2],    bc: '#ea580c', shoe: '#1e3a8a', acc: 'bunnyears', face: 'girl' }, // 12
@@ -241,26 +238,26 @@ export const BIG: Record<BigKind, {
   kali:   { rows: [8, 8, 8, 8, 8, 8],    bc: '#818cf8', shoe: '#f43f5e', acc: 'lightning',   face: 'girl' }, // 48 ■
   shir:   { rows: [8, 8, 9, 8, 8, 8],    bc: '#c084fc', shoe: '#15803d', acc: 'musicnote',   face: 'girl' }, // 49
   dana:   { rows: [8, 9, 8, 9, 8, 8],    bc: '#f0abfc', shoe: '#0e7490', acc: 'supermask',   face: 'girl' }, // 50
-  roki:   { rows: [8, 9, 9, 9, 8, 8],     bc: '#fb7185', shoe: '#1e3a8a', acc: 'tiara',     face: 'girl',  item: '👜' }, // 51 bag
-  nana:   { rows: [8, 9, 9, 9, 9, 8],     bc: '#fdba74', shoe: '#0e7490', acc: 'crown',     face: 'plain', item: '⌚' }, // 52 watch
-  pino:   { rows: [9, 9, 9, 9, 9, 8],     bc: '#fde047', shoe: '#b91c1c', acc: 'bow',       face: 'girl',  item: '👛' }, // 53 wallet
-  moli:   { rows: [9, 9, 9, 9, 9, 9],     bc: '#a3e635', shoe: '#db2777', acc: 'flower',    face: 'girl',  item: '🧸' }, // 54 doll ■
-  miki:   { rows: [9, 9, 10, 9, 9, 9],    bc: '#34d399', shoe: '#f59e0b', acc: 'cone',      face: 'plain', item: '👓' }, // 55 glasses
-  libi:   { rows: [9, 10, 9, 10, 9, 9],   bc: '#22d3ee', shoe: '#f43f5e', acc: 'cap',       face: 'plain', item: '📿' }, // 56 bracelet
-  domi:   { rows: [9, 10, 10, 10, 9, 9],  bc: '#60a5fa', shoe: '#22c55e', acc: 'star',      face: 'plain', item: '🧣' }, // 57 scarf
-  nati:   { rows: [9, 10, 10, 10, 10, 9], bc: '#818cf8', shoe: '#facc15', acc: 'glasses',   face: 'plain', item: '👔' }, // 58 tie
-  peli:   { rows: [10, 10, 10, 9, 10, 10],   bc: '#c084fc', shoe: '#15803d', acc: 'propeller', face: 'plain', item: '🧥' }, // 59 sweater
-  ziv:    { rows: [10, 10, 10, 10, 10, 10],  bc: '#e879f9', shoe: '#7c3aed', acc: 'earmuffs',  face: 'girl',  item: '🎒' }, // 60 backpack ■
-  riko:   { rows: [9, 9, 9, 9, 9, 8, 8],        bc: '#f43f5e', shoe: '#1e3a8a', acc: 'crown',     face: 'plain', item: '🕶️' }, // 61 sunglasses
-  dabi:   { rows: [9, 9, 9, 9, 9, 9, 8],        bc: '#fb923c', shoe: '#0e7490', acc: 'star',      face: 'plain', item: '🎩' }, // 62 top hat
-  foki:   { rows: [9, 9, 9, 9, 9, 9, 9],        bc: '#fbbf24', shoe: '#b91c1c', acc: 'bow',       face: 'girl',  item: '🧢' }, // 63 cap ■
-  loti:   { rows: [9, 9, 10, 9, 9, 9, 9],       bc: '#a3e635', shoe: '#db2777', acc: 'flower',    face: 'girl',  item: '👑' }, // 64 crown
-  bibo:   { rows: [9, 10, 9, 10, 9, 9, 9],      bc: '#22c55e', shoe: '#f59e0b', acc: 'cap',       face: 'plain', item: '🌂' }, // 65 umbrella
-  toni:   { rows: [9, 10, 10, 10, 9, 9, 9],     bc: '#14b8a6', shoe: '#f43f5e', acc: 'tiara',     face: 'girl',  item: '🎁' }, // 66 gift
-  nuki:   { rows: [9, 10, 10, 10, 10, 9, 9],    bc: '#06b6d4', shoe: '#22c55e', acc: 'cone',      face: 'plain', item: '🎀' }, // 67 ribbon
-  lumi:   { rows: [9, 10, 10, 10, 10, 10, 9],   bc: '#3b82f6', shoe: '#facc15', acc: 'propeller', face: 'plain', item: '👟' }, // 68 sneaker
-  gabi:   { rows: [10, 10, 10, 9, 10, 10, 10],  bc: '#8b5cf6', shoe: '#15803d', acc: 'earmuffs',  face: 'plain', item: '🧤' }, // 69 gloves
-  zumi:   { rows: [10, 10, 10, 10, 10, 10, 10], bc: '#d946ef', shoe: '#7c3aed', acc: 'glasses',   face: 'girl',  item: '🪀' }, // 70 yoyo
+  roki:   { rows: [8, 9, 9, 9, 8, 8],     bc: '#fb7185', shoe: '#1e3a8a', acc: 'tiara',     face: 'girl' }, // 51
+  nana:   { rows: [8, 9, 9, 9, 9, 8],     bc: '#fdba74', shoe: '#0e7490', acc: 'crown',     face: 'plain' }, // 52
+  pino:   { rows: [9, 9, 9, 9, 9, 8],     bc: '#fde047', shoe: '#b91c1c', acc: 'bow',       face: 'girl' }, // 53
+  moli:   { rows: [9, 9, 9, 9, 9, 9],     bc: '#a3e635', shoe: '#db2777', acc: 'flower',    face: 'girl' }, // 54 ■
+  miki:   { rows: [9, 9, 10, 9, 9, 9],    bc: '#34d399', shoe: '#f59e0b', acc: 'cone',      face: 'plain' }, // 55
+  libi:   { rows: [9, 10, 9, 10, 9, 9],   bc: '#22d3ee', shoe: '#f43f5e', acc: 'cap',       face: 'plain' }, // 56
+  domi:   { rows: [9, 10, 10, 10, 9, 9],  bc: '#60a5fa', shoe: '#22c55e', acc: 'star',      face: 'plain' }, // 57
+  nati:   { rows: [9, 10, 10, 10, 10, 9], bc: '#818cf8', shoe: '#facc15', acc: 'glasses',   face: 'plain' }, // 58
+  peli:   { rows: [10, 10, 10, 9, 10, 10],   bc: '#c084fc', shoe: '#15803d', acc: 'propeller', face: 'plain' }, // 59
+  ziv:    { rows: [10, 10, 10, 10, 10, 10],  bc: '#e879f9', shoe: '#7c3aed', acc: 'earmuffs',  face: 'girl' }, // 60 ■
+  riko:   { rows: [9, 9, 9, 9, 9, 8, 8],        bc: '#f43f5e', shoe: '#1e3a8a', acc: 'crown',     face: 'plain' }, // 61
+  dabi:   { rows: [9, 9, 9, 9, 9, 9, 8],        bc: '#fb923c', shoe: '#0e7490', acc: 'star',      face: 'plain' }, // 62
+  foki:   { rows: [9, 9, 9, 9, 9, 9, 9],        bc: '#fbbf24', shoe: '#b91c1c', acc: 'bow',       face: 'girl' }, // 63 ■
+  loti:   { rows: [9, 9, 10, 9, 9, 9, 9],       bc: '#a3e635', shoe: '#db2777', acc: 'flower',    face: 'girl' }, // 64
+  bibo:   { rows: [9, 10, 9, 10, 9, 9, 9],      bc: '#22c55e', shoe: '#f59e0b', acc: 'cap',       face: 'plain' }, // 65
+  toni:   { rows: [9, 10, 10, 10, 9, 9, 9],     bc: '#14b8a6', shoe: '#f43f5e', acc: 'tiara',     face: 'girl' }, // 66
+  nuki:   { rows: [9, 10, 10, 10, 10, 9, 9],    bc: '#06b6d4', shoe: '#22c55e', acc: 'cone',      face: 'plain' }, // 67
+  lumi:   { rows: [9, 10, 10, 10, 10, 10, 9],   bc: '#3b82f6', shoe: '#facc15', acc: 'propeller', face: 'plain' }, // 68
+  gabi:   { rows: [10, 10, 10, 9, 10, 10, 10],  bc: '#8b5cf6', shoe: '#15803d', acc: 'earmuffs',  face: 'plain' }, // 69
+  zumi:   { rows: [10, 10, 10, 10, 10, 10, 10], bc: '#d946ef', shoe: '#7c3aed', acc: 'glasses',   face: 'girl' }, // 70 ■
 }
 
 const bigNatural = Object.fromEntries(
@@ -379,20 +376,64 @@ const DRESS: Record<string, DressAnchor> = {
   big: { hat: -6, eye: 40, body: 72, heldTop: 80, heldLeft: 84, hw: 54 },
 }
 
-// Where a friend's personal item sits: worn on the head / face / body, or held
-// beside the hand. Anything not listed is "held" (a bag, doll, gift, …).
-const ITEM_SLOT: Record<string, 'hat' | 'face' | 'body' | 'held'> = {
-  '🎩': 'hat',
-  '🧢': 'hat',
-  '👑': 'hat',
-  '🎀': 'hat',
-  '👓': 'face',
-  '🕶️': 'face',
-  '🧣': 'body',
-  '👔': 'body',
-  '🧥': 'body',
-}
-function itemStyle(slot: 'hat' | 'face' | 'body' | 'held', A: DressAnchor): React.CSSProperties {
+// Pool of UNIQUE personal items, one per friend from #51 onward (index 50 =
+// friend 51, index 51 = friend 52, …). Built out toward friend #100 — keep every
+// entry distinct so no two friends share an item. `slot` = where it sits on the
+// friend: worn on the head / face / body, or held beside the hand.
+type ItemSlot = 'hat' | 'face' | 'body' | 'held'
+export const ITEMS: { emoji: string; slot: ItemSlot }[] = [
+  { emoji: '👜', slot: 'held' }, // 51 bag
+  { emoji: '⌚', slot: 'held' }, // 52 watch
+  { emoji: '👛', slot: 'held' }, // 53 wallet
+  { emoji: '🧸', slot: 'held' }, // 54 doll
+  { emoji: '👓', slot: 'face' }, // 55 glasses
+  { emoji: '📿', slot: 'held' }, // 56 bracelet
+  { emoji: '🧣', slot: 'body' }, // 57 scarf
+  { emoji: '👔', slot: 'body' }, // 58 tie
+  { emoji: '🧥', slot: 'body' }, // 59 sweater
+  { emoji: '🎒', slot: 'held' }, // 60 backpack
+  { emoji: '🕶️', slot: 'face' }, // 61 sunglasses
+  { emoji: '🎩', slot: 'hat' }, // 62 top hat
+  { emoji: '🧢', slot: 'hat' }, // 63 cap
+  { emoji: '👑', slot: 'hat' }, // 64 crown
+  { emoji: '🌂', slot: 'held' }, // 65 umbrella
+  { emoji: '🎁', slot: 'held' }, // 66 gift
+  { emoji: '🎀', slot: 'hat' }, // 67 bow
+  { emoji: '👟', slot: 'held' }, // 68 sneaker
+  { emoji: '🧤', slot: 'held' }, // 69 gloves
+  { emoji: '🪀', slot: 'held' }, // 70 yoyo
+  { emoji: '⚽', slot: 'held' }, // 71 soccer
+  { emoji: '🏀', slot: 'held' }, // 72 basketball
+  { emoji: '🌊', slot: 'held' }, // 73 sea
+  { emoji: '🌧️', slot: 'held' }, // 74 rain
+  { emoji: '☀️', slot: 'hat' }, // 75 sun
+  { emoji: '🍌', slot: 'held' }, // 76 banana
+  { emoji: '🎈', slot: 'held' }, // 77 balloon
+  { emoji: '🚀', slot: 'held' }, // 78 rocket
+  { emoji: '🌈', slot: 'held' }, // 79 rainbow
+  { emoji: '⭐', slot: 'hat' }, // 80 star
+  { emoji: '🎸', slot: 'held' }, // 81 guitar
+  { emoji: '🎮', slot: 'held' }, // 82 game controller
+  { emoji: '🍕', slot: 'held' }, // 83 pizza
+  { emoji: '🦄', slot: 'held' }, // 84 unicorn
+  { emoji: '🐱', slot: 'held' }, // 85 cat
+  { emoji: '🌷', slot: 'held' }, // 86 flower
+  { emoji: '🪁', slot: 'held' }, // 87 kite
+  { emoji: '🛹', slot: 'held' }, // 88 skateboard
+  { emoji: '🎺', slot: 'held' }, // 89 trumpet
+  { emoji: '🍓', slot: 'held' }, // 90 strawberry
+  { emoji: '🧁', slot: 'held' }, // 91 cupcake
+  { emoji: '🪐', slot: 'held' }, // 92 planet
+  { emoji: '🦋', slot: 'held' }, // 93 butterfly
+  { emoji: '🥁', slot: 'held' }, // 94 drum
+  { emoji: '🍎', slot: 'held' }, // 95 apple
+  { emoji: '🍦', slot: 'held' }, // 96 ice cream
+  { emoji: '📚', slot: 'held' }, // 97 books
+  { emoji: '📸', slot: 'held' }, // 98 camera
+  { emoji: '🎨', slot: 'held' }, // 99 paint palette
+  { emoji: '🏆', slot: 'held' }, // 100 trophy
+]
+function itemStyle(slot: ItemSlot, A: DressAnchor): React.CSSProperties {
   if (slot === 'hat') return { top: `${A.hat}%`, left: '50%', fontSize: `${A.hw}px` }
   if (slot === 'face') return { top: `${A.eye}%`, left: '50%', fontSize: `${Math.round(A.hw * 0.82)}px` }
   if (slot === 'body') return { top: `${A.body}%`, left: '50%', fontSize: `${A.hw}px` }
@@ -763,10 +804,10 @@ export default function FriendArt({
     </>
   ) : null
 
-  // if the friend wears a hat-style item, lift the number badge above it so the
-  // hat never hides the digit
-  const itm = isBig ? BIG[kind as BigKind].item : undefined
-  const headItem = itm ? (ITEM_SLOT[itm] ?? 'held') === 'hat' : false
+  // friends #51+ each get a unique personal item from the pool (by index)
+  const personalItem = ITEMS[FRIEND_KINDS.indexOf(kind) - 50]
+  // if the item is a hat, lift the number badge above it so the hat never hides it
+  const headItem = personalItem?.slot === 'hat'
   const halo =
     showHalo && number ? <span className={`gal-halo ${headItem ? 'gal-halo-up' : ''}`}>{number}</span> : null
   const face = (
@@ -855,9 +896,9 @@ export default function FriendArt({
         ) : (
           face
         )}
-        {spec.item ? (
-          <span className="don" aria-hidden="true" style={itemStyle(ITEM_SLOT[spec.item] ?? 'held', A)}>
-            {spec.item}
+        {personalItem ? (
+          <span className="don" aria-hidden="true" style={itemStyle(personalItem.slot, A)}>
+            {personalItem.emoji}
           </span>
         ) : (
           showAcc && bigAccessory(spec.acc)
