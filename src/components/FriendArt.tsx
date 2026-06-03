@@ -763,7 +763,12 @@ export default function FriendArt({
     </>
   ) : null
 
-  const halo = showHalo && number ? <span className="gal-halo">{number}</span> : null
+  // if the friend wears a hat-style item, lift the number badge above it so the
+  // hat never hides the digit
+  const itm = isBig ? BIG[kind as BigKind].item : undefined
+  const headItem = itm ? (ITEM_SLOT[itm] ?? 'held') === 'hat' : false
+  const halo =
+    showHalo && number ? <span className={`gal-halo ${headItem ? 'gal-halo-up' : ''}`}>{number}</span> : null
   const face = (
     <>
       <span className="gf-eye l" />

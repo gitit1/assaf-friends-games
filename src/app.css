@@ -1301,6 +1301,11 @@ button {
   animation: halo-float 2.4s ease-in-out infinite;
   z-index: 5;
 }
+/* lifted above a hat-style item so the digit is never hidden by the hat */
+.gal-halo.gal-halo-up {
+  top: -76px;
+  z-index: 31;
+}
 
 @keyframes halo-float {
   0%, 100% {
