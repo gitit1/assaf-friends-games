@@ -73,7 +73,7 @@ export default function FriendWorld({
 
   function describe() {
     // Short, exclamatory sentences = energy. No colour (many friends are multi-coloured).
-    const about = `שָׁלוֹם!! אֲנִי ${friendSay(index)}, הַמִּסְפָּר ${numberWord(n)}! אֲנִי מַמָּשׁ אוֹהֵב ${like.verb}! בּוֹאוּ נְשַׂחֵק יַחַד!`
+    const about = `שָׁלוֹם!! אֲנִי ${friendSay(index)}, הַמִּסְפָּר ${numberWord(n)}! אֲנִי מַמָּשׁ אוֹהֵב ${like.verb}! בּוֹאוּ לְשַׂחֵק יַחַד!`
     playClip(`intro-${index}`, about)
     setBounce(true)
     later(() => setBounce(false), 600)

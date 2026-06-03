@@ -18,46 +18,59 @@ const LANG = process.env.VOICE_LANG || 'he' // writes to public/voice/<LANG>/
 const SPEED = Number(process.env.VOICE_SPEED || 0.9)
 const DELAY = Number(process.env.VOICE_DELAY || 600)
 
-// ── data (Hebrew, fully NIQQUD so the neural voice pronounces it right;
-//    kept in sync with friends.ts / FriendWorld.tsx), 1–50.
-//    No colours: many friends are multi-coloured, so a single colour is wrong. ──
-const NAME = ['לוּלוּ','טוּקִי','בּוּבִּי','גוּגוּ','מִימִי','נוּנִי','פִּיקוֹ','דוּדִי','זוּזוּ','קוּקוֹ','טוֹטוֹ','לִילִי','מוֹמוֹ','רִיקִי','שׁוּשׁוּ','גִילִי','רוֹנִי','יוֹיוֹ','סוֹפִי','קִיקִי','רוֹמִי','נִינִי','פּוּפִּי','תּוּתִי','מִישִׁי','בּוּזִי','דַּגִּי','לַאלָה','חוּמִי','צוּצִי','טִינוֹ','רוֹזִי','לֵיאוֹ','מִיקָה','גוּזִי','בִּינוֹ','טוֹפִי','קִימִי','שׁוּמִי','דִּינִי','פַּפּוֹ','נִיבִּי','לוּקִי','רִיוֹ','מִיוֹ','גוֹנִי','בּוּבָּה','קָלִי','שִׁיר','דָּנָה']
-const LIKES = ['לִקְפּוֹץ','לִרְקוֹד','לִצְחוֹק','לְהִתְחַבֵּק','לָשִׁיר','לִסְפּוֹר','לְשַׂחֵק מַחֲבוֹאִים','לֶאֱכוֹל גְּלִידָה','לְצַיֵּיר','לַעֲשׂוֹת בּוּעוֹת','לְשַׂחֵק בְּכַדּוּר','לְחַלֵּק נְשִׁיקוֹת']
+// ── data (Hebrew) for the Narakeet voice. Recipe locked from manual QA:
+//   • PLAIN text, NO niqqud — niqqud broke these voices (even "שתיים").
+//   • IPA override `[..]{ipa}` for invented names that read as a real word
+//     (e.g. מימי → "meimi") and for "המספר" (else "מסַפֵּר"). IPA is confirmed
+//     working on the Ayelet voice.
+//   • "לשחק" (not "נשחק").
+//   Kept in sync with friends.ts / FriendWorld.tsx. 1–50, no colours.
+const HAMISPAR = '[hamisˈpaʁ]{ipa}' // "the number" — plain reads as מסַפֵּר
+const NAME = ['לולו','טוקי','בובי','גוגו','מימי','נוני','פיקו','דודי','זוזו','קוקו','טוטו','לילי','מומו','ריקי','שושו','גילי','רוני','יויו','סופי','קיקי','רומי','ניני','פופי','תותי','מישי','בוזי','דגי','לאלה','חומי','צוצי','טינו','רוזי','ליאו','מיקה','גוזי','בינו','טופי','קימי','שומי','דיני','פפו','ניבי','לוקי','ריו','מיו','גוני','בובה','קלי','שיר','דנה']
+// IPA override per name index — only where the plain reading is wrong. Grows as QA finds more.
+const NAME_IPA = { 4: '[ˈmimi]{ipa}' } // 5 מימי → "Mimi", not "meimi"
+const nameToken = (i) => NAME_IPA[i] || NAME[i]
+const LIKES = ['לקפוץ','לרקוד','לצחוק','להתחבק','לשיר','לספור','לשחק מחבואים','לאכול גלידה','לצייר','לעשות בועות','לשחק בכדור','לחלק נשיקות']
 // short exclamation said when a friend's own "special" button is tapped (like-<n>);
 // order matches LIKES / FriendWorld.tsx
-const LIKE_FX = ['קְפִיצָה!','רִיקוּד!','צְחוֹק!','חִיבּוּק!','שִׁיר!','סְפִירָה!','מַחֲבוֹאִים!','גְּלִידָה!','צִיּוּר!','בּוּעוֹת!','כַּדּוּר!','נְשִׁיקוֹת!']
+const LIKE_FX = ['קפיצה!','ריקוד!','צחוק!','חיבוק!','שיר!','ספירה!','מחבואים!','גלידה!','ציור!','בועות!','כדור!','נשיקות!']
 
-// Several intro shapes so not every friend says the exact same sentence. Each is
-// short + exclamatory (energy) and avoids the bare word "כיף" (it clashed with the
-// high-five button). Picked by index so a friend's intro is stable but varied.
+// Several intro shapes so not every friend says the same sentence (short +
+// exclamatory for energy; avoids the bare word "כיף" — it clashed with ✋ "כיף").
 const TEMPLATES = [
-  (name, num, like) => `שָׁלוֹם!! אֲנִי ${name}, הַמִּסְפָּר ${num}! אֲנִי מַמָּשׁ אוֹהֵב ${like}! בּוֹאוּ נְשַׂחֵק יַחַד!`,
-  (name, num, like) => `הֵיי! קוֹרְאִים לִי ${name}, וַאֲנִי הַמִּסְפָּר ${num}! בּוֹאוּ ${like} אִתִּי!`,
-  (name, num, like) => `וָואוּ, מָצָאתֶם אוֹתִי! אֲנִי ${name}, הַמִּסְפָּר ${num}! אֲנִי נֶהֱנֶה ${like} כָּל הַיּוֹם!`,
-  (name, num, like) => `שָׁלוֹם שָׁלוֹם! ${name} כָּאן, הַמִּסְפָּר ${num}! אֲנִי אוֹהֵב ${like}, בּוֹאוּ אִתִּי!`,
-  (name, num, like) => `הִינֵה אֲנִי, ${name}! הַמִּסְפָּר ${num}! יוֹתֵר מִכֹּל אֲנִי אוֹהֵב ${like}! נֵצֵא לְשַׂחֵק?`,
+  (name, num, like) => `שלום!! אני ${name}, ${HAMISPAR} ${num}! אני ממש אוהב ${like}! בואו לשחק יחד!`,
+  (name, num, like) => `היי! קוראים לי ${name}, ואני ${HAMISPAR} ${num}! בואו ${like} איתי!`,
+  (name, num, like) => `וואו, מצאתם אותי! אני ${name}, ${HAMISPAR} ${num}! אני נהנה ${like} כל היום!`,
+  (name, num, like) => `שלום שלום! ${name} כאן, ${HAMISPAR} ${num}! אני אוהב ${like}, בואו איתי!`,
+  (name, num, like) => `הינה אני, ${name}! ${HAMISPAR} ${num}! יותר מכל אני אוהב ${like}! נצא לשחק?`,
 ]
 
-const ONES = ['', 'אַחַת', 'שְׁתַּיִם', 'שָׁלוֹשׁ', 'אַרְבַּע', 'חָמֵשׁ', 'שֵׁשׁ', 'שֶׁבַע', 'שְׁמוֹנֶה', 'תֵּשַׁע']
-const TEENS = ['עֶשֶׂר', 'אַחַת עֶשְׂרֵה', 'שְׁתֵּים עֶשְׂרֵה', 'שְׁלוֹשׁ עֶשְׂרֵה', 'אַרְבַּע עֶשְׂרֵה', 'חֲמֵשׁ עֶשְׂרֵה', 'שֵׁשׁ עֶשְׂרֵה', 'שְׁבַע עֶשְׂרֵה', 'שְׁמוֹנֶה עֶשְׂרֵה', 'תְּשַׁע עֶשְׂרֵה']
-const TENS = { 20: 'עֶשְׂרִים', 30: 'שְׁלוֹשִׁים', 40: 'אַרְבָּעִים', 50: 'חֲמִשִּׁים' }
+const ONES = ['', 'אחת', 'שתיים', 'שלוש', 'ארבע', 'חמש', 'שש', 'שבע', 'שמונה', 'תשע']
+const TEENS = ['עשר', 'אחת עשרה', 'שתים עשרה', 'שלוש עשרה', 'ארבע עשרה', 'חמש עשרה', 'שש עשרה', 'שבע עשרה', 'שמונה עשרה', 'תשע עשרה']
+const TENS = { 20: 'עשרים', 30: 'שלושים', 40: 'ארבעים', 50: 'חמישים' }
 function numWord(n) {
   if (n <= 9) return ONES[n]
   if (n <= 19) return TEENS[n - 10]
   const t = n - (n % 10)
   const u = n % 10
-  if (TENS[t]) return u === 0 ? TENS[t] : `${TENS[t]} ${u === 2 || u === 8 ? 'וּ' : 'וְ'}${ONES[u]}`
+  if (TENS[t]) return u === 0 ? TENS[t] : `${TENS[t]} ו${ONES[u]}`
   return String(n)
 }
 
 const lines = []
 for (let k = 1; k <= 50; k++) lines.push({ id: `num-${k}`, text: numWord(k) })
 for (let i = 0; i < 50; i++) {
-  const intro = TEMPLATES[i % TEMPLATES.length](NAME[i], numWord(i + 1), LIKES[i % LIKES.length])
+  const intro = TEMPLATES[i % TEMPLATES.length](nameToken(i), numWord(i + 1), LIKES[i % LIKES.length])
   lines.push({ id: `intro-${i}`, text: intro })
 }
 for (let i = 0; i < LIKE_FX.length; i++) lines.push({ id: `like-${i}`, text: LIKE_FX[i] })
-lines.push({ id: 'fx-five', text: 'כֵּיף!' }, { id: 'fx-hug', text: 'חִיבּוּק גָּדוֹל!' }, { id: 'fx-kiss', text: 'נְשִׁיקָה!' })
+lines.push({ id: 'fx-five', text: 'כיף!' }, { id: 'fx-hug', text: 'חיבוק גדול!' }, { id: 'fx-kiss', text: 'נשיקה!' })
+
+// DRY_RUN=1 prints every line's text (to eyeball pronunciation) and exits — no API calls.
+if (process.env.DRY_RUN) {
+  for (const l of lines) console.log(`${l.id}\t${l.text}`)
+  process.exit(0)
+}
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
 const OUT = `public/voice/${LANG}`
@@ -104,9 +117,9 @@ if (PROVIDER === 'edge') {
   // Lior / Erez / Doron / Oren (male). Speed + (optional) niqqud stripping.
   const KEY = process.env.NARAKEET_API_KEY
   if (!KEY) throw new Error('צריך NARAKEET_API_KEY (מההגדרות של חשבון Narakeet)')
-  const VOICE = process.env.NARAKEET_VOICE || (LANG === 'he' ? 'Yael' : 'Brian')
+  const VOICE = process.env.NARAKEET_VOICE || (LANG === 'he' ? 'Ayelet' : 'Brian')
   const NSPEED = process.env.VOICE_SPEED || '0.9' // a touch slow for a young child
-  // Niqqud helps these voices say מִימִי / נְשַׂחֵק / הַמִּסְפָּר correctly, so KEEP it
+  // Niqqud helps these voices say מִימִי / נִשְׂחַק / הַמִּסְפָּר correctly, so KEEP it
   // by default; strip only if a future test shows a voice prefers plain text.
   const stripNiq = (s) => s.replace(/[֑-ׇ]/g, '')
   const dropNiq = process.env.STRIP_NIQQUD === '1'
