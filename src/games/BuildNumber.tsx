@@ -6,13 +6,15 @@ import { friendMaxDim } from '../components/FriendArt'
 import type { GameProps } from './registry'
 import { playRise, playWin, unlockAudio } from '../audio'
 import { speakNumber } from '../voice'
+import { screenScale, useViewport } from '../useViewport'
 import { randInt } from './util'
 import { useT } from '../i18n'
 
-// fixed on-screen sizes (the friend's largest dimension, in px) so they look the
-// same on phone and desktop — fitScale could balloon up to 3× on a wide screen
-const ADDEND_PX = 78
-const RESULT_PX = 110
+// on-screen sizes (the friend's largest dimension, in px). Fixed base × a gentle
+// grow-on-wide-screen factor (capped at 1.6) — so it's a good size on a phone and
+// grows a bit on desktop, but never balloons like fitScale's up-to-3× did.
+const ADDEND_PX = 104
+const RESULT_PX = 150
 
 // Build a Number (Numberblocks-style addition): pick two friends, tap "combine",
 // and they slide together and MERGE into the bigger friend (3 + 5 → 8), who
@@ -22,6 +24,7 @@ const MAXA = 20
 
 export default function BuildNumber({ onExit }: GameProps) {
   const { t } = useT()
+  const grow = screenScale(useViewport().w, 1.6)
   const [a, setA] = useState(() => randInt(1, 9))
   const [b, setB] = useState(() => randInt(1, 9))
   const [phase, setPhase] = useState<'pick' | 'merge' | 'done'>('pick')
@@ -78,18 +81,18 @@ export default function BuildNumber({ onExit }: GameProps) {
           {phase !== 'done' ? (
             <div className={`build-pair ${phase === 'merge' ? 'is-merging' : ''}`}>
               <span className="build-a">
-                <Friend index={a - 1} scale={ADDEND_PX / friendMaxDim(a - 1)} showNumber />
+                <Friend index={a - 1} scale={(ADDEND_PX / friendMaxDim(a - 1)) * grow} showNumber />
               </span>
               <span className="build-plus" aria-hidden="true">
                 ➕
               </span>
               <span className="build-b">
-                <Friend index={b - 1} scale={ADDEND_PX / friendMaxDim(b - 1)} showNumber />
+                <Friend index={b - 1} scale={(ADDEND_PX / friendMaxDim(b - 1)) * grow} showNumber />
               </span>
             </div>
           ) : (
             <div className="build-result">
-              <Friend index={c - 1} scale={RESULT_PX / friendMaxDim(c - 1)} showNumber bouncing />
+              <Friend index={c - 1} scale={(RESULT_PX / friendMaxDim(c - 1)) * grow} showNumber bouncing />
             </div>
           )}
         </div>
