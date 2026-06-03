@@ -10,21 +10,33 @@ import { screenScale, useViewport } from '../useViewport'
 import { randInt } from './util'
 import { useT } from '../i18n'
 
-// on-screen sizes (the friend's largest dimension, in px). Fixed base × a gentle
-// grow-on-wide-screen factor (capped at 1.6) — so it's a good size on a phone and
-// grows a bit on desktop, but never balloons like fitScale's up-to-3× did.
+// One arithmetic game with a chooser for ➕ ➖ ✖️ ➗. Pick an operation and two
+// friends, tap "how much?", and they merge into the answer friend (who bounces),
+// with the equation shown and the result counted out loud. No timer, no wrong
+// answers — combos that can't make a whole friend (negative / non-divisible) just
+// wait for friendlier numbers, with a gentle hint.
+type Op = 'add' | 'sub' | 'mul' | 'div'
+const OPS: { id: Op; sym: string; label: string }[] = [
+  { id: 'add', sym: '➕', label: 'חיבור' },
+  { id: 'sub', sym: '➖', label: 'חיסור' },
+  { id: 'mul', sym: '✖️', label: 'כפל' },
+  { id: 'div', sym: '➗', label: 'חילוק' },
+]
+const MAXOP = 10 // operands 1–10 → results stay 1–100 (a real friend)
 const ADDEND_PX = 104
 const RESULT_PX = 150
 
-// Build a Number (Numberblocks-style addition): pick two friends, tap "combine",
-// and they slide together and MERGE into the bigger friend (3 + 5 → 8), who
-// cheers. The equation is shown and the result is counted out loud. Explore any
-// sum freely — no timer, no wrong answers.
-const MAXA = 20
+function compute(op: Op, a: number, b: number): number {
+  if (op === 'add') return a + b
+  if (op === 'sub') return a - b
+  if (op === 'mul') return a * b
+  return b !== 0 && a % b === 0 ? a / b : NaN // div: whole results only
+}
 
 export default function BuildNumber({ onExit }: GameProps) {
   const { t } = useT()
   const grow = screenScale(useViewport().w, 1.6)
+  const [op, setOp] = useState<Op>('add')
   const [a, setA] = useState(() => randInt(1, 9))
   const [b, setB] = useState(() => randInt(1, 9))
   const [phase, setPhase] = useState<'pick' | 'merge' | 'done'>('pick')
@@ -35,15 +47,26 @@ export default function BuildNumber({ onExit }: GameProps) {
   }
   useEffect(() => clear, [])
 
-  const c = a + b
-  const clamp = (n: number) => Math.max(1, Math.min(MAXA, n))
+  const c = compute(op, a, b)
+  const valid = Number.isInteger(c) && c >= 1 && c <= 100
+  const sym = OPS.find((o) => o.id === op)!.sym
+  const clamp = (n: number) => Math.max(1, Math.min(MAXOP, n))
   const set = (fn: (v: number) => void, v: number) => {
-    if (phase !== 'pick') return
-    fn(clamp(v))
+    if (phase === 'pick') fn(clamp(v))
+  }
+  const pickOp = (o: Op) => {
+    if (phase === 'pick') setOp(o)
   }
 
+  const hint =
+    valid || phase !== 'pick'
+      ? ''
+      : op === 'sub'
+        ? 'בחרו מספר ראשון גדול יותר ➖'
+        : 'בחרו מספרים שמתחלקים יפה ➗'
+
   function combine() {
-    if (phase !== 'pick') return
+    if (phase !== 'pick' || !valid) return
     unlockAudio()
     setPhase('merge')
     playRise(2)
@@ -63,11 +86,11 @@ export default function BuildNumber({ onExit }: GameProps) {
   }
 
   return (
-    <GameShell title={t('game.build')} emoji="➕" onExit={onExit}>
+    <GameShell title={t('game.build')} emoji="🧮" onExit={onExit}>
       <div className="build-screen">
         <div className="build-eq" aria-live="polite">
           <span>{a}</span>
-          <span className="build-op">➕</span>
+          <span className="build-op">{sym}</span>
           <span>{b}</span>
           {phase === 'done' && (
             <>
@@ -84,7 +107,7 @@ export default function BuildNumber({ onExit }: GameProps) {
                 <Friend index={a - 1} scale={(ADDEND_PX / friendMaxDim(a - 1)) * grow} showNumber />
               </span>
               <span className="build-plus" aria-hidden="true">
-                ➕
+                {sym}
               </span>
               <span className="build-b">
                 <Friend index={b - 1} scale={(ADDEND_PX / friendMaxDim(b - 1)) * grow} showNumber />
@@ -99,6 +122,18 @@ export default function BuildNumber({ onExit }: GameProps) {
 
         {phase === 'pick' && (
           <div className="build-controls">
+            <div className="build-ops">
+              {OPS.map((o) => (
+                <button
+                  key={o.id}
+                  className={`pill pill-small ${op === o.id ? 'pill-active' : ''}`}
+                  onClick={() => pickOp(o.id)}
+                  aria-label={o.label}
+                >
+                  {o.sym}
+                </button>
+              ))}
+            </div>
             <div className="build-steppers">
               <Stepper
                 label={<span className="build-num">{a}</span>}
@@ -111,9 +146,13 @@ export default function BuildNumber({ onExit }: GameProps) {
                 onNext={() => set(setB, b + 1)}
               />
             </div>
-            <button className="big-button" onClick={combine}>
-              ➕ חברו!
-            </button>
+            {hint ? (
+              <p className="build-hint">{hint}</p>
+            ) : (
+              <button className="big-button" onClick={combine}>
+                🟰 כמה יוצא?
+              </button>
+            )}
           </div>
         )}
         {phase === 'done' && (

@@ -8774,3 +8774,18 @@ button {
   text-align: center;
   color: #4338ca;
 }
+.build-ops {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+.build-ops .pill {
+  font-size: 1.4rem;
+  min-width: 52px;
+}
+.build-hint {
+  font-weight: 700;
+  color: #b45309;
+  text-align: center;
+  margin: 4px 12px;
+}
