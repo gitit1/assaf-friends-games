@@ -197,6 +197,9 @@ export const BIG: Record<BigKind, {
   shoe: string
   acc: BigAccessory
   face: 'plain' | 'girl'
+  // a UNIQUE personal item (emoji) shown floating beside the friend — used for
+  // 51+ so each has its own (bag / watch / doll …) instead of a repeated hat.
+  item?: string
 }> = {
   toto:   { rows: [3, 5, 3],       bc: '#e11d48', shoe: '#1e3a8a', acc: 'cone',      face: 'plain' }, // 11
   lili:   { rows: [2, 4, 4, 2],    bc: '#ea580c', shoe: '#1e3a8a', acc: 'bunnyears', face: 'girl' }, // 12
@@ -238,26 +241,26 @@ export const BIG: Record<BigKind, {
   kali:   { rows: [8, 8, 8, 8, 8, 8],    bc: '#818cf8', shoe: '#f43f5e', acc: 'lightning',   face: 'girl' }, // 48 ■
   shir:   { rows: [8, 8, 9, 8, 8, 8],    bc: '#c084fc', shoe: '#15803d', acc: 'musicnote',   face: 'girl' }, // 49
   dana:   { rows: [8, 9, 8, 9, 8, 8],    bc: '#f0abfc', shoe: '#0e7490', acc: 'supermask',   face: 'girl' }, // 50
-  roki:   { rows: [8, 9, 9, 9, 8, 8],     bc: '#fb7185', shoe: '#1e3a8a', acc: 'tiara',     face: 'girl' }, // 51
-  nana:   { rows: [8, 9, 9, 9, 9, 8],     bc: '#fdba74', shoe: '#0e7490', acc: 'crown',     face: 'plain' }, // 52
-  pino:   { rows: [9, 9, 9, 9, 9, 8],     bc: '#fde047', shoe: '#b91c1c', acc: 'bow',       face: 'girl' }, // 53
-  moli:   { rows: [9, 9, 9, 9, 9, 9],     bc: '#a3e635', shoe: '#db2777', acc: 'flower',    face: 'girl' }, // 54 ■
-  miki:   { rows: [9, 9, 10, 9, 9, 9],    bc: '#34d399', shoe: '#f59e0b', acc: 'cone',      face: 'plain' }, // 55
-  libi:   { rows: [9, 10, 9, 10, 9, 9],   bc: '#22d3ee', shoe: '#f43f5e', acc: 'cap',       face: 'plain' }, // 56
-  domi:   { rows: [9, 10, 10, 10, 9, 9],  bc: '#60a5fa', shoe: '#22c55e', acc: 'star',      face: 'plain' }, // 57
-  nati:   { rows: [9, 10, 10, 10, 10, 9], bc: '#818cf8', shoe: '#facc15', acc: 'glasses',   face: 'plain' }, // 58
-  peli:   { rows: [10, 10, 10, 9, 10, 10],   bc: '#c084fc', shoe: '#15803d', acc: 'propeller', face: 'plain' }, // 59
-  ziv:    { rows: [10, 10, 10, 10, 10, 10],  bc: '#e879f9', shoe: '#7c3aed', acc: 'earmuffs',  face: 'girl' }, // 60 ■
-  riko:   { rows: [9, 9, 9, 9, 9, 8, 8],        bc: '#f43f5e', shoe: '#1e3a8a', acc: 'crown',     face: 'plain' }, // 61
-  dabi:   { rows: [9, 9, 9, 9, 9, 9, 8],        bc: '#fb923c', shoe: '#0e7490', acc: 'star',      face: 'plain' }, // 62
-  foki:   { rows: [9, 9, 9, 9, 9, 9, 9],        bc: '#fbbf24', shoe: '#b91c1c', acc: 'bow',       face: 'girl' }, // 63 ■
-  loti:   { rows: [9, 9, 10, 9, 9, 9, 9],       bc: '#a3e635', shoe: '#db2777', acc: 'flower',    face: 'girl' }, // 64
-  bibo:   { rows: [9, 10, 9, 10, 9, 9, 9],      bc: '#22c55e', shoe: '#f59e0b', acc: 'cap',       face: 'plain' }, // 65
-  toni:   { rows: [9, 10, 10, 10, 9, 9, 9],     bc: '#14b8a6', shoe: '#f43f5e', acc: 'tiara',     face: 'girl' }, // 66
-  nuki:   { rows: [9, 10, 10, 10, 10, 9, 9],    bc: '#06b6d4', shoe: '#22c55e', acc: 'cone',      face: 'plain' }, // 67
-  lumi:   { rows: [9, 10, 10, 10, 10, 10, 9],   bc: '#3b82f6', shoe: '#facc15', acc: 'propeller', face: 'plain' }, // 68
-  gabi:   { rows: [10, 10, 10, 9, 10, 10, 10],  bc: '#8b5cf6', shoe: '#15803d', acc: 'earmuffs',  face: 'plain' }, // 69
-  zumi:   { rows: [10, 10, 10, 10, 10, 10, 10], bc: '#d946ef', shoe: '#7c3aed', acc: 'glasses',   face: 'girl' }, // 70 ■
+  roki:   { rows: [8, 9, 9, 9, 8, 8],     bc: '#fb7185', shoe: '#1e3a8a', acc: 'tiara',     face: 'girl',  item: '👜' }, // 51 bag
+  nana:   { rows: [8, 9, 9, 9, 9, 8],     bc: '#fdba74', shoe: '#0e7490', acc: 'crown',     face: 'plain', item: '⌚' }, // 52 watch
+  pino:   { rows: [9, 9, 9, 9, 9, 8],     bc: '#fde047', shoe: '#b91c1c', acc: 'bow',       face: 'girl',  item: '👛' }, // 53 wallet
+  moli:   { rows: [9, 9, 9, 9, 9, 9],     bc: '#a3e635', shoe: '#db2777', acc: 'flower',    face: 'girl',  item: '🧸' }, // 54 doll ■
+  miki:   { rows: [9, 9, 10, 9, 9, 9],    bc: '#34d399', shoe: '#f59e0b', acc: 'cone',      face: 'plain', item: '👓' }, // 55 glasses
+  libi:   { rows: [9, 10, 9, 10, 9, 9],   bc: '#22d3ee', shoe: '#f43f5e', acc: 'cap',       face: 'plain', item: '📿' }, // 56 bracelet
+  domi:   { rows: [9, 10, 10, 10, 9, 9],  bc: '#60a5fa', shoe: '#22c55e', acc: 'star',      face: 'plain', item: '🧣' }, // 57 scarf
+  nati:   { rows: [9, 10, 10, 10, 10, 9], bc: '#818cf8', shoe: '#facc15', acc: 'glasses',   face: 'plain', item: '👔' }, // 58 tie
+  peli:   { rows: [10, 10, 10, 9, 10, 10],   bc: '#c084fc', shoe: '#15803d', acc: 'propeller', face: 'plain', item: '🧥' }, // 59 sweater
+  ziv:    { rows: [10, 10, 10, 10, 10, 10],  bc: '#e879f9', shoe: '#7c3aed', acc: 'earmuffs',  face: 'girl',  item: '🎒' }, // 60 backpack ■
+  riko:   { rows: [9, 9, 9, 9, 9, 8, 8],        bc: '#f43f5e', shoe: '#1e3a8a', acc: 'crown',     face: 'plain', item: '🕶️' }, // 61 sunglasses
+  dabi:   { rows: [9, 9, 9, 9, 9, 9, 8],        bc: '#fb923c', shoe: '#0e7490', acc: 'star',      face: 'plain', item: '🎩' }, // 62 top hat
+  foki:   { rows: [9, 9, 9, 9, 9, 9, 9],        bc: '#fbbf24', shoe: '#b91c1c', acc: 'bow',       face: 'girl',  item: '🧢' }, // 63 cap ■
+  loti:   { rows: [9, 9, 10, 9, 9, 9, 9],       bc: '#a3e635', shoe: '#db2777', acc: 'flower',    face: 'girl',  item: '👑' }, // 64 crown
+  bibo:   { rows: [9, 10, 9, 10, 9, 9, 9],      bc: '#22c55e', shoe: '#f59e0b', acc: 'cap',       face: 'plain', item: '🌂' }, // 65 umbrella
+  toni:   { rows: [9, 10, 10, 10, 9, 9, 9],     bc: '#14b8a6', shoe: '#f43f5e', acc: 'tiara',     face: 'girl',  item: '🎁' }, // 66 gift
+  nuki:   { rows: [9, 10, 10, 10, 10, 9, 9],    bc: '#06b6d4', shoe: '#22c55e', acc: 'cone',      face: 'plain', item: '🎀' }, // 67 ribbon
+  lumi:   { rows: [9, 10, 10, 10, 10, 10, 9],   bc: '#3b82f6', shoe: '#facc15', acc: 'propeller', face: 'plain', item: '👟' }, // 68 sneaker
+  gabi:   { rows: [10, 10, 10, 9, 10, 10, 10],  bc: '#8b5cf6', shoe: '#15803d', acc: 'earmuffs',  face: 'plain', item: '🧤' }, // 69 gloves
+  zumi:   { rows: [10, 10, 10, 10, 10, 10, 10], bc: '#d946ef', shoe: '#7c3aed', acc: 'glasses',   face: 'girl',  item: '🪀' }, // 70 yoyo
 }
 
 const bigNatural = Object.fromEntries(
@@ -827,7 +830,13 @@ export default function FriendArt({
         ) : (
           face
         )}
-        {showAcc && bigAccessory(spec.acc)}
+        {spec.item ? (
+          <span className="friend-item" aria-hidden="true">
+            {spec.item}
+          </span>
+        ) : (
+          showAcc && bigAccessory(spec.acc)
+        )}
         {dress}
         {halo}
       </div>

@@ -2812,6 +2812,18 @@ button {
   background: #22d3ee;
 }
 
+/* a friend's UNIQUE personal item (emoji), floating beside them (friends 51+) */
+.friend-item {
+  position: absolute;
+  top: 30%;
+  right: -10%;
+  font-size: 40px;
+  line-height: 1;
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.3));
+  z-index: 5;
+  pointer-events: none;
+}
+
 /* ---------- 11–20: the bigger friends (rows of bumps) ---------- */
 .gal-big {
   --u: 46px;
