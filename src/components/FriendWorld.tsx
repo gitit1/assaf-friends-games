@@ -3,7 +3,7 @@ import GameShell from './GameShell'
 import Friend from './Friend'
 import IconButton from './IconButton'
 import { friendMaxDim } from './FriendArt'
-import { FRIENDS, friendColorName, friendName, friendNumber, friendSay } from '../friends'
+import { FRIENDS, friendName, friendNumber, friendSay } from '../friends'
 import { playCount, playFriend, playSuccess, playTap, playWin, unlockAudio } from '../audio'
 import { stopSpeech } from '../speech'
 import { numberWord } from '../games/util'
@@ -12,19 +12,21 @@ import { playClip, stopClip } from '../voice'
 // A friend's own little "world": tap into it from "החברים שלי" and the friend
 // introduces itself (spoken description + animation, like a tiny narrated clip),
 // and you can give it a high-five / hug / kiss, or hear it count its blocks.
+// Niqqud so the fallback TTS (when a clip is missing) is pronounced right;
+// order matches scripts/gen-voice.mjs so each friend's "like" stays consistent.
 const LIKES = [
-  'לקפוץ',
-  'לרקוד',
-  'לצחוק',
-  'להתחבק',
-  'לשיר',
-  'לספור',
-  'לשחק מחבואים',
-  'לאכול גלידה',
-  'לצייר',
-  'לעשות בועות',
-  'לשחק בכדור',
-  'לחלק נשיקות',
+  'לִקְפּוֹץ',
+  'לִרְקוֹד',
+  'לִצְחוֹק',
+  'לְהִתְחַבֵּק',
+  'לָשִׁיר',
+  'לִסְפּוֹר',
+  'לְשַׂחֵק מַחֲבוֹאִים',
+  'לֶאֱכוֹל גְּלִידָה',
+  'לְצַיֵּיר',
+  'לַעֲשׂוֹת בּוּעוֹת',
+  'לְשַׂחֵק בְּכַדּוּר',
+  'לְחַלֵּק נְשִׁיקוֹת',
 ]
 
 type Fx = { id: number; emoji: string; x: number }
@@ -63,9 +65,8 @@ export default function FriendWorld({
   const later = (fn: () => void, ms: number) => timers.current.push(window.setTimeout(fn, ms))
 
   function describe() {
-    const about = `שלום! אני ${friendSay(index)}, אני המספר ${numberWord(n)}! הצבע שלי ${friendColorName(
-      index,
-    )}. הכי כיף לי ${LIKES[index % LIKES.length]}. בואו נשחק!`
+    // Short, exclamatory sentences = energy. No colour (many friends are multi-coloured).
+    const about = `שָׁלוֹם!! אֲנִי ${friendSay(index)}! אֲנִי הַמִּסְפָּר ${numberWord(n)}! הֲכִי כֵּיף לִי ${LIKES[index % LIKES.length]}!! בּוֹאוּ אִיתִּי וּנְשַׂחֵק בְּיַחַד!`
     playClip(`intro-${index}`, about)
     setBounce(true)
     later(() => setBounce(false), 600)

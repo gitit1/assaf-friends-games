@@ -18,29 +18,31 @@ const LANG = process.env.VOICE_LANG || 'he' // writes to public/voice/<LANG>/
 const SPEED = Number(process.env.VOICE_SPEED || 0.9)
 const DELAY = Number(process.env.VOICE_DELAY || 600)
 
-// ── data (kept in sync with friends.ts / FriendWorld.tsx), 1–50 ──
-const NAME = ['לולו','טוקי','בובי','גוגו','מימי','נוני','פיקו','דודי','זוזו','קוקו','טוטו','לילי','מומו','ריקי','שושו','גילי','רוני','יויו','סופי','קיקי','רומי','ניני','פופי','תותי','מישי','בוזי','דגי','לאלה','חומי','צוצי','טינו','רוזי','ליאו','מיקה','גוזי','בינו','טופי','קימי','שומי','דיני','פפו','ניבי','לוקי','ריו','מיו','גוני','בובא','קלי','שיר','דנה']
-const COLOR = ['אדום','כתום','צהוב','ירוק','טורקיז','תכלת','כחול','סגול','ורוד','ורוד','אדום','כתום','צהוב','ירוק','טורקיז','תכלת','כחול','סגול','ורוד','אדום','ורוד','כתום','צהוב','ירוק','ירוק','טורקיז','כחול','סגול','ורוד','אדום','אדום','כתום','צהוב','ירוק','ירוק','טורקיז','תכלת','כחול','סגול','ורוד','ורוד','כתום','צהוב','ירוק','ירוק','טורקיז','תכלת','כחול','סגול','ורוד']
-const LIKES = ['לקפוץ','לרקוד','לצחוק','להתחבק','לשיר','לספור','לשחק מחבואים','לאכול גלידה','לצייר','לעשות בועות','לשחק בכדור','לחלק נשיקות']
+// ── data (Hebrew, fully NIQQUD so the neural voice pronounces it right;
+//    kept in sync with friends.ts / FriendWorld.tsx), 1–50.
+//    No colours: many friends are multi-coloured, so a single colour is wrong. ──
+const NAME = ['לוּלוּ','טוּקִי','בּוּבִּי','גוּגוּ','מִימִי','נוּנִי','פִּיקוֹ','דוּדִי','זוּזוּ','קוּקוֹ','טוֹטוֹ','לִילִי','מוֹמוֹ','רִיקִי','שׁוּשׁוּ','גִילִי','רוֹנִי','יוֹיוֹ','סוֹפִי','קִיקִי','רוֹמִי','נִינִי','פּוּפִּי','תּוּתִי','מִישִׁי','בּוּזִי','דַּגִּי','לַאלָה','חוּמִי','צוּצִי','טִינוֹ','רוֹזִי','לֵיאוֹ','מִיקָה','גוּזִי','בִּינוֹ','טוֹפִי','קִימִי','שׁוּמִי','דִּינִי','פַּפּוֹ','נִיבִּי','לוּקִי','רִיוֹ','מִיוֹ','גוֹנִי','בּוּבָּה','קָלִי','שִׁיר','דָּנָה']
+const LIKES = ['לִקְפּוֹץ','לִרְקוֹד','לִצְחוֹק','לְהִתְחַבֵּק','לָשִׁיר','לִסְפּוֹר','לְשַׂחֵק מַחֲבוֹאִים','לֶאֱכוֹל גְּלִידָה','לְצַיֵּיר','לַעֲשׂוֹת בּוּעוֹת','לְשַׂחֵק בְּכַדּוּר','לְחַלֵּק נְשִׁיקוֹת']
 
-const ONES = ['', 'אחת', 'שתיים', 'שלוש', 'ארבע', 'חמש', 'שש', 'שבע', 'שמונה', 'תשע']
-const TEENS = ['עשר', 'אחת עשרה', 'שתים עשרה', 'שלוש עשרה', 'ארבע עשרה', 'חמש עשרה', 'שש עשרה', 'שבע עשרה', 'שמונה עשרה', 'תשע עשרה']
-const TENS = { 20: 'עשרים', 30: 'שלושים', 40: 'ארבעים', 50: 'חמישים' }
+const ONES = ['', 'אַחַת', 'שְׁתַּיִם', 'שָׁלוֹשׁ', 'אַרְבַּע', 'חָמֵשׁ', 'שֵׁשׁ', 'שֶׁבַע', 'שְׁמוֹנֶה', 'תֵּשַׁע']
+const TEENS = ['עֶשֶׂר', 'אַחַת עֶשְׂרֵה', 'שְׁתֵּים עֶשְׂרֵה', 'שְׁלוֹשׁ עֶשְׂרֵה', 'אַרְבַּע עֶשְׂרֵה', 'חֲמֵשׁ עֶשְׂרֵה', 'שֵׁשׁ עֶשְׂרֵה', 'שְׁבַע עֶשְׂרֵה', 'שְׁמוֹנֶה עֶשְׂרֵה', 'תְּשַׁע עֶשְׂרֵה']
+const TENS = { 20: 'עֶשְׂרִים', 30: 'שְׁלוֹשִׁים', 40: 'אַרְבָּעִים', 50: 'חֲמִשִּׁים' }
 function numWord(n) {
   if (n <= 9) return ONES[n]
   if (n <= 19) return TEENS[n - 10]
   const t = n - (n % 10)
   const u = n % 10
-  if (TENS[t]) return u === 0 ? TENS[t] : `${TENS[t]} ו${ONES[u]}`
+  if (TENS[t]) return u === 0 ? TENS[t] : `${TENS[t]} ${u === 2 || u === 8 ? 'וּ' : 'וְ'}${ONES[u]}`
   return String(n)
 }
 
 const lines = []
 for (let k = 1; k <= 50; k++) lines.push({ id: `num-${k}`, text: numWord(k) })
 for (let i = 0; i < 50; i++) {
-  lines.push({ id: `intro-${i}`, text: `שלום! אני ${NAME[i]}, אני המספר ${numWord(i + 1)}! הצבע שלי ${COLOR[i]}. הכי כיף לי ${LIKES[i % LIKES.length]}. בואו נשחק!` })
+  // Short, exclamatory sentences → the neural voice reads them with energy + pauses.
+  lines.push({ id: `intro-${i}`, text: `שָׁלוֹם!! אֲנִי ${NAME[i]}! אֲנִי הַמִּסְפָּר ${numWord(i + 1)}! הֲכִי כֵּיף לִי ${LIKES[i % LIKES.length]}!! בּוֹאוּ אִיתִּי וּנְשַׂחֵק בְּיַחַד!` })
 }
-lines.push({ id: 'fx-five', text: 'כיף!' }, { id: 'fx-hug', text: 'חיבוק גדול!' }, { id: 'fx-kiss', text: 'נשיקה!' })
+lines.push({ id: 'fx-five', text: 'כֵּיף!' }, { id: 'fx-hug', text: 'חִיבּוּק גָּדוֹל!' }, { id: 'fx-kiss', text: 'נְשִׁיקָה!' })
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
 const OUT = `public/voice/${LANG}`
@@ -51,7 +53,9 @@ if (PROVIDER === 'edge') {
   // Microsoft Edge neural voices — natural, free, no key.
   const { MsEdgeTTS, OUTPUT_FORMAT } = await import('msedge-tts')
   const VOICE = process.env.EDGE_VOICE || (LANG === 'he' ? 'he-IL-HilaNeural' : 'en-US-AvaNeural')
-  console.log(`ספק: Edge Neural (חינם, בלי מפתח) · קול ${VOICE} · שפה ${LANG} · ${lines.length} קליפים`)
+  // A touch higher + a touch faster = lively/energetic, not robotic (for a kid).
+  const PROSODY = { pitch: process.env.EDGE_PITCH || '+12%', rate: process.env.EDGE_RATE || '+6%' }
+  console.log(`ספק: Edge Neural (חינם, בלי מפתח) · קול ${VOICE} · pitch ${PROSODY.pitch} rate ${PROSODY.rate} · שפה ${LANG} · ${lines.length} קליפים`)
   const connect = async () => {
     const t = new MsEdgeTTS()
     await t.setMetadata(VOICE, OUTPUT_FORMAT.AUDIO_24KHZ_48KBITRATE_MONO_MP3)
@@ -62,7 +66,7 @@ if (PROVIDER === 'edge') {
     let lastErr
     for (let i = 0; i < 2; i++) {
       try {
-        const { audioStream } = await tts.toStream(text)
+        const { audioStream } = await tts.toStream(text, PROSODY)
         const chunks = []
         await new Promise((res, rej) => {
           audioStream.on('data', (c) => chunks.push(c))

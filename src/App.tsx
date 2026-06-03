@@ -5,6 +5,8 @@ import MeetFriends from './components/MeetFriends'
 import FriendWorld from './components/FriendWorld'
 import { GAMES, CATEGORIES } from './games/registry'
 import { FRIENDS } from './friends'
+import { useT } from './i18n'
+import { BackContext, type BackTarget } from './nav'
 
 // 3D screen pulls in Three.js — load it only when opened, so it never weighs
 // down the first paint of the rest of the app.
@@ -56,15 +58,21 @@ export default function App() {
   }, [route])
 
   const home = () => go('')
+  const { t } = useT()
 
+  // The shared back button (in GameShell) returns one level up, not to main.
+  // Default is home; routes that sit a level deeper override it below.
+  let back: BackTarget = { emoji: '🏠', label: t('nav.home') }
   let view = <HomeScreen onOpen={(id) => go(id)} onOpenCategory={(id) => go(`cat/${id}`)} />
 
   if (route.kind === 'meet') {
     view = <MeetFriends onExit={home} onOpen={(i) => go(`friend/${i}`)} />
   } else if (route.kind === 'friend') {
     const i = Number(route.id)
-    if (i >= 0 && i < FRIENDS.length)
+    if (i >= 0 && i < FRIENDS.length) {
+      back = { emoji: '⭐', label: t('home.meet.title') } // back to the friends list
       view = <FriendWorld index={i} onExit={() => go('meet')} onNavigate={(j) => go(`friend/${j}`)} />
+    }
   } else if (route.kind === 'gallery') {
     view = (
       <Suspense fallback={<p className="three-loading">טוען תלת מימד… 🧊</p>}>
@@ -73,11 +81,20 @@ export default function App() {
     )
   } else if (route.kind === 'game') {
     const game = GAMES.find((g) => g.id === route.id)
-    if (game) view = <game.Component onExit={home} />
+    if (game) {
+      const cat = CATEGORIES.find((c) => c.id === game.category)
+      // back to the category this game lives in, so picking another game is one tap
+      if (cat) back = { emoji: cat.emoji, label: t(`cat.${cat.id}`) }
+      view = <game.Component onExit={() => go(`cat/${game.category}`)} />
+    }
   } else if (route.kind === 'cat') {
     const category = CATEGORIES.find((c) => c.id === route.id)
     if (category) view = <CategoryScreen category={category} onPick={(id) => go(`game/${id}`)} onExit={home} />
   }
 
-  return <div className="app-shell">{view}</div>
+  return (
+    <div className="app-shell">
+      <BackContext.Provider value={back}>{view}</BackContext.Provider>
+    </div>
+  )
 }
