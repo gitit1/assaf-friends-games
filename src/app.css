@@ -8489,3 +8489,72 @@ button {
   box-shadow: var(--shadow);
   will-change: transform;
 }
+
+/* --- flick-physics games (basketball throw + soccer kick) --- */
+.phys-court {
+  position: relative;
+  width: min(94vw, 460px);
+  height: min(62svh, 600px);
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  touch-action: none;
+  user-select: none;
+}
+.basket-court2 {
+  background: linear-gradient(#fde9c8, #f6b56b);
+}
+.goal-field2 {
+  background: linear-gradient(#bbf7d0, #4ade80);
+}
+.phys-player {
+  position: absolute;
+  left: 4%;
+  bottom: 1%;
+  z-index: 3;
+  pointer-events: none;
+}
+.phys-keeper {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 2;
+  display: inline-flex;
+  pointer-events: none;
+  will-change: transform;
+}
+.phys-ball {
+  position: absolute;
+  top: 0;
+  left: 0;
+  border-radius: 50%;
+  z-index: 4;
+  pointer-events: none;
+  box-shadow: var(--shadow);
+  will-change: transform;
+}
+.basket-real {
+  background: radial-gradient(circle at 35% 30%, #fb923c, #c2410c);
+}
+.basket-real::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background:
+    linear-gradient(rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.35)) center / 100% 2px no-repeat,
+    linear-gradient(rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.35)) center / 2px 100% no-repeat;
+}
+.goal-real {
+  background: radial-gradient(circle at 32% 28%, #ffffff, #e5e7eb);
+  border: 2px solid #cbd5e1;
+}
+.goal-frame {
+  position: absolute;
+  top: 3%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 62%;
+  height: 22%;
+  z-index: 1;
+}

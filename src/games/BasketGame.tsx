@@ -2,38 +2,144 @@ import { useEffect, useRef, useState } from 'react'
 import GameShell from '../components/GameShell'
 import Friend from '../components/Friend'
 import type { GameProps } from './registry'
-import { playRise, playWin, unlockAudio } from '../audio'
+import { playNudge, playPop, playWin, unlockAudio } from '../audio'
 import { speakNumber } from '../voice'
-import { fitScale, useViewport } from '../useViewport'
 import { randInt } from './util'
 import { useT } from '../i18n'
 
-// Basketball: a friend (a number!) is the ball. Tap to shoot — it always swishes
-// in (no misses, no pressure), the basket counter climbs and is counted out loud.
+// Basketball — a REAL throw: flick anywhere with your finger, and the ball flies
+// with that exact strength + direction (a hard flick = a hard throw) and arcs
+// down under gravity. Sink it through the hoop and the basket is counted aloud.
+// The number is the player who throws; the ball is a real ball. No fail.
 export default function BasketGame({ onExit }: GameProps) {
   const { t } = useT()
-  const vp = useViewport()
   const [score, setScore] = useState(0)
-  const [ball, setBall] = useState(() => randInt(0, 9))
-  const [flying, setFlying] = useState(false)
-  const timers = useRef<number[]>([])
-  useEffect(() => () => timers.current.forEach((id) => window.clearTimeout(id)), [])
+  const [player, setPlayer] = useState(() => randInt(0, 9))
+  const courtRef = useRef<HTMLDivElement>(null)
+  const ballRef = useRef<HTMLDivElement>(null)
 
-  function shoot() {
-    if (flying) return
+  const size = useRef({ w: 340, h: 520 })
+  const ball = useRef({ x: 170, y: 430, vx: 0, vy: 0, r: 24, live: false })
+  const scored = useRef(false)
+  const scoreRef = useRef(0)
+  const samples = useRef<{ x: number; y: number; t: number }[]>([])
+  const raf = useRef(0)
+
+  const draw = () => {
+    const b = ball.current
+    const el = ballRef.current
+    if (!el) return
+    el.style.width = `${b.r * 2}px`
+    el.style.height = `${b.r * 2}px`
+    el.style.transform = `translate(${b.x - b.r}px, ${b.y - b.r}px)`
+  }
+  const rest = () => {
+    const { w, h } = size.current
+    const b = ball.current
+    b.r = Math.max(18, w * 0.07)
+    b.x = w * 0.5
+    b.y = h * 0.84
+    b.vx = 0
+    b.vy = 0
+    b.live = false
+    scored.current = false
+    draw()
+  }
+
+  useEffect(() => {
+    const court = courtRef.current
+    if (!court) return
+    const measure = () => {
+      const r = court.getBoundingClientRect()
+      size.current = { w: r.width, h: r.height }
+      if (!ball.current.live) rest()
+    }
+    measure()
+    window.addEventListener('resize', measure)
+    return () => {
+      window.removeEventListener('resize', measure)
+      cancelAnimationFrame(raf.current)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  const GRAV = 0.55
+  function loop() {
+    const b = ball.current
+    const { w, h } = size.current
+    const py = b.y
+    b.vy += GRAV
+    b.x += b.vx
+    b.y += b.vy
+    // hoop near the top — score whenever the ball crosses the rim line within the
+    // rim's width (works even for a very hard flick that skips many px per frame)
+    const hoopY = h * 0.17
+    const hoopX = w * 0.5
+    const rim = Math.max(34, w * 0.13)
+    const crossedRim = (py - hoopY) * (b.y - hoopY) <= 0
+    if (!scored.current && crossedRim && Math.abs(b.x - hoopX) < rim) {
+      scored.current = true
+      scoreRef.current += 1
+      setScore(scoreRef.current)
+      playWin()
+      speakNumber(scoreRef.current)
+    }
+    // side walls bounce gently
+    if (b.x < b.r) {
+      b.x = b.r
+      b.vx = Math.abs(b.vx) * 0.6
+    }
+    if (b.x > w - b.r) {
+      b.x = w - b.r
+      b.vx = -Math.abs(b.vx) * 0.6
+    }
+    draw()
+    // gone off the court → put a fresh ball back in the player's hands
+    if (b.y > h + 120 || b.y < -160) {
+      rest()
+      setPlayer(randInt(0, 9))
+      return
+    }
+    raf.current = requestAnimationFrame(loop)
+  }
+
+  function onDown(e: React.PointerEvent) {
+    if (ball.current.live) return
     unlockAudio()
-    setFlying(true)
-    playRise(score % 8)
-    timers.current.push(
-      window.setTimeout(() => {
-        const n = score + 1
-        setScore(n)
-        playWin()
-        speakNumber(n)
-        setFlying(false)
-        setBall(randInt(0, 9)) // a fresh friend to shoot next
-      }, 850),
-    )
+    samples.current = [{ x: e.clientX, y: e.clientY, t: e.timeStamp }]
+  }
+  function onMove(e: React.PointerEvent) {
+    if (ball.current.live || samples.current.length === 0) return
+    samples.current.push({ x: e.clientX, y: e.clientY, t: e.timeStamp })
+    if (samples.current.length > 6) samples.current.shift()
+  }
+  function onUp() {
+    if (ball.current.live) return
+    const s = samples.current
+    samples.current = []
+    if (s.length < 2) return
+    const a = s[0]
+    const z = s[s.length - 1]
+    const dt = Math.max(16, z.t - a.t)
+    const GAIN = 13
+    let vx = ((z.x - a.x) / dt) * GAIN
+    let vy = ((z.y - a.y) / dt) * GAIN
+    // need an upward flick to shoot; a downward/limp flick just nudges (no throw)
+    if (vy > -3) {
+      playNudge()
+      return
+    }
+    const { w } = size.current
+    const cap = w * 0.13
+    vx = Math.max(-cap, Math.min(cap, vx))
+    vy = Math.max(-cap * 1.6, vy)
+    const b = ball.current
+    b.vx = vx
+    b.vy = vy
+    b.live = true
+    playPop()
+    cancelAnimationFrame(raf.current)
+    raf.current = requestAnimationFrame(loop)
   }
 
   return (
@@ -43,24 +149,27 @@ export default function BasketGame({ onExit }: GameProps) {
           <span aria-hidden="true">🏀</span> {score}
         </div>
 
-        <div className="basket-court">
+        <div
+          className="phys-court basket-court2"
+          ref={courtRef}
+          onPointerDown={onDown}
+          onPointerMove={onMove}
+          onPointerUp={onUp}
+          onPointerCancel={onUp}
+          style={{ touchAction: 'none' }}
+        >
           <div className="basket-hoop" aria-hidden="true">
             <span className="basket-board" />
             <span className="basket-rim" />
             <span className="basket-net" />
           </div>
-          <button
-            className={`basket-ball ${flying ? 'is-flying' : ''}`}
-            onClick={shoot}
-            aria-label="לזרוק לסל"
-          >
-            <Friend index={ball} scale={fitScale(ball, vp, 0.32, 0.16)} showNumber />
-          </button>
+          <span className="phys-player" aria-hidden="true">
+            <Friend index={player} scale={0.42} showNumber />
+          </span>
+          <div className="phys-ball basket-real" ref={ballRef} aria-hidden="true" />
         </div>
 
-        <button className="big-button" onClick={shoot} disabled={flying}>
-          🏀 לזרוק!
-        </button>
+        <p className="sport-hint">החליקי באצבע למעלה כדי לזרוק לסל! 🏀</p>
       </div>
     </GameShell>
   )
