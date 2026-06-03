@@ -4,6 +4,7 @@ import Friend from './Friend'
 import { FRIEND_KINDS, FRIEND_NATURAL } from './FriendArt'
 import { FRIENDS } from '../friends'
 import { playTap, unlockAudio } from '../audio'
+import { useT } from '../i18n'
 
 const PER_PAGE = 10
 // widest friend in the whole cast — used to size them all so the biggest reaches
@@ -18,6 +19,7 @@ const MAX_W = Math.max(...FRIEND_KINDS.map((k) => FRIEND_NATURAL[k].w))
 // The group buttons are derived from FRIENDS.length, so adding the next ten
 // friends makes a new button appear on its own. Tap any friend to enter its WORLD.
 export default function MeetFriends({ onExit, onOpen }: { onExit: () => void; onOpen: (index: number) => void }) {
+  const { t } = useT()
   const groups = Math.ceil(FRIENDS.length / PER_PAGE)
   const [group, setGroup] = useState(0)
   const start = group * PER_PAGE
@@ -33,7 +35,7 @@ export default function MeetFriends({ onExit, onOpen }: { onExit: () => void; on
   const scale = (0.9 * Math.min(vw - 16, 560)) / MAX_W
 
   return (
-    <GameShell title="החברים שלי" emoji="⭐" onExit={onExit}>
+    <GameShell title={t('home.meet.title')} emoji="⭐" onExit={onExit}>
       {groups > 1 && (
         // LTR so the ranges read like a number line: 1–10, 11–20, … left to right
         <div className="meet-decades" dir="ltr">
@@ -56,7 +58,7 @@ export default function MeetFriends({ onExit, onOpen }: { onExit: () => void; on
         </div>
       )}
 
-      <p className="meet-intro">געו בחבר כדי להיכנס לעולם שלו! 👋</p>
+      <p className="meet-intro">{t('meet.intro')}</p>
 
       <div className="meet-grid">
         {FRIENDS.slice(start, end).map((friend, j) => {

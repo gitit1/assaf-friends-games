@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import { playTap, unlockAudio } from '../audio'
 import { stopSpeech } from '../speech'
+import { useT } from '../i18n'
 
 type GameShellProps = {
   title: string
@@ -11,6 +12,7 @@ type GameShellProps = {
 
 // Shared frame for every game: a calm header with one big, obvious "back home" button.
 export default function GameShell({ title, emoji, onExit, children }: GameShellProps) {
+  const { t } = useT()
   return (
     <div className="game-screen">
       <header className="game-top-bar">
@@ -22,10 +24,10 @@ export default function GameShell({ title, emoji, onExit, children }: GameShellP
             playTap()
             onExit()
           }}
-          aria-label="חזרה למסך הבית"
+          aria-label={t('nav.home.aria')}
         >
           <span aria-hidden="true">🏠</span>
-          <span>בית</span>
+          <span>{t('nav.home')}</span>
         </button>
         <h1 className="game-title">
           <span aria-hidden="true">{emoji}</span> {title}

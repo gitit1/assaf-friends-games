@@ -1,6 +1,7 @@
 import { gamesInCategory, type Category } from '../games/registry'
 import { playTap, unlockAudio } from '../audio'
 import { stopSpeech } from '../speech'
+import { useT } from '../i18n'
 
 type Props = {
   category: Category
@@ -11,12 +12,14 @@ type Props = {
 // The games inside one category. Reuses the game-screen frame so it feels like
 // any other screen, with the big "home" button.
 export default function CategoryScreen({ category, onPick, onExit }: Props) {
+  const { t } = useT()
   function tap() {
     unlockAudio()
     stopSpeech()
     playTap()
   }
   const games = gamesInCategory(category.id)
+  const catTitle = t(`cat.${category.id}`)
 
   return (
     <div className="game-screen">
@@ -27,17 +30,17 @@ export default function CategoryScreen({ category, onPick, onExit }: Props) {
             tap()
             onExit()
           }}
-          aria-label="חזרה למסך הבית"
+          aria-label={t('nav.home.aria')}
         >
           <span aria-hidden="true">🏠</span>
-          <span>בית</span>
+          <span>{t('nav.home')}</span>
         </button>
         <h1 className="game-title">
-          <span aria-hidden="true">{category.emoji}</span> {category.title}
+          <span aria-hidden="true">{category.emoji}</span> {catTitle}
         </h1>
       </header>
       <main className="game-body">
-        <nav className="game-grid" aria-label={category.title}>
+        <nav className="game-grid" aria-label={catTitle}>
           {games.map((game) => (
             <button
               key={game.id}
@@ -51,7 +54,7 @@ export default function CategoryScreen({ category, onPick, onExit }: Props) {
               <span className="game-card-emoji" aria-hidden="true">
                 {game.emoji}
               </span>
-              <span className="game-card-title">{game.title}</span>
+              <span className="game-card-title">{t(`game.${game.id}`)}</span>
             </button>
           ))}
         </nav>

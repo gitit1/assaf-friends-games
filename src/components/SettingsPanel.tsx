@@ -42,14 +42,14 @@ function Toggle({
 export default function SettingsPanel() {
   const [open, setOpen] = useState(false)
   const settings = useSettings()
-  const { t } = useT()
+  const { t, say } = useT()
   const voiceMissing = settings.voice && settings.lang === 'he' && !hasHebrewVoice()
 
   return (
     <>
       <button
         className="settings-gear"
-        aria-label="הגדרות"
+        aria-label={t('settings.title')}
         onClick={() => {
           unlockAudio()
           playTap()
@@ -85,51 +85,47 @@ export default function SettingsPanel() {
             </div>
 
             <Toggle
-              label="🔊 קול בעברית"
-              hint="הקראה ועידוד לאסף"
+              label={t('settings.voice')}
+              hint={t('settings.voice.hint')}
               value={settings.voice}
               onChange={(next) => {
                 updateSettings({ voice: next })
-                if (next) speak('שלום אסף')
+                if (next) speak(say('settings.hi'))
               }}
             />
 
-            {voiceMissing && (
-              <p className="settings-warning">
-                לא נמצא קול עברי במכשיר הזה. אפשר להתקין קול עברית בהגדרות הטלפון, או להמשיך עם צלילים בלבד.
-              </p>
-            )}
+            {voiceMissing && <p className="settings-warning">{t('settings.voiceMissing')}</p>}
 
             <Toggle
-              label="🎵 צלילים"
-              hint="צלילי מגע והצלחה"
+              label={t('settings.sound')}
+              hint={t('settings.sound.hint')}
               value={settings.sound}
               onChange={(next) => updateSettings({ sound: next })}
             />
 
             <Toggle
-              label="🗣️ שמות החברים"
-              hint="להשמיע את שם/מספר החבר בלחיצה"
+              label={t('settings.names')}
+              hint={t('settings.names.hint')}
               value={settings.sayNames}
               onChange={(next) => updateSettings({ sayNames: next })}
             />
 
             <div className="settings-row settings-row-static settings-row-stack">
               <span className="settings-row-text">
-                <span className="settings-row-label">🎯 רמת קושי</span>
-                <span className="settings-row-hint">איך כל משחק מתחיל (אפשר לשנות גם בתוך המשחק)</span>
+                <span className="settings-row-label">{t('settings.difficulty')}</span>
+                <span className="settings-row-hint">{t('settings.difficulty.hint')}</span>
               </span>
               <span className="settings-choice settings-choice-wide">
-                {DIFFICULTY_TIERS.map((label, i) => (
+                {DIFFICULTY_TIERS.map((_, i) => (
                   <button
-                    key={label}
+                    key={i}
                     className={`pill pill-small ${settings.difficulty === i ? 'pill-active' : ''}`}
                     onClick={() => {
                       playTap()
                       updateSettings({ difficulty: i })
                     }}
                   >
-                    {label}
+                    {t(`diff.${i}`)}
                   </button>
                 ))}
               </span>
@@ -137,8 +133,8 @@ export default function SettingsPanel() {
 
             <div className="settings-row settings-row-static">
               <span className="settings-row-text">
-                <span className="settings-row-label">⏱️ החלפת חבר</span>
-                <span className="settings-row-hint">במשחק "תופסים חבר"</span>
+                <span className="settings-row-label">{t('settings.catch')}</span>
+                <span className="settings-row-hint">{t('settings.catch.hint')}</span>
               </span>
               <span className="settings-choice">
                 {[30, 60].map((sec) => (
@@ -150,14 +146,14 @@ export default function SettingsPanel() {
                       updateSettings({ catchSeconds: sec })
                     }}
                   >
-                    {sec === 30 ? 'חצי דקה' : 'דקה'}
+                    {sec === 30 ? t('settings.catch.half') : t('settings.catch.min')}
                   </button>
                 ))}
               </span>
             </div>
 
             <button className="big-button settings-close" onClick={() => setOpen(false)}>
-              סגירה
+              {t('settings.close')}
             </button>
           </div>
         </div>
