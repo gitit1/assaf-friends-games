@@ -9,11 +9,20 @@ type Props = {
   label: string
   onClick: () => void
   disabled?: boolean
+  /** Highlight the button as the currently-active tool/mode. */
+  active?: boolean
 }
 
-export default function IconButton({ icon, label, onClick, disabled = false }: Props) {
+export default function IconButton({ icon, label, onClick, disabled = false, active = false }: Props) {
   return (
-    <button type="button" className="icon-button" onClick={onClick} disabled={disabled} aria-label={label}>
+    <button
+      type="button"
+      className={`icon-button ${active ? 'is-active' : ''}`}
+      onClick={onClick}
+      disabled={disabled}
+      aria-label={label}
+      aria-pressed={active}
+    >
       <span aria-hidden="true">{icon}</span>
     </button>
   )

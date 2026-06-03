@@ -34,6 +34,9 @@ export default function DrawBoard({ onExit }: GameProps) {
   const [stampFriend, setStampFriend] = useState(0)
   const [stamps, setStamps] = useState<Stamp[]>([])
   const [more, setMore] = useState(false)
+  // "grab" mode: stop drawing/stamping and instead pick a placed sticker to move
+  // it. Picking a colour or a sticker switches back to drawing/stamping.
+  const [grab, setGrab] = useState(false)
   stampsRef.current = stamps // latest stamps, for the pointer handlers below
 
   // undo / redo — a list of {canvas image, stamps} snapshots with a cursor
@@ -134,6 +137,7 @@ export default function DrawBoard({ onExit }: GameProps) {
   }
 
   function down(e: React.PointerEvent) {
+    if (grab) return // in grab mode the board does nothing; only stickers respond
     unlockAudio()
     boardRef.current?.setPointerCapture?.(e.pointerId)
     const p = pos(e)
@@ -211,11 +215,18 @@ export default function DrawBoard({ onExit }: GameProps) {
   function pickColor(c: string) {
     setColor(c)
     setStamp(null)
+    setGrab(false)
     playTap()
   }
   function pickBrush(b: number) {
     setSize(b)
     setStamp(null)
+    setGrab(false)
+    playTap()
+  }
+  function pickStamp(s: 'friend' | string) {
+    setStamp(s)
+    setGrab(false)
     playTap()
   }
 
@@ -226,15 +237,15 @@ export default function DrawBoard({ onExit }: GameProps) {
           {COLORS.map((c) => (
             <button
               key={c}
-              className={`color-swatch ${!stamp && color === c ? 'is-active' : ''}`}
+              className={`color-swatch ${!grab && !stamp && color === c ? 'is-active' : ''}`}
               style={{ background: c }}
               onClick={() => pickColor(c)}
               aria-label="צבע"
             />
           ))}
           <button
-            className={`color-swatch color-more-btn ${!stamp && !COLORS.includes(color) ? 'is-active' : ''}`}
-            style={!stamp && !COLORS.includes(color) ? { background: color } : undefined}
+            className={`color-swatch color-more-btn ${!grab && !stamp && !COLORS.includes(color) ? 'is-active' : ''}`}
+            style={!grab && !stamp && !COLORS.includes(color) ? { background: color } : undefined}
             onClick={() => {
               playTap()
               setMore(true)
@@ -246,7 +257,7 @@ export default function DrawBoard({ onExit }: GameProps) {
           {BRUSHES.map((b, i) => (
             <button
               key={b}
-              className={`brush-btn ${!stamp && size === b ? 'is-active' : ''}`}
+              className={`brush-btn ${!grab && !stamp && size === b ? 'is-active' : ''}`}
               onClick={() => pickBrush(b)}
               aria-label={`עובי ${i + 1}`}
             >
@@ -258,16 +269,18 @@ export default function DrawBoard({ onExit }: GameProps) {
         <div className="draw-stampbar">
           <Stepper
             label={
-              <button
-                className={`stamp-friend ${stamp === 'friend' ? 'is-active' : ''}`}
-                onClick={() => {
-                  setStamp('friend')
-                  playTap()
-                }}
-                aria-label={`מדבקת ${friendName(stampFriend)}`}
-              >
-                <Friend index={stampFriend} scale={52 / friendMaxDim(stampFriend)} showNumber={false} />
-              </button>
+              <span className="stamp-pick">
+                <span className="stamp-digit" aria-hidden="true">
+                  {stampFriend + 1}
+                </span>
+                <button
+                  className={`stamp-friend ${!grab && stamp === 'friend' ? 'is-active' : ''}`}
+                  onClick={() => pickStamp('friend')}
+                  aria-label={`מדבקת ${friendName(stampFriend)}`}
+                >
+                  <Friend index={stampFriend} scale={52 / friendMaxDim(stampFriend)} showNumber={false} />
+                </button>
+              </span>
             }
             onPrev={() => setStampFriend((p) => (p + FRIENDS.length - 1) % FRIENDS.length)}
             onNext={() => setStampFriend((p) => (p + 1) % FRIENDS.length)}
@@ -276,11 +289,8 @@ export default function DrawBoard({ onExit }: GameProps) {
             {EMOJI.map((em) => (
               <button
                 key={em}
-                className={`emoji-stamp ${stamp === em ? 'is-active' : ''}`}
-                onClick={() => {
-                  setStamp(em)
-                  playTap()
-                }}
+                className={`emoji-stamp ${!grab && stamp === em ? 'is-active' : ''}`}
+                onClick={() => pickStamp(em)}
                 aria-label="מדבקה"
               >
                 {em}
@@ -302,12 +312,16 @@ export default function DrawBoard({ onExit }: GameProps) {
             {stamps.map((s) => (
               <span
                 key={s.id}
-                className={`draw-stamp ${s.emoji ? 'draw-stamp-emoji' : ''}`}
+                className={`draw-stamp ${s.emoji ? 'draw-stamp-emoji' : ''} ${grab ? 'is-grabbable' : ''}`}
                 style={{ left: s.x, top: s.y }}
-                onPointerDown={(e) => stampDown(e, s)}
-                onPointerMove={stampMove}
-                onPointerUp={stampUp}
-                onPointerCancel={stampUp}
+                {...(grab
+                  ? {
+                      onPointerDown: (e: React.PointerEvent) => stampDown(e, s),
+                      onPointerMove: stampMove,
+                      onPointerUp: stampUp,
+                      onPointerCancel: stampUp,
+                    }
+                  : {})}
               >
                 {s.emoji ?? <Friend index={s.friend!} scale={66 / friendMaxDim(s.friend!)} showNumber={false} />}
               </span>
@@ -316,6 +330,15 @@ export default function DrawBoard({ onExit }: GameProps) {
         </div>
 
         <div className="color-actions">
+          <IconButton
+            icon="✋"
+            label="תפיסה והזזה של מדבקה"
+            active={grab}
+            onClick={() => {
+              setGrab((g) => !g)
+              playTap()
+            }}
+          />
           <IconButton icon="↺" label="ביטול" onClick={undo} disabled={!canUndo} />
           <IconButton icon="↻" label="חזרה" onClick={redo} disabled={!canRedo} />
           <IconButton icon="🧽" label="מנקים הכול" onClick={clearAll} />
@@ -325,6 +348,7 @@ export default function DrawBoard({ onExit }: GameProps) {
             onClick={() => {
               setStampFriend(randInt(0, FRIENDS.length - 1))
               setStamp('friend')
+              setGrab(false)
               playTap()
             }}
           />
@@ -343,7 +367,7 @@ export default function DrawBoard({ onExit }: GameProps) {
                 <button
                   key={`${p.color}-${i}`}
                   type="button"
-                  className={`color-swatch ${!stamp && color === p.color ? 'is-active' : ''}`}
+                  className={`color-swatch ${!grab && !stamp && color === p.color ? 'is-active' : ''}`}
                   style={{ background: p.color }}
                   onClick={() => {
                     pickColor(p.color)

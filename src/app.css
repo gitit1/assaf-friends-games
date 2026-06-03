@@ -6602,6 +6602,11 @@ button {
 .icon-button:disabled {
   opacity: 0.38;
 }
+.icon-button.is-active {
+  background: var(--accent, #6366f1);
+  color: #fff;
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.3), var(--shadow);
+}
 /* ◀ label ▶ stepper. direction:ltr keeps the arrows on the correct side in RTL */
 .stepper {
   display: flex;
@@ -7117,6 +7122,19 @@ button {
   gap: 12px;
   flex-wrap: wrap;
 }
+.stamp-pick {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.stamp-digit {
+  font-family: 'Fredoka', 'Heebo', sans-serif;
+  font-weight: 800;
+  font-size: 2rem;
+  min-width: 1.2em;
+  text-align: center;
+  color: #4338ca;
+}
 .stamp-friend {
   width: 70px;
   height: 70px;
@@ -7177,9 +7195,16 @@ button {
   transform: translate(-50%, -50%);
   display: inline-flex;
   align-items: flex-end;
-  pointer-events: auto; /* drag to move, tap to remove (container stays click-through) */
+  pointer-events: none; /* fixed by default so you can draw/stamp over stickers */
   touch-action: none;
+}
+/* only in "grab" mode can a sticker be picked up + moved (tap to remove) */
+.draw-stamp.is-grabbable {
+  pointer-events: auto;
   cursor: grab;
+  outline: 3px dashed rgba(99, 102, 241, 0.7);
+  outline-offset: 3px;
+  border-radius: 10px;
 }
 .draw-stamp-emoji {
   font-size: 2.6rem;
