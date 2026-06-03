@@ -79,6 +79,10 @@ export type FriendKind =
   | 'lumi'
   | 'gabi'
   | 'zumi'
+  // 71–100 — the rest of the cast (full rainbow), each with a unique pool item
+  | 'tika' | 'boomi' | 'lalo' | 'pini' | 'sasi' | 'momi' | 'dudu' | 'nono' | 'kuli' | 'raviv'
+  | 'tami' | 'gigi' | 'lubi' | 'nimi' | 'poli' | 'zaza' | 'louie' | 'milo' | 'rina' | 'bobo'
+  | 'koki' | 'lola' | 'didi' | 'pitsi' | 'nuna' | 'gaga' | 'tipo' | 'susu' | 'tomi' | 'maya'
 
 // Friend index (0-based) → kind. Friend #1 (לולו) is index 0.
 export const FRIEND_KINDS: FriendKind[] = [
@@ -152,6 +156,9 @@ export const FRIEND_KINDS: FriendKind[] = [
   'lumi',
   'gabi',
   'zumi',
+  'tika', 'boomi', 'lalo', 'pini', 'sasi', 'momi', 'dudu', 'nono', 'kuli', 'raviv',
+  'tami', 'gigi', 'lubi', 'nimi', 'poli', 'zaza', 'louie', 'milo', 'rina', 'bobo',
+  'koki', 'lola', 'didi', 'pitsi', 'nuna', 'gaga', 'tipo', 'susu', 'tomi', 'maya',
 ]
 
 // ---- 11–20: the bigger friends ----
@@ -171,6 +178,9 @@ export const BIG_KINDS = [
   'libi', 'domi', 'nati', 'peli', 'ziv',
   'riko', 'dabi', 'foki', 'loti', 'bibo',
   'toni', 'nuki', 'lumi', 'gabi', 'zumi',
+  'tika', 'boomi', 'lalo', 'pini', 'sasi', 'momi', 'dudu', 'nono', 'kuli', 'raviv',
+  'tami', 'gigi', 'lubi', 'nimi', 'poli', 'zaza', 'louie', 'milo', 'rina', 'bobo',
+  'koki', 'lola', 'didi', 'pitsi', 'nuna', 'gaga', 'tipo', 'susu', 'tomi', 'maya',
 ] as const
 type BigKind = (typeof BIG_KINDS)[number]
 export type BigAccessory =
@@ -258,6 +268,37 @@ export const BIG: Record<BigKind, {
   lumi:   { rows: [9, 10, 10, 10, 10, 10, 9],   bc: '#3b82f6', shoe: '#facc15', acc: 'propeller', face: 'plain' }, // 68
   gabi:   { rows: [10, 10, 10, 9, 10, 10, 10],  bc: '#8b5cf6', shoe: '#15803d', acc: 'earmuffs',  face: 'plain' }, // 69
   zumi:   { rows: [10, 10, 10, 10, 10, 10, 10], bc: '#d946ef', shoe: '#7c3aed', acc: 'glasses',   face: 'girl' }, // 70 ■
+  // 71–100 — the rest of the cast. `acc` is unused here (a unique pool item shows instead).
+  tika:  { rows: [10, 10, 10, 11, 10, 10, 10], bc: '#ef4444', shoe: '#1e3a8a', acc: 'star', face: 'girl' }, // 71
+  boomi: { rows: [10, 10, 11, 10, 11, 10, 10], bc: '#f97316', shoe: '#0e7490', acc: 'star', face: 'plain' }, // 72
+  lalo:  { rows: [10, 10, 11, 11, 11, 10, 10], bc: '#f59e0b', shoe: '#b91c1c', acc: 'star', face: 'plain' }, // 73
+  pini:  { rows: [10, 11, 11, 10, 11, 11, 10], bc: '#eab308', shoe: '#db2777', acc: 'star', face: 'girl' }, // 74
+  sasi:  { rows: [10, 11, 11, 11, 11, 11, 10], bc: '#84cc16', shoe: '#f59e0b', acc: 'star', face: 'girl' }, // 75
+  momi:  { rows: [11, 11, 11, 10, 11, 11, 11], bc: '#22c55e', shoe: '#f43f5e', acc: 'star', face: 'plain' }, // 76
+  dudu:  { rows: [11, 11, 11, 11, 11, 11, 11], bc: '#10b981', shoe: '#22c55e', acc: 'star', face: 'plain' }, // 77 ■
+  nono:  { rows: [9, 10, 10, 10, 10, 10, 10, 9], bc: '#14b8a6', shoe: '#facc15', acc: 'star', face: 'girl' }, // 78
+  kuli:  { rows: [10, 10, 10, 9, 10, 10, 10, 10], bc: '#06b6d4', shoe: '#15803d', acc: 'star', face: 'plain' }, // 79
+  raviv: { rows: [10, 10, 10, 10, 10, 10, 10, 10], bc: '#0ea5e9', shoe: '#7c3aed', acc: 'star', face: 'plain' }, // 80 ■
+  tami:  { rows: [10, 10, 10, 11, 10, 10, 10, 10], bc: '#3b82f6', shoe: '#1e3a8a', acc: 'star', face: 'girl' }, // 81
+  gigi:  { rows: [10, 10, 10, 11, 11, 10, 10, 10], bc: '#6366f1', shoe: '#0e7490', acc: 'star', face: 'girl' }, // 82
+  lubi:  { rows: [10, 10, 11, 11, 11, 10, 10, 10], bc: '#8b5cf6', shoe: '#b91c1c', acc: 'star', face: 'plain' }, // 83
+  nimi:  { rows: [10, 10, 11, 11, 11, 11, 10, 10], bc: '#a855f7', shoe: '#db2777', acc: 'star', face: 'girl' }, // 84
+  poli:  { rows: [10, 11, 11, 11, 11, 11, 10, 10], bc: '#d946ef', shoe: '#f59e0b', acc: 'star', face: 'plain' }, // 85
+  zaza:  { rows: [10, 11, 11, 11, 11, 11, 11, 10], bc: '#ec4899', shoe: '#f43f5e', acc: 'star', face: 'girl' }, // 86
+  louie: { rows: [11, 11, 11, 11, 11, 11, 11, 10], bc: '#f43f5e', shoe: '#22c55e', acc: 'star', face: 'plain' }, // 87
+  milo:  { rows: [11, 11, 11, 11, 11, 11, 11, 11], bc: '#fb7185', shoe: '#facc15', acc: 'star', face: 'plain' }, // 88 ■
+  rina:  { rows: [10, 10, 10, 10, 9, 10, 10, 10, 10], bc: '#fb923c', shoe: '#15803d', acc: 'star', face: 'girl' }, // 89
+  bobo:  { rows: [10, 10, 10, 10, 10, 10, 10, 10, 10], bc: '#fbbf24', shoe: '#7c3aed', acc: 'star', face: 'plain' }, // 90 ■
+  koki:  { rows: [10, 10, 10, 10, 11, 10, 10, 10, 10], bc: '#a3e635', shoe: '#1e3a8a', acc: 'star', face: 'girl' }, // 91
+  lola:  { rows: [10, 10, 10, 11, 10, 11, 10, 10, 10], bc: '#34d399', shoe: '#0e7490', acc: 'star', face: 'girl' }, // 92
+  didi:  { rows: [10, 10, 10, 11, 11, 11, 10, 10, 10], bc: '#2dd4bf', shoe: '#b91c1c', acc: 'star', face: 'plain' }, // 93
+  pitsi: { rows: [10, 10, 11, 11, 10, 11, 11, 10, 10], bc: '#22d3ee', shoe: '#db2777', acc: 'star', face: 'girl' }, // 94
+  nuna:  { rows: [10, 10, 11, 11, 11, 11, 11, 10, 10], bc: '#38bdf8', shoe: '#f59e0b', acc: 'star', face: 'girl' }, // 95
+  gaga:  { rows: [10, 11, 11, 11, 10, 11, 11, 11, 10], bc: '#818cf8', shoe: '#f43f5e', acc: 'star', face: 'plain' }, // 96
+  tipo:  { rows: [10, 11, 11, 11, 11, 11, 11, 11, 10], bc: '#c084fc', shoe: '#22c55e', acc: 'star', face: 'plain' }, // 97
+  susu:  { rows: [11, 11, 11, 11, 10, 11, 11, 11, 11], bc: '#e879f9', shoe: '#facc15', acc: 'star', face: 'plain' }, // 98
+  tomi:  { rows: [11, 11, 11, 11, 11, 11, 11, 11, 11], bc: '#f0abfc', shoe: '#15803d', acc: 'star', face: 'girl' }, // 99 ■
+  maya:  { rows: [10, 10, 10, 10, 10, 10, 10, 10, 10, 10], bc: '#fda4af', shoe: '#7c3aed', acc: 'star', face: 'girl' }, // 100 ■
 }
 
 const bigNatural = Object.fromEntries(
