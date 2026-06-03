@@ -6,6 +6,7 @@ import { playRise, playWin, unlockAudio } from '../audio'
 import { speak } from '../speech'
 import { friendSay } from '../friends'
 import { numberWordNiqqud, randInt } from './util'
+import { speakNumber } from '../voice'
 import { fitScale, useViewport } from '../useViewport'
 
 // Show one friend and count its blocks out loud, lighting them up. Like the
@@ -48,7 +49,7 @@ export default function CountGame({ onExit }: GameProps) {
       seq.push(n)
     } else {
       setLit(n)
-      speak(numberWordNiqqud(n))
+      speakNumber(n)
       for (let v = n - step; v > 0; v -= step) seq.push(v)
       seq.push(0)
     }
@@ -58,7 +59,7 @@ export default function CountGame({ onExit }: GameProps) {
         window.setTimeout(() => {
           setLit(litVal)
           playRise(idx) // climbing notes → the count sings
-          if (litVal > 0) speak(numberWordNiqqud(litVal))
+          if (litVal > 0) speakNumber(litVal)
         }, (idx + 1) * speed),
       )
     })

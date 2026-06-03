@@ -6,7 +6,8 @@ import type { GameProps } from './registry'
 import { playNudge, playSuccess, playWin, playTap, unlockAudio } from '../audio'
 import { speak } from '../speech'
 import { FRIENDS, friendName, friendSay } from '../friends'
-import { numberWordNiqqud, randInt, shuffle } from './util'
+import { randInt, shuffle } from './util'
+import { speakNumber } from '../voice'
 import { screenScale, useViewport } from '../useViewport'
 
 // "Which friend?" — a Hebrew letter is shown and spoken; tap the friend whose
@@ -50,7 +51,7 @@ export default function WhichFriend({ onExit }: GameProps) {
       setScore(ns)
       if (ns % 5 === 0) {
         playWin()
-        speak(`${numberWordNiqqud(ns)}!`) // calm milestone: announce the running count
+        speakNumber(ns) // calm milestone: announce the running count
       } else {
         playSuccess()
         speak(`${letterName}! ${friendSay(round.target)}`)

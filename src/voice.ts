@@ -1,4 +1,5 @@
 import { speak, speechOn, stopSpeech } from './speech'
+import { numberWord } from './games/util'
 
 // Plays a PRE-RECORDED clip (public/voice/<id>.mp3) for a fixed line, and falls
 // back to the browser voice if the clip isn't there yet. This lets us swap the
@@ -35,4 +36,11 @@ export function playClip(id: string, fallback: string) {
   }
   audio.addEventListener('error', onFail)
   audio.play().catch(onFail)
+}
+
+// Read a single number — plays the recorded `num-<n>.mp3` if present, otherwise
+// the (niqqud) browser voice. Use this everywhere a game reads a number ALOUD,
+// so dropping in recorded clips fixes the pronunciation across the whole app.
+export function speakNumber(n: number) {
+  playClip(`num-${n}`, numberWord(n))
 }

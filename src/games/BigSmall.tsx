@@ -7,6 +7,7 @@ import { playNudge, playSuccess, playWin, unlockAudio } from '../audio'
 import { speak } from '../speech'
 import { friendSay, friendSize } from '../friends'
 import { numberWordNiqqud, randInt } from './util'
+import { speakNumber } from '../voice'
 import { screenScale, useViewport } from '../useViewport'
 import { getSettings } from '../settings'
 
@@ -82,7 +83,7 @@ export default function BigSmall({ onExit }: GameProps) {
       setScore(ns)
       if (ns % 5 === 0) {
         playWin()
-        speak(`${numberWordNiqqud(ns)}!`)
+        speakNumber(ns)
       } else {
         playSuccess()
         speak(friendSay(n - 1))

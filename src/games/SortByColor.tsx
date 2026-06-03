@@ -5,8 +5,8 @@ import { friendMaxDim } from '../components/FriendArt'
 import { friendName } from '../friends'
 import type { GameProps } from './registry'
 import { playNudge, playSuccess, playTap, playWin, unlockAudio } from '../audio'
-import { speak } from '../speech'
-import { numberWordNiqqud, randInt, shuffle } from './util'
+import { randInt, shuffle } from './util'
+import { speakNumber } from '../voice'
 
 // "Sort it" — drag each item into its matching basket. Four modes: by colour
 // (smiley faces), by number, by letter (A–Z), or by friend. No timer, no losing:
@@ -171,7 +171,7 @@ export default function SortByColor({ onExit }: GameProps) {
       setCounts((c) => ({ ...c, [drag.key]: newCount }))
       const left = blobs.filter((x) => x.id !== drag.id)
       setBlobs(left)
-      speak(numberWordNiqqud(newCount))
+      speakNumber(newCount)
       if (left.length === 0) {
         playWin()
         window.setTimeout(() => setBlobs(freshBatch(numCats)), 1400)

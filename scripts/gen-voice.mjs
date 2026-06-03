@@ -1,52 +1,64 @@
-// One-time generator for the natural-voice clips (replaces the robotic TTS for
-// fixed lines). Writes .mp3 files to public/voice/ which the app plays
-// (src/voice.ts). Missing clips just fall back to the browser voice.
+// One-time generator for the natural-voice clips. Writes .mp3 files to
+// public/voice/ which the app plays (src/voice.ts); a missing clip falls back to
+// the browser voice, so everything works with or without these.
 //
-// Pick a provider with VOICE_PROVIDER (default: elevenlabs). Slow/speed with
-// VOICE_SPEED (default 0.85 = a bit slower; ElevenLabs range 0.7–1.2).
+// DEFAULT provider is 'gtx' — Google Translate's FREE TTS (no key, no payment).
+// It speaks Hebrew numbers correctly, which is the whole point (the browser
+// voice mispronounces 2 / 9 / 13 …). Just run:
+//     node scripts/gen-voice.mjs
+// then:  git add public/voice && git commit -m "voice clips" && git push
 //
-//  ── hear the voices first (ElevenLabs) ──
-//     $env:ELEVENLABS_API_KEY="KEY"; node scripts/gen-voice.mjs samples
-//     → makes public/voice/_sample-<name>.mp3 for each FEMALE voice + prints IDs.
-//       Listen, then regenerate with your pick:
-//     $env:ELEVENLABS_VOICE_ID="THE_ID"; $env:ELEVENLABS_API_KEY="KEY"; node scripts/gen-voice.mjs
-//
-//  ── google (best Hebrew) ──
-//     $env:VOICE_PROVIDER="google"; $env:GOOGLE_TTS_KEY="KEY"; node scripts/gen-voice.mjs
-//     female Hebrew voices: he-IL-Wavenet-A or he-IL-Wavenet-C (set GOOGLE_TTS_VOICE)
-//
-// Then:  git add public/voice; git commit -m "voice clips"; git push
+// Optional paid/better providers stay available:
+//   $env:VOICE_PROVIDER="google";  $env:GOOGLE_TTS_KEY="KEY";   node scripts/gen-voice.mjs
 import { writeFileSync, mkdirSync } from 'node:fs'
 
-const PROVIDER = process.env.VOICE_PROVIDER || 'elevenlabs'
-const MODE = process.argv[2] // 'samples' (optional)
-const SPEED = Number(process.env.VOICE_SPEED || 0.85)
-const DELAY = Number(process.env.VOICE_DELAY || 500)
+const PROVIDER = process.env.VOICE_PROVIDER || 'gtx'
+const SPEED = Number(process.env.VOICE_SPEED || 0.9)
+const DELAY = Number(process.env.VOICE_DELAY || 600)
 
-// keep these in sync with the app (friends.ts / util.ts / FriendWorld.tsx)
-const SAY = ['לוּלוּ','טוּקִי','בּוּבִּי','גוּגוּ','מִימִי','נוּנִי','פִּיקוֹ','דוּדִי','זוּזוּ','קוּקוֹ','טוֹטוֹ','לִילִי','מוֹמוֹ','רִיקִי','שׁוּשׁוּ','גִילִי','רוֹנִי','יוֹיוֹ','סוֹפִי','קִיקִי','רוֹמִי','נִינִי','פּוּפִּי','תּוּתִי','מִישִׁי','בּוּזִי','דַּגִּי','לַאלָה','חוּמִי','צוּצִי']
-const COLOR = ['אדום','כתום','צהוב','ירוק','טורקיז','תכלת','כחול','סגול','ורוד','ורוד','אדום','כתום','צהוב','ירוק','טורקיז','תכלת','כחול','סגול','ורוד','אדום','ורוד','כתום','צהוב','ירוק','ירוק','טורקיז','כחול','סגול','ורוד','אדום']
-const NUM = ['אחת','שתיים','שלוש','ארבע','חמש','שש','שבע','שמונה','תשע','עשר','אחת עשרה','שתים עשרה','שלוש עשרה','ארבע עשרה','חמש עשרה','שש עשרה','שבע עשרה','שמונה עשרה','תשע עשרה','עשרים','עשרים ואחת','עשרים ושתיים','עשרים ושלוש','עשרים וארבע','עשרים וחמש','עשרים ושש','עשרים ושבע','עשרים ושמונה','עשרים ותשע','שלושים']
+// ── data (kept in sync with friends.ts / FriendWorld.tsx), 1–50 ──
+const NAME = ['לולו','טוקי','בובי','גוגו','מימי','נוני','פיקו','דודי','זוזו','קוקו','טוטו','לילי','מומו','ריקי','שושו','גילי','רוני','יויו','סופי','קיקי','רומי','ניני','פופי','תותי','מישי','בוזי','דגי','לאלה','חומי','צוצי','טינו','רוזי','ליאו','מיקה','גוזי','בינו','טופי','קימי','שומי','דיני','פפו','ניבי','לוקי','ריו','מיו','גוני','בובא','קלי','שיר','דנה']
+const COLOR = ['אדום','כתום','צהוב','ירוק','טורקיז','תכלת','כחול','סגול','ורוד','ורוד','אדום','כתום','צהוב','ירוק','טורקיז','תכלת','כחול','סגול','ורוד','אדום','ורוד','כתום','צהוב','ירוק','ירוק','טורקיז','כחול','סגול','ורוד','אדום','אדום','כתום','צהוב','ירוק','ירוק','טורקיז','תכלת','כחול','סגול','ורוד','ורוד','כתום','צהוב','ירוק','ירוק','טורקיז','תכלת','כחול','סגול','ורוד']
 const LIKES = ['לקפוץ','לרקוד','לצחוק','להתחבק','לשיר','לספור','לשחק מחבואים','לאכול גלידה','לצייר','לעשות בועות','לשחק בכדור','לחלק נשיקות']
 
-const lines = []
-for (let i = 0; i < 30; i++) {
-  lines.push({ id: `intro-${i}`, text: `שלום! אני ${SAY[i]}, אני המספר ${NUM[i]}! הצבע שלי ${COLOR[i]}. הכי כיף לי ${LIKES[i % LIKES.length]}. בואו נשחק!` })
+const ONES = ['', 'אחת', 'שתיים', 'שלוש', 'ארבע', 'חמש', 'שש', 'שבע', 'שמונה', 'תשע']
+const TEENS = ['עשר', 'אחת עשרה', 'שתים עשרה', 'שלוש עשרה', 'ארבע עשרה', 'חמש עשרה', 'שש עשרה', 'שבע עשרה', 'שמונה עשרה', 'תשע עשרה']
+const TENS = { 20: 'עשרים', 30: 'שלושים', 40: 'ארבעים', 50: 'חמישים' }
+function numWord(n) {
+  if (n <= 9) return ONES[n]
+  if (n <= 19) return TEENS[n - 10]
+  const t = n - (n % 10)
+  const u = n % 10
+  if (TENS[t]) return u === 0 ? TENS[t] : `${TENS[t]} ו${ONES[u]}`
+  return String(n)
 }
-for (let k = 1; k <= 30; k++) lines.push({ id: `num-${k}`, text: NUM[k - 1] })
-lines.push({ id: 'fx-five', text: 'כיף!' }, { id: 'fx-hug', text: 'חיבוק גדול!' }, { id: 'fx-kiss', text: 'מְמְמוּאָה! נשיקה!' })
+
+const lines = []
+for (let k = 1; k <= 50; k++) lines.push({ id: `num-${k}`, text: numWord(k) })
+for (let i = 0; i < 50; i++) {
+  lines.push({ id: `intro-${i}`, text: `שלום! אני ${NAME[i]}, אני המספר ${numWord(i + 1)}! הצבע שלי ${COLOR[i]}. הכי כיף לי ${LIKES[i % LIKES.length]}. בואו נשחק!` })
+}
+lines.push({ id: 'fx-five', text: 'כיף!' }, { id: 'fx-hug', text: 'חיבוק גדול!' }, { id: 'fx-kiss', text: 'נשיקה!' })
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
-const SAMPLE_TEXT = 'שלום! אני חבר מספר חמש. בואו נשחק ביחד, יהיה ממש כיף!'
 mkdirSync('public/voice', { recursive: true })
 
 let synth
-
-if (PROVIDER === 'google') {
+if (PROVIDER === 'gtx') {
+  console.log(`ספק: Google Translate (חינם, בלי מפתח) · ${lines.length} קליפים`)
+  synth = async (text) => {
+    const url = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(text)}&tl=he&client=tw-ob&total=1&idx=0&textlen=${text.length}`
+    const res = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0' } })
+    if (!res.ok) throw new Error(`${res.status}`)
+    const buf = Buffer.from(await res.arrayBuffer())
+    if (buf.length < 800) throw new Error('clip too small')
+    return buf
+  }
+} else if (PROVIDER === 'google') {
   const KEY = process.env.GOOGLE_TTS_KEY
-  const VOICE = process.env.GOOGLE_TTS_VOICE || 'he-IL-Wavenet-C' // C/A = female, B/D = male
+  const VOICE = process.env.GOOGLE_TTS_VOICE || 'he-IL-Wavenet-C'
   if (!KEY) throw new Error('חסר GOOGLE_TTS_KEY')
-  console.log(`ספק: Google Cloud TTS · קול ${VOICE} · מהירות ${SPEED}`)
+  console.log(`ספק: Google Cloud TTS · קול ${VOICE}`)
   synth = async (text) => {
     const res = await fetch(`https://texttospeech.googleapis.com/v1/text:synthesize?key=${KEY}`, {
       method: 'POST',
@@ -57,60 +69,22 @@ if (PROVIDER === 'google') {
     return Buffer.from((await res.json()).audioContent, 'base64')
   }
 } else {
-  const KEY = process.env.ELEVENLABS_API_KEY
-  if (!KEY) throw new Error('חסר ELEVENLABS_API_KEY')
-  const speed = Math.min(1.2, Math.max(0.7, SPEED))
-  const make = (voiceId) => async (text) => {
-    const res = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
-      method: 'POST',
-      headers: { 'xi-api-key': KEY, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text, model_id: 'eleven_multilingual_v2', voice_settings: { stability: 0.5, similarity_boost: 0.75, speed } }),
-    })
-    if (res.status === 429) throw new Error('429 rate limit')
-    if (!res.ok) throw new Error(`${res.status} ${await res.text()}`)
-    return Buffer.from(await res.arrayBuffer())
-  }
-
-  // "samples" mode: make one Hebrew sample per female voice in the account
-  if (MODE === 'samples') {
-    const res = await fetch('https://api.elevenlabs.io/v1/voices', { headers: { 'xi-api-key': KEY } })
-    if (!res.ok) throw new Error(`${res.status} ${await res.text()}`)
-    const all = (await res.json()).voices || []
-    const females = all.filter((v) => String(v.labels?.gender || '').toLowerCase() === 'female')
-    const list = females.length ? females : all
-    console.log(`קולות אישה (${list.length}) — מייצר דוגמה לכל אחד · מהירות ${speed}:\n`)
-    for (const v of list) {
-      try {
-        writeFileSync(`public/voice/_sample-${v.name}.mp3`, await make(v.voice_id)(SAMPLE_TEXT))
-        console.log(`✓  ${v.name}   →   ${v.voice_id}`)
-      } catch (e) {
-        console.error(`❌ ${v.name}: ${e.message}`)
-      }
-      await sleep(DELAY)
-    }
-    console.log('\nפתחי את הקבצים public/voice/_sample-*.mp3, בחרי קול, ואז הריצי שוב עם:')
-    console.log('  $env:ELEVENLABS_VOICE_ID="<המזהה_שבחרת>"; $env:ELEVENLABS_API_KEY="..."; node scripts/gen-voice.mjs')
-    process.exit(0)
-  }
-
-  const VOICE_ID = process.env.ELEVENLABS_VOICE_ID || 'EXAVITQu4vr4xnSDxMaL' // "Sarah" (female)
-  console.log(`ספק: ElevenLabs · voice ${VOICE_ID} · מהירות ${speed}`)
-  synth = make(VOICE_ID)
+  throw new Error(`ספק לא מוכר: ${PROVIDER}`)
 }
 
 let ok = 0
 for (const l of lines) {
   let done = false
-  for (let attempt = 0; attempt < 3 && !done; attempt++) {
+  for (let attempt = 0; attempt < 4 && !done; attempt++) {
     try {
       writeFileSync(`public/voice/${l.id}.mp3`, await synth(l.text))
       ok++
       done = true
-      console.log(`✓ ${l.id}`)
+      if (ok % 10 === 0 || ok === lines.length) console.log(`  …${ok}/${lines.length}`)
     } catch (e) {
-      if (String(e.message).includes('429') && attempt < 2) {
-        console.log('  …מחכה (rate limit)')
-        await sleep(15000)
+      const code = String(e.message)
+      if ((code.includes('429') || code.includes('too small')) && attempt < 3) {
+        await sleep(4000 * (attempt + 1))
       } else {
         console.error(`❌ ${l.id}: ${e.message}`)
         done = true

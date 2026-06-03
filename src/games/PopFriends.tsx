@@ -6,7 +6,8 @@ import type { GameProps } from './registry'
 import { playNudge, playPop, playSuccess, playWin, unlockAudio } from '../audio'
 import { speak } from '../speech'
 import { FRIENDS } from '../friends'
-import { numberWordNiqqud, randInt, shuffle } from './util'
+import { randInt, shuffle } from './util'
+import { speakNumber } from '../voice'
 import { useViewport } from '../useViewport'
 
 // A calm "pop" game (no timer, no losing): drag across 3+ connected friends of
@@ -108,7 +109,7 @@ export default function PopFriends({ onExit }: GameProps) {
     if (grid[idx] === type && !prev.includes(idx) && adjacent(idx, last)) {
       playPop()
       setChainBoth([...prev, idx])
-      speak(numberWordNiqqud(prev.length + 1)) // "שתיים! שלוש! ארבע!" as the chain grows
+      speakNumber(prev.length + 1) // "שתיים! שלוש! ארבע!" as the chain grows
     }
   }
 

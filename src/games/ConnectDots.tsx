@@ -8,6 +8,7 @@ import { playNudge, playRise, playTap, playWin, unlockAudio } from '../audio'
 import { speak } from '../speech'
 import { FRIENDS, friendName, friendSay } from '../friends'
 import { numberWord, randInt } from './util'
+import { speakNumber } from '../voice'
 
 // "Connect the dots" — numbered dots sit on a friend's bumps. Tap them in order
 // 1→N: a line is drawn and each bump lights up, until the whole friend is
@@ -70,7 +71,7 @@ export default function ConnectDots({ onExit }: GameProps) {
         speak(`${numberWord(total)}! ${friendSay(index)}`)
       } else {
         playRise(n - 1) // climbing note per dot → the count sings as the friend appears
-        speak(numberWord(n))
+        speakNumber(n)
       }
     } else {
       setWrong(true)

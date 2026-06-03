@@ -5,7 +5,8 @@ import Stepper from '../components/Stepper'
 import type { GameProps } from './registry'
 import { playNudge, playPop, playTap, playWin, unlockAudio } from '../audio'
 import { speak } from '../speech'
-import { numberWord, randInt } from './util'
+import { randInt } from './util'
+import { speakNumber } from '../voice'
 import { PICTURES } from './cbnPictures'
 
 // "Color by number" — a picture drawn on a grid where every cell holds a
@@ -187,7 +188,7 @@ export default function ColorByNumber({ onExit }: GameProps) {
     unlockAudio()
     setSelected(num)
     playTap()
-    speak(numberWord(num))
+    speakNumber(num)
   }
   function tap(r: number, c: number, v: number) {
     if (done || v === 0) return

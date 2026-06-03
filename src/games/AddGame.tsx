@@ -6,6 +6,7 @@ import { playRise, playTap, playWin, unlockAudio } from '../audio'
 import { speak } from '../speech'
 import { friendSay } from '../friends'
 import { numberWord, randInt } from './util'
+import { speakNumber } from '../voice'
 import { fitScale, useViewport } from '../useViewport'
 
 // A target number is shown as an empty outline; tap to add one segment at a
@@ -41,7 +42,7 @@ export default function AddGame({ onExit }: GameProps) {
       speak(`${numberWord(target)}! בנית את ${friendSay(target - 1)}!`)
     } else {
       playRise(next - 1) // each cube climbs the scale → building sings
-      speak(numberWord(next))
+      speakNumber(next)
     }
   }
 

@@ -6,7 +6,8 @@ import type { GameProps } from './registry'
 import { playNudge, playSuccess, playWin, unlockAudio } from '../audio'
 import { speak } from '../speech'
 import { FRIENDS, friendSay } from '../friends'
-import { numberWord, numberWordNiqqud, randInt, shuffle } from './util'
+import { numberWord, randInt, shuffle } from './util'
+import { speakNumber } from '../voice'
 import { getSettings } from '../settings'
 import { levelForTier } from '../difficulty'
 import { screenScale, useViewport } from '../useViewport'
@@ -85,7 +86,7 @@ export default function MathChallenge({ onExit }: GameProps) {
       setScore(ns)
       if (ns % 5 === 0) {
         playWin()
-        speak(`${numberWordNiqqud(ns)}!`) // calm milestone: announce the running count
+        speakNumber(ns) // calm milestone: announce the running count
       } else {
         playSuccess()
         speak(`${numberWord(problem.answer)}! ${friendSay(mascot)}`)

@@ -7,6 +7,7 @@ import { playNudge, playSuccess, playWin, unlockAudio } from '../audio'
 import { speak } from '../speech'
 import { FRIENDS } from '../friends'
 import { numberWordNiqqud, randInt, shuffle } from './util'
+import { speakNumber } from '../voice'
 import { screenScale, useViewport } from '../useViewport'
 import { getSettings } from '../settings'
 
@@ -85,7 +86,7 @@ export default function QtyMatch({ onExit }: GameProps) {
       setScore(ns)
       if (ns % 5 === 0) {
         playWin()
-        speak(`${numberWordNiqqud(ns)}!`)
+        speakNumber(ns)
       } else {
         playSuccess()
         speak('כל הכבוד')
