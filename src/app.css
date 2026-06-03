@@ -7437,6 +7437,38 @@ button {
 .world-btn-emoji {
   font-size: 1.9rem;
 }
+/* each friend's OWN button — themed to what that number loves (ice cream, ball…) */
+.world-btn-special {
+  background: linear-gradient(160deg, #fde68a, #fb923c);
+  color: #7c2d12;
+  box-shadow: 0 6px 0 rgba(180, 83, 9, 0.35), var(--shadow);
+  animation: special-pulse 1.8s ease-in-out infinite;
+}
+@keyframes special-pulse {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-2px) scale(1.05); }
+}
+/* the friend's themed motion when its special button is tapped */
+.world-friend {
+  display: inline-flex;
+}
+.world-friend.motion-jump { animation: motion-jump 0.5s ease-in-out 2; }
+.world-friend.motion-wiggle { animation: motion-wiggle 0.5s ease-in-out 2; }
+.world-friend.motion-float { animation: motion-float 0.9s ease-in-out; }
+@keyframes motion-jump {
+  0%, 100% { transform: translateY(0); }
+  40% { transform: translateY(-12%); }
+}
+@keyframes motion-wiggle {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-7deg); }
+  75% { transform: rotate(7deg); }
+}
+@keyframes motion-float {
+  0% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-8%) scale(1.04); }
+  100% { transform: translateY(0) scale(1); }
+}
 
 /* ===================== מיון לפי צבע (sort by colour) ===================== */
 .sort-screen {
