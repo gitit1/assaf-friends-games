@@ -379,6 +379,26 @@ const DRESS: Record<string, DressAnchor> = {
   big: { hat: -6, eye: 40, body: 72, heldTop: 80, heldLeft: 84, hw: 54 },
 }
 
+// Where a friend's personal item sits: worn on the head / face / body, or held
+// beside the hand. Anything not listed is "held" (a bag, doll, gift, …).
+const ITEM_SLOT: Record<string, 'hat' | 'face' | 'body' | 'held'> = {
+  '🎩': 'hat',
+  '🧢': 'hat',
+  '👑': 'hat',
+  '🎀': 'hat',
+  '👓': 'face',
+  '🕶️': 'face',
+  '🧣': 'body',
+  '👔': 'body',
+  '🧥': 'body',
+}
+function itemStyle(slot: 'hat' | 'face' | 'body' | 'held', A: DressAnchor): React.CSSProperties {
+  if (slot === 'hat') return { top: `${A.hat}%`, left: '50%', fontSize: `${A.hw}px` }
+  if (slot === 'face') return { top: `${A.eye}%`, left: '50%', fontSize: `${Math.round(A.hw * 0.82)}px` }
+  if (slot === 'body') return { top: `${A.body}%`, left: '50%', fontSize: `${A.hw}px` }
+  return { top: `${A.heldTop}%`, left: `${A.heldLeft}%`, fontSize: `${Math.round(A.hw * 0.66)}px` }
+}
+
 type Props = {
   kind: FriendKind
   /** Number shown on the floating halo above the head. */
@@ -831,7 +851,7 @@ export default function FriendArt({
           face
         )}
         {spec.item ? (
-          <span className="friend-item" aria-hidden="true">
+          <span className="don" aria-hidden="true" style={itemStyle(ITEM_SLOT[spec.item] ?? 'held', A)}>
             {spec.item}
           </span>
         ) : (
