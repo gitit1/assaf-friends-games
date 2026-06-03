@@ -51,6 +51,16 @@ export const HE: Dict = {
   'game.drawnum': { text: 'מציירים מספר' },
   'game.letter': { text: 'איזה חבר?' },
 
+  // count game
+  'count.step': { text: 'קפיצות' },
+  'count.up': { text: '⬆️ עולה' },
+  'count.down': { text: '⬇️ יורד' },
+  'count.go': { text: '👆 סופרים!' },
+  'count.new': { text: '🎲 עוד' },
+  'speed.slow': { text: 'איטי' },
+  'speed.normal': { text: 'רגיל' },
+  'speed.fast': { text: 'מהיר' },
+
   // settings
   'settings.title': { text: 'הגדרות' },
   'settings.lang': { text: 'שפה' },

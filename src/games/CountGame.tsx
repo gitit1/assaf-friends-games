@@ -8,16 +8,17 @@ import { friendSay } from '../friends'
 import { numberWordNiqqud, randInt } from './util'
 import { speakNumber } from '../voice'
 import { fitScale, useViewport } from '../useViewport'
+import { useT } from '../i18n'
 
 // Show one friend and count its blocks out loud, lighting them up. Like the
 // Numberblocks "Step Squad": you can count by 1 / 2 / 5 / 10, go up or down, and
 // pick the pace. No timer, no pressure — the friend wakes and cheers at the end.
 const MAX = 30
 const STEPS = [1, 2, 5, 10]
-const SPEEDS: { label: string; ms: number }[] = [
-  { label: 'איטי', ms: 950 },
-  { label: 'רגיל', ms: 620 },
-  { label: 'מהיר', ms: 380 },
+const SPEEDS: { key: string; ms: number }[] = [
+  { key: 'speed.slow', ms: 950 },
+  { key: 'speed.normal', ms: 620 },
+  { key: 'speed.fast', ms: 380 },
 ]
 
 export default function CountGame({ onExit }: GameProps) {
@@ -28,6 +29,7 @@ export default function CountGame({ onExit }: GameProps) {
   const [dir, setDir] = useState<'up' | 'down'>('up')
   const [speed, setSpeed] = useState(SPEEDS[1].ms)
   const vp = useViewport()
+  const { t } = useT()
 
   const timers = useRef<number[]>([])
   const clearTimers = () => {
@@ -86,7 +88,7 @@ export default function CountGame({ onExit }: GameProps) {
   }
 
   return (
-    <GameShell title="סופרים" emoji="🔢" onExit={onExit}>
+    <GameShell title={t('game.count')} emoji="🔢" onExit={onExit}>
       <div className="friends-stage">
         <Friend index={value - 1} scale={fitScale(value - 1, vp, 0.8, 0.42)} litUnits={lit} bouncing={!counting && lit === value} />
       </div>
@@ -97,7 +99,7 @@ export default function CountGame({ onExit }: GameProps) {
 
       <div className="count-opts">
         <div className="count-opt-row">
-          <span className="count-opt-label">קפיצות</span>
+          <span className="count-opt-label">{t('count.step')}</span>
           {STEPS.map((s) => (
             <button key={s} className={`pill pill-small ${step === s ? 'pill-active' : ''}`} onClick={() => setStep(s)} disabled={counting}>
               {s}
@@ -110,11 +112,11 @@ export default function CountGame({ onExit }: GameProps) {
             onClick={() => setDir((d) => (d === 'up' ? 'down' : 'up'))}
             disabled={counting}
           >
-            {dir === 'up' ? '⬆️ עולה' : '⬇️ יורד'}
+            {dir === 'up' ? t('count.up') : t('count.down')}
           </button>
           {SPEEDS.map((sp) => (
             <button key={sp.ms} className={`pill pill-small ${speed === sp.ms ? 'pill-active' : ''}`} onClick={() => setSpeed(sp.ms)} disabled={counting}>
-              {sp.label}
+              {t(sp.key)}
             </button>
           ))}
         </div>
@@ -122,10 +124,10 @@ export default function CountGame({ onExit }: GameProps) {
 
       <div className="counting-next">
         <button className="big-button" onClick={startCount} disabled={counting}>
-          👆 סופרים!
+          {t('count.go')}
         </button>
         <button className="pill" onClick={newNumber}>
-          🎲 עוד
+          {t('count.new')}
         </button>
       </div>
     </GameShell>

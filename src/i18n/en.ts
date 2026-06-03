@@ -50,6 +50,16 @@ export const EN: Dict = {
   'game.drawnum': { text: 'Draw the Number' },
   'game.letter': { text: 'Which Friend?' },
 
+  // count game
+  'count.step': { text: 'Skip' },
+  'count.up': { text: '⬆️ Up' },
+  'count.down': { text: '⬇️ Down' },
+  'count.go': { text: '👆 Count!' },
+  'count.new': { text: '🎲 New' },
+  'speed.slow': { text: 'Slow' },
+  'speed.normal': { text: 'Normal' },
+  'speed.fast': { text: 'Fast' },
+
   // settings
   'settings.title': { text: 'Settings' },
   'settings.lang': { text: 'Language' },
