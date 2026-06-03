@@ -21,7 +21,7 @@ const DELAY = Number(process.env.VOICE_DELAY || 600)
 // ── data (Hebrew, fully NIQQUD so the neural voice pronounces it right;
 //    kept in sync with friends.ts / FriendWorld.tsx), 1–50.
 //    No colours: many friends are multi-coloured, so a single colour is wrong. ──
-const NAME = ['לוּלוּ','טוּקִי','בּוּבִּי','גוּגוּ','מימי','נוּנִי','פִּיקוֹ','דוּדִי','זוּזוּ','קוּקוֹ','טוֹטוֹ','לִילִי','מוֹמוֹ','רִיקִי','שׁוּשׁוּ','גִילִי','רוֹנִי','יוֹיוֹ','סוֹפִי','קִיקִי','רוֹמִי','נִינִי','פּוּפִּי','תּוּתִי','מִישִׁי','בּוּזִי','דַּגִּי','לַאלָה','חוּמִי','צוּצִי','טִינוֹ','רוֹזִי','לֵיאוֹ','מִיקָה','גוּזִי','בִּינוֹ','טוֹפִי','קִימִי','שׁוּמִי','דִּינִי','פַּפּוֹ','נִיבִּי','לוּקִי','רִיוֹ','מִיוֹ','גוֹנִי','בּוּבָּה','קָלִי','שִׁיר','דָּנָה']
+const NAME = ['לוּלוּ','טוּקִי','בּוּבִּי','גוּגוּ','מִימִי','נוּנִי','פִּיקוֹ','דוּדִי','זוּזוּ','קוּקוֹ','טוֹטוֹ','לִילִי','מוֹמוֹ','רִיקִי','שׁוּשׁוּ','גִילִי','רוֹנִי','יוֹיוֹ','סוֹפִי','קִיקִי','רוֹמִי','נִינִי','פּוּפִּי','תּוּתִי','מִישִׁי','בּוּזִי','דַּגִּי','לַאלָה','חוּמִי','צוּצִי','טִינוֹ','רוֹזִי','לֵיאוֹ','מִיקָה','גוּזִי','בִּינוֹ','טוֹפִי','קִימִי','שׁוּמִי','דִּינִי','פַּפּוֹ','נִיבִּי','לוּקִי','רִיוֹ','מִיוֹ','גוֹנִי','בּוּבָּה','קָלִי','שִׁיר','דָּנָה']
 const LIKES = ['לִקְפּוֹץ','לִרְקוֹד','לִצְחוֹק','לְהִתְחַבֵּק','לָשִׁיר','לִסְפּוֹר','לְשַׂחֵק מַחֲבוֹאִים','לֶאֱכוֹל גְּלִידָה','לְצַיֵּיר','לַעֲשׂוֹת בּוּעוֹת','לְשַׂחֵק בְּכַדּוּר','לְחַלֵּק נְשִׁיקוֹת']
 // short exclamation said when a friend's own "special" button is tapped (like-<n>);
 // order matches LIKES / FriendWorld.tsx
@@ -38,7 +38,7 @@ const TEMPLATES = [
   (name, num, like) => `הִינֵה אֲנִי, ${name}! הַמִּסְפָּר ${num}! יוֹתֵר מִכֹּל אֲנִי אוֹהֵב ${like}! נֵצֵא לְשַׂחֵק?`,
 ]
 
-const ONES = ['', 'אַחַת', 'שתיים', 'שָׁלוֹשׁ', 'אַרְבַּע', 'חָמֵשׁ', 'שֵׁשׁ', 'שֶׁבַע', 'שְׁמוֹנֶה', 'תֵּשַׁע']
+const ONES = ['', 'אַחַת', 'שְׁתַּיִם', 'שָׁלוֹשׁ', 'אַרְבַּע', 'חָמֵשׁ', 'שֵׁשׁ', 'שֶׁבַע', 'שְׁמוֹנֶה', 'תֵּשַׁע']
 const TEENS = ['עֶשֶׂר', 'אַחַת עֶשְׂרֵה', 'שְׁתֵּים עֶשְׂרֵה', 'שְׁלוֹשׁ עֶשְׂרֵה', 'אַרְבַּע עֶשְׂרֵה', 'חֲמֵשׁ עֶשְׂרֵה', 'שֵׁשׁ עֶשְׂרֵה', 'שְׁבַע עֶשְׂרֵה', 'שְׁמוֹנֶה עֶשְׂרֵה', 'תְּשַׁע עֶשְׂרֵה']
 const TENS = { 20: 'עֶשְׂרִים', 30: 'שְׁלוֹשִׁים', 40: 'אַרְבָּעִים', 50: 'חֲמִשִּׁים' }
 function numWord(n) {
@@ -106,13 +106,13 @@ if (PROVIDER === 'edge') {
   if (!KEY) throw new Error('צריך NARAKEET_API_KEY (מההגדרות של חשבון Narakeet)')
   const VOICE = process.env.NARAKEET_VOICE || (LANG === 'he' ? 'Yael' : 'Brian')
   const NSPEED = process.env.VOICE_SPEED || '0.9' // a touch slow for a young child
-  // Native voices read modern Hebrew well; niqqud can confuse them, so allow
-  // stripping it (default ON for he) — flip with KEEP_NIQQUD=1 if a word needs it.
+  // Niqqud helps these voices say מִימִי / נְשַׂחֵק / הַמִּסְפָּר correctly, so KEEP it
+  // by default; strip only if a future test shows a voice prefers plain text.
   const stripNiq = (s) => s.replace(/[֑-ׇ]/g, '')
-  const keepNiq = process.env.KEEP_NIQQUD === '1'
-  console.log(`ספק: Narakeet · קול ${VOICE} · speed ${NSPEED} · ניקוד ${keepNiq ? 'נשמר' : 'מוסר'} · שפה ${LANG} · ${lines.length} קליפים`)
+  const dropNiq = process.env.STRIP_NIQQUD === '1'
+  console.log(`ספק: Narakeet · קול ${VOICE} · speed ${NSPEED} · ניקוד ${dropNiq ? 'מוסר' : 'נשמר'} · שפה ${LANG} · ${lines.length} קליפים`)
   synth = async (text) => {
-    const body = keepNiq ? text : stripNiq(text)
+    const body = dropNiq ? stripNiq(text) : text
     const url = `https://api.narakeet.com/text-to-speech/mp3?voice=${encodeURIComponent(VOICE)}&voice-speed=${NSPEED}`
     const res = await fetch(url, {
       method: 'POST',

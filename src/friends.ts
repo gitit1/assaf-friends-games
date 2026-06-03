@@ -17,7 +17,7 @@ export const FRIENDS: Friend[] = [
   { color: '#f97316', name: 'טוקי', say: 'טוּקִי' }, // 2 orange
   { color: '#facc15', name: 'בובי', say: 'בּוּבִּי' }, // 3 yellow
   { color: '#4ade80', name: 'גוגו', say: 'גוּגוּ' }, // 4 green
-  { color: '#14b8a6', name: 'מימי', say: 'מימי' }, // 5 teal — plain reads cleaner than niqqud on the neural voice
+  { color: '#14b8a6', name: 'מימי', say: 'מִימִי' }, // 5 teal
   { color: '#22d3ee', name: 'נוני', say: 'נוּנִי' }, // 6 cyan
   { color: '#3b82f6', name: 'פיקו', say: 'פִּיקוֹ' }, // 7 blue
   { color: '#8b5cf6', name: 'דודי', say: 'דוּדִי' }, // 8 violet
