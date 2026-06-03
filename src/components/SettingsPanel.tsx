@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { updateSettings, useSettings } from '../settings'
 import { DIFFICULTY_TIERS } from '../difficulty'
+import { setLang, useT } from '../i18n'
+import { LANGS } from '../i18n/types'
 import { hasHebrewVoice, speak } from '../speech'
 import { playTap, unlockAudio } from '../audio'
 
@@ -40,7 +42,8 @@ function Toggle({
 export default function SettingsPanel() {
   const [open, setOpen] = useState(false)
   const settings = useSettings()
-  const voiceMissing = settings.voice && !hasHebrewVoice()
+  const { t } = useT()
+  const voiceMissing = settings.voice && settings.lang === 'he' && !hasHebrewVoice()
 
   return (
     <>
@@ -59,7 +62,27 @@ export default function SettingsPanel() {
       {open && (
         <div className="settings-overlay" onClick={() => setOpen(false)}>
           <div className="settings-card" onClick={(e) => e.stopPropagation()}>
-            <h2 className="settings-title">הגדרות</h2>
+            <h2 className="settings-title">{t('settings.title')}</h2>
+
+            <div className="settings-row settings-row-static">
+              <span className="settings-row-text">
+                <span className="settings-row-label">🌍 {t('settings.lang')}</span>
+              </span>
+              <span className="settings-choice">
+                {LANGS.map((l) => (
+                  <button
+                    key={l.id}
+                    className={`pill pill-small ${settings.lang === l.id ? 'pill-active' : ''}`}
+                    onClick={() => {
+                      playTap()
+                      setLang(l.id)
+                    }}
+                  >
+                    {l.label}
+                  </button>
+                ))}
+              </span>
+            </div>
 
             <Toggle
               label="🔊 קול בעברית"

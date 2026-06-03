@@ -4,6 +4,7 @@ import SettingsPanel from './SettingsPanel'
 import FullscreenButton from './FullscreenButton'
 import { playTap, unlockAudio } from '../audio'
 import { stopSpeech } from '../speech'
+import { useT } from '../i18n'
 
 type HomeScreenProps = {
   // open a special screen: 'meet' (meet the friends) or 'gallery'
@@ -13,6 +14,7 @@ type HomeScreenProps = {
 }
 
 export default function HomeScreen({ onOpen, onOpenCategory }: HomeScreenProps) {
+  const { t } = useT()
   function tap() {
     unlockAudio()
     stopSpeech()
@@ -31,14 +33,14 @@ export default function HomeScreen({ onOpen, onOpenCategory }: HomeScreenProps) 
     <div className="home-screen">
       <header className="home-header">
         <div className="home-controls">
-          <button className="gallery-button" aria-label="החברים בתלת מימד" onClick={() => open('gallery')}>
+          <button className="gallery-button" aria-label={t('home.gallery')} onClick={() => open('gallery')}>
             🧊
           </button>
           <FullscreenButton />
           <SettingsPanel />
         </div>
         <h1 className="home-title">
-          <span aria-hidden="true">🌟</span> עולם החברים
+          <span aria-hidden="true">🌟</span> {t('app.title')}
         </h1>
       </header>
 
@@ -50,13 +52,13 @@ export default function HomeScreen({ onOpen, onOpenCategory }: HomeScreenProps) 
           <Friend index={2} scale={0.32} showNumber={false} />
         </span>
         <span className="featured-text">
-          <span className="featured-title">החברים שלי</span>
-          <span className="featured-sub">בואו להכיר 👋</span>
+          <span className="featured-title">{t('home.meet.title')}</span>
+          <span className="featured-sub">{t('home.meet.sub')}</span>
         </span>
       </button>
 
       {/* Category cubes — tap one to see its games */}
-      <nav className="category-grid" aria-label="קטגוריות">
+      <nav className="category-grid" aria-label={t('home.categories')}>
         {CATEGORIES.map((category) => {
           if (gamesInCategory(category.id).length === 0) return null
           return (
@@ -69,7 +71,7 @@ export default function HomeScreen({ onOpen, onOpenCategory }: HomeScreenProps) 
               <span className="category-cover" aria-hidden="true">
                 <span className="category-cover-emoji">{category.emoji}</span>
               </span>
-              <span className="category-title">{category.title}</span>
+              <span className="category-title">{t(`cat.${category.id}`)}</span>
             </button>
           )
         })}

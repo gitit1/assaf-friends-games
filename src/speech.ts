@@ -5,6 +5,8 @@
 let enabled = true
 let namesEnabled = true
 let voice: SpeechSynthesisVoice | null = null
+let langPrefix: 'he' | 'en' = 'he'
+let langCode = 'he-IL'
 
 function supported() {
   return typeof window !== 'undefined' && 'speechSynthesis' in window
@@ -13,11 +15,18 @@ function supported() {
 function pickVoice() {
   if (!supported()) return
   const voices = window.speechSynthesis.getVoices()
-  // Hebrew is "he" in modern browsers, "iw" in some older ones.
+  // pick a voice for the current language ("he"/"iw" for Hebrew, "en" for English)
   voice =
-    voices.find((v) => v.lang.toLowerCase().startsWith('he')) ??
-    voices.find((v) => v.lang.toLowerCase().startsWith('iw')) ??
+    voices.find((v) => v.lang.toLowerCase().startsWith(langPrefix)) ??
+    (langPrefix === 'he' ? voices.find((v) => v.lang.toLowerCase().startsWith('iw')) : undefined) ??
     null
+}
+
+// Switch the spoken language (called from settings when the toggle changes).
+export function setSpeechLang(lang: 'he' | 'en') {
+  langPrefix = lang
+  langCode = lang === 'he' ? 'he-IL' : 'en-US'
+  pickVoice()
 }
 
 if (supported()) {
@@ -37,9 +46,13 @@ export function setNamesEnabled(value: boolean) {
   namesEnabled = value
 }
 
-// True only when a real Hebrew voice exists on this device.
+// True only when a real Hebrew voice exists on this device (for the settings
+// warning) — independent of the currently-selected language.
 export function hasHebrewVoice() {
-  return voice !== null
+  if (!supported()) return false
+  return window.speechSynthesis
+    .getVoices()
+    .some((v) => v.lang.toLowerCase().startsWith('he') || v.lang.toLowerCase().startsWith('iw'))
 }
 
 // Whether the voice is on (used by the pre-recorded clip player).
@@ -58,7 +71,7 @@ export function speak(text: string, { rate = 0.92, pitch = 1.05 }: SpeakOptions 
     utterance.voice = voice
     utterance.lang = voice.lang
   } else {
-    utterance.lang = 'he-IL'
+    utterance.lang = langCode
   }
   utterance.rate = rate
   utterance.pitch = pitch

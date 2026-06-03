@@ -13,6 +13,7 @@
 import { writeFileSync, mkdirSync } from 'node:fs'
 
 const PROVIDER = process.env.VOICE_PROVIDER || 'gtx'
+const LANG = process.env.VOICE_LANG || 'he' // writes to public/voice/<LANG>/
 const SPEED = Number(process.env.VOICE_SPEED || 0.9)
 const DELAY = Number(process.env.VOICE_DELAY || 600)
 
@@ -41,7 +42,8 @@ for (let i = 0; i < 50; i++) {
 lines.push({ id: 'fx-five', text: 'כיף!' }, { id: 'fx-hug', text: 'חיבוק גדול!' }, { id: 'fx-kiss', text: 'נשיקה!' })
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
-mkdirSync('public/voice', { recursive: true })
+const OUT = `public/voice/${LANG}`
+mkdirSync(OUT, { recursive: true })
 
 let synth
 if (PROVIDER === 'gtx') {
@@ -53,6 +55,32 @@ if (PROVIDER === 'gtx') {
     const buf = Buffer.from(await res.arrayBuffer())
     if (buf.length < 800) throw new Error('clip too small')
     return buf
+  }
+} else if (PROVIDER === 'azure') {
+  // Microsoft Azure Neural TTS — natural Hebrew (Hila/Avri) + English. Free tier
+  // 500K chars/month. Needs an Azure Speech resource: key + region.
+  //   $env:VOICE_PROVIDER="azure"; $env:AZURE_TTS_KEY="KEY"; $env:AZURE_TTS_REGION="westeurope"; node scripts/gen-voice.mjs
+  const KEY = process.env.AZURE_TTS_KEY
+  const REGION = process.env.AZURE_TTS_REGION
+  if (!KEY || !REGION) throw new Error('חסר AZURE_TTS_KEY / AZURE_TTS_REGION')
+  const VOICE = process.env.AZURE_TTS_VOICE || (LANG === 'he' ? 'he-IL-HilaNeural' : 'en-US-JennyNeural')
+  const XML_LANG = LANG === 'he' ? 'he-IL' : 'en-US'
+  const rate = `${Math.round((SPEED - 1) * 100)}%`
+  console.log(`ספק: Azure Neural · קול ${VOICE} · שפה ${LANG}`)
+  synth = async (text) => {
+    const esc = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    const ssml = `<speak version='1.0' xml:lang='${XML_LANG}'><voice name='${VOICE}'><prosody rate='${rate}'>${esc}</prosody></voice></speak>`
+    const res = await fetch(`https://${REGION}.tts.speech.microsoft.com/cognitiveservices/v1`, {
+      method: 'POST',
+      headers: {
+        'Ocp-Apim-Subscription-Key': KEY,
+        'Content-Type': 'application/ssml+xml',
+        'X-Microsoft-OutputFormat': 'audio-24khz-48kbitrate-mono-mp3',
+      },
+      body: ssml,
+    })
+    if (!res.ok) throw new Error(`${res.status} ${await res.text()}`)
+    return Buffer.from(await res.arrayBuffer())
   }
 } else if (PROVIDER === 'google') {
   const KEY = process.env.GOOGLE_TTS_KEY
@@ -77,7 +105,7 @@ for (const l of lines) {
   let done = false
   for (let attempt = 0; attempt < 4 && !done; attempt++) {
     try {
-      writeFileSync(`public/voice/${l.id}.mp3`, await synth(l.text))
+      writeFileSync(`${OUT}/${l.id}.mp3`, await synth(l.text))
       ok++
       done = true
       if (ok % 10 === 0 || ok === lines.length) console.log(`  …${ok}/${lines.length}`)

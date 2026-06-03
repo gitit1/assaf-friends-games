@@ -1,5 +1,6 @@
 import { speak, speechOn, stopSpeech } from './speech'
 import { numberWord } from './games/util'
+import { getSettings } from './settings'
 
 // Plays a PRE-RECORDED clip (public/voice/<id>.mp3) for a fixed line, and falls
 // back to the browser voice if the clip isn't there yet. This lets us swap the
@@ -20,17 +21,19 @@ export function stopClip() {
 export function playClip(id: string, fallback: string) {
   if (!speechOn()) return
   stopClip()
-  if (missing.has(id)) {
+  // clips live per language: public/voice/<lang>/<id>.mp3
+  const key = `${getSettings().lang}/${id}`
+  if (missing.has(key)) {
     speak(fallback)
     return
   }
-  const audio = new Audio(`${import.meta.env.BASE_URL}voice/${id}.mp3`)
+  const audio = new Audio(`${import.meta.env.BASE_URL}voice/${key}.mp3`)
   current = audio
   let failed = false
   const onFail = () => {
     if (failed) return
     failed = true
-    missing.add(id)
+    missing.add(key)
     if (current === audio) current = null
     speak(fallback)
   }
@@ -42,5 +45,8 @@ export function playClip(id: string, fallback: string) {
 // the (niqqud) browser voice. Use this everywhere a game reads a number ALOUD,
 // so dropping in recorded clips fixes the pronunciation across the whole app.
 export function speakNumber(n: number) {
-  playClip(`num-${n}`, numberWord(n))
+  // English TTS reads the digits correctly ("22" → twenty-two); Hebrew uses the
+  // niqqud word. The recorded clip (when present) wins either way.
+  const en = getSettings().lang === 'en'
+  playClip(`num-${n}`, en ? String(n) : numberWord(n))
 }
