@@ -7210,6 +7210,81 @@ button {
   font-size: 2.6rem;
   filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.25));
 }
+/* the sticker chosen in grab mode (move with the arrow pad / delete it) */
+.draw-stamp.is-selected {
+  outline: 3px solid #2563eb;
+  outline-offset: 3px;
+  border-radius: 10px;
+  box-shadow: 0 0 0 5px rgba(37, 99, 235, 0.22);
+}
+
+/* free eraser button (rubs out drawing only) */
+.eraser-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: var(--panel-strong);
+  box-shadow: var(--shadow);
+  border: 3px solid transparent;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.eraser-btn:active {
+  transform: scale(0.92);
+}
+.eraser-btn.is-active {
+  border-color: var(--accent, #6366f1);
+}
+.eraser-icon {
+  width: 28px;
+  height: 18px;
+  border-radius: 4px;
+  border: 2px solid #be185d;
+  background: linear-gradient(180deg, #f9a8d4 55%, #fff 55%);
+  transform: rotate(-12deg);
+}
+
+/* arrow pad to nudge / delete the selected sticker (grab mode) */
+.draw-movepad {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin: 2px 0 4px;
+}
+.draw-movepad-hint {
+  font-weight: 700;
+  opacity: 0.7;
+  font-size: 0.95rem;
+}
+.move-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+.move-btn {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  background: var(--panel-strong);
+  box-shadow: var(--shadow);
+  font-family: 'Fredoka', 'Heebo', sans-serif;
+  font-weight: 800;
+  font-size: 1.6rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.move-btn:active {
+  transform: scale(0.92);
+}
+.move-btn:disabled {
+  opacity: 0.4;
+}
+.move-del {
+  background: #fee2e2;
+}
 
 /* ===================== צביעה לפי מספר (colour by number) ===================== */
 /* filter boards by colour-count */

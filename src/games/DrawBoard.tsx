@@ -35,8 +35,13 @@ export default function DrawBoard({ onExit }: GameProps) {
   const [stamps, setStamps] = useState<Stamp[]>([])
   const [more, setMore] = useState(false)
   // "grab" mode: stop drawing/stamping and instead pick a placed sticker to move
-  // it. Picking a colour or a sticker switches back to drawing/stamping.
+  // it (with drag or the arrow pad) / delete it. Picking a colour, eraser or a
+  // sticker switches back to drawing/stamping.
   const [grab, setGrab] = useState(false)
+  const [eraser, setEraser] = useState(false) // free eraser — rubs out drawing only
+  const [selectedId, setSelectedId] = useState<number | null>(null) // chosen sticker (grab mode)
+  const selectedIdRef = useRef<number | null>(null)
+  selectedIdRef.current = selectedId
   stampsRef.current = stamps // latest stamps, for the pointer handlers below
 
   // undo / redo — a list of {canvas image, stamps} snapshots with a cursor
@@ -128,12 +133,16 @@ export default function DrawBoard({ onExit }: GameProps) {
   function stroke(from: { x: number; y: number }, to: { x: number; y: number }) {
     const ctx = ctxRef.current
     if (!ctx) return
+    // the free eraser rubs out only the drawing (canvas pixels); stickers are
+    // separate DOM elements, so they're untouched — exactly "erase writing only".
+    ctx.globalCompositeOperation = eraser ? 'destination-out' : 'source-over'
     ctx.strokeStyle = color
-    ctx.lineWidth = size
+    ctx.lineWidth = eraser ? size * 2.2 : size
     ctx.beginPath()
     ctx.moveTo(from.x, from.y)
     ctx.lineTo(to.x, to.y)
     ctx.stroke()
+    ctx.globalCompositeOperation = 'source-over'
   }
 
   function down(e: React.PointerEvent) {
@@ -166,12 +175,14 @@ export default function DrawBoard({ onExit }: GameProps) {
     commit(stamps) // a completed stroke
   }
 
-  // a placed sticker can be dragged to move it, or tapped to remove it (↺ undoes)
+  // in grab mode: tap a sticker to SELECT it (then nudge with the arrow pad /
+  // keyboard, or delete it), or drag it to move it directly.
   function stampDown(e: React.PointerEvent, s: Stamp) {
     e.stopPropagation()
     unlockAudio()
     ;(e.currentTarget as HTMLElement).setPointerCapture?.(e.pointerId)
     dragStamp.current = { id: s.id, moved: false, sx: e.clientX, sy: e.clientY }
+    setSelectedId(s.id)
   }
   function stampMove(e: React.PointerEvent) {
     const d = dragStamp.current
@@ -187,16 +198,56 @@ export default function DrawBoard({ onExit }: GameProps) {
     if (!d) return
     e.stopPropagation()
     dragStamp.current = null
-    if (d.moved) {
-      commit(stampsRef.current)
-      playTap()
-    } else {
-      const next = stampsRef.current.filter((st) => st.id !== d.id)
-      setStamps(next)
-      commit(next)
-      playPop()
-    }
+    if (d.moved) commit(stampsRef.current) // a drag finished
+    playTap()
   }
+
+  // move / delete the selected sticker — used by the on-screen arrow pad and the
+  // keyboard arrows. Read from refs so the keydown handler is never stale.
+  function moveSel(dx: number, dy: number) {
+    const id = selectedIdRef.current
+    if (id == null) return
+    const r = boardRef.current?.getBoundingClientRect()
+    const next = stampsRef.current.map((st) =>
+      st.id === id
+        ? {
+            ...st,
+            x: r ? Math.max(0, Math.min(r.width, st.x + dx)) : st.x + dx,
+            y: r ? Math.max(0, Math.min(r.height, st.y + dy)) : st.y + dy,
+          }
+        : st,
+    )
+    setStamps(next)
+    commit(next)
+    playTap()
+  }
+  function removeSel() {
+    const id = selectedIdRef.current
+    if (id == null) return
+    const next = stampsRef.current.filter((st) => st.id !== id)
+    setStamps(next)
+    commit(next)
+    setSelectedId(null)
+    playPop()
+  }
+
+  // keyboard arrows / delete move the selected sticker while in grab mode
+  useEffect(() => {
+    if (!grab) return
+    const onKey = (e: KeyboardEvent) => {
+      const step = e.shiftKey ? 2 : 12
+      if (e.key === 'ArrowUp') moveSel(0, -step)
+      else if (e.key === 'ArrowDown') moveSel(0, step)
+      else if (e.key === 'ArrowLeft') moveSel(-step, 0)
+      else if (e.key === 'ArrowRight') moveSel(step, 0)
+      else if (e.key === 'Delete' || e.key === 'Backspace') removeSel()
+      else return
+      e.preventDefault()
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [grab])
 
   function clearAll() {
     const ctx = ctxRef.current
@@ -212,21 +263,33 @@ export default function DrawBoard({ onExit }: GameProps) {
     playTap()
   }
 
+  function leaveGrab() {
+    setGrab(false)
+    setSelectedId(null)
+  }
   function pickColor(c: string) {
     setColor(c)
     setStamp(null)
-    setGrab(false)
+    setEraser(false)
+    leaveGrab()
     playTap()
   }
   function pickBrush(b: number) {
     setSize(b)
     setStamp(null)
-    setGrab(false)
+    leaveGrab()
+    playTap()
+  }
+  function pickEraser() {
+    setEraser(true)
+    setStamp(null)
+    leaveGrab()
     playTap()
   }
   function pickStamp(s: 'friend' | string) {
     setStamp(s)
-    setGrab(false)
+    setEraser(false)
+    leaveGrab()
     playTap()
   }
 
@@ -237,15 +300,15 @@ export default function DrawBoard({ onExit }: GameProps) {
           {COLORS.map((c) => (
             <button
               key={c}
-              className={`color-swatch ${!grab && !stamp && color === c ? 'is-active' : ''}`}
+              className={`color-swatch ${!grab && !stamp && !eraser && color === c ? 'is-active' : ''}`}
               style={{ background: c }}
               onClick={() => pickColor(c)}
               aria-label="צבע"
             />
           ))}
           <button
-            className={`color-swatch color-more-btn ${!grab && !stamp && !COLORS.includes(color) ? 'is-active' : ''}`}
-            style={!grab && !stamp && !COLORS.includes(color) ? { background: color } : undefined}
+            className={`color-swatch color-more-btn ${!grab && !stamp && !eraser && !COLORS.includes(color) ? 'is-active' : ''}`}
+            style={!grab && !stamp && !eraser && !COLORS.includes(color) ? { background: color } : undefined}
             onClick={() => {
               playTap()
               setMore(true)
@@ -264,6 +327,13 @@ export default function DrawBoard({ onExit }: GameProps) {
               <span className="brush-dot" style={{ width: 6 + i * 7, height: 6 + i * 7 }} />
             </button>
           ))}
+          <button
+            className={`eraser-btn ${!grab && !stamp && eraser ? 'is-active' : ''}`}
+            onClick={pickEraser}
+            aria-label="מחק חופשי (מוחק רק ציור)"
+          >
+            <span className="eraser-icon" aria-hidden="true" />
+          </button>
         </div>
 
         <div className="draw-stampbar">
@@ -282,8 +352,14 @@ export default function DrawBoard({ onExit }: GameProps) {
                 </button>
               </span>
             }
-            onPrev={() => setStampFriend((p) => (p + FRIENDS.length - 1) % FRIENDS.length)}
-            onNext={() => setStampFriend((p) => (p + 1) % FRIENDS.length)}
+            onPrev={() => {
+              setStampFriend((p) => (p + FRIENDS.length - 1) % FRIENDS.length)
+              pickStamp('friend') // browsing friends re-selects the friend stamp
+            }}
+            onNext={() => {
+              setStampFriend((p) => (p + 1) % FRIENDS.length)
+              pickStamp('friend')
+            }}
           />
           <div className="emoji-stamps">
             {EMOJI.map((em) => (
@@ -312,7 +388,9 @@ export default function DrawBoard({ onExit }: GameProps) {
             {stamps.map((s) => (
               <span
                 key={s.id}
-                className={`draw-stamp ${s.emoji ? 'draw-stamp-emoji' : ''} ${grab ? 'is-grabbable' : ''}`}
+                className={`draw-stamp ${s.emoji ? 'draw-stamp-emoji' : ''} ${grab ? 'is-grabbable' : ''} ${
+                  grab && selectedId === s.id ? 'is-selected' : ''
+                }`}
                 style={{ left: s.x, top: s.y }}
                 {...(grab
                   ? {
@@ -329,6 +407,29 @@ export default function DrawBoard({ onExit }: GameProps) {
           </div>
         </div>
 
+        {grab && (
+          <div className="draw-movepad">
+            <span className="draw-movepad-hint">{selectedId == null ? 'געו במדבקה כדי לבחור' : 'הזיזו עם החצים'}</span>
+            <button className="move-btn" onClick={() => moveSel(0, -12)} disabled={selectedId == null} aria-label="למעלה">
+              ↑
+            </button>
+            <div className="move-row">
+              <button className="move-btn" onClick={() => moveSel(-12, 0)} disabled={selectedId == null} aria-label="שמאלה">
+                ←
+              </button>
+              <button className="move-btn move-del" onClick={removeSel} disabled={selectedId == null} aria-label="מחיקת מדבקה">
+                🗑️
+              </button>
+              <button className="move-btn" onClick={() => moveSel(12, 0)} disabled={selectedId == null} aria-label="ימינה">
+                →
+              </button>
+            </div>
+            <button className="move-btn" onClick={() => moveSel(0, 12)} disabled={selectedId == null} aria-label="למטה">
+              ↓
+            </button>
+          </div>
+        )}
+
         <div className="color-actions">
           <IconButton
             icon="✋"
@@ -336,6 +437,7 @@ export default function DrawBoard({ onExit }: GameProps) {
             active={grab}
             onClick={() => {
               setGrab((g) => !g)
+              setSelectedId(null)
               playTap()
             }}
           />
@@ -367,7 +469,7 @@ export default function DrawBoard({ onExit }: GameProps) {
                 <button
                   key={`${p.color}-${i}`}
                   type="button"
-                  className={`color-swatch ${!grab && !stamp && color === p.color ? 'is-active' : ''}`}
+                  className={`color-swatch ${!grab && !stamp && !eraser && color === p.color ? 'is-active' : ''}`}
                   style={{ background: p.color }}
                   onClick={() => {
                     pickColor(p.color)
