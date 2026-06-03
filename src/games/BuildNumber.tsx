@@ -74,18 +74,18 @@ export default function BuildNumber({ onExit }: GameProps) {
           {phase !== 'done' ? (
             <div className={`build-pair ${phase === 'merge' ? 'is-merging' : ''}`}>
               <span className="build-a">
-                <Friend index={a - 1} scale={fitScale(a - 1, vp, 0.32, 0.26)} showNumber />
+                <Friend index={a - 1} scale={fitScale(a - 1, vp, 0.26, 0.2)} showNumber />
               </span>
               <span className="build-plus" aria-hidden="true">
                 ➕
               </span>
               <span className="build-b">
-                <Friend index={b - 1} scale={fitScale(b - 1, vp, 0.32, 0.26)} showNumber />
+                <Friend index={b - 1} scale={fitScale(b - 1, vp, 0.26, 0.2)} showNumber />
               </span>
             </div>
           ) : (
             <div className="build-result">
-              <Friend index={c - 1} scale={fitScale(c - 1, vp, 0.7, 0.42)} showNumber bouncing />
+              <Friend index={c - 1} scale={fitScale(c - 1, vp, 0.44, 0.3)} showNumber bouncing />
             </div>
           )}
         </div>
