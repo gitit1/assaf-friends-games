@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useState } from 'react'
+import { lazy, Suspense, useEffect, useRef, useState } from 'react'
 import HomeScreen from './components/HomeScreen'
 import CategoryScreen from './components/CategoryScreen'
 import MeetFriends from './components/MeetFriends'
@@ -7,6 +7,7 @@ import { GAMES, CATEGORIES } from './games/registry'
 import { FRIENDS } from './friends'
 import { useT } from './i18n'
 import { BackContext, type BackTarget } from './nav'
+import { useTouchLock } from './useTouchLock'
 
 // 3D screen pulls in Three.js — load it only when opened, so it never weighs
 // down the first paint of the rest of the app.
@@ -45,6 +46,9 @@ function go(path: string) {
 
 export default function App() {
   const [route, setRoute] = useState<Route>(() => parse(window.location.hash))
+  const shellRef = useRef<HTMLDivElement>(null)
+  // dev-only touch/kiosk lock (no-op unless enabled in .env). See useTouchLock.
+  useTouchLock(shellRef)
 
   useEffect(() => {
     const onChange = () => setRoute(parse(window.location.hash))
@@ -93,7 +97,7 @@ export default function App() {
   }
 
   return (
-    <div className="app-shell">
+    <div className="app-shell" ref={shellRef}>
       <BackContext.Provider value={back}>{view}</BackContext.Provider>
     </div>
   )
