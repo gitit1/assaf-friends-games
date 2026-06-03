@@ -148,7 +148,10 @@ export default function DrawBoard({ onExit }: GameProps) {
   }
 
   function down(e: React.PointerEvent) {
-    if (grab) return // in grab mode the board does nothing; only stickers respond
+    if (grab) {
+      setSelectedId(null) // tapped empty canvas → release the selected sticker
+      return
+    }
     unlockAudio()
     boardRef.current?.setPointerCapture?.(e.pointerId)
     const p = pos(e)
@@ -295,6 +298,9 @@ export default function DrawBoard({ onExit }: GameProps) {
     playTap()
   }
 
+  // keep a tap on the move-pad from reaching the board (which would deselect)
+  const stopProp = (e: React.PointerEvent) => e.stopPropagation()
+
   // the move-pad floats over the canvas, centred on the selected sticker, clamped
   // so it never spills off the board
   const sel = grab && selectedId != null ? stamps.find((s) => s.id === selectedId) : undefined
@@ -420,19 +426,19 @@ export default function DrawBoard({ onExit }: GameProps) {
           {grab && !sel && <div className="draw-grabhint">געו במדבקה כדי להזיז או למחוק</div>}
           {sel && (
             <div className="draw-movepad" style={{ left: padX, top: padY }}>
-              <button className="move-btn mp-up" onClick={() => moveSel(0, -14)} aria-label="למעלה">
+              <button className="move-btn mp-up" onPointerDown={stopProp} onClick={() => moveSel(0, -14)} aria-label="למעלה">
                 ↑
               </button>
-              <button className="move-btn mp-left" onClick={() => moveSel(-14, 0)} aria-label="שמאלה">
+              <button className="move-btn mp-left" onPointerDown={stopProp} onClick={() => moveSel(-14, 0)} aria-label="שמאלה">
                 ←
               </button>
-              <button className="move-btn move-del mp-del" onClick={removeSel} aria-label="מחיקת מדבקה">
+              <button className="move-btn move-del mp-del" onPointerDown={stopProp} onClick={removeSel} aria-label="מחיקת מדבקה">
                 🗑️
               </button>
-              <button className="move-btn mp-right" onClick={() => moveSel(14, 0)} aria-label="ימינה">
+              <button className="move-btn mp-right" onPointerDown={stopProp} onClick={() => moveSel(14, 0)} aria-label="ימינה">
                 →
               </button>
-              <button className="move-btn mp-down" onClick={() => moveSel(0, 14)} aria-label="למטה">
+              <button className="move-btn mp-down" onPointerDown={stopProp} onClick={() => moveSel(0, 14)} aria-label="למטה">
                 ↓
               </button>
             </div>
