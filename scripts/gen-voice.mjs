@@ -98,6 +98,32 @@ if (PROVIDER === 'edge') {
     }
     throw lastErr
   }
+} else if (PROVIDER === 'narakeet') {
+  // Narakeet — native Israeli-accent Hebrew voices, paid (cheap, one-time).
+  // Pick the voice she liked: Ayelet / Tamar / Nurit / Hadas / Yael (female),
+  // Lior / Erez / Doron / Oren (male). Speed + (optional) niqqud stripping.
+  const KEY = process.env.NARAKEET_API_KEY
+  if (!KEY) throw new Error('צריך NARAKEET_API_KEY (מההגדרות של חשבון Narakeet)')
+  const VOICE = process.env.NARAKEET_VOICE || (LANG === 'he' ? 'Yael' : 'Brian')
+  const NSPEED = process.env.VOICE_SPEED || '0.9' // a touch slow for a young child
+  // Native voices read modern Hebrew well; niqqud can confuse them, so allow
+  // stripping it (default ON for he) — flip with KEEP_NIQQUD=1 if a word needs it.
+  const stripNiq = (s) => s.replace(/[֑-ׇ]/g, '')
+  const keepNiq = process.env.KEEP_NIQQUD === '1'
+  console.log(`ספק: Narakeet · קול ${VOICE} · speed ${NSPEED} · ניקוד ${keepNiq ? 'נשמר' : 'מוסר'} · שפה ${LANG} · ${lines.length} קליפים`)
+  synth = async (text) => {
+    const body = keepNiq ? text : stripNiq(text)
+    const url = `https://api.narakeet.com/text-to-speech/mp3?voice=${encodeURIComponent(VOICE)}&voice-speed=${NSPEED}`
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'x-api-key': KEY, 'content-type': 'text/plain', accept: 'application/octet-stream' },
+      body: Buffer.from(body, 'utf-8'),
+    })
+    if (!res.ok) throw new Error(`${res.status} ${await res.text().catch(() => '')}`)
+    const buf = Buffer.from(await res.arrayBuffer())
+    if (buf.length < 800) throw new Error('empty')
+    return buf
+  }
 } else if (PROVIDER === 'gtx') {
   console.log(`ספק: Google Translate (חינם, בלי מפתח) · ${lines.length} קליפים`)
   synth = async (text) => {
