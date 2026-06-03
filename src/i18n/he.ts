@@ -40,6 +40,7 @@ export const HE: Dict = {
   'game.challenge': { text: 'אתגר חשבון' },
   'game.memory': { text: 'זיכרון חברים' },
   'game.who': { text: 'מי נעלם?' },
+  'game.pattern': { text: 'תבניות' },
   'game.sort': { text: 'מיון' },
   'game.catch': { text: 'תופסים חבר' },
   'game.pop': { text: 'פיצוץ חברים' },

@@ -8789,3 +8789,97 @@ button {
   text-align: center;
   margin: 4px 12px;
 }
+
+/* ===================== תבניות (patterns) ===================== */
+.pat-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 22px;
+  padding: 10px 0 18px;
+}
+.pat-q {
+  font-family: 'Fredoka', 'Heebo', sans-serif;
+  font-weight: 800;
+  font-size: clamp(1.4rem, 6vw, 2rem);
+  color: #1f2937;
+  margin: 0;
+}
+.pat-seq {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  max-width: 560px;
+}
+.pat-token,
+.pat-slot {
+  font-size: clamp(2.4rem, 11vw, 3.6rem);
+  line-height: 1;
+}
+.pat-slot {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.3em;
+  border-radius: 16px;
+  border: 3px dashed #94a3b8;
+  padding: 2px 6px;
+}
+.pat-slot.is-filled {
+  border-color: transparent;
+  animation: pat-pop 0.4s ease;
+}
+@keyframes pat-pop {
+  0% {
+    transform: scale(0.4);
+  }
+  70% {
+    transform: scale(1.18);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+.pat-choices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  justify-content: center;
+}
+.pat-choice {
+  font-size: clamp(2.2rem, 10vw, 3.2rem);
+  line-height: 1;
+  width: 1.7em;
+  height: 1.7em;
+  border-radius: 22px;
+  background: var(--panel-strong);
+  box-shadow: var(--shadow);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.pat-choice:active {
+  transform: scale(0.92);
+}
+.pat-choice.is-wrong {
+  animation: pat-shake 0.45s ease;
+}
+@keyframes pat-shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translateX(-7px);
+  }
+  40% {
+    transform: translateX(7px);
+  }
+  60% {
+    transform: translateX(-5px);
+  }
+  80% {
+    transform: translateX(5px);
+  }
+}

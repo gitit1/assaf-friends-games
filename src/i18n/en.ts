@@ -39,6 +39,7 @@ export const EN: Dict = {
   'game.challenge': { text: 'Math Challenge' },
   'game.memory': { text: 'Memory' },
   'game.who': { text: "Who's Missing?" },
+  'game.pattern': { text: 'Patterns' },
   'game.sort': { text: 'Sort' },
   'game.catch': { text: 'Catch a Friend' },
   'game.pop': { text: 'Pop!' },

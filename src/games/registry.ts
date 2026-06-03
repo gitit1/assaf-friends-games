@@ -22,6 +22,7 @@ import DrawNumber from './DrawNumber'
 import SortByColor from './SortByColor'
 import WhichFriend from './WhichFriend'
 import BuildNumber from './BuildNumber'
+import PatternGame from './PatternGame'
 import BasketGame from './BasketGame'
 import GoalGame from './GoalGame'
 import HockeyGame from './HockeyGame'
@@ -152,6 +153,14 @@ export const GAMES: GameDef[] = [
     color: 'linear-gradient(160deg, #c084fc, #7e22ce)',
     category: 'thinking',
     Component: WhoGame,
+  },
+  {
+    id: 'pattern',
+    title: 'תבניות',
+    emoji: '🔵',
+    color: 'linear-gradient(160deg, #38bdf8, #6366f1)',
+    category: 'thinking',
+    Component: PatternGame,
   },
   {
     id: 'sort',
