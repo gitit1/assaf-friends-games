@@ -66,6 +66,17 @@ export const EN: Dict = {
   'missing.prompt': { text: "Who's missing?" },
   'missing.new': { text: 'New one' },
 
+  // roll-a-dice game
+  'dice.aria': { text: 'die' },
+  'dice.dots': { text: 'dotted die' },
+  'dice.upTo': { text: 'die up to {n}' },
+  'dice.fewer': { text: 'fewer dice' },
+  'dice.more': { text: 'more dice' },
+  'dice.count': { text: '{n} dice' },
+  'dice.total': { text: 'Total' },
+  'dice.totalAria': { text: 'total {n}' },
+  'dice.roll': { text: 'Roll' },
+
   // my-friend (virtual pet) game
   'pet.pickTitle': { text: 'Which friend to raise?' },
   'pet.pickBtn': { text: 'This is my friend!' },

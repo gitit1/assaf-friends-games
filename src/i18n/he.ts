@@ -67,6 +67,17 @@ export const HE: Dict = {
   'missing.prompt': { text: 'מי חסר?' },
   'missing.new': { text: 'תרגיל חדש' },
 
+  // roll-a-dice game
+  'dice.aria': { text: 'קובייה' },
+  'dice.dots': { text: 'קובייה עם נקודות' },
+  'dice.upTo': { text: 'קובייה עד {n}' },
+  'dice.fewer': { text: 'פחות קוביות' },
+  'dice.more': { text: 'עוד קובייה' },
+  'dice.count': { text: '{n} קוביות' },
+  'dice.total': { text: 'סך הכל' },
+  'dice.totalAria': { text: 'סך הכל {n}' },
+  'dice.roll': { text: 'גלגלו' },
+
   // my-friend (virtual pet) game
   'pet.pickTitle': { text: 'איזה חבר תרצו לגדל?' },
   'pet.pickBtn': { text: 'זה החבר שלי!' },

@@ -7,6 +7,7 @@ import { playDice, playSuccess, playTap, unlockAudio } from '../audio'
 import { speak } from '../speech'
 import { FRIENDS, friendSay } from '../friends'
 import { numberWord, randInt } from './util'
+import { useT } from '../i18n'
 
 // "Roll a dice" — pick a dice TYPE (each a different 3D shape), add as many dice
 // as fit the screen, tap to roll: they rattle, flicker, and land. The total is
@@ -40,7 +41,7 @@ function spokenAddition(vals: number[], sum: number) {
   return `${vals.map((v) => numberWord(v)).join(' ועוד ')}, ביחד ${numberWord(sum)}`
 }
 
-function Die({ value, type, size, rolling, onClick }: { value: number; type: DiceType; size: number; rolling: boolean; onClick: () => void }) {
+function Die({ value, type, size, rolling, onClick, aria }: { value: number; type: DiceType; size: number; rolling: boolean; onClick: () => void; aria: string }) {
   return (
     <button
       type="button"
@@ -52,7 +53,7 @@ function Die({ value, type, size, rolling, onClick }: { value: number; type: Dic
         ...(type.dots ? {} : { background: `linear-gradient(145deg, #ffffff, ${type.color})` }),
       }}
       onClick={onClick}
-      aria-label="קובייה"
+      aria-label={aria}
     >
       {type.dots ? (
         Array.from({ length: 9 }).map((_, i) => (
@@ -66,6 +67,7 @@ function Die({ value, type, size, rolling, onClick }: { value: number; type: Dic
 }
 
 export default function RollDice({ onExit }: GameProps) {
+  const { t } = useT()
   const [typeIdx, setTypeIdx] = useState(0)
   const [values, setValues] = useState<number[]>([3, 4])
   const [rolling, setRolling] = useState(false)
@@ -158,35 +160,35 @@ export default function RollDice({ onExit }: GameProps) {
   const hasFriend = settled && !rolling && sum >= 1 && sum <= FRIENDS.length
 
   return (
-    <GameShell title="מגלגלים קובייה" emoji="🎲" onExit={onExit}>
+    <GameShell title={t('game.dice')} emoji="🎲" onExit={onExit}>
       <div className="roll-screen">
         <div className="dice-types">
-          {DICE_TYPES.map((t, i) => (
+          {DICE_TYPES.map((dt, i) => (
             <button
-              key={t.key}
+              key={dt.key}
               className={`die-type-chip ${i === typeIdx ? 'is-active' : ''}`}
-              style={t.dots ? undefined : { background: t.color }}
+              style={dt.dots ? undefined : { background: dt.color }}
               onClick={() => chooseType(i)}
-              aria-label={t.dots ? 'קובייה עם נקודות' : `קובייה עד ${t.sides}`}
+              aria-label={dt.dots ? t('dice.dots') : t('dice.upTo', { n: dt.sides })}
             >
-              {t.label}
+              {dt.label}
             </button>
           ))}
         </div>
 
         <div className="dice-count">
-          <button className="icon-button" onClick={removeDie} disabled={rolling || n <= 1} aria-label="פחות קוביות">
+          <button className="icon-button" onClick={removeDie} disabled={rolling || n <= 1} aria-label={t('dice.fewer')}>
             ➖
           </button>
-          <span className="dice-count-label">{n} קוביות</span>
-          <button className="icon-button" onClick={addDie} disabled={rolling || n >= maxDice} aria-label="עוד קובייה">
+          <span className="dice-count-label">{t('dice.count', { n })}</span>
+          <button className="icon-button" onClick={addDie} disabled={rolling || n >= maxDice} aria-label={t('dice.more')}>
             ➕
           </button>
         </div>
 
         <div className="dice-stage" style={{ maxWidth: areaW }}>
           {values.map((v, i) => (
-            <Die key={i} value={v} type={type} size={dieSize} rolling={rolling} onClick={roll} />
+            <Die key={i} value={v} type={type} size={dieSize} rolling={rolling} onClick={roll} aria={t('dice.aria')} />
           ))}
         </div>
 
@@ -196,8 +198,8 @@ export default function RollDice({ onExit }: GameProps) {
               {values.join(' + ')} = {sum}
             </div>
           )}
-          <div className="roll-sum" aria-label={`סך הכל ${sum}`}>
-            <span className="roll-sum-label">סך הכל</span>
+          <div className="roll-sum" aria-label={t('dice.totalAria', { n: sum })}>
+            <span className="roll-sum-label">{t('dice.total')}</span>
             <span className="roll-sum-num">{sum}</span>
           </div>
           {hasFriend && (
@@ -207,7 +209,7 @@ export default function RollDice({ onExit }: GameProps) {
           )}
         </div>
 
-        <button className="icon-button roll-icon" onClick={roll} disabled={rolling} aria-label="גלגלו">
+        <button className="icon-button roll-icon" onClick={roll} disabled={rolling} aria-label={t('dice.roll')}>
           <span aria-hidden="true">🎲</span>
         </button>
       </div>
