@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { CATEGORIES, gamesInCategory, type CategoryId } from '../games/registry'
 import Friend from './Friend'
+import { friendMaxDim } from './FriendArt'
 import SettingsPanel from './SettingsPanel'
 import FullscreenButton from './FullscreenButton'
 import { FRIENDS } from '../friends'
@@ -62,14 +63,17 @@ export default function HomeScreen({ onOpen, onOpenCategory }: HomeScreenProps) 
 
       {/* Featured: meet the friends */}
       <button className="featured-card" onClick={() => open('meet')}>
+        {/* 2 friends on the start side, 1 on the end side (auto-flips RTL↔LTR) */}
         <span className="friend-cluster" aria-hidden="true">
-          {featured.map((i) => (
-            <Friend key={i} index={i} scale={0.32} showNumber={false} lively />
-          ))}
+          <Friend index={featured[0]} scale={52 / friendMaxDim(featured[0])} showNumber={false} lively />
+          <Friend index={featured[1]} scale={52 / friendMaxDim(featured[1])} showNumber={false} lively />
         </span>
         <span className="featured-text">
           <span className="featured-title">{t('home.meet.title')}</span>
           <span className="featured-sub">{t('home.meet.sub')}</span>
+        </span>
+        <span className="friend-cluster" aria-hidden="true">
+          <Friend index={featured[2]} scale={52 / friendMaxDim(featured[2])} showNumber={false} lively />
         </span>
       </button>
 
