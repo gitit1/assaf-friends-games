@@ -6,8 +6,18 @@ import { createContext, useContext } from 'react'
 // list. Defaults to home when no provider sets it.
 export type BackTarget = { emoji: string; label: string }
 
-export const BackContext = createContext<BackTarget | null>(null)
+// Navigation info for the shared top bar: the one-level-up "back" target, a way
+// to jump straight to the main page, and whether "back" already IS the main page
+// (so a deeper screen also shows a separate 🏠 Home button, but a one-level
+// screen — whose back already goes home — does not need the duplicate).
+export type NavInfo = {
+  back: BackTarget
+  goHome: () => void
+  backIsHome: boolean
+}
 
-export function useBackTarget(): BackTarget | null {
+export const BackContext = createContext<NavInfo | null>(null)
+
+export function useNav(): NavInfo | null {
   return useContext(BackContext)
 }

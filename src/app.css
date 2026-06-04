@@ -413,6 +413,15 @@ button {
   transform: scale(0.95);
 }
 
+/* compact icon-only 🏠 jump-home button, shown next to "back" on deeper screens */
+.home-button {
+  padding: 12px 14px;
+}
+.home-button span {
+  font-size: 1.4rem;
+  line-height: 1;
+}
+
 .game-title {
   font-family: 'Fredoka', 'Heebo', sans-serif;
   font-size: clamp(1.4rem, 6vw, 2rem);

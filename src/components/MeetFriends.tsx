@@ -34,7 +34,15 @@ export default function MeetFriends({ onExit, onOpen }: { onExit: () => void; on
   // Friend SIZE is capped at a 560px reference (biggest friend ≈ 90% of it) so
   // nobody balloons on a wide screen; the grid itself widens responsively (CSS)
   // so on bigger screens the friends just wrap to fill more per row.
-  const scale = (0.9 * Math.min(vw - 16, 560)) / MAX_W
+  const baseScale = (0.9 * Math.min(vw - 16, 560)) / MAX_W
+  // …but in the high decades the friends are so big they go one-per-row → a very
+  // long scroll. So also cap the scale so the WIDEST friend in the current decade
+  // is ≤ ~45% of the row, guaranteeing at least two per row. The within-decade
+  // staircase is preserved (all share one scale); it just plateaus at the top.
+  const gridMax = vw >= 1024 ? 960 : vw >= 640 ? 760 : 560 // keep in sync with .meet-grid CSS
+  const rowW = Math.min(vw - 16, gridMax)
+  const decadeMaxW = Math.max(...FRIENDS.slice(start, end).map((_, j) => FRIEND_NATURAL[FRIEND_KINDS[start + j]].w))
+  const scale = Math.min(baseScale, (rowW * 0.45) / decadeMaxW)
 
   return (
     <GameShell title={t('home.meet.title')} emoji="⭐" onExit={onExit}>

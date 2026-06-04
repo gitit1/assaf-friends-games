@@ -66,8 +66,10 @@ export default function App() {
   const { t } = useT()
 
   // The shared back button (in GameShell) returns one level up, not to main.
-  // Default is home; routes that sit a level deeper override it below.
+  // Default is home; routes that sit a level deeper override it below and flip
+  // backIsHome to false, which makes the top bar also show a 🏠 Home button.
   let back: BackTarget = { emoji: '🏠', label: t('nav.home') }
+  let backIsHome = true
   let view = <HomeScreen onOpen={(id) => go(id)} onOpenCategory={(id) => go(`cat/${id}`)} />
 
   if (route.kind === 'meet') {
@@ -76,6 +78,7 @@ export default function App() {
     const i = Number(route.id)
     if (i >= 0 && i < FRIENDS.length) {
       back = { emoji: '⭐', label: t('home.meet.title') } // back to the friends list
+      backIsHome = false
       view = <FriendWorld index={i} onExit={() => go('meet')} onNavigate={(j) => go(`friend/${j}`)} />
     }
   } else if (route.kind === 'gallery' && SHOW_3D) {
@@ -89,7 +92,10 @@ export default function App() {
     if (game) {
       const cat = CATEGORIES.find((c) => c.id === game.category)
       // back to the category this game lives in, so picking another game is one tap
-      if (cat) back = { emoji: cat.emoji, label: t(`cat.${cat.id}`) }
+      if (cat) {
+        back = { emoji: cat.emoji, label: t(`cat.${cat.id}`) }
+        backIsHome = false
+      }
       view = <game.Component onExit={() => go(`cat/${game.category}`)} />
     }
   } else if (route.kind === 'cat') {
@@ -99,7 +105,7 @@ export default function App() {
 
   return (
     <div className="app-shell" ref={shellRef}>
-      <BackContext.Provider value={back}>{view}</BackContext.Provider>
+      <BackContext.Provider value={{ back, goHome: home, backIsHome }}>{view}</BackContext.Provider>
     </div>
   )
 }
