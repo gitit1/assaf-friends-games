@@ -4383,6 +4383,21 @@ button {
   border: none;
   background: none;
 }
+/* a soft ground/contact shadow under every friend — grounds them in space for a
+   more 3D presence (the bumps themselves are already shaded). Painted behind the
+   friend (::before, first generated child). Cheap + universal across all 100. */
+.friend-holder::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: 1%;
+  width: 56%;
+  height: 7%;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.26), rgba(0, 0, 0, 0.1) 50%, transparent 74%);
+  pointer-events: none;
+}
 .friend-scale {
   position: absolute;
   top: 0;
