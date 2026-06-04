@@ -9,25 +9,27 @@ import { speak } from '../speech'
 import { FRIENDS, friendName, friendSay } from '../friends'
 import { numberWordNiqqud } from './util'
 import { screenScale, useViewport } from '../useViewport'
+import { useT } from '../i18n'
 
-// foods in the fridge — tapping one says its name and the friend eats it
-const FOODS: { name: string; emoji: string }[] = [
-  { name: 'בננה', emoji: '🍌' },
-  { name: 'תפוח', emoji: '🍎' },
-  { name: 'דג', emoji: '🐟' },
-  { name: 'נקניקייה', emoji: '🌭' },
-  { name: 'המבורגר', emoji: '🍔' },
-  { name: 'מלפפון', emoji: '🥒' },
-  { name: 'עגבנייה', emoji: '🍅' },
-  { name: 'קערת אורז', emoji: '🍚' },
-  { name: 'עוף', emoji: '🍗' },
-  { name: 'בשר', emoji: '🥩' },
-  { name: 'פרוסה עם גבינה', emoji: '🧀' },
-  { name: 'גזר', emoji: '🥕' },
-  { name: 'חביתה', emoji: '🍳' },
-  { name: 'טוסט', emoji: '🥪' },
-  { name: 'במבה', emoji: '🥜' },
-  { name: 'שוקולד', emoji: '🍫' },
+// foods in the fridge — tapping one says its (Hebrew) name and the friend eats it.
+// `key` drives the i18n label shown on screen; `name` is the spoken Hebrew.
+const FOODS: { key: string; name: string; emoji: string }[] = [
+  { key: 'banana', name: 'בננה', emoji: '🍌' },
+  { key: 'apple', name: 'תפוח', emoji: '🍎' },
+  { key: 'fish', name: 'דג', emoji: '🐟' },
+  { key: 'hotdog', name: 'נקניקייה', emoji: '🌭' },
+  { key: 'burger', name: 'המבורגר', emoji: '🍔' },
+  { key: 'cucumber', name: 'מלפפון', emoji: '🥒' },
+  { key: 'tomato', name: 'עגבנייה', emoji: '🍅' },
+  { key: 'rice', name: 'קערת אורז', emoji: '🍚' },
+  { key: 'chicken', name: 'עוף', emoji: '🍗' },
+  { key: 'meat', name: 'בשר', emoji: '🥩' },
+  { key: 'cheese', name: 'פרוסה עם גבינה', emoji: '🧀' },
+  { key: 'carrot', name: 'גזר', emoji: '🥕' },
+  { key: 'omelette', name: 'חביתה', emoji: '🍳' },
+  { key: 'toast', name: 'טוסט', emoji: '🥪' },
+  { key: 'bamba', name: 'במבה', emoji: '🥜' },
+  { key: 'chocolate', name: 'שוקולד', emoji: '🍫' },
 ]
 
 // crumb fly-out directions + little reaction emojis for the eating "movie"
@@ -42,11 +44,11 @@ const CRUMBS = [
 const HEARTS = ['❤️', '⭐', '😋']
 
 // drinks in the fridge
-const DRINKS: { name: string; emoji: string }[] = [
-  { name: 'מים', emoji: '💧' },
-  { name: 'יין', emoji: '🍷' },
-  { name: 'שתייה מוגזת', emoji: '🥤' },
-  { name: 'מיץ', emoji: '🧃' },
+const DRINKS: { key: string; name: string; emoji: string }[] = [
+  { key: 'water', name: 'מים', emoji: '💧' },
+  { key: 'wine', name: 'יין', emoji: '🍷' },
+  { key: 'soda', name: 'שתייה מוגזת', emoji: '🥤' },
+  { key: 'juice', name: 'מיץ', emoji: '🧃' },
 ]
 // spilled-drop directions (fall down and out)
 const DROPS = [
@@ -228,6 +230,7 @@ function PlayScene({ kind, friend, outfit, buddy }: { kind: string; friend: numb
 }
 
 export default function Tamagotchi({ onExit }: GameProps) {
+  const { t } = useT()
   const [pet, setPet] = useState<Pet | null>(load)
   const vp = useViewport()
   const petPx = Math.round(150 * screenScale(vp.w)) // main pet grows on a desktop
@@ -426,8 +429,8 @@ export default function Tamagotchi({ onExit }: GameProps) {
   // ---- pick-a-friend screen ----
   if (choosing || !pet) {
     return (
-      <GameShell title="החבר שלי" emoji="🐣" onExit={onExit}>
-        <p className="pet-pick-title">איזה חבר תרצו לגדל?</p>
+      <GameShell title={t('game.pet')} emoji="🐣" onExit={onExit}>
+        <p className="pet-pick-title">{t('pet.pickTitle')}</p>
         <Stepper
           label={
             <span className="pet-pick-figure">
@@ -442,7 +445,7 @@ export default function Tamagotchi({ onExit }: GameProps) {
         </p>
         <div className="counting-next">
           <button className="big-button" onClick={() => choose(pick)}>
-            🎉 זה החבר שלי!
+            🎉 {t('pet.pickBtn')}
           </button>
         </div>
       </GameShell>
@@ -571,24 +574,24 @@ export default function Tamagotchi({ onExit }: GameProps) {
             <span className="pet-action-emoji" aria-hidden="true">
               {a.emoji}
             </span>
-            <span className="pet-action-label">{a.label}</span>
+            <span className="pet-action-label">{t(`pet.act.${a.type}`)}</span>
           </button>
         ))}
         <button className="pet-action pet-action-new" onClick={() => setChoosing(true)}>
           <span className="pet-action-emoji" aria-hidden="true">
             🔄
           </span>
-          <span className="pet-action-label">חבר חדש</span>
+          <span className="pet-action-label">{t('pet.newFriend')}</span>
         </button>
       </div>
 
       {wardrobe && (
         <div className="ward-overlay" onClick={() => setWardrobe(false)}>
           <div className="ward-card" onClick={(e) => e.stopPropagation()}>
-            <button className="hint-close" onClick={() => setWardrobe(false)} aria-label="סגור">
+            <button className="hint-close" onClick={() => setWardrobe(false)} aria-label={t('seq.close')}>
               ✕
             </button>
-            <h3 className="ward-title">👗 הארון</h3>
+            <h3 className="ward-title">👗 {t('pet.wardrobe')}</h3>
             <div className="ward-rail" aria-hidden="true" />
             <div className="ward-preview">
               <FriendDressed index={pet.friend} px={130} outfit={pet.outfit} />
@@ -596,12 +599,12 @@ export default function Tamagotchi({ onExit }: GameProps) {
             <div className="ward-slots">
               {SLOTS.map((s) => (
                 <div className="ward-slot" key={s.key}>
-                  <span className="ward-slot-label">{s.label}</span>
+                  <span className="ward-slot-label">{t(`pet.slot.${s.key}`)}</span>
                   <div className="ward-items">
                     <button
                       className={`ward-item ${!pet.outfit[s.key] ? 'is-on' : ''}`}
                       onClick={() => setPet((p) => (p ? { ...p, outfit: { ...p.outfit, [s.key]: undefined } } : p))}
-                      aria-label="בלי"
+                      aria-label={t('pet.none')}
                     >
                       ✖
                     </button>
@@ -625,17 +628,17 @@ export default function Tamagotchi({ onExit }: GameProps) {
       {fridge && (
         <div className="fridge-overlay" onClick={() => setFridge(false)}>
           <div className="fridge-card" onClick={(e) => e.stopPropagation()}>
-            <button className="hint-close" onClick={() => setFridge(false)} aria-label="סגור">
+            <button className="hint-close" onClick={() => setFridge(false)} aria-label={t('seq.close')}>
               ✕
             </button>
-            <h3 className="fridge-title">מה בא לך לאכול? 🍽️</h3>
+            <h3 className="fridge-title">{t('pet.fridgeTitle')}</h3>
             <div className="fridge-grid">
               {FOODS.map((f) => (
-                <button key={f.name} className="fridge-item" onClick={() => eat(f)} aria-label={f.name}>
+                <button key={f.key} className="fridge-item" onClick={() => eat(f)} aria-label={t(`pet.food.${f.key}`)}>
                   <span className="fridge-emoji" aria-hidden="true">
                     {f.emoji}
                   </span>
-                  <span className="fridge-name">{f.name}</span>
+                  <span className="fridge-name">{t(`pet.food.${f.key}`)}</span>
                 </button>
               ))}
             </div>
@@ -646,17 +649,17 @@ export default function Tamagotchi({ onExit }: GameProps) {
       {bar && (
         <div className="fridge-overlay" onClick={() => setBar(false)}>
           <div className="fridge-card" onClick={(e) => e.stopPropagation()}>
-            <button className="hint-close" onClick={() => setBar(false)} aria-label="סגור">
+            <button className="hint-close" onClick={() => setBar(false)} aria-label={t('seq.close')}>
               ✕
             </button>
-            <h3 className="fridge-title">מה בא לך לשתות? 🧊</h3>
+            <h3 className="fridge-title">{t('pet.barTitle')}</h3>
             <div className="fridge-grid">
               {DRINKS.map((d) => (
-                <button key={d.name} className="fridge-item" onClick={() => drink(d)} aria-label={d.name}>
+                <button key={d.key} className="fridge-item" onClick={() => drink(d)} aria-label={t(`pet.drink.${d.key}`)}>
                   <span className="fridge-emoji" aria-hidden="true">
                     {d.emoji}
                   </span>
-                  <span className="fridge-name">{d.name}</span>
+                  <span className="fridge-name">{t(`pet.drink.${d.key}`)}</span>
                 </button>
               ))}
             </div>
