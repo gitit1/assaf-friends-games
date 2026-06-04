@@ -67,6 +67,14 @@ export const HE: Dict = {
   'missing.prompt': { text: 'מי חסר?' },
   'missing.new': { text: 'תרגיל חדש' },
 
+  // bigger / smaller / closest game
+  'bs.big': { text: 'מי הגדול?' },
+  'bs.small': { text: 'מי הקטן?' },
+  'bs.near': { text: 'מי הכי קרוב ל-{n}?' },
+  'bs.replay': { text: 'שמע שוב' },
+  'bs.score': { text: 'ניקוד {n}' },
+  'bs.friendAria': { text: 'חבר מספר {n}' },
+
   // game titles (ids from registry)
   'game.skipcount': { text: 'קפיצות' },
   'game.placevalue': { text: 'עשרות ואחדות' },

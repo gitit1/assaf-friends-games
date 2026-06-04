@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import GameShell from '../components/GameShell'
 import Friend from '../components/Friend'
+import Confetti from '../components/Confetti'
 import { friendMaxDim } from '../components/FriendArt'
 import type { GameProps } from './registry'
 import { playNudge, playSuccess, playWin, unlockAudio } from '../audio'
@@ -10,6 +11,7 @@ import { numberWordNiqqud, randInt } from './util'
 import { speakNumber } from '../voice'
 import { screenScale, useViewport } from '../useViewport'
 import { getSettings } from '../settings'
+import { useT } from '../i18n'
 
 // "Bigger / smaller / closest?" — two friends appear (each IS its number, so the
 // bigger number is also the bigger friend). A visual cue SHOWS what we're after
@@ -48,7 +50,9 @@ export default function BigSmall({ onExit }: GameProps) {
   const [score, setScore] = useState(0)
   const [wrong, setWrong] = useState<number | null>(null)
   const [locked, setLocked] = useState(false)
+  const [party, setParty] = useState(false) // confetti burst at every 5th in a row
   const vp = useViewport()
+  const { t } = useT()
 
   const correct =
     round.goal === 'big'
@@ -60,9 +64,14 @@ export default function BigSmall({ onExit }: GameProps) {
           : round.b
 
   const prompt =
-    round.goal === 'big' ? 'מי הגדול?' : round.goal === 'small' ? 'מי הקטן?' : `מי הכי קרוב ל-${round.target}?`
+    round.goal === 'big' ? t('bs.big') : round.goal === 'small' ? t('bs.small') : t('bs.near', { n: round.target })
+  // spoken stays Hebrew (the app's voice is Hebrew) regardless of UI language
   const spoken =
-    round.goal === 'near' ? `מי הכי קרוב ל-${numberWordNiqqud(round.target)}` : prompt
+    round.goal === 'near'
+      ? `מי הכי קרוב ל-${numberWordNiqqud(round.target)}`
+      : round.goal === 'big'
+        ? 'מי הגדול?'
+        : 'מי הקטן?'
 
   useEffect(() => {
     speak(spoken)
@@ -84,6 +93,8 @@ export default function BigSmall({ onExit }: GameProps) {
       if (ns % 5 === 0) {
         playWin()
         speakNumber(ns)
+        setParty(true)
+        window.setTimeout(() => setParty(false), 2500)
       } else {
         playSuccess()
         speak(friendSay(n - 1))
@@ -100,10 +111,11 @@ export default function BigSmall({ onExit }: GameProps) {
   }
 
   return (
-    <GameShell title="גדול או קטן?" emoji="⚖️" onExit={onExit}>
+    <GameShell title={t('game.bigsmall')} emoji="⚖️" onExit={onExit}>
+      <Confetti active={party} />
       <div className="bs-head">
         <span className="bs-prompt">{prompt}</span>
-        <span className="bs-score" aria-label={`ניקוד ${score}`}>
+        <span className="bs-score" aria-label={t('bs.score', { n: score })}>
           ⭐ {score}
         </span>
       </div>
@@ -123,7 +135,7 @@ export default function BigSmall({ onExit }: GameProps) {
       )}
 
       <button className="pill bs-say" onClick={() => speak(spoken)}>
-        🔊 שמע שוב
+        🔊 {t('bs.replay')}
       </button>
 
       <div className="bs-pair">
@@ -133,7 +145,7 @@ export default function BigSmall({ onExit }: GameProps) {
             className={`bs-choice ${wrong === n ? 'is-wrong' : ''} ${locked && n === correct ? 'is-win' : ''}`}
             onClick={() => pick(n)}
             disabled={locked}
-            aria-label={`חבר מספר ${n}`}
+            aria-label={t('bs.friendAria', { n })}
           >
             <Friend index={n - 1} scale={scaleFor(n)} bouncing={locked && n === correct} />
           </button>

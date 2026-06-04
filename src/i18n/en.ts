@@ -66,6 +66,14 @@ export const EN: Dict = {
   'missing.prompt': { text: "Who's missing?" },
   'missing.new': { text: 'New one' },
 
+  // bigger / smaller / closest game
+  'bs.big': { text: "Who's bigger?" },
+  'bs.small': { text: "Who's smaller?" },
+  'bs.near': { text: "Who's closest to {n}?" },
+  'bs.replay': { text: 'Hear again' },
+  'bs.score': { text: 'Score {n}' },
+  'bs.friendAria': { text: 'friend number {n}' },
+
   // game titles
   'game.skipcount': { text: 'Skip Count' },
   'game.placevalue': { text: 'Tens & Ones' },
