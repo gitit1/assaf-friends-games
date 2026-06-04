@@ -8,6 +8,8 @@ import { playCount, playFriend, playSuccess, playTap, playWin, unlockAudio } fro
 import { stopSpeech } from '../speech'
 import { numberWord } from '../games/util'
 import { playClip, stopClip } from '../voice'
+import { useT } from '../i18n'
+import { useViewport, screenScale } from '../useViewport'
 
 // A friend's own little "world": tap into it from "החברים שלי" and the friend
 // introduces itself (spoken description + animation, like a tiny narrated clip),
@@ -45,6 +47,8 @@ export default function FriendWorld({
   onExit: () => void
   onNavigate: (index: number) => void
 }) {
+  const { t } = useT()
+  const vp = useViewport()
   const n = friendNumber(index)
   const total = FRIENDS.length
   // browse to the friend before / after this one, wrapping around the whole
@@ -148,13 +152,18 @@ export default function FriendWorld({
     clearTimers()
     stopClip()
     setLit(0)
-    // a calm pace so each number is heard clearly before the next (was too fast)
-    const STEP = 900
+    // Accelerate by size: small numbers stay calm (~900ms/block); bigger numbers
+    // speed up so the whole count finishes in ~16s no matter how big (friend 100
+    // was 90s!). Each block still lights up + chimes; once the pace gets quick we
+    // drop the spoken per-block number (it would just stutter) and keep the tone.
+    // The total is always announced at the end.
+    const STEP = Math.max(150, Math.min(900, Math.round(16000 / n)))
+    const speakEach = STEP >= 500
     for (let i = 1; i <= n; i++) {
       later(() => {
         setLit(i)
         playCount(i)
-        playClip(`num-${i}`, numberWord(i))
+        if (speakEach) playClip(`num-${i}`, numberWord(i))
       }, i * STEP)
     }
     later(() => {
@@ -164,7 +173,9 @@ export default function FriendWorld({
     }, n * STEP + 500)
   }
 
-  const scale = 210 / friendMaxDim(index)
+  // all friends show at one comfortable size in their world (~210px on a phone),
+  // growing on bigger screens instead of sitting tiny in the middle
+  const scale = (210 / friendMaxDim(index)) * screenScale(vp.w, 1.7)
 
   return (
     <GameShell title={friendName(index)} emoji="⭐" onExit={onExit}>
@@ -174,8 +185,8 @@ export default function FriendWorld({
             matching the number-line order. (Home / back-to-friends now live in
             the top bar, so no in-body button is needed between the arrows.) */}
         <div className="world-nav">
-          <IconButton icon="◀" label="החבר הקודם" onClick={goPrev} />
-          <IconButton icon="▶" label="החבר הבא" onClick={goNext} />
+          <IconButton icon="◀" label={t('nav.prev')} onClick={goPrev} />
+          <IconButton icon="▶" label={t('nav.next')} onClick={goNext} />
         </div>
 
         <div className="world-stage">
@@ -199,27 +210,27 @@ export default function FriendWorld({
         <div className="world-actions">
           <button className="world-btn world-btn-special" onClick={special}>
             <span className="world-btn-emoji" aria-hidden="true">{like.emoji}</span>
-            <span>{like.label}</span>
+            <span>{t(`world.like.${index % LIKES.length}`)}</span>
           </button>
           <button className="world-btn" onClick={five}>
             <span className="world-btn-emoji" aria-hidden="true">✋</span>
-            <span>כיף</span>
+            <span>{t('world.five')}</span>
           </button>
           <button className="world-btn" onClick={hug}>
             <span className="world-btn-emoji" aria-hidden="true">🤗</span>
-            <span>חיבוק</span>
+            <span>{t('world.hug')}</span>
           </button>
           <button className="world-btn" onClick={kiss}>
             <span className="world-btn-emoji" aria-hidden="true">😘</span>
-            <span>נשיקה</span>
+            <span>{t('world.kiss')}</span>
           </button>
           <button className="world-btn" onClick={count}>
             <span className="world-btn-emoji" aria-hidden="true">🔢</span>
-            <span>ספירה</span>
+            <span>{t('world.count')}</span>
           </button>
           <button className="world-btn" onClick={describe}>
             <span className="world-btn-emoji" aria-hidden="true">🔊</span>
-            <span>שוב</span>
+            <span>{t('world.again')}</span>
           </button>
         </div>
       </div>

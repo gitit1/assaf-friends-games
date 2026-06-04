@@ -27,6 +27,26 @@ export const EN: Dict = {
   // meet-the-friends screen
   'meet.intro': { text: 'Tap a friend to enter their world! 👋' },
 
+  // a friend's own world (the per-friend page)
+  'world.five': { text: 'High five' },
+  'world.hug': { text: 'Hug' },
+  'world.kiss': { text: 'Kiss' },
+  'world.count': { text: 'Count' },
+  'world.again': { text: 'Again' },
+  // the per-friend "special" button label (chosen by index % 12)
+  'world.like.0': { text: 'Jump' },
+  'world.like.1': { text: 'Dance' },
+  'world.like.2': { text: 'Laugh' },
+  'world.like.3': { text: 'Hug' },
+  'world.like.4': { text: 'Song' },
+  'world.like.5': { text: 'Count' },
+  'world.like.6': { text: 'Hide & seek' },
+  'world.like.7': { text: 'Ice cream' },
+  'world.like.8': { text: 'Drawing' },
+  'world.like.9': { text: 'Bubbles' },
+  'world.like.10': { text: 'Ball' },
+  'world.like.11': { text: 'Kisses' },
+
   // game titles
   'game.count': { text: 'Count' },
   'game.add': { text: 'Add' },

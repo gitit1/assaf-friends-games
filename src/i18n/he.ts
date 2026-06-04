@@ -28,6 +28,26 @@ export const HE: Dict = {
   // meet-the-friends screen
   'meet.intro': { text: 'געו בחבר כדי להיכנס לעולם שלו! 👋' },
 
+  // a friend's own world (the per-friend page)
+  'world.five': { text: 'כיף' },
+  'world.hug': { text: 'חיבוק' },
+  'world.kiss': { text: 'נשיקה' },
+  'world.count': { text: 'ספירה' },
+  'world.again': { text: 'שוב' },
+  // the per-friend "special" button label (chosen by index % 12)
+  'world.like.0': { text: 'קפיצה' },
+  'world.like.1': { text: 'ריקוד' },
+  'world.like.2': { text: 'צחוק' },
+  'world.like.3': { text: 'חיבוק' },
+  'world.like.4': { text: 'שיר' },
+  'world.like.5': { text: 'ספירה' },
+  'world.like.6': { text: 'מחבואים' },
+  'world.like.7': { text: 'גלידה' },
+  'world.like.8': { text: 'ציור' },
+  'world.like.9': { text: 'בועות' },
+  'world.like.10': { text: 'כדור' },
+  'world.like.11': { text: 'נשיקות' },
+
   // game titles (ids from registry)
   'game.count': { text: 'סופרים' },
   'game.add': { text: 'מוסיפים' },
