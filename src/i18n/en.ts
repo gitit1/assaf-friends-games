@@ -62,9 +62,14 @@ export const EN: Dict = {
   'skip.hop': { text: 'Hop' },
   'skip.again': { text: 'Restart' },
 
+  // missing-number game
+  'missing.prompt': { text: "Who's missing?" },
+  'missing.new': { text: 'New one' },
+
   // game titles
   'game.skipcount': { text: 'Skip Count' },
   'game.placevalue': { text: 'Tens & Ones' },
+  'game.missing': { text: 'Missing Number' },
   'game.build': { text: 'Build a Number' },
   'game.bigsmall': { text: 'Bigger or Smaller?' },
   'game.sequence': { text: 'Missing in the Row' },

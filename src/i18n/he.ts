@@ -63,9 +63,14 @@ export const HE: Dict = {
   'skip.hop': { text: 'קפיצה' },
   'skip.again': { text: 'מהתחלה' },
 
+  // missing-number game
+  'missing.prompt': { text: 'מי חסר?' },
+  'missing.new': { text: 'תרגיל חדש' },
+
   // game titles (ids from registry)
   'game.skipcount': { text: 'קפיצות' },
   'game.placevalue': { text: 'עשרות ואחדות' },
+  'game.missing': { text: 'המספר החסר' },
   'game.build': { text: 'בונים מספר' },
   'game.bigsmall': { text: 'גדול או קטן?' },
   'game.sequence': { text: 'חבר חסר ברצף' },

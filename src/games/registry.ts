@@ -2,6 +2,7 @@ import type { ComponentType } from 'react'
 import MemoryGame from './MemoryGame'
 import SkipCount from './SkipCount'
 import PlaceValue from './PlaceValue'
+import MissingNumber from './MissingNumber'
 import CatchFriend from './CatchFriend'
 import CalcFriends from './CalcFriends'
 import CarRace from './CarRace'
@@ -89,6 +90,14 @@ export const GAMES: GameDef[] = [
     color: 'linear-gradient(160deg, #f472b6, #7c3aed)',
     category: 'numbers',
     Component: BuildNumber,
+  },
+  {
+    id: 'missing',
+    title: 'המספר החסר',
+    emoji: '❓',
+    color: 'linear-gradient(160deg, #2dd4bf, #0d9488)',
+    category: 'numbers',
+    Component: MissingNumber,
   },
   {
     id: 'bigsmall',

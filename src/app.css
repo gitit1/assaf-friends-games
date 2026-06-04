@@ -826,6 +826,85 @@ button {
   }
 }
 
+/* ---------- missing number (a + ? = c) ---------- */
+.miss-eq {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  min-height: 20vh;
+  margin: 8px 0 22px;
+}
+.miss-friend {
+  display: inline-flex;
+}
+.miss-op {
+  font-family: 'Fredoka', 'Heebo', sans-serif;
+  font-weight: 800;
+  font-size: clamp(1.8rem, 7vw, 2.6rem);
+  color: var(--text-soft);
+}
+.miss-q {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: clamp(58px, 15vw, 84px);
+  height: clamp(58px, 15vw, 84px);
+  border-radius: 18px;
+  border: 3px dashed #2dd4bf;
+  background: rgba(45, 212, 191, 0.12);
+  font-family: 'Fredoka', 'Heebo', sans-serif;
+  font-weight: 800;
+  font-size: clamp(2rem, 8vw, 3rem);
+  color: #2dd4bf;
+  animation: miss-q-pulse 1.6s ease-in-out infinite;
+}
+@keyframes miss-q-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.07);
+  }
+}
+.miss-choices {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 14px;
+}
+.miss-choice {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  /* extra top room so the friend's number badge never clips the button edge */
+  padding: 20px 14px 10px;
+  border-radius: 20px;
+  background: var(--panel-strong);
+  box-shadow: var(--shadow);
+  transition: transform 0.12s ease;
+}
+.miss-choice:active {
+  transform: scale(0.94);
+}
+.miss-choice.is-wrong {
+  animation: miss-shake 0.45s ease;
+}
+@keyframes miss-shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-7px);
+  }
+  75% {
+    transform: translateX(7px);
+  }
+}
+
 /* ---------- bubble game ---------- */
 
 .bubble-counter {
