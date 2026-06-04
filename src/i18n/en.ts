@@ -66,6 +66,19 @@ export const EN: Dict = {
   'missing.prompt': { text: "Who's missing?" },
   'missing.new': { text: 'New one' },
 
+  // sort game
+  'sort.smiley': { text: '🙂 Smileys' },
+  'sort.number': { text: '🔢 Numbers' },
+  'sort.letter': { text: '🔤 Letters' },
+  'sort.friend': { text: '⭐ Friends' },
+  'sort.baskets': { text: '{n} baskets' },
+  'sort.item': { text: 'item' },
+  'sort.fewer': { text: 'fewer baskets' },
+  'sort.more': { text: 'more baskets' },
+  'sort.numAria': { text: 'number {n}' },
+  'sort.letterAria': { text: 'letter {l}' },
+  'sort.new': { text: 'Shuffle' },
+
   // who's missing game
   'who.cover': { text: 'Cover them!' },
   'who.prompt': { text: "Who's missing?" },

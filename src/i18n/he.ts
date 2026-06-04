@@ -67,6 +67,19 @@ export const HE: Dict = {
   'missing.prompt': { text: 'מי חסר?' },
   'missing.new': { text: 'תרגיל חדש' },
 
+  // sort game
+  'sort.smiley': { text: '🙂 סמיילים' },
+  'sort.number': { text: '🔢 מספרים' },
+  'sort.letter': { text: '🔤 אותיות' },
+  'sort.friend': { text: '⭐ חברים' },
+  'sort.baskets': { text: '{n} סלים' },
+  'sort.item': { text: 'פריט' },
+  'sort.fewer': { text: 'פחות סלים' },
+  'sort.more': { text: 'עוד סל' },
+  'sort.numAria': { text: 'מספר {n}' },
+  'sort.letterAria': { text: 'אות {l}' },
+  'sort.new': { text: 'ערבוב' },
+
   // who's missing game
   'who.cover': { text: 'כסו אותם!' },
   'who.prompt': { text: 'מי נעלם?' },

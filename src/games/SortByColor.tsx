@@ -1,12 +1,14 @@
 import { useEffect, useState } from 'react'
 import GameShell from '../components/GameShell'
 import Friend from '../components/Friend'
+import Confetti from '../components/Confetti'
 import { friendMaxDim } from '../components/FriendArt'
 import { friendName } from '../friends'
 import type { GameProps } from './registry'
 import { playNudge, playSuccess, playTap, playWin, unlockAudio } from '../audio'
 import { randInt, shuffle } from './util'
 import { speakNumber } from '../voice'
+import { useT } from '../i18n'
 
 // "Sort it" — drag each item into its matching basket. Four modes: by colour
 // (smiley faces), by number, by letter (A–Z), or by friend. No timer, no losing:
@@ -87,11 +89,14 @@ function Face() {
 }
 
 export default function SortByColor({ onExit }: GameProps) {
+  const { t } = useT()
   const [mode, setMode] = useState<Mode>('smiley')
   const [numCats, setNumCats] = useState(4)
   const [blobs, setBlobs] = useState<Blob[]>(() => freshBatch(4))
   const [counts, setCounts] = useState<Record<string, number>>({})
   const [drag, setDrag] = useState<{ id: number; cat: number; key: string; x: number; y: number } | null>(null)
+  const [popped, setPopped] = useState<string | null>(null) // basket that just got a drop
+  const [party, setParty] = useState(false)
 
   const maxCats = MODES.find((m) => m.id === mode)!.max
 
@@ -172,8 +177,13 @@ export default function SortByColor({ onExit }: GameProps) {
       const left = blobs.filter((x) => x.id !== drag.id)
       setBlobs(left)
       speakNumber(newCount)
+      const droppedKey = drag.key
+      setPopped(droppedKey)
+      window.setTimeout(() => setPopped((p) => (p === droppedKey ? null : p)), 380)
       if (left.length === 0) {
         playWin()
+        setParty(true)
+        window.setTimeout(() => setParty(false), 2500)
         window.setTimeout(() => setBlobs(freshBatch(numCats)), 1400)
       } else {
         playSuccess()
@@ -198,13 +208,14 @@ export default function SortByColor({ onExit }: GameProps) {
 
   function basketAria(i: number) {
     if (mode === 'smiley') return PALETTE[i % PALETTE.length].name
-    if (mode === 'number') return `מספר ${i + 1}`
-    if (mode === 'letter') return `אות ${LETTERS[i]}`
+    if (mode === 'number') return t('sort.numAria', { n: i + 1 })
+    if (mode === 'letter') return t('sort.letterAria', { l: LETTERS[i] })
     return friendName(i)
   }
 
   return (
-    <GameShell title="מיון" emoji="🧺" onExit={onExit}>
+    <GameShell title={t('game.sort')} emoji="🧺" onExit={onExit}>
+      <Confetti active={party} />
       <div className="sort-screen">
         <div className="sort-modes">
           {MODES.map((m) => (
@@ -213,7 +224,7 @@ export default function SortByColor({ onExit }: GameProps) {
               className={`pill pill-small ${mode === m.id ? 'pill-active' : ''}`}
               onClick={() => chooseMode(m.id)}
             >
-              {m.label}
+              {t(`sort.${m.id}`)}
             </button>
           ))}
         </div>
@@ -228,7 +239,7 @@ export default function SortByColor({ onExit }: GameProps) {
               onPointerMove={move}
               onPointerUp={up}
               onPointerCancel={() => setDrag(null)}
-              aria-label="פריט"
+              aria-label={t('sort.item')}
             >
               <ItemInner cat={b.cat} />
             </button>
@@ -236,11 +247,11 @@ export default function SortByColor({ onExit }: GameProps) {
         </div>
 
         <div className="sort-controls">
-          <button className="pill" onClick={() => changeCats(-1)} disabled={numCats <= MIN_CATS} aria-label="פחות סלים">
+          <button className="pill" onClick={() => changeCats(-1)} disabled={numCats <= MIN_CATS} aria-label={t('sort.fewer')}>
             ➖
           </button>
-          <span className="sort-controls-label">{numCats} סלים</span>
-          <button className="pill" onClick={() => changeCats(1)} disabled={numCats >= maxCats} aria-label="עוד סל">
+          <span className="sort-controls-label">{t('sort.baskets', { n: numCats })}</span>
+          <button className="pill" onClick={() => changeCats(1)} disabled={numCats >= maxCats} aria-label={t('sort.more')}>
             ➕
           </button>
         </div>
@@ -252,7 +263,7 @@ export default function SortByColor({ onExit }: GameProps) {
             return (
               <div className="sort-basket-cell" key={key}>
                 <div
-                  className="sort-basket"
+                  className={`sort-basket ${popped === key ? 'is-pop' : ''}`}
                   data-basket={key}
                   style={{ '--c': mode === 'friend' ? NEUTRAL : catColor(i), width: bw, height: bh } as React.CSSProperties}
                   aria-label={basketAria(i)}
@@ -280,7 +291,7 @@ export default function SortByColor({ onExit }: GameProps) {
 
         <div className="color-actions">
           <button className="big-button" onClick={newRound}>
-            🔄 עוד
+            🔄 {t('sort.new')}
           </button>
         </div>
       </div>
