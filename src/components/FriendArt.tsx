@@ -909,8 +909,15 @@ export default function FriendArt({
   const headItem = personalItem?.slot === 'hat'
   const halo =
     showHalo && number ? <span className={`gal-halo ${headItem ? 'gal-halo-up' : ''}`}>{number}</span> : null
+  const cheeks = (
+    <>
+      <span className="gf-cheek l" />
+      <span className="gf-cheek r" />
+    </>
+  )
   const face = (
     <>
+      {cheeks}
       <span className="gf-eye l" />
       <span className="gf-eye r" />
       <span className="gf-mouth" />
@@ -918,6 +925,7 @@ export default function FriendArt({
   )
   const eyes = (
     <>
+      {cheeks}
       <span className="gf-eye l" />
       <span className="gf-eye r" />
     </>

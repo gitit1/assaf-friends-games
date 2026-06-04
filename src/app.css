@@ -1371,9 +1371,39 @@ button {
 .gf-eye::after {
   content: '';
   position: absolute;
-  inset: 30%;
-  background: #1a1a1a;
+  inset: 26%;
+  /* a white glint top-left → the eyes feel alive, not flat dots */
+  background: radial-gradient(circle at 33% 27%, #fff 0 22%, #1a1a1a 28%);
   border-radius: 50%;
+}
+/* rosy cheeks — warmth + ties the face to the body. On every friend. */
+.gf-cheek {
+  position: absolute;
+  top: 50%;
+  width: 17%;
+  height: 11%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 105, 140, 0.62), rgba(255, 105, 140, 0) 70%);
+  pointer-events: none;
+  z-index: 1;
+}
+.gf-cheek.l {
+  left: 10%;
+}
+.gf-cheek.r {
+  right: 10%;
+}
+/* big friends: the face is bigger + centred, so cheeks sit in px beside it */
+.gal-big .gf-cheek {
+  top: 49%;
+  width: 22px;
+  height: 13px;
+}
+.gal-big .gf-cheek.l {
+  left: calc(50% - 54px);
+}
+.gal-big .gf-cheek.r {
+  right: calc(50% - 54px);
 }
 .gf-mouth {
   position: absolute;
@@ -1488,12 +1518,12 @@ button {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  width: 17px;
-  height: 16px;
-  border-radius: 52% 52% 50% 50%;
-  background: radial-gradient(circle at 38% 30%, #ffffff, #e6e6ee);
-  border: 2px solid rgba(0, 0, 0, 0.16);
-  box-shadow: 0 2px 3px rgba(0, 0, 0, 0.22);
+  width: 20px;
+  height: 19px;
+  border-radius: 50% 50% 46% 46%;
+  background: radial-gradient(circle at 36% 28%, #ffffff, #dcdce6);
+  border: 2.5px solid rgba(0, 0, 0, 0.18);
+  box-shadow: 0 3px 4px rgba(0, 0, 0, 0.28), inset 0 -2px 3px rgba(0, 0, 0, 0.12);
 }
 /* arms rest at a relaxed downward angle (not a stiff T-pose) */
 .gal-arm.l {
