@@ -139,10 +139,12 @@ export default function FriendWorld({
   }, [index])
 
   function burst(emoji: string, count = 7) {
+    // cluster around the centre (the friend) so hearts/sparkles feel like they
+    // come FROM the friend, not scattered across the whole width
     const items: Fx[] = Array.from({ length: count }, () => ({
       id: fxId.current++,
       emoji,
-      x: 12 + Math.floor(Math.random() * 76),
+      x: 38 + Math.floor(Math.random() * 24),
     }))
     setFx((f) => [...f, ...items])
     const ids = new Set(items.map((i) => i.id))
@@ -263,17 +265,17 @@ export default function FriendWorld({
   // the two split friends share one scale (so 3 still looks smaller than 4),
   // sized so the larger one fits comfortably with both side by side
   const splitMaxDim = split ? Math.max(friendMaxDim(split.a - 1), friendMaxDim(split.b - 1)) : 1
-  const splitScale = Math.min((vp.w * 0.4) / splitMaxDim, (vp.h * 0.3) / splitMaxDim, 1.7)
+  const splitScale = Math.min((vp.w * 0.32) / splitMaxDim, (vp.h * 0.26) / splitMaxDim, 1.4)
 
   return (
     <GameShell title={friendName(index)} emoji="⭐" onExit={onExit}>
       <div className="world-screen">
-        {/* prev-friend / next-friend. direction:ltr (in CSS) keeps the arrows on
-            the right side for RTL: ◀ goes to the lower number, ▶ to the higher,
-            matching the number-line order. (Home / back-to-friends now live in
-            the top bar, so no in-body button is needed between the arrows.) */}
+        {/* a number-line pager: ◀ (lower number) · the number we're on · ▶ (higher).
+            direction:ltr (in CSS) keeps ◀ on the left and ▶ on the right so it
+            reads like the number line, in both languages. */}
         <div className="world-nav">
           <IconButton icon="◀" label={t('nav.prev')} onClick={goPrev} />
+          <span className="world-nav-num" aria-hidden="true">{n}</span>
           <IconButton icon="▶" label={t('nav.next')} onClick={goNext} />
         </div>
 
@@ -304,7 +306,7 @@ export default function FriendWorld({
               <span className="wf-label">{facts[fact].label}</span>
               <span className="wf-big" dir="ltr">{facts[fact].big}</span>
               <div className="wf-friend">
-                <Friend index={index} scale={scale * 0.5} showNumber lively />
+                <Friend index={index} scale={scale * 0.42} showNumber lively />
               </div>
             </div>
           ) : (
