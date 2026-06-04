@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import GameShell from '../components/GameShell'
 import Friend from '../components/Friend'
+import Confetti from '../components/Confetti'
 import { friendMaxDim } from '../components/FriendArt'
 import type { GameProps } from './registry'
 import { playFriend, playNudge, playSuccess, playWin, unlockAudio } from '../audio'
@@ -10,6 +11,7 @@ import { numberWord, randInt, shuffle } from './util'
 import { getSettings } from '../settings'
 import { levelForTier } from '../difficulty'
 import { screenScale, useViewport } from '../useViewport'
+import { useT } from '../i18n'
 
 // "Missing friend in the sequence" — a run of friends follows a rule (counting,
 // jumps, times-tables, doubling) with one gap; pick the friend that completes
@@ -165,8 +167,10 @@ export default function SeqGame({ onExit }: GameProps) {
   const [bottom, setBottom] = useState<Bottom>(EMPTY_BOTTOM)
   const [history, setHistory] = useState<Frame[]>([])
   const [done, setDone] = useState(false)
+  const [party, setParty] = useState(false) // confetti every 5th in a row
   const timers = useRef<number[]>([])
 
+  const { t } = useT()
   const vp = useViewport()
   const missing = round.terms[round.gapPos]
   const frames = buildFrames(round)
@@ -286,8 +290,11 @@ export default function SeqGame({ onExit }: GameProps) {
       setSolved(true)
       const ns = score + 1
       setScore(ns)
-      if (ns % 5 === 0) playWin()
-      else playSuccess()
+      if (ns % 5 === 0) {
+        playWin()
+        setParty(true)
+        window.setTimeout(() => setParty(false), 2500)
+      } else playSuccess()
       speak(`${numberWord(missing)}. ${friendSay(missing - 1)}`)
       window.setTimeout(() => next(), 1200)
     } else {
@@ -298,16 +305,17 @@ export default function SeqGame({ onExit }: GameProps) {
   }
 
   return (
-    <GameShell title="חבר חסר ברצף" emoji="🧩" onExit={onExit}>
+    <GameShell title={t('game.sequence')} emoji="🧩" onExit={onExit}>
+      <Confetti active={party} />
       <div className="seq-head">
         <div className="seq-levels">
-          {LEVELS.map((label, i) => (
-            <button key={label} className={`pill ${i === levelIdx ? 'pill-active' : ''}`} onClick={() => chooseLevel(i)}>
-              {label}
+          {LEVELS.map((_, i) => (
+            <button key={i} className={`pill ${i === levelIdx ? 'pill-active' : ''}`} onClick={() => chooseLevel(i)}>
+              {t(`diff.${i}`)}
             </button>
           ))}
         </div>
-        <span className="seq-score" aria-label={`ניקוד ${score}`}>
+        <span className="seq-score" aria-label={t('bs.score', { n: score })}>
           ⭐ {score}
         </span>
       </div>
@@ -323,7 +331,7 @@ export default function SeqGame({ onExit }: GameProps) {
             )
           }
           return (
-            <button className="seq-item" key={i} onClick={() => sayFriend(num)} aria-label={`חבר מספר ${num}`}>
+            <button className="seq-item" key={i} onClick={() => sayFriend(num)} aria-label={t('bs.friendAria', { n: num })}>
               <span className="seq-num">{num}</span>
               <Friend
                 index={num - 1}
@@ -338,10 +346,10 @@ export default function SeqGame({ onExit }: GameProps) {
 
       <div className="seq-tools">
         <button className="pill" onClick={() => speak('איזה חבר חסר?')}>
-          🔊 שמע שוב
+          🔊 {t('bs.replay')}
         </button>
         <button className="pill" onClick={openHint}>
-          💡 הראו לי
+          💡 {t('seq.hint')}
         </button>
       </div>
 
@@ -352,7 +360,7 @@ export default function SeqGame({ onExit }: GameProps) {
             className={`seq-choice ${wrong === n ? 'is-wrong' : ''}`}
             onClick={() => pick(n)}
             disabled={solved}
-            aria-label={`חבר מספר ${n}`}
+            aria-label={t('bs.friendAria', { n })}
           >
             <span className="seq-num">{n}</span>
             <Friend index={n - 1} scale={choiceScale(n)} showNumber={false} />
@@ -363,7 +371,7 @@ export default function SeqGame({ onExit }: GameProps) {
       {hintOpen && (
         <div className="hint-overlay" onClick={closeHint}>
           <div className="hint-card" onClick={(e) => e.stopPropagation()}>
-            <button className="hint-close" onClick={closeHint} aria-label="סגור">
+            <button className="hint-close" onClick={closeHint} aria-label={t('seq.close')}>
               ✕
             </button>
 
@@ -418,7 +426,7 @@ export default function SeqGame({ onExit }: GameProps) {
             )}
 
             <button className="pill hint-replay" onClick={openHint}>
-              ↻ עוד פעם
+              ↻ {t('seq.again')}
             </button>
           </div>
         </div>
