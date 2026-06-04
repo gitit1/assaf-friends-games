@@ -8986,3 +8986,17 @@ button {
   25% { opacity: 1; }
   100% { transform: translate(-50%, 130%) scale(2.8); opacity: 0; }
 }
+/* during a kiss EVERY friend's mouth puckers up — both mouth kinds, so it's
+   consistent across all 100 friends (each is either .gf-mouth or .lips) */
+.friend-art.act-kiss .gf-mouth,
+.friend-art.act-kiss .lips {
+  width: 17% !important;
+  height: 15% !important;
+  border: 2.5px solid #be123c !important;
+  border-radius: 50% !important;
+  background: #e11d48 !important;
+  background-image: radial-gradient(circle at 40% 30%, rgba(255, 255, 255, 0.5), transparent 55%) !important;
+}
+.friend-art.act-kiss .lips-line {
+  opacity: 0 !important;
+}
