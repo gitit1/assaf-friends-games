@@ -8,6 +8,8 @@ import { speak } from '../speech'
 import { FRIENDS, friendColor } from '../friends'
 import { numberWordNiqqud, randInt, shuffle } from './util'
 import { screenScale, useViewport } from '../useViewport'
+import Confetti from '../components/Confetti'
+import { useT } from '../i18n'
 
 // "Friends piano" — Guitar-Hero / Just-Dance style but SELF-PACED (no timer):
 // the next note of a known kids' tune falls down its lane as a number, its key
@@ -20,20 +22,21 @@ function pickBand(): number[] {
   return shuffle(Array.from({ length: FRIENDS.length }, (_, i) => i)).slice(0, LANES)
 }
 
-type Song = { name: string; emoji: string; notes: number[] } // notes = scale degrees 0..5
+type Song = { key: string; emoji: string; notes: number[] } // notes = scale degrees 0..5
 const SONGS: Song[] = [
-  { name: 'כוכב קטן', emoji: '⭐', notes: [0, 0, 4, 4, 5, 5, 4, 3, 3, 2, 2, 1, 1, 0] }, // Twinkle / ABC
-  { name: 'כבשה', emoji: '🐑', notes: [2, 1, 0, 1, 2, 2, 2, 1, 1, 1, 2, 4, 4] }, // Mary Had a Little Lamb
-  { name: 'סירה', emoji: '🚣', notes: [0, 0, 0, 1, 2, 2, 1, 2, 3, 4] }, // Row Row Row Your Boat
-  { name: 'אחינו יעקב', emoji: '😴', notes: [0, 1, 2, 0, 0, 1, 2, 0, 2, 3, 4, 2, 3, 4] }, // Frère Jacques
-  { name: 'תופים', emoji: '🥁', notes: [2, 1, 0, 2, 1, 0, 0, 0, 0, 1, 1, 1, 2, 1, 0] }, // Hot Cross Buns
-  { name: 'סולם', emoji: '🪜', notes: [0, 1, 2, 3, 4, 5, 5, 4, 3, 2, 1, 0] }, // up & down the scale
-  { name: 'יום הולדת', emoji: '🎂', notes: [0, 0, 1, 0, 3, 2, 0, 0, 1, 0, 4, 3] }, // Happy Birthday (opening)
-  { name: 'לונדון', emoji: '🌉', notes: [4, 5, 4, 3, 2, 3, 4, 1, 2, 3, 2, 3, 4] }, // London Bridge
-  { name: 'דילן', emoji: '🎶', notes: [0, 2, 4, 2, 0, 0, 2, 4, 2, 0, 4, 3, 2, 1, 0] }, // playful arpeggio
+  { key: 'twinkle', emoji: '⭐', notes: [0, 0, 4, 4, 5, 5, 4, 3, 3, 2, 2, 1, 1, 0] }, // Twinkle / ABC
+  { key: 'lamb', emoji: '🐑', notes: [2, 1, 0, 1, 2, 2, 2, 1, 1, 1, 2, 4, 4] }, // Mary Had a Little Lamb
+  { key: 'boat', emoji: '🚣', notes: [0, 0, 0, 1, 2, 2, 1, 2, 3, 4] }, // Row Row Row Your Boat
+  { key: 'frere', emoji: '😴', notes: [0, 1, 2, 0, 0, 1, 2, 0, 2, 3, 4, 2, 3, 4] }, // Frère Jacques
+  { key: 'drums', emoji: '🥁', notes: [2, 1, 0, 2, 1, 0, 0, 0, 0, 1, 1, 1, 2, 1, 0] }, // Hot Cross Buns
+  { key: 'scale', emoji: '🪜', notes: [0, 1, 2, 3, 4, 5, 5, 4, 3, 2, 1, 0] }, // up & down the scale
+  { key: 'birthday', emoji: '🎂', notes: [0, 0, 1, 0, 3, 2, 0, 0, 1, 0, 4, 3] }, // Happy Birthday (opening)
+  { key: 'london', emoji: '🌉', notes: [4, 5, 4, 3, 2, 3, 4, 1, 2, 3, 2, 3, 4] }, // London Bridge
+  { key: 'arp', emoji: '🎶', notes: [0, 2, 4, 2, 0, 0, 2, 4, 2, 0, 4, 3, 2, 1, 0] }, // playful arpeggio
 ]
 
 export default function PianoFriends({ onExit }: GameProps) {
+  const { t } = useT()
   const [songIdx, setSongIdx] = useState(() => randInt(0, SONGS.length - 1))
   const [free, setFree] = useState(false)
   const [pos, setPos] = useState(0)
@@ -106,20 +109,23 @@ export default function PianoFriends({ onExit }: GameProps) {
   }
 
   return (
-    <GameShell title="פסנתר חברים" emoji="🎹" onExit={onExit}>
+    <GameShell title={t('game.piano')} emoji="🎹" onExit={onExit}>
+      <Confetti active={done} />
       <div className="gh-top">
         <button className="pill gh-choose" onClick={() => { unlockAudio(); setPicker(true) }}>
-          🎵 {free ? 'נגינה חופשית' : `${song.emoji} ${song.name}`} ▾
+          🎵 {free ? t('piano.free') : `${song.emoji} ${t(`piano.song.${song.key}`)}`} ▾
         </button>
         <button className="pill" onClick={newRound}>
-          🔄 חדש
+          🔄 {t('pop.new')}
         </button>
       </div>
 
-      {!free && !done && <p className="gh-hint" aria-hidden="true">געו במספר שמופיע כדי לנגן 🎵</p>}
-      {free && <p className="gh-hint" aria-hidden="true">געו בחברים ונגנו מה שבא לכם 🎶</p>}
+      {!free && !done && <p className="gh-hint" aria-hidden="true">{t('piano.hintSong')}</p>}
+      {free && <p className="gh-hint" aria-hidden="true">{t('piano.hintFree')}</p>}
 
-      <div className="gh-board" style={{ '--lanes': LANES } as React.CSSProperties}>
+      {/* a piano is laid out left-to-right (low → high) in both languages, so the
+          falling note (positioned by --lane) lines up with its key */}
+      <div className="gh-board" dir="ltr" style={{ '--lanes': LANES } as React.CSSProperties}>
         {current != null && (
           <span
             className="gh-note"
@@ -132,13 +138,13 @@ export default function PianoFriends({ onExit }: GameProps) {
         {done && <span className="gh-board-done" aria-hidden="true">🎉</span>}
       </div>
 
-      <div className="gh-keys">
+      <div className="gh-keys" dir="ltr">
         {Array.from({ length: LANES }).map((_, i) => (
           <button
             key={i}
             className={`gh-key ${current === i ? 'is-active' : ''} ${wrong === i ? 'is-wrong' : ''}`}
             onClick={() => tap(i)}
-            aria-label={`צליל ${i + 1}`}
+            aria-label={t('piano.keyAria', { n: i + 1 })}
           >
             <Friend index={band[i]} scale={keyPx / friendMaxDim(band[i])} showNumber={false} bouncing={pressed === i} />
           </button>
@@ -150,10 +156,10 @@ export default function PianoFriends({ onExit }: GameProps) {
           {done ? (
             <div className="counting-next">
               <div className="banner banner-success" role="status">
-                כל הכבוד! 🎉
+                {t('mem.win')}
               </div>
               <button className="big-button" onClick={restart}>
-                🔁 עוד פעם
+                🔁 {t('seq.again')}
               </button>
             </div>
           ) : (
@@ -167,24 +173,24 @@ export default function PianoFriends({ onExit }: GameProps) {
       {picker && (
         <div className="song-overlay" onClick={() => setPicker(false)}>
           <div className="song-card" onClick={(e) => e.stopPropagation()}>
-            <button className="hint-close" onClick={() => setPicker(false)} aria-label="סגור">
+            <button className="hint-close" onClick={() => setPicker(false)} aria-label={t('seq.close')}>
               ✕
             </button>
-            <h3 className="song-title">איזה שיר לנגן? 🎵</h3>
+            <h3 className="song-title">{t('piano.pick')}</h3>
             <div className="song-list">
               {SONGS.map((s, i) => (
-                <button key={s.name} className="song-item" onClick={() => chooseSong(i)}>
+                <button key={s.key} className="song-item" onClick={() => chooseSong(i)}>
                   <span className="song-item-emoji" aria-hidden="true">
                     {s.emoji}
                   </span>
-                  <span className="song-item-name">{s.name}</span>
+                  <span className="song-item-name">{t(`piano.song.${s.key}`)}</span>
                 </button>
               ))}
               <button className="song-item" onClick={chooseFree}>
                 <span className="song-item-emoji" aria-hidden="true">
                   🎶
                 </span>
-                <span className="song-item-name">נגינה חופשית</span>
+                <span className="song-item-name">{t('piano.free')}</span>
               </button>
             </div>
           </div>

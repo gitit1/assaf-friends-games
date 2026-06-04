@@ -67,6 +67,22 @@ export const HE: Dict = {
   'missing.prompt': { text: 'מי חסר?' },
   'missing.new': { text: 'תרגיל חדש' },
 
+  // piano game
+  'piano.free': { text: 'נגינה חופשית' },
+  'piano.hintSong': { text: 'געו במספר שמופיע כדי לנגן 🎵' },
+  'piano.hintFree': { text: 'געו בחברים ונגנו מה שבא לכם 🎶' },
+  'piano.keyAria': { text: 'צליל {n}' },
+  'piano.pick': { text: 'איזה שיר לנגן? 🎵' },
+  'piano.song.twinkle': { text: 'כוכב קטן' },
+  'piano.song.lamb': { text: 'כבשה' },
+  'piano.song.boat': { text: 'סירה' },
+  'piano.song.frere': { text: 'אחינו יעקב' },
+  'piano.song.drums': { text: 'תופים' },
+  'piano.song.scale': { text: 'סולם' },
+  'piano.song.birthday': { text: 'יום הולדת' },
+  'piano.song.london': { text: 'לונדון' },
+  'piano.song.arp': { text: 'דילן' },
+
   // pop / match game
   'pop.new': { text: 'חדש' },
   'pop.hint': { text: 'חברו 3 חברים זהים ושחררו 💥' },

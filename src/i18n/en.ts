@@ -66,6 +66,22 @@ export const EN: Dict = {
   'missing.prompt': { text: "Who's missing?" },
   'missing.new': { text: 'New one' },
 
+  // piano game
+  'piano.free': { text: 'Free play' },
+  'piano.hintSong': { text: 'Tap the number that appears to play 🎵' },
+  'piano.hintFree': { text: 'Tap friends and play freely 🎶' },
+  'piano.keyAria': { text: 'key {n}' },
+  'piano.pick': { text: 'Which song? 🎵' },
+  'piano.song.twinkle': { text: 'Twinkle' },
+  'piano.song.lamb': { text: 'Little Lamb' },
+  'piano.song.boat': { text: 'Row the Boat' },
+  'piano.song.frere': { text: 'Frère Jacques' },
+  'piano.song.drums': { text: 'Hot Cross Buns' },
+  'piano.song.scale': { text: 'Scale' },
+  'piano.song.birthday': { text: 'Happy Birthday' },
+  'piano.song.london': { text: 'London Bridge' },
+  'piano.song.arp': { text: 'Arpeggio' },
+
   // pop / match game
   'pop.new': { text: 'New' },
   'pop.hint': { text: 'Connect 3 same friends and let go 💥' },
