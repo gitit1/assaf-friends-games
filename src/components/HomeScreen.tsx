@@ -1,11 +1,23 @@
+import { useState } from 'react'
 import { CATEGORIES, gamesInCategory, type CategoryId } from '../games/registry'
 import Friend from './Friend'
 import SettingsPanel from './SettingsPanel'
 import FullscreenButton from './FullscreenButton'
+import { FRIENDS } from '../friends'
 import { playTap, unlockAudio } from '../audio'
 import { stopSpeech } from '../speech'
 import { useT } from '../i18n'
 import { SHOW_3D } from '../devFlags'
+
+// 3 distinct random friends to greet on the home card (fresh each visit)
+function pickThree(): number[] {
+  const all = Array.from({ length: FRIENDS.length }, (_, i) => i)
+  for (let i = all.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[all[i], all[j]] = [all[j], all[i]]
+  }
+  return all.slice(0, 3).sort((a, b) => a - b)
+}
 
 type HomeScreenProps = {
   // open a special screen: 'meet' (meet the friends) or 'gallery'
@@ -16,6 +28,7 @@ type HomeScreenProps = {
 
 export default function HomeScreen({ onOpen, onOpenCategory }: HomeScreenProps) {
   const { t } = useT()
+  const [featured] = useState<number[]>(pickThree)
   function tap() {
     unlockAudio()
     stopSpeech()
@@ -50,9 +63,9 @@ export default function HomeScreen({ onOpen, onOpenCategory }: HomeScreenProps) 
       {/* Featured: meet the friends */}
       <button className="featured-card" onClick={() => open('meet')}>
         <span className="friend-cluster" aria-hidden="true">
-          <Friend index={0} scale={0.32} showNumber={false} lively />
-          <Friend index={1} scale={0.32} showNumber={false} lively />
-          <Friend index={2} scale={0.32} showNumber={false} lively />
+          {featured.map((i) => (
+            <Friend key={i} index={i} scale={0.32} showNumber={false} lively />
+          ))}
         </span>
         <span className="featured-text">
           <span className="featured-title">{t('home.meet.title')}</span>

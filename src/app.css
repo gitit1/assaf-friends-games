@@ -229,31 +229,39 @@ button {
 
 /* big "meet the friends" entry */
 .featured-card {
+  position: relative;
   display: flex;
   align-items: center;
-  gap: 16px;
+  justify-content: center; /* text centred in the card */
   width: 100%;
-  max-width: 640px;
+  max-width: 560px; /* match the 2-column category grid below it */
+  min-height: 96px;
   margin: 0 auto 24px;
   padding: 16px 22px;
   border-radius: 28px;
   background: linear-gradient(160deg, #f59f00, #ec4899);
   box-shadow: var(--shadow);
   color: #fff;
-  text-align: start;
+  text-align: center;
 }
 
 .featured-card:active {
   transform: scale(0.97);
 }
 
+/* friends tucked on the start side; the text stays centred in the card */
 .featured-card .friend-cluster {
   flex: none;
+  position: absolute;
+  inset-inline-start: 16px;
+  top: 50%;
+  transform: translateY(-50%);
 }
 
 .featured-text {
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 2px;
 }
 
