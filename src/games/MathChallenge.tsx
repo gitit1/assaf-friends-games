@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import GameShell from '../components/GameShell'
 import Friend from '../components/Friend'
+import Confetti from '../components/Confetti'
 import { friendMaxDim } from '../components/FriendArt'
 import type { GameProps } from './registry'
 import { playNudge, playSuccess, playWin, unlockAudio } from '../audio'
@@ -11,6 +12,7 @@ import { speakNumber } from '../voice'
 import { getSettings } from '../settings'
 import { levelForTier } from '../difficulty'
 import { screenScale, useViewport } from '../useViewport'
+import { useT } from '../i18n'
 
 // "Math challenge" — multi-step expressions (a × b ± c) for a number-strong kid
 // who already does combined operations in his head. Multiple choice, no timer,
@@ -51,7 +53,9 @@ function makeProblem(level: Level): Problem {
 }
 
 export default function MathChallenge({ onExit }: GameProps) {
+  const { t } = useT()
   const vp = useViewport()
+  const [party, setParty] = useState(false)
   const [level, setLevel] = useState(() => levelForTier(LEVEL_TIERS, getSettings().difficulty))
   const [problem, setProblem] = useState<Problem>(() => makeProblem(LEVELS[levelForTier(LEVEL_TIERS, getSettings().difficulty)]))
   const [score, setScore] = useState(0)
@@ -87,6 +91,8 @@ export default function MathChallenge({ onExit }: GameProps) {
       if (ns % 5 === 0) {
         playWin()
         speakNumber(ns) // calm milestone: announce the running count
+        setParty(true)
+        window.setTimeout(() => setParty(false), 2500)
       } else {
         playSuccess()
         speak(`${numberWord(problem.answer)}! ${friendSay(mascot)}`)
@@ -105,16 +111,17 @@ export default function MathChallenge({ onExit }: GameProps) {
   const sym = problem.op === '-' ? '−' : '+'
 
   return (
-    <GameShell title="אתגר חשבון" emoji="🎓" onExit={onExit}>
+    <GameShell title={t('game.challenge')} emoji="🎓" onExit={onExit}>
+      <Confetti active={party} />
       <div className="chal-head">
         <div className="chal-levels">
-          {LEVELS.map((l, i) => (
-            <button key={l.label} className={`pill ${i === level ? 'pill-active' : ''}`} onClick={() => chooseLevel(i)}>
-              {l.label}
+          {LEVELS.map((_, i) => (
+            <button key={i} className={`pill ${i === level ? 'pill-active' : ''}`} onClick={() => chooseLevel(i)}>
+              {t(`diff.${LEVEL_TIERS[i]}`)}
             </button>
           ))}
         </div>
-        <span className="chal-score" aria-label={`ניקוד ${score}`}>
+        <span className="chal-score" aria-label={t('bs.score', { n: score })}>
           ⭐ {score}
         </span>
       </div>
@@ -132,7 +139,7 @@ export default function MathChallenge({ onExit }: GameProps) {
         <span className="math-eq">= ?</span>
       </div>
       <button className="pill math-say" onClick={() => say()}>
-        🔊 שמע שוב
+        🔊 {t('bs.replay')}
       </button>
 
       <div className="math-choices">
