@@ -24,16 +24,19 @@ export default function CategoryScreen({ category, onPick, onExit }: Props) {
   return (
     <div className="game-screen">
       <header className="game-top-bar">
-        <button
-          className="back-button home-button"
-          onClick={() => {
-            tap()
-            onExit()
-          }}
-          aria-label={t('nav.home.aria')}
-        >
-          <span aria-hidden="true">🏠</span>
-        </button>
+        {/* round icon buttons in a row above the title — same as the home page */}
+        <div className="game-controls">
+          <button
+            className="control-btn"
+            onClick={() => {
+              tap()
+              onExit()
+            }}
+            aria-label={t('nav.home.aria')}
+          >
+            <span aria-hidden="true">🏠</span>
+          </button>
+        </div>
         <h1 className="game-title">
           <span aria-hidden="true">{category.emoji}</span> {catTitle}
         </h1>

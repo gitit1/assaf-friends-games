@@ -386,40 +386,38 @@ button {
 
 /* ---------- game frame ---------- */
 
+/* same shape as the home page: a centered row of round icon buttons ABOVE a
+   centered title (no longer a big labeled pill beside the title). */
 .game-top-bar {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 16px;
+  position: relative;
+  text-align: center;
+  margin: 8px 0 16px;
 }
 
-.back-button {
+.game-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin-bottom: 10px;
+}
+
+/* round 🏠 / back-arrow buttons — match the home-page controls */
+.control-btn {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  font-weight: 800;
-  font-size: 1.1rem;
-  padding: 12px 18px;
-  border-radius: 999px;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  font-size: 1.7rem;
+  line-height: 1;
+  border-radius: 50%;
   background: var(--panel-strong);
   box-shadow: var(--shadow);
 }
 
-.back-button span:first-child {
-  font-size: 1.4rem;
-}
-
-.back-button:active {
-  transform: scale(0.95);
-}
-
-/* compact icon-only 🏠 jump-home button, shown next to "back" on deeper screens */
-.home-button {
-  padding: 12px 14px;
-}
-.home-button span {
-  font-size: 1.4rem;
-  line-height: 1;
+.control-btn:active {
+  transform: scale(0.92);
 }
 
 .game-title {

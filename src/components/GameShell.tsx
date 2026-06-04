@@ -18,41 +18,46 @@ type GameShellProps = {
 // up. On a one-level screen, "back" would be home anyway, so only 🏠 shows — we
 // never replace a real back-to-previous button, and never duplicate it.
 export default function GameShell({ title, emoji, onExit, children }: GameShellProps) {
-  const { t } = useT()
+  const { t, lang } = useT()
   const nav = useNav()
-  const backEmoji = nav?.back.emoji ?? '🏠'
   const backLabel = nav?.back.label ?? t('nav.home')
   const showBack = nav ? !nav.backIsHome : true
+  // back points toward where you came from: the start side, which is the RIGHT
+  // in RTL Hebrew and the LEFT in LTR English
+  const backArrow = lang === 'he' ? '→' : '←'
   return (
     <div className="game-screen">
       <header className="game-top-bar">
-        <button
-          className="back-button home-button"
-          onClick={() => {
-            unlockAudio()
-            stopSpeech()
-            playTap()
-            nav ? nav.goHome() : onExit()
-          }}
-          aria-label={t('nav.home.aria')}
-        >
-          <span aria-hidden="true">🏠</span>
-        </button>
-        {showBack && (
+        {/* round icon buttons in a row above the title — same as the home page */}
+        <div className="game-controls">
           <button
-            className="back-button"
+            className="control-btn"
             onClick={() => {
               unlockAudio()
               stopSpeech()
               playTap()
-              onExit()
+              if (nav) nav.goHome()
+              else onExit()
             }}
-            aria-label={backLabel}
+            aria-label={t('nav.home.aria')}
           >
-            <span aria-hidden="true">{backEmoji}</span>
-            <span>{backLabel}</span>
+            <span aria-hidden="true">🏠</span>
           </button>
-        )}
+          {showBack && (
+            <button
+              className="control-btn"
+              onClick={() => {
+                unlockAudio()
+                stopSpeech()
+                playTap()
+                onExit()
+              }}
+              aria-label={backLabel}
+            >
+              <span aria-hidden="true">{backArrow}</span>
+            </button>
+          )}
+        </div>
         <h1 className="game-title">
           <span aria-hidden="true">{emoji}</span> {title}
         </h1>
