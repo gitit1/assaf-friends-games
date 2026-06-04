@@ -260,12 +260,14 @@ export default function FriendWorld({
   }
 
   // all friends show at one comfortable size in their world (~210px on a phone),
-  // growing on bigger screens instead of sitting tiny in the middle
-  const scale = (210 / friendMaxDim(index)) * screenScale(vp.w, 1.7)
+  // growing on bigger screens — but ALSO capped by viewport HEIGHT so the action
+  // buttons below always stay on screen on a phone (never pushed past the fold)
+  const scale = Math.min((210 / friendMaxDim(index)) * screenScale(vp.w, 1.7), (vp.h * 0.32) / friendMaxDim(index))
   // the two split friends share one scale (so 3 still looks smaller than 4),
-  // sized so the larger one fits comfortably with both side by side
+  // sized so the larger one fits with both side by side AND the equation + button
+  // still leave the action buttons visible
   const splitMaxDim = split ? Math.max(friendMaxDim(split.a - 1), friendMaxDim(split.b - 1)) : 1
-  const splitScale = Math.min((vp.w * 0.32) / splitMaxDim, (vp.h * 0.26) / splitMaxDim, 1.4)
+  const splitScale = Math.min((vp.w * 0.3) / splitMaxDim, (vp.h * 0.22) / splitMaxDim, 1.3)
 
   return (
     <GameShell title={friendName(index)} emoji="⭐" onExit={onExit}>

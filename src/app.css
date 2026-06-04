@@ -7668,7 +7668,9 @@ button {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 46vh;
+  /* sized to the friend (capped by height in JS), not an oversized fixed band —
+     so the action buttons below stay on screen on a phone */
+  min-height: 30vh;
   width: 100%;
 }
 .world-fx-layer {

@@ -26,6 +26,24 @@ something, check it has room to breathe.**
   and that scaled content (split friends, etc.) stays **inside the screen** — if
   it clips the edges, shrink the scale fraction.
 
+## Breathing room must NOT push content off-screen (mobile budget)
+
+The flip side: adding gaps/padding eats vertical space. On a **phone**, a screen
+with buttons at the bottom (e.g. the friend's world action row) must still fit
+**without losing those buttons below the fold** — there's often no scroll (kiosk
+/ touch-lock).
+
+- After adding spacing, mentally add up the column on a short phone (~640px tall):
+  header + nav + the main element + the bottom buttons. It must fit.
+- **Reclaim space from oversized fixed bands, not from needed gaps.** The usual
+  culprit is a too-tall `min-height`/`vh` block (e.g. a stage that was `46vh`
+  when the content was ~28vh) — shrink that first.
+- **Cap big media by viewport HEIGHT**, not just width, so it shrinks on short
+  screens: `Math.min(widthScale, (vp.h * fraction) / naturalSize)`. A width-only
+  size overflows tall content on a short phone.
+- Re-check the **tallest** state of a variable area (e.g. the friend split = label
+  + two friends + a button is taller than a single friend) — size for that.
+
 ## How to do it cleanly
 
 - Prefer a `gap` on a flex/grid container over per-child margins.
