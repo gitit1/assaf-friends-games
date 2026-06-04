@@ -9,6 +9,8 @@ import { FRIENDS, friendName, friendSay } from '../friends'
 import { randInt, shuffle } from './util'
 import { speakNumber } from '../voice'
 import { screenScale, useViewport } from '../useViewport'
+import Confetti from '../components/Confetti'
+import { useT } from '../i18n'
 
 // "Which friend?" — a Hebrew letter is shown and spoken; tap the friend whose
 // NAME starts with it. Teaches letter↔sound through friends the child knows.
@@ -29,11 +31,13 @@ function newRound(): Round {
 }
 
 export default function WhichFriend({ onExit }: GameProps) {
+  const { t } = useT()
   const vp = useViewport()
   const [round, setRound] = useState<Round>(newRound)
   const [score, setScore] = useState(0)
   const [wrong, setWrong] = useState<number | null>(null)
   const [solved, setSolved] = useState(false)
+  const [party, setParty] = useState(false)
 
   const letterName = LETTER_NAMES[round.letter] ?? round.letter
 
@@ -52,6 +56,8 @@ export default function WhichFriend({ onExit }: GameProps) {
       if (ns % 5 === 0) {
         playWin()
         speakNumber(ns) // calm milestone: announce the running count
+        setParty(true)
+        window.setTimeout(() => setParty(false), 2500)
       } else {
         playSuccess()
         speak(`${letterName}! ${friendSay(round.target)}`)
@@ -68,20 +74,21 @@ export default function WhichFriend({ onExit }: GameProps) {
   }
 
   return (
-    <GameShell title="איזה חבר?" emoji="🔤" onExit={onExit}>
+    <GameShell title={t('game.letter')} emoji="🔤" onExit={onExit}>
+      <Confetti active={party} />
       <div className="which-head">
-        <span className="qty-score" aria-label={`ניקוד ${score}`}>
+        <span className="qty-score" aria-label={t('bs.score', { n: score })}>
           ⭐ {score}
         </span>
       </div>
 
-      <p className="which-q">מי מתחיל באות הזאת?</p>
+      <p className="which-q">{t('which.q')}</p>
 
       <div className="which-prompt">
         <span className="which-letter" aria-hidden="true">
           {round.letter}
         </span>
-        <button className="pill which-say" onClick={() => { playTap(); speak(letterName) }} aria-label="שמע שוב">
+        <button className="pill which-say" onClick={() => { playTap(); speak(letterName) }} aria-label={t('bs.replay')}>
           🔊
         </button>
       </div>
@@ -102,7 +109,7 @@ export default function WhichFriend({ onExit }: GameProps) {
                 unlockAudio()
                 speak(friendSay(i))
               }}
-              aria-label={`שמע את ${friendName(i)}`}
+              aria-label={t('which.hear', { name: friendName(i) })}
             >
               🔊
             </button>

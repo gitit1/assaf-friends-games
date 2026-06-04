@@ -66,6 +66,10 @@ export const EN: Dict = {
   'missing.prompt': { text: "Who's missing?" },
   'missing.new': { text: 'New one' },
 
+  // which-friend (letters) game
+  'which.q': { text: 'Who starts with this letter?' },
+  'which.hear': { text: 'hear {name}' },
+
   // color-by-number game
   'cbn.all': { text: 'All' },
   'cbn.colors': { text: '🎨 Colours:' },

@@ -67,6 +67,10 @@ export const HE: Dict = {
   'missing.prompt': { text: 'מי חסר?' },
   'missing.new': { text: 'תרגיל חדש' },
 
+  // which-friend (letters) game
+  'which.q': { text: 'מי מתחיל באות הזאת?' },
+  'which.hear': { text: 'שמע את {name}' },
+
   // color-by-number game
   'cbn.all': { text: 'הכל' },
   'cbn.colors': { text: '🎨 צבעים:' },
