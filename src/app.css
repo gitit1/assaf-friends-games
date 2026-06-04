@@ -778,6 +778,7 @@ button {
   position: absolute;
   bottom: calc(100% + 6px);
   left: 50%;
+  transform: translateX(-50%); /* base centring (animation reverts here when it ends) */
   animation: hop-land 0.42s cubic-bezier(0.2, 0.7, 0.3, 1.3);
 }
 @keyframes hop-land {
