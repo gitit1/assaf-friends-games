@@ -66,6 +66,18 @@ export const EN: Dict = {
   'missing.prompt': { text: "Who's missing?" },
   'missing.new': { text: 'New one' },
 
+  // color-by-number game
+  'cbn.all': { text: 'All' },
+  'cbn.colors': { text: '🎨 Colours:' },
+  'cbn.pic': { text: 'Picture {n}' },
+  'cbn.swatchAria': { text: '{name} — number {n}' },
+  'cbn.cellAria': { text: 'cell {n}' },
+  'cbn.fwd': { text: 'Forward' },
+  'cbn.zoomOut': { text: 'Zoom out' },
+  'cbn.zoomIn': { text: 'Zoom in' },
+  'cbn.fav': { text: 'Favourite' },
+  'cbn.newPic': { text: 'New picture' },
+
   // free-draw game
   'draw.color': { text: 'colour' },
   'draw.brush': { text: 'thickness {n}' },

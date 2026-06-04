@@ -67,6 +67,18 @@ export const HE: Dict = {
   'missing.prompt': { text: 'מי חסר?' },
   'missing.new': { text: 'תרגיל חדש' },
 
+  // color-by-number game
+  'cbn.all': { text: 'הכל' },
+  'cbn.colors': { text: '🎨 צבעים:' },
+  'cbn.pic': { text: 'תמונה {n}' },
+  'cbn.swatchAria': { text: '{name} — מספר {n}' },
+  'cbn.cellAria': { text: 'משבצת {n}' },
+  'cbn.fwd': { text: 'קדימה' },
+  'cbn.zoomOut': { text: 'להקטין' },
+  'cbn.zoomIn': { text: 'להגדיל' },
+  'cbn.fav': { text: 'מועדף' },
+  'cbn.newPic': { text: 'תמונה חדשה' },
+
   // free-draw game
   'draw.color': { text: 'צבע' },
   'draw.brush': { text: 'עובי {n}' },

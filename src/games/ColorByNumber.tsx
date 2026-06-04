@@ -8,6 +8,8 @@ import { speak } from '../speech'
 import { randInt } from './util'
 import { speakNumber } from '../voice'
 import { PICTURES } from './cbnPictures'
+import Confetti from '../components/Confetti'
+import { useT } from '../i18n'
 
 // "Color by number" — a picture drawn on a grid where every cell holds a
 // number. Pick the colour for a number, then tap the cells with that number to
@@ -77,6 +79,7 @@ function loadFavs(): Set<number> {
 }
 
 export default function ColorByNumber({ onExit }: GameProps) {
+  const { t } = useT()
   const [pic, setPic] = useState(() => randInt(0, PICTURES.length - 1))
   const [filled, setFilled] = useState<Set<string>>(new Set())
   const [selected, setSelected] = useState(() => present(PICTURES[pic].grid)[0])
@@ -206,19 +209,20 @@ export default function ColorByNumber({ onExit }: GameProps) {
   }
 
   return (
-    <GameShell title="צביעה לפי מספר" emoji="🧩" onExit={onExit}>
+    <GameShell title={t('game.paintnum')} emoji="🧩" onExit={onExit}>
+      <Confetti active={done} />
       <div className="color-screen">
         <Stepper
           // keep it a mystery — show only the picture's number until it's done,
-          // then reveal what it turned out to be
-          label={done ? `🎉 ${picture.name}` : `תמונה ${pic + 1}`}
+          // then reveal what it turned out to be (name stays Hebrew content)
+          label={done ? `🎉 ${picture.name}` : t('cbn.pic', { n: pic + 1 })}
           onPrev={() => step(-1)}
           onNext={() => step(1)}
         />
 
         {/* filter the boards by how many colours they use (fewer = easier) */}
         <div className="cbn-filter">
-          <span className="cbn-filter-label">🎨 צבעים:</span>
+          <span className="cbn-filter-label">{t('cbn.colors')}</span>
           {FILTERS.map((f, i) => (
             <button
               key={f.id}
@@ -226,7 +230,7 @@ export default function ColorByNumber({ onExit }: GameProps) {
               onClick={() => chooseFilter(f.id)}
               disabled={f.id === 'fav' ? favs.size === 0 : !FILTER_HAS[i]}
             >
-              {f.label}
+              {f.id === 'all' ? t('cbn.all') : f.label}
             </button>
           ))}
         </div>
@@ -238,7 +242,7 @@ export default function ColorByNumber({ onExit }: GameProps) {
               className={`cbn-swatch ${selected === num ? 'is-active' : ''}`}
               style={{ background: COLORS[num].color }}
               onClick={() => pickNumber(num)}
-              aria-label={`${COLORS[num].name} — מספר ${num}`}
+              aria-label={t('cbn.swatchAria', { name: COLORS[num].name, n: num })}
             >
               {num}
             </button>
@@ -260,7 +264,7 @@ export default function ColorByNumber({ onExit }: GameProps) {
                     className={`cbn-cell ${isFilled ? 'is-filled' : ''}`}
                     style={isFilled ? { background: COLORS[v].color } : undefined}
                     onClick={() => tap(r, c, v)}
-                    aria-label={`משבצת ${v}`}
+                    aria-label={t('cbn.cellAria', { n: v })}
                   >
                     {isFilled ? '' : v}
                   </button>
@@ -273,15 +277,15 @@ export default function ColorByNumber({ onExit }: GameProps) {
         {done && <p className="cbn-reveal">🎉 {picture.name}!</p>}
 
         <div className="color-actions">
-          <IconButton icon="↩️" label="אחורה" onClick={undo} disabled={past.length === 0} />
-          <IconButton icon="↪️" label="קדימה" onClick={redo} disabled={future.length === 0} />
-          <IconButton icon={<span className="cbn-zoomic">🔍−</span>} label="להקטין" onClick={() => zoomBy(-0.25)} />
-          <IconButton icon={<span className="cbn-zoomic">🔍+</span>} label="להגדיל" onClick={() => zoomBy(0.25)} />
-          <IconButton icon="🧽" label="מתחילים מחדש" onClick={clearAll} />
-          <IconButton icon={favs.has(pic) ? '❤️' : '🤍'} label="מועדף" onClick={toggleFav} />
+          <IconButton icon="↩️" label={t('dots.back')} onClick={undo} disabled={past.length === 0} />
+          <IconButton icon="↪️" label={t('cbn.fwd')} onClick={redo} disabled={future.length === 0} />
+          <IconButton icon={<span className="cbn-zoomic">🔍−</span>} label={t('cbn.zoomOut')} onClick={() => zoomBy(-0.25)} />
+          <IconButton icon={<span className="cbn-zoomic">🔍+</span>} label={t('cbn.zoomIn')} onClick={() => zoomBy(0.25)} />
+          <IconButton icon="🧽" label={t('dots.restart')} onClick={clearAll} />
+          <IconButton icon={favs.has(pic) ? '❤️' : '🤍'} label={t('cbn.fav')} onClick={toggleFav} />
           <IconButton
             icon="🎲"
-            label="תמונה חדשה"
+            label={t('cbn.newPic')}
             onClick={() => pool.length && goTo(pool[randInt(0, pool.length - 1)])}
           />
         </div>
