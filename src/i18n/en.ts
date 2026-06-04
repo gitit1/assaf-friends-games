@@ -56,8 +56,14 @@ export const EN: Dict = {
   'pv.ones': { text: 'Ones' },
   'pv.new': { text: 'More' },
 
+  // skip-count game (number line)
+  'skip.by': { text: 'Hops of' },
+  'skip.tap': { text: 'Tap to hop! 🦘' },
+  'skip.hop': { text: 'Hop' },
+  'skip.again': { text: 'Restart' },
+
   // game titles
-  'game.count': { text: 'Count' },
+  'game.skipcount': { text: 'Skip Count' },
   'game.placevalue': { text: 'Tens & Ones' },
   'game.build': { text: 'Build a Number' },
   'game.bigsmall': { text: 'Bigger or Smaller?' },

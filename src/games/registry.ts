@@ -1,6 +1,6 @@
 import type { ComponentType } from 'react'
 import MemoryGame from './MemoryGame'
-import CountGame from './CountGame'
+import SkipCount from './SkipCount'
 import PlaceValue from './PlaceValue'
 import CatchFriend from './CatchFriend'
 import CalcFriends from './CalcFriends'
@@ -67,12 +67,12 @@ export type GameDef = {
 // Add a new game by dropping a component here and tagging its category.
 export const GAMES: GameDef[] = [
   {
-    id: 'count',
-    title: 'סופרים',
-    emoji: '🔢',
+    id: 'skipcount',
+    title: 'קפיצות',
+    emoji: '🦘',
     color: 'linear-gradient(160deg, #8b5cf6, #6d28d9)',
     category: 'numbers',
-    Component: CountGame,
+    Component: SkipCount,
   },
   {
     id: 'placevalue',

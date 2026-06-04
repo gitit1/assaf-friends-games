@@ -57,8 +57,14 @@ export const HE: Dict = {
   'pv.ones': { text: 'אחדות' },
   'pv.new': { text: 'עוד' },
 
+  // skip-count game (number line)
+  'skip.by': { text: 'קופצים ב' },
+  'skip.tap': { text: 'הקישו כדי לקפוץ! 🦘' },
+  'skip.hop': { text: 'קפיצה' },
+  'skip.again': { text: 'מהתחלה' },
+
   // game titles (ids from registry)
-  'game.count': { text: 'סופרים' },
+  'game.skipcount': { text: 'קפיצות' },
   'game.placevalue': { text: 'עשרות ואחדות' },
   'game.build': { text: 'בונים מספר' },
   'game.bigsmall': { text: 'גדול או קטן?' },
