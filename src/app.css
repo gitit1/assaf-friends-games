@@ -67,6 +67,16 @@ button {
   position: relative;
 }
 
+/* Always keep a small footer of breathing room BELOW the content, inside the
+   flow. A scroll container's own padding-bottom is dropped at the end of scroll
+   in many browsers (esp. on desktop), leaving the last button flush against the
+   edge — this in-content padding is honoured during scroll, so there's always a
+   ~16px footer and the bottom is comfortably reachable. */
+.game-screen,
+.home-screen {
+  padding-bottom: 16px;
+}
+
 .banner {
   margin: 0 auto 12px;
   max-width: 420px;
@@ -838,6 +848,18 @@ button {
 }
 .miss-friend {
   display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+/* the friend's number, spelled out in digits right under it */
+.miss-num {
+  font-family: 'Fredoka', 'Heebo', sans-serif;
+  font-weight: 800;
+  font-size: 1.5rem;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
 }
 .miss-op {
   font-family: 'Fredoka', 'Heebo', sans-serif;
@@ -877,8 +899,10 @@ button {
 }
 .miss-choice {
   display: inline-flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 2px;
   /* extra top room so the friend's number badge never clips the button edge */
   padding: 20px 14px 10px;
   border-radius: 20px;

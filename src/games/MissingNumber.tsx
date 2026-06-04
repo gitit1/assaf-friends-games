@@ -72,6 +72,7 @@ export default function MissingNumber({ onExit }: GameProps) {
     return (
       <span className="miss-friend">
         <Friend index={value - 1} scale={fitScale(value - 1, vp, 0.18, 0.16)} showNumber lively />
+        <span className="miss-num">{value}</span>
       </span>
     )
   }
@@ -91,6 +92,7 @@ export default function MissingNumber({ onExit }: GameProps) {
         <span className="miss-op">=</span>
         <span className="miss-friend">
           <Friend index={puz.c - 1} scale={fitScale(puz.c - 1, vp, 0.18, 0.16)} showNumber bouncing={solved} lively />
+          <span className="miss-num">{puz.c}</span>
         </span>
       </div>
 
@@ -104,6 +106,7 @@ export default function MissingNumber({ onExit }: GameProps) {
               aria-label={String(n)}
             >
               <Friend index={n - 1} scale={fitScale(n - 1, vp, 0.16, 0.12)} showNumber lively />
+              <span className="miss-num">{n}</span>
             </button>
           ))}
         </div>

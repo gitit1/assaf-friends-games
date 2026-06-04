@@ -44,6 +44,17 @@ with buttons at the bottom (e.g. the friend's world action row) must still fit
 - Re-check the **tallest** state of a variable area (e.g. the friend split = label
   + two friends + a button is taller than a single friend) — size for that.
 
+## Always leave a bottom footer (~16px), in the content
+
+Every screen must keep a **~16px footer of breathing room below its content**, and
+it must live **inside the content flow** (e.g. `padding-bottom` on `.game-screen` /
+`.home-screen`), NOT only on the scroll container. Many browsers (especially on
+desktop) **drop a scroll container's own `padding-bottom` at the end of scroll**,
+leaving the last button flush against the window edge and hard to reach. The
+in-content footer is honoured during scroll, so the bottom is always comfortable
+and the page scrolls cleanly. When you add a new top-level screen wrapper, give it
+this footer too.
+
 ## How to do it cleanly
 
 - Prefer a `gap` on a flex/grid container over per-child margins.
