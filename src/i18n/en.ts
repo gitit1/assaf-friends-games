@@ -33,6 +33,7 @@ export const EN: Dict = {
   'world.kiss': { text: 'Kiss' },
   'world.count': { text: 'Count' },
   'world.split': { text: 'Split' },
+  'world.fact': { text: 'Fact' },
   'world.build': { text: 'Build me!' },
   'world.again': { text: 'Again' },
   // the per-friend "special" button label (chosen by index % 12)

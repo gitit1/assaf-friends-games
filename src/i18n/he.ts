@@ -34,6 +34,7 @@ export const HE: Dict = {
   'world.kiss': { text: 'נשיקה' },
   'world.count': { text: 'ספירה' },
   'world.split': { text: 'פירוק' },
+  'world.fact': { text: 'עובדה' },
   'world.build': { text: 'בנו אותי!' },
   'world.again': { text: 'שוב' },
   // the per-friend "special" button label (chosen by index % 12)

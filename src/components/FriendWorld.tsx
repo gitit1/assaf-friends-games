@@ -39,6 +39,31 @@ const LIKES: Like[] = [
 
 type Fx = { id: number; emoji: string; x: number }
 
+// Visual number facts about a friend, shown in big digits (Assaf reads numbers,
+// so this needs no voice). Each friend gets the handful that apply to its number;
+// the ✨ button cycles through them. `big` is rendered LTR like a number line.
+type Fact = { label: string; big: string }
+function factsFor(n: number): Fact[] {
+  const out: Fact[] = []
+  if (n >= 10) {
+    const tens = Math.floor(n / 10) * 10
+    const ones = n % 10
+    out.push(ones === 0 ? { label: 'עשרות', big: `${n} = ${n / 10} × 10` } : { label: 'עשרות ואחדות', big: `${n} = ${tens} + ${ones}` })
+  }
+  if (n % 2 === 0) out.push({ label: 'זוגי', big: `${n} = ${n / 2} + ${n / 2}` })
+  else if (n >= 3) out.push({ label: 'אי-זוגי', big: `${n} = ${n - 1} + 1` })
+  for (let d = 2; d * d <= n; d++) {
+    if (n % d === 0) {
+      out.push({ label: 'כפל', big: `${n} = ${d} × ${n / d}` })
+      break
+    }
+  }
+  if (n === 1) out.push({ label: 'הראשון!', big: `1 → 2` })
+  else if (n === 100) out.push({ label: 'מאה!', big: `99 → 100` })
+  else if (n >= 2) out.push({ label: 'השכנים', big: `${n - 1} → ${n} → ${n + 1}` })
+  return out
+}
+
 export default function FriendWorld({
   index,
   onExit,
@@ -73,6 +98,9 @@ export default function FriendWorld({
   // to it (c → a + b). This is the friend's identity (passive, friend-faced),
   // distinct from the "Build a Number" GAME which composes (a + b → c).
   const [split, setSplit] = useState<{ a: number; b: number } | null>(null)
+  // "what's special about me": cycles through visual number facts (index, or null)
+  const facts = factsFor(n)
+  const [fact, setFact] = useState<number | null>(null)
   const like = LIKES[index % LIKES.length]
   const [fx, setFx] = useState<Fx[]>([])
   const timers = useRef<number[]>([])
@@ -85,7 +113,8 @@ export default function FriendWorld({
   const later = (fn: () => void, ms: number) => timers.current.push(window.setTimeout(fn, ms))
 
   function describe() {
-    setSplit(null) // "say it again" re-assembles a split friend
+    setSplit(null) // "say it again" re-assembles a split / fact friend
+    setFact(null)
     // Short, exclamatory sentences = energy. No colour (many friends are multi-coloured).
     const about = `שָׁלוֹם!! אֲנִי ${friendSay(index)}, הַמִּסְפָּר ${numberWord(n)}! אֲנִי מַמָּשׁ אוֹהֵב ${like.verb}! בּוֹאוּ לְשַׂחֵק יַחַד!`
     playClip(`intro-${index}`, about)
@@ -98,6 +127,7 @@ export default function FriendWorld({
   useEffect(() => {
     unlockAudio()
     setSplit(null) // a fresh friend starts whole
+    setFact(null)
     const id = window.setTimeout(describe, 350)
     timers.current.push(id)
     return () => {
@@ -122,6 +152,7 @@ export default function FriendWorld({
   // trigger a one-shot gesture (arms + pseudo-3D lean) on the friend
   function doAction(a: 'five' | 'hug' | 'kiss') {
     setSplit(null) // gestures act on the whole friend, so re-assemble first
+    setFact(null)
     setAction(a)
     later(() => setAction(null), 1000)
   }
@@ -151,6 +182,7 @@ export default function FriendWorld({
   function special() {
     unlockAudio()
     setSplit(null)
+    setFact(null)
     setMotion(like.motion)
     later(() => setMotion(null), 1000)
     burst(like.burst, 9)
@@ -163,6 +195,7 @@ export default function FriendWorld({
     clearTimers()
     stopClip()
     setSplit(null)
+    setFact(null)
     setLit(0)
     // Accelerate by size: small numbers stay calm (~900ms/block); bigger numbers
     // speed up so the whole count finishes in ~16s no matter how big (friend 100
@@ -193,6 +226,7 @@ export default function FriendWorld({
     stopClip()
     setLit(undefined)
     setMotion(null)
+    setFact(null)
     if (n < 2) {
       setBounce(true)
       later(() => setBounce(false), 600)
@@ -202,6 +236,17 @@ export default function FriendWorld({
     let a = randInt(1, n - 1)
     if (split && a === split.a && n > 2) a = (a % (n - 1)) + 1 // avoid repeating
     setSplit({ a, b: n - a })
+    playSuccess()
+  }
+  // "what's special about me": show a visual fact, cycling to the next on each tap
+  function showFact() {
+    unlockAudio()
+    clearTimers()
+    stopClip()
+    setSplit(null)
+    setLit(undefined)
+    setMotion(null)
+    setFact((f) => (f === null ? 0 : (f + 1) % facts.length))
     playSuccess()
   }
   // bridge to the "Build a Number" game. If the current split is buildable there
@@ -253,6 +298,15 @@ export default function FriendWorld({
                 🧮 {t('world.build')}
               </button>
             </div>
+          ) : fact !== null ? (
+            // a visual number fact in big digits, with the friend beneath it
+            <div className="world-fact" key={fact}>
+              <span className="wf-label">{facts[fact].label}</span>
+              <span className="wf-big" dir="ltr">{facts[fact].big}</span>
+              <div className="wf-friend">
+                <Friend index={index} scale={scale * 0.5} showNumber lively />
+              </div>
+            </div>
           ) : (
             <div className={`world-friend ${motion ? `motion-${motion}` : ''}`}>
               <Friend index={index} scale={scale} showNumber bouncing={bounce} litUnits={lit} lively action={action} />
@@ -296,6 +350,10 @@ export default function FriendWorld({
           <button className={`world-btn ${split ? 'world-btn-on' : ''}`} onClick={decompose}>
             <span className="world-btn-emoji" aria-hidden="true">🧩</span>
             <span>{t('world.split')}</span>
+          </button>
+          <button className={`world-btn ${fact !== null ? 'world-btn-on' : ''}`} onClick={showFact}>
+            <span className="world-btn-emoji" aria-hidden="true">✨</span>
+            <span>{t('world.fact')}</span>
           </button>
           <button className="world-btn" onClick={describe}>
             <span className="world-btn-emoji" aria-hidden="true">🔊</span>

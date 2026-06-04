@@ -7803,6 +7803,31 @@ button {
   }
 }
 
+/* "what's special about me?" — a visual number fact in big digits */
+.world-fact {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  animation: world-split-in 0.4s cubic-bezier(0.2, 0.7, 0.3, 1.2) both;
+}
+.world-fact .wf-label {
+  font-family: 'Fredoka', 'Heebo', sans-serif;
+  font-weight: 800;
+  font-size: 1.2rem;
+  color: var(--text-soft);
+}
+.world-fact .wf-big {
+  font-family: 'Fredoka', 'Heebo', sans-serif;
+  font-weight: 800;
+  font-size: clamp(2.2rem, 10vw, 3.6rem);
+  color: #6366f1;
+  line-height: 1.1;
+}
+.world-fact .wf-friend {
+  display: inline-flex;
+}
+
 /* ===================== מיון לפי צבע (sort by colour) ===================== */
 .sort-screen {
   display: flex;
