@@ -1372,8 +1372,8 @@ button {
   content: '';
   position: absolute;
   inset: 26%;
-  /* a white glint top-left → the eyes feel alive, not flat dots */
-  background: radial-gradient(circle at 33% 27%, #fff 0 22%, #1a1a1a 28%);
+  /* a small soft white glint → eyes feel alive; small enough to sit well on every eye shape */
+  background: radial-gradient(circle at 35% 30%, #ffffff 0 12%, rgba(255, 255, 255, 0) 20%), #1a1a1a;
   border-radius: 50%;
 }
 /* rosy cheeks — warmth + ties the face to the body. On every friend. */
@@ -1518,12 +1518,14 @@ button {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  width: 20px;
-  height: 19px;
-  border-radius: 50% 50% 46% 46%;
-  background: radial-gradient(circle at 36% 28%, #ffffff, #dcdce6);
-  border: 2.5px solid rgba(0, 0, 0, 0.18);
-  box-shadow: 0 3px 4px rgba(0, 0, 0, 0.28), inset 0 -2px 3px rgba(0, 0, 0, 0.12);
+  width: 16px;
+  height: 15px;
+  border-radius: 50%;
+  /* a dark rounded hand that matches the arm — reads as one limb, not a floating white ball */
+  background: #34343f;
+  background-image: radial-gradient(circle at 36% 30%, rgba(255, 255, 255, 0.26), transparent 55%);
+  border: none;
+  box-shadow: 0 2px 3px rgba(0, 0, 0, 0.3);
 }
 /* arms rest at a relaxed downward angle (not a stiff T-pose) */
 .gal-arm.l {
