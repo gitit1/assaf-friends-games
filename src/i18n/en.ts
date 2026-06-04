@@ -50,9 +50,15 @@ export const EN: Dict = {
   'world.like.10': { text: 'Ball' },
   'world.like.11': { text: 'Kisses' },
 
+  // place value game (tens & ones)
+  'pv.make': { text: 'Build' },
+  'pv.tens': { text: 'Tens' },
+  'pv.ones': { text: 'Ones' },
+  'pv.new': { text: 'More' },
+
   // game titles
   'game.count': { text: 'Count' },
-  'game.add': { text: 'Add' },
+  'game.placevalue': { text: 'Tens & Ones' },
   'game.build': { text: 'Build a Number' },
   'game.bigsmall': { text: 'Bigger or Smaller?' },
   'game.sequence': { text: 'Missing in the Row' },

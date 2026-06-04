@@ -1,7 +1,7 @@
 import type { ComponentType } from 'react'
 import MemoryGame from './MemoryGame'
 import CountGame from './CountGame'
-import AddGame from './AddGame'
+import PlaceValue from './PlaceValue'
 import CatchFriend from './CatchFriend'
 import CalcFriends from './CalcFriends'
 import CarRace from './CarRace'
@@ -75,12 +75,12 @@ export const GAMES: GameDef[] = [
     Component: CountGame,
   },
   {
-    id: 'add',
-    title: 'מוסיפים',
-    emoji: '➕',
+    id: 'placevalue',
+    title: 'עשרות ואחדות',
+    emoji: '🔟',
     color: 'linear-gradient(160deg, #ec4899, #be185d)',
     category: 'numbers',
-    Component: AddGame,
+    Component: PlaceValue,
   },
   {
     id: 'build',

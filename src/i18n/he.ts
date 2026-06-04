@@ -51,9 +51,15 @@ export const HE: Dict = {
   'world.like.10': { text: 'כדור' },
   'world.like.11': { text: 'נשיקות' },
 
+  // place value game (tens & ones)
+  'pv.make': { text: 'בנו את' },
+  'pv.tens': { text: 'עשרות' },
+  'pv.ones': { text: 'אחדות' },
+  'pv.new': { text: 'עוד' },
+
   // game titles (ids from registry)
   'game.count': { text: 'סופרים' },
-  'game.add': { text: 'מוסיפים' },
+  'game.placevalue': { text: 'עשרות ואחדות' },
   'game.build': { text: 'בונים מספר' },
   'game.bigsmall': { text: 'גדול או קטן?' },
   'game.sequence': { text: 'חבר חסר ברצף' },

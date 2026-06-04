@@ -601,6 +601,97 @@ button {
   gap: 16px;
 }
 
+/* ---------- place value (tens & ones) ---------- */
+.pv-blocks {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 28px;
+  min-height: 84px;
+  margin: 2px 0 10px;
+}
+.pv-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+.pv-col-label {
+  font-family: 'Fredoka', 'Heebo', sans-serif;
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--text-soft);
+}
+.pv-rods {
+  display: flex;
+  align-items: flex-end;
+  gap: 5px;
+  min-height: 78px;
+}
+.pv-rod {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 2px;
+  border-radius: 4px;
+  background: rgba(99, 102, 241, 0.18);
+}
+.pv-rod-cell {
+  width: 17px;
+  height: 5px;
+  border-radius: 2px;
+  background: #818cf8;
+}
+.pv-cubes {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 4px;
+  min-height: 78px;
+  align-content: flex-end;
+}
+.pv-cube {
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  background: #fbbf24;
+}
+.pv-empty {
+  align-self: flex-end;
+  font-family: 'Fredoka', 'Heebo', sans-serif;
+  font-weight: 800;
+  font-size: 1.5rem;
+  color: var(--text-soft);
+  opacity: 0.4;
+}
+.pv-eq {
+  text-align: center;
+  font-family: 'Fredoka', 'Heebo', sans-serif;
+  font-size: 1.4rem;
+  margin-bottom: 16px;
+}
+.pv-eq strong {
+  color: #818cf8;
+}
+.pv-eq .pv-eq-done {
+  color: var(--success);
+}
+.pv-controls {
+  display: flex;
+  justify-content: center;
+  gap: 22px;
+}
+.pv-stepper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.pv-stepper-label {
+  font-family: 'Fredoka', 'Heebo', sans-serif;
+  font-weight: 700;
+  min-width: 4ch;
+  text-align: center;
+}
+
 /* ---------- bubble game ---------- */
 
 .bubble-counter {
