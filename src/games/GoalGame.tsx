@@ -6,6 +6,7 @@ import { playNudge, playPop, playWin, unlockAudio } from '../audio'
 import { speakNumber } from '../voice'
 import { randInt } from './util'
 import { useT } from '../i18n'
+import Confetti from '../components/Confetti'
 
 // Soccer — a REAL kick: flick with your finger toward the goal and the ball
 // shoots with that strength + direction. A friend stands in goal as the keeper,
@@ -14,6 +15,7 @@ import { useT } from '../i18n'
 export default function GoalGame({ onExit }: GameProps) {
   const { t } = useT()
   const [score, setScore] = useState(0)
+  const [party, setParty] = useState(false)
   const [kicker, setKicker] = useState(() => randInt(0, 9))
   const [keeper, setKeeper] = useState(() => randInt(0, 9))
   const fieldRef = useRef<HTMLDivElement>(null)
@@ -121,6 +123,8 @@ export default function GoalGame({ onExit }: GameProps) {
         setScore(scoreRef.current)
         playWin()
         speakNumber(scoreRef.current)
+        setParty(true)
+        window.setTimeout(() => setParty(false), 2200)
         // let it sail into the net, then reset
       } else {
         // a save or a hit off the post → bounce back down
@@ -192,6 +196,7 @@ export default function GoalGame({ onExit }: GameProps) {
 
   return (
     <GameShell title={t('game.goal')} emoji="⚽" onExit={onExit}>
+      <Confetti active={party} />
       <div className="sport-screen">
         <div className="sport-score" aria-live="polite">
           <span aria-hidden="true">⚽</span> {score}
@@ -221,7 +226,7 @@ export default function GoalGame({ onExit }: GameProps) {
           <div className="phys-ball goal-real" ref={ballRef} aria-hidden="true" />
         </div>
 
-        <p className="sport-hint">החליקי באצבע כדי לבעוט — תעקפי את השוער! 🥅</p>
+        <p className="sport-hint">{t('goal.hint')}</p>
       </div>
     </GameShell>
   )

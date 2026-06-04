@@ -4,6 +4,7 @@ import type { GameProps } from './registry'
 import { playPop, playWin, unlockAudio } from '../audio'
 import { speakNumber } from '../voice'
 import { useT } from '../i18n'
+import Confetti from '../components/Confetti'
 
 // Air hockey: drag your paddle (bottom) to knock the puck into the TOP goal.
 // There's no opponent and the bottom wall bounces the puck back — so there's no
@@ -11,6 +12,7 @@ import { useT } from '../i18n'
 export default function HockeyGame({ onExit }: GameProps) {
   const { t } = useT()
   const [score, setScore] = useState(0)
+  const [party, setParty] = useState(false)
   const tableRef = useRef<HTMLDivElement>(null)
   const puckRef = useRef<HTMLDivElement>(null)
   const paddleRef = useRef<HTMLDivElement>(null)
@@ -82,6 +84,8 @@ export default function HockeyGame({ onExit }: GameProps) {
           setScore(n)
           playWin()
           speakNumber(n)
+          setParty(true)
+          window.setTimeout(() => setParty(false), 2200)
           // respawn in the middle, drifting down
           p.x = w / 2
           p.y = h * 0.55
@@ -148,6 +152,7 @@ export default function HockeyGame({ onExit }: GameProps) {
 
   return (
     <GameShell title={t('game.hockey')} emoji="🏒" onExit={onExit}>
+      <Confetti active={party} />
       <div className="sport-screen">
         <div className="sport-score" aria-live="polite">
           <span aria-hidden="true">🏒</span> {score}
@@ -167,7 +172,7 @@ export default function HockeyGame({ onExit }: GameProps) {
           <div className="hockey-paddle" ref={paddleRef} aria-hidden="true" />
         </div>
 
-        <p className="sport-hint">החליקי את הכף וכווני את העיגול לשער! 🥅</p>
+        <p className="sport-hint">{t('hockey.hint')}</p>
       </div>
     </GameShell>
   )

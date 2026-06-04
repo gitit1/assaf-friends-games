@@ -6,6 +6,7 @@ import { playPop, playWin, unlockAudio } from '../audio'
 import { speakNumber } from '../voice'
 import { randInt } from './util'
 import { useT } from '../i18n'
+import Confetti from '../components/Confetti'
 
 // Basketball — a REAL throw: flick anywhere with your finger, and the ball flies
 // with that exact strength + direction (a hard flick = a hard throw) and arcs
@@ -14,6 +15,7 @@ import { useT } from '../i18n'
 export default function BasketGame({ onExit }: GameProps) {
   const { t } = useT()
   const [score, setScore] = useState(0)
+  const [party, setParty] = useState(false)
   const [player, setPlayer] = useState(() => randInt(0, 9))
   const courtRef = useRef<HTMLDivElement>(null)
   const ballRef = useRef<HTMLDivElement>(null)
@@ -86,6 +88,8 @@ export default function BasketGame({ onExit }: GameProps) {
       setScore(scoreRef.current)
       playWin()
       speakNumber(scoreRef.current)
+      setParty(true)
+      window.setTimeout(() => setParty(false), 2200)
     }
     // side walls bounce gently
     if (b.x < b.r) {
@@ -146,6 +150,7 @@ export default function BasketGame({ onExit }: GameProps) {
 
   return (
     <GameShell title={t('game.basket')} emoji="🏀" onExit={onExit}>
+      <Confetti active={party} />
       <div className="sport-screen">
         <div className="sport-score" aria-live="polite">
           <span aria-hidden="true">🏀</span> {score}
@@ -171,7 +176,7 @@ export default function BasketGame({ onExit }: GameProps) {
           <div className="phys-ball basket-real" ref={ballRef} aria-hidden="true" />
         </div>
 
-        <p className="sport-hint">החליקי באצבע למעלה כדי לזרוק לסל! 🏀</p>
+        <p className="sport-hint">{t('basket.hint')}</p>
       </div>
     </GameShell>
   )

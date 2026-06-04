@@ -7,6 +7,7 @@ import { speakNumber } from '../voice'
 import { fitScale, useViewport } from '../useViewport'
 import { randInt, shuffle } from './util'
 import { useT } from '../i18n'
+import Confetti from '../components/Confetti'
 
 // Bowling: the 10 pins ARE friends 1–10. Roll the ball, some pins fall, and we
 // COUNT how many fell (spoken in Hebrew). No gutter, no fail — every roll counts.
@@ -18,6 +19,7 @@ export default function BowlingGame({ onExit }: GameProps) {
   const [down, setDown] = useState<boolean[]>(() => Array(10).fill(false))
   const [rolling, setRolling] = useState(false)
   const [count, setCount] = useState<number | null>(null)
+  const [party, setParty] = useState(false)
   const timers = useRef<number[]>([])
   const clear = () => {
     timers.current.forEach((id) => window.clearTimeout(id))
@@ -48,6 +50,8 @@ export default function BowlingGame({ onExit }: GameProps) {
         playWin()
         speakNumber(n)
         setRolling(false)
+        setParty(true)
+        timers.current.push(window.setTimeout(() => setParty(false), 2200))
       }, 1200),
     )
   }
@@ -62,9 +66,10 @@ export default function BowlingGame({ onExit }: GameProps) {
   let pin = 0
   return (
     <GameShell title={t('game.bowling')} emoji="🎳" onExit={onExit}>
+      <Confetti active={party} />
       <div className="sport-screen">
         <div className="sport-score" aria-live="polite">
-          {count === null ? '🎳' : `הפלת ${count}!`}
+          {count === null ? '🎳' : t('bowl.knocked', { n: count })}
         </div>
 
         <div className="bowl-lane">
@@ -87,10 +92,10 @@ export default function BowlingGame({ onExit }: GameProps) {
 
         <div className="sport-buttons">
           <button className="big-button" onClick={roll} disabled={rolling}>
-            🎳 לגלגל!
+            🎳 {t('bowl.roll')}
           </button>
           <button className="pill" onClick={reset}>
-            ↺ עוד פעם
+            ↺ {t('seq.again')}
           </button>
         </div>
       </div>

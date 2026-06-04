@@ -67,6 +67,13 @@ export const HE: Dict = {
   'missing.prompt': { text: 'מי חסר?' },
   'missing.new': { text: 'תרגיל חדש' },
 
+  // sports games
+  'basket.hint': { text: 'החליקי באצבע למעלה כדי לזרוק לסל! 🏀' },
+  'goal.hint': { text: 'החליקי באצבע כדי לבעוט — תעקפי את השוער! 🥅' },
+  'hockey.hint': { text: 'החליקי את הכף וכווני את העיגול לשער! 🥅' },
+  'bowl.knocked': { text: 'הפלת {n}!' },
+  'bowl.roll': { text: 'לגלגל!' },
+
   // which-friend (letters) game
   'which.q': { text: 'מי מתחיל באות הזאת?' },
   'which.hear': { text: 'שמע את {name}' },
