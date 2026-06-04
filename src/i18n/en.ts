@@ -66,6 +66,14 @@ export const EN: Dict = {
   'missing.prompt': { text: "Who's missing?" },
   'missing.new': { text: 'New one' },
 
+  // color-a-friend game
+  'color.undo': { text: 'Undo' },
+  'color.redo': { text: 'Redo' },
+  'color.clear': { text: 'Clear' },
+  'color.magic': { text: 'Magic' },
+  'color.new': { text: 'New friend' },
+  'color.more': { text: 'More colours' },
+
   // roll-a-dice game
   'dice.aria': { text: 'die' },
   'dice.dots': { text: 'dotted die' },

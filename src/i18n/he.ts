@@ -67,6 +67,14 @@ export const HE: Dict = {
   'missing.prompt': { text: 'מי חסר?' },
   'missing.new': { text: 'תרגיל חדש' },
 
+  // color-a-friend game
+  'color.undo': { text: 'ביטול' },
+  'color.redo': { text: 'חזרה' },
+  'color.clear': { text: 'מחיקה' },
+  'color.magic': { text: 'קסם' },
+  'color.new': { text: 'חבר חדש' },
+  'color.more': { text: 'עוד צבעים' },
+
   // roll-a-dice game
   'dice.aria': { text: 'קובייה' },
   'dice.dots': { text: 'קובייה עם נקודות' },

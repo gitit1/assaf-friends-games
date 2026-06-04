@@ -13,6 +13,8 @@ import { speak } from '../speech'
 import { FRIENDS, friendName, friendSay } from '../friends'
 import { randInt } from './util'
 import { MORE_COLORS, type Swatch } from './palette'
+import Confetti from '../components/Confetti'
+import { useT } from '../i18n'
 
 // "Color a friend" — a friend appears as a blank outline (its body bumps are
 // empty). Pick a colour, then tap each bump to fill it in. No timer, no wrong:
@@ -52,6 +54,7 @@ function useIsWide() {
 }
 
 export default function ColorFriends({ onExit }: GameProps) {
+  const { t } = useT()
   const [index, setIndex] = useState(() => randInt(0, FRIENDS.length - 1))
   const [colors, setColors] = useState<Grid>(() => blank(friendPartCount(friendKindForIndex(index))))
   const [undoStack, setUndoStack] = useState<Grid[]>([])
@@ -163,7 +166,8 @@ export default function ColorFriends({ onExit }: GameProps) {
   }
 
   return (
-    <GameShell title="צובעים חבר" emoji="🖌️" onExit={onExit}>
+    <GameShell title={t('game.colorme')} emoji="🖌️" onExit={onExit}>
+      <Confetti active={done} />
       <div className="color-screen">
         <Stepper
           label={`${friendName(index)} · ${index + 1}`}
@@ -201,28 +205,28 @@ export default function ColorFriends({ onExit }: GameProps) {
               playTap()
               setMore(true)
             }}
-            aria-label="עוד צבעים"
+            aria-label={t('color.more')}
           >
             <span aria-hidden="true">➕</span>
           </button>
         </div>
 
         <div className="color-actions">
-          <IconButton icon="↺" label="ביטול" onClick={undo} disabled={!undoStack.length} />
-          <IconButton icon="↻" label="חזרה" onClick={redo} disabled={!redoStack.length} />
-          <IconButton icon="🧽" label="מחיקה" onClick={clearAll} />
-          <IconButton icon="✨" label="קסם" onClick={magic} />
-          <IconButton icon="🎲" label="חבר חדש" onClick={() => goTo(randInt(0, FRIENDS.length - 1))} />
+          <IconButton icon="↺" label={t('color.undo')} onClick={undo} disabled={!undoStack.length} />
+          <IconButton icon="↻" label={t('color.redo')} onClick={redo} disabled={!redoStack.length} />
+          <IconButton icon="🧽" label={t('color.clear')} onClick={clearAll} />
+          <IconButton icon="✨" label={t('color.magic')} onClick={magic} />
+          <IconButton icon="🎲" label={t('color.new')} onClick={() => goTo(randInt(0, FRIENDS.length - 1))} />
         </div>
       </div>
 
       {more && (
         <div className="color-more-overlay" onClick={() => setMore(false)}>
           <div className="color-more-card" onClick={(e) => e.stopPropagation()}>
-            <button className="hint-close" onClick={() => setMore(false)} aria-label="סגור">
+            <button className="hint-close" onClick={() => setMore(false)} aria-label={t('seq.close')}>
               ✕
             </button>
-            <h3 className="color-more-title">🌈 עוד צבעים</h3>
+            <h3 className="color-more-title">🌈 {t('color.more')}</h3>
             <div className="color-more-grid">
               {MORE_COLORS.map((p, i) => (
                 <button
