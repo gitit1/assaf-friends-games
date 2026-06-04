@@ -1,7 +1,7 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { CATEGORIES, gamesInCategory, type CategoryId } from '../games/registry'
 import Friend from './Friend'
-import { friendMaxDim } from './FriendArt'
+import { FRIEND_NATURAL, friendKindForIndex } from './FriendArt'
 import SettingsPanel from './SettingsPanel'
 import FullscreenButton from './FullscreenButton'
 import { FRIENDS } from '../friends'
@@ -30,6 +30,24 @@ type HomeScreenProps = {
 export default function HomeScreen({ onOpen, onOpenCategory }: HomeScreenProps) {
   const { t } = useT()
   const [featured] = useState<number[]>(pickThree)
+
+  // size the greeting friends DYNAMICALLY to the card they sit in: fill ~74% of
+  // its height, but never wider than ~17% of it (so 2-on-a-side + 1 always fit)
+  const cardRef = useRef<HTMLButtonElement>(null)
+  const [card, setCard] = useState({ w: 480, h: 100 })
+  useEffect(() => {
+    const el = cardRef.current
+    if (!el) return
+    const measure = () => setCard({ w: el.clientWidth, h: el.clientHeight })
+    measure()
+    const ro = new ResizeObserver(measure)
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [])
+  const friendScale = (i: number) => {
+    const nat = FRIEND_NATURAL[friendKindForIndex(i)]
+    return Math.min((card.h * 0.74) / nat.h, (card.w * 0.17) / nat.w)
+  }
   function tap() {
     unlockAudio()
     stopSpeech()
@@ -62,18 +80,18 @@ export default function HomeScreen({ onOpen, onOpenCategory }: HomeScreenProps) 
       </header>
 
       {/* Featured: meet the friends */}
-      <button className="featured-card" onClick={() => open('meet')}>
+      <button className="featured-card" ref={cardRef} onClick={() => open('meet')}>
         {/* 2 friends on the start side, 1 on the end side (auto-flips RTL↔LTR) */}
         <span className="friend-cluster" aria-hidden="true">
-          <Friend index={featured[0]} scale={52 / friendMaxDim(featured[0])} showNumber={false} lively />
-          <Friend index={featured[1]} scale={52 / friendMaxDim(featured[1])} showNumber={false} lively />
+          <Friend index={featured[0]} scale={friendScale(featured[0])} showNumber={false} lively />
+          <Friend index={featured[1]} scale={friendScale(featured[1])} showNumber={false} lively />
         </span>
         <span className="featured-text">
           <span className="featured-title">{t('home.meet.title')}</span>
           <span className="featured-sub">{t('home.meet.sub')}</span>
         </span>
         <span className="friend-cluster" aria-hidden="true">
-          <Friend index={featured[2]} scale={52 / friendMaxDim(featured[2])} showNumber={false} lively />
+          <Friend index={featured[2]} scale={friendScale(featured[2])} showNumber={false} lively />
         </span>
       </button>
 

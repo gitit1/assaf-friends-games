@@ -234,9 +234,9 @@ button {
   gap: 12px;
   width: 100%;
   max-width: 560px; /* match the 2-column category grid below it */
-  min-height: 92px;
+  height: clamp(96px, 17vw, 136px); /* a definite, responsive height for the friends to fill */
   margin: 0 auto 24px;
-  padding: 14px 18px;
+  padding: 12px 18px;
   border-radius: 28px;
   background: linear-gradient(160deg, #f59f00, #ec4899);
   box-shadow: var(--shadow);
