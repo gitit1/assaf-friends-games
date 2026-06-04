@@ -7746,6 +7746,63 @@ button {
   100% { transform: translateY(0) scale(1); }
 }
 
+/* "what am I made of?" — the friend splits into two friends a + b = n */
+.world-btn-on {
+  outline: 3px solid rgba(99, 102, 241, 0.55);
+  outline-offset: 2px;
+}
+.world-split {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  /* replays each time a new split is shown (the element is keyed by a+b) */
+  animation: world-split-in 0.45s cubic-bezier(0.2, 0.7, 0.3, 1.2) both;
+}
+.world-split-eq {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  direction: ltr; /* read the equation left-to-right like a number line */
+  font-family: 'Fredoka', 'Heebo', sans-serif;
+  font-weight: 800;
+  font-size: clamp(2rem, 9vw, 3.2rem);
+  color: var(--text);
+}
+.world-split-eq .wse-whole {
+  color: #6366f1;
+}
+.world-split-eq .wse-sym {
+  color: var(--text-soft);
+}
+.world-split-friends {
+  display: flex;
+  direction: ltr; /* smaller addend on the left, like the equation */
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+.world-split-plus {
+  font-size: clamp(2rem, 8vw, 3rem);
+  font-weight: 800;
+  color: var(--text-soft);
+}
+.world-build-link {
+  font-size: 1.05rem;
+  background: linear-gradient(160deg, #c7d2fe, #a5b4fc);
+  color: #312e81;
+}
+@keyframes world-split-in {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
 /* ===================== מיון לפי צבע (sort by colour) ===================== */
 .sort-screen {
   display: flex;

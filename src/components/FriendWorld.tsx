@@ -6,8 +6,9 @@ import { friendMaxDim } from './FriendArt'
 import { FRIENDS, friendName, friendNumber, friendSay } from '../friends'
 import { playCount, playFriend, playSuccess, playTap, playWin, unlockAudio } from '../audio'
 import { stopSpeech } from '../speech'
-import { numberWord } from '../games/util'
+import { numberWord, randInt } from '../games/util'
 import { playClip, stopClip } from '../voice'
+import { setBuildPreset } from '../games/buildPreset'
 import { useT } from '../i18n'
 import { useViewport, screenScale } from '../useViewport'
 
@@ -42,10 +43,12 @@ export default function FriendWorld({
   index,
   onExit,
   onNavigate,
+  onPlayGame,
 }: {
   index: number
   onExit: () => void
   onNavigate: (index: number) => void
+  onPlayGame: (gameId: string) => void
 }) {
   const { t } = useT()
   const vp = useViewport()
@@ -66,6 +69,10 @@ export default function FriendWorld({
   const [kissFx, setKissFx] = useState(false)
   const [motion, setMotion] = useState<string | null>(null)
   const [lit, setLit] = useState<number | undefined>(undefined)
+  // "who am I made of": the friend splits into two SMALLER friends that add up
+  // to it (c → a + b). This is the friend's identity (passive, friend-faced),
+  // distinct from the "Build a Number" GAME which composes (a + b → c).
+  const [split, setSplit] = useState<{ a: number; b: number } | null>(null)
   const like = LIKES[index % LIKES.length]
   const [fx, setFx] = useState<Fx[]>([])
   const timers = useRef<number[]>([])
@@ -78,6 +85,7 @@ export default function FriendWorld({
   const later = (fn: () => void, ms: number) => timers.current.push(window.setTimeout(fn, ms))
 
   function describe() {
+    setSplit(null) // "say it again" re-assembles a split friend
     // Short, exclamatory sentences = energy. No colour (many friends are multi-coloured).
     const about = `שָׁלוֹם!! אֲנִי ${friendSay(index)}, הַמִּסְפָּר ${numberWord(n)}! אֲנִי מַמָּשׁ אוֹהֵב ${like.verb}! בּוֹאוּ לְשַׂחֵק יַחַד!`
     playClip(`intro-${index}`, about)
@@ -89,6 +97,7 @@ export default function FriendWorld({
   // we also cut off the previous one's narration so they don't talk over it
   useEffect(() => {
     unlockAudio()
+    setSplit(null) // a fresh friend starts whole
     const id = window.setTimeout(describe, 350)
     timers.current.push(id)
     return () => {
@@ -112,6 +121,7 @@ export default function FriendWorld({
 
   // trigger a one-shot gesture (arms + pseudo-3D lean) on the friend
   function doAction(a: 'five' | 'hug' | 'kiss') {
+    setSplit(null) // gestures act on the whole friend, so re-assemble first
     setAction(a)
     later(() => setAction(null), 1000)
   }
@@ -140,6 +150,7 @@ export default function FriendWorld({
   // the friend's OWN button: it does its favourite thing (themed emoji + motion)
   function special() {
     unlockAudio()
+    setSplit(null)
     setMotion(like.motion)
     later(() => setMotion(null), 1000)
     burst(like.burst, 9)
@@ -151,6 +162,7 @@ export default function FriendWorld({
     unlockAudio()
     clearTimers()
     stopClip()
+    setSplit(null)
     setLit(0)
     // Accelerate by size: small numbers stay calm (~900ms/block); bigger numbers
     // speed up so the whole count finishes in ~16s no matter how big (friend 100
@@ -173,9 +185,40 @@ export default function FriendWorld({
     }, n * STEP + 500)
   }
 
+  // "what am I made of?" — split into two friends a + b = n (a fresh split each
+  // tap). 1 is indivisible, so it just gives a happy wiggle instead.
+  function decompose() {
+    unlockAudio()
+    clearTimers()
+    stopClip()
+    setLit(undefined)
+    setMotion(null)
+    if (n < 2) {
+      setBounce(true)
+      later(() => setBounce(false), 600)
+      playFriend(index)
+      return
+    }
+    let a = randInt(1, n - 1)
+    if (split && a === split.a && n > 2) a = (a % (n - 1)) + 1 // avoid repeating
+    setSplit({ a, b: n - a })
+    playSuccess()
+  }
+  // bridge to the "Build a Number" game. If the current split is buildable there
+  // (both parts ≤ 10), pre-load it so "build me!" literally rebuilds this friend.
+  function goBuild() {
+    playTap()
+    if (split && split.a <= 10 && split.b <= 10) setBuildPreset({ a: split.a, b: split.b })
+    onPlayGame('build')
+  }
+
   // all friends show at one comfortable size in their world (~210px on a phone),
   // growing on bigger screens instead of sitting tiny in the middle
   const scale = (210 / friendMaxDim(index)) * screenScale(vp.w, 1.7)
+  // the two split friends share one scale (so 3 still looks smaller than 4),
+  // sized so the larger one fits comfortably with both side by side
+  const splitMaxDim = split ? Math.max(friendMaxDim(split.a - 1), friendMaxDim(split.b - 1)) : 1
+  const splitScale = Math.min((vp.w * 0.4) / splitMaxDim, (vp.h * 0.3) / splitMaxDim, 1.7)
 
   return (
     <GameShell title={friendName(index)} emoji="⭐" onExit={onExit}>
@@ -190,9 +233,31 @@ export default function FriendWorld({
         </div>
 
         <div className="world-stage">
-          <div className={`world-friend ${motion ? `motion-${motion}` : ''}`}>
-            <Friend index={index} scale={scale} showNumber bouncing={bounce} litUnits={lit} lively action={action} />
-          </div>
+          {split ? (
+            // "who am I made of": equation in big digits (he reads numbers!) + the
+            // two real friends it's built from, with a bridge to build it for real
+            <div className="world-split" key={`${split.a}-${split.b}`}>
+              <div className="world-split-eq" aria-live="polite">
+                <span className="wse-whole">{n}</span>
+                <span className="wse-sym">=</span>
+                <span>{split.a}</span>
+                <span className="wse-sym">+</span>
+                <span>{split.b}</span>
+              </div>
+              <div className="world-split-friends">
+                <Friend index={split.a - 1} scale={splitScale} showNumber lively />
+                <span className="world-split-plus" aria-hidden="true">＋</span>
+                <Friend index={split.b - 1} scale={splitScale} showNumber lively />
+              </div>
+              <button className="pill world-build-link" onClick={goBuild}>
+                🧮 {t('world.build')}
+              </button>
+            </div>
+          ) : (
+            <div className={`world-friend ${motion ? `motion-${motion}` : ''}`}>
+              <Friend index={index} scale={scale} showNumber bouncing={bounce} litUnits={lit} lively action={action} />
+            </div>
+          )}
           {kissFx && (
             <span className="world-kiss" aria-hidden="true">
               💋
@@ -227,6 +292,10 @@ export default function FriendWorld({
           <button className="world-btn" onClick={count}>
             <span className="world-btn-emoji" aria-hidden="true">🔢</span>
             <span>{t('world.count')}</span>
+          </button>
+          <button className={`world-btn ${split ? 'world-btn-on' : ''}`} onClick={decompose}>
+            <span className="world-btn-emoji" aria-hidden="true">🧩</span>
+            <span>{t('world.split')}</span>
           </button>
           <button className="world-btn" onClick={describe}>
             <span className="world-btn-emoji" aria-hidden="true">🔊</span>

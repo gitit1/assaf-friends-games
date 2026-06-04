@@ -79,7 +79,14 @@ export default function App() {
     if (i >= 0 && i < FRIENDS.length) {
       back = { emoji: '⭐', label: t('home.meet.title') } // back to the friends list
       backIsHome = false
-      view = <FriendWorld index={i} onExit={() => go('meet')} onNavigate={(j) => go(`friend/${j}`)} />
+      view = (
+        <FriendWorld
+          index={i}
+          onExit={() => go('meet')}
+          onNavigate={(j) => go(`friend/${j}`)}
+          onPlayGame={(id) => go(`game/${id}`)}
+        />
+      )
     }
   } else if (route.kind === 'gallery' && SHOW_3D) {
     view = (
