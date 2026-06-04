@@ -887,7 +887,9 @@ button {
   justify-content: center;
   align-items: center;
   gap: 16px;
-  min-height: 46svh;
+  /* sized to the friend (capped by height in JS), not an oversized band — so the
+     count/add controls + buttons stay on screen on a phone */
+  min-height: 30svh;
   max-width: 560px;
   margin: 0 auto 8px;
 }
