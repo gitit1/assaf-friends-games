@@ -9,6 +9,8 @@ import { FRIENDS, friendName, friendSay } from '../friends'
 import { useSettings } from '../settings'
 import { randInt, shuffle } from './util'
 import { screenScale, useViewport } from '../useViewport'
+import Confetti from '../components/Confetti'
+import { useT } from '../i18n'
 
 const COUNT = FRIENDS.length // friend identities — the whole cast
 const BOARD = 9 // friends visible at once
@@ -55,6 +57,8 @@ function ensureTargets(cards: Card[], target: number, min: number): Card[] {
 // catchable ones), and the target switches on an interval set in settings.
 export default function CatchFriend({ onExit }: GameProps) {
   const { catchSeconds } = useSettings()
+  const { t } = useT()
+  const [party, setParty] = useState(false)
   const [target, setTarget] = useState(() => randInt(0, COUNT - 1))
   const [cards, setCards] = useState<Card[]>(() => {
     const arr = Array.from({ length: BOARD }, () => makeCard(randInt(0, COUNT - 1), randInt(0, LIFETIME - 1000)))
@@ -126,8 +130,11 @@ export default function CatchFriend({ onExit }: GameProps) {
       playPop()
       setScore((s) => {
         const ns = s + 1
-        if (ns % 5 === 0) playWin()
-        else playSuccess()
+        if (ns % 5 === 0) {
+          playWin()
+          setParty(true)
+          window.setTimeout(() => setParty(false), 2500)
+        } else playSuccess()
         return ns
       })
       const t = window.setTimeout(() => {
@@ -154,12 +161,13 @@ export default function CatchFriend({ onExit }: GameProps) {
   const vp = useViewport()
   const cardPx = 50 * screenScale(vp.w) // uniform card size, bigger on a desktop
   return (
-    <GameShell title="תופסים חבר" emoji="🎯" onExit={onExit}>
+    <GameShell title={t('game.catch')} emoji="🎯" onExit={onExit}>
+      <Confetti active={party} />
       <div className="catch-target">
-        <span className="catch-target-label">תפסו את</span>
+        <span className="catch-target-label">{t('catch.tap')}</span>
         <Friend index={target} scale={Math.min(74 * screenScale(vp.w), vp.w * 0.34) / friendMaxDim(target)} />
         <span className="catch-target-name">{friendName(target)}</span>
-        <span className="catch-score" aria-label={`ניקוד ${score}`}>
+        <span className="catch-score" aria-label={t('bs.score', { n: score })}>
           ⭐ {score}
         </span>
       </div>
