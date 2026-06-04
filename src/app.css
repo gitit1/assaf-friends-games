@@ -164,6 +164,27 @@ button {
   margin: 0 auto;
 }
 
+/* real responsiveness: use the width on bigger screens (the featured card above
+   keeps matching the grid's width at every breakpoint). 6 cubes → 2×3 on a
+   phone, 3×2 on a tablet/desktop, just bigger on a wide screen. */
+@media (min-width: 640px) {
+  .category-grid {
+    grid-template-columns: repeat(3, 1fr);
+    max-width: 760px;
+  }
+  .featured-card {
+    max-width: 760px;
+  }
+}
+@media (min-width: 1024px) {
+  .category-grid {
+    max-width: 920px;
+  }
+  .featured-card {
+    max-width: 920px;
+  }
+}
+
 .category-card {
   display: flex;
   flex-direction: column;
