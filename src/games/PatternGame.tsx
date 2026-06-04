@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import GameShell from '../components/GameShell'
+import Confetti from '../components/Confetti'
 import type { GameProps } from './registry'
 import { playNudge, playPop, playWin, unlockAudio } from '../audio'
 import { randInt, shuffle } from './util'
@@ -62,8 +63,9 @@ export default function PatternGame({ onExit }: GameProps) {
 
   return (
     <GameShell title={t('game.pattern')} emoji="🔵" onExit={onExit}>
+      <Confetti active={solved} />
       <div className="pat-screen">
-        <p className="pat-q">מה בא אחר כך?</p>
+        <p className="pat-q">{t('pat.q')}</p>
 
         <div className="pat-seq" dir="ltr">
           {puz.seq.map((tok, i) =>
@@ -86,7 +88,7 @@ export default function PatternGame({ onExit }: GameProps) {
                 key={ch}
                 className={`pat-choice ${wrong === ch ? 'is-wrong' : ''}`}
                 onClick={() => pick(ch)}
-                aria-label="אפשרות"
+                aria-label={t('pat.opt')}
               >
                 {ch}
               </button>
@@ -94,7 +96,7 @@ export default function PatternGame({ onExit }: GameProps) {
           </div>
         ) : (
           <button className="big-button" onClick={next}>
-            🎲 עוד תבנית
+            🎲 {t('pat.new')}
           </button>
         )}
       </div>

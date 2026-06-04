@@ -66,6 +66,11 @@ export const EN: Dict = {
   'missing.prompt': { text: "Who's missing?" },
   'missing.new': { text: 'New one' },
 
+  // pattern game
+  'pat.q': { text: 'What comes next?' },
+  'pat.opt': { text: 'option' },
+  'pat.new': { text: 'New pattern' },
+
   // sort game
   'sort.smiley': { text: '🙂 Smileys' },
   'sort.number': { text: '🔢 Numbers' },

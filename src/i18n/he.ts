@@ -67,6 +67,11 @@ export const HE: Dict = {
   'missing.prompt': { text: 'מי חסר?' },
   'missing.new': { text: 'תרגיל חדש' },
 
+  // pattern game
+  'pat.q': { text: 'מה בא אחר כך?' },
+  'pat.opt': { text: 'אפשרות' },
+  'pat.new': { text: 'תבנית חדשה' },
+
   // sort game
   'sort.smiley': { text: '🙂 סמיילים' },
   'sort.number': { text: '🔢 מספרים' },
