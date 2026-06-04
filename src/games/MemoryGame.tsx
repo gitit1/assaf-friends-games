@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import GameShell from '../components/GameShell'
 import Friend from '../components/Friend'
+import Confetti from '../components/Confetti'
 import { friendMaxDim } from '../components/FriendArt'
 import type { GameProps } from './registry'
 import { playSuccess, playTap, playWin, unlockAudio } from '../audio'
@@ -10,6 +11,7 @@ import { shuffle } from './util'
 import { getSettings } from '../settings'
 import { levelForTier } from '../difficulty'
 import { useViewport } from '../useViewport'
+import { useT } from '../i18n'
 
 type Level = { label: string; pairs: number }
 const LEVELS: Level[] = [
@@ -35,6 +37,7 @@ function buildDeck(pairs: number): Card[] {
 
 // Find the matching friends by color/face — when two match, that friend says hi.
 export default function MemoryGame({ onExit }: GameProps) {
+  const { t } = useT()
   const initial = LEVELS[levelForTier(LEVEL_TIERS, getSettings().difficulty)]
   const [level, setLevel] = useState<Level>(initial)
   const [deck, setDeck] = useState<Card[]>(() => buildDeck(initial.pairs))
@@ -96,25 +99,26 @@ export default function MemoryGame({ onExit }: GameProps) {
   }
 
   return (
-    <GameShell title="זיכרון חברים" emoji="🧠" onExit={onExit}>
+    <GameShell title={t('game.memory')} emoji="🧠" onExit={onExit}>
+      <Confetti active={won} />
       <div className="memory-controls">
-        {LEVELS.map((lvl) => (
+        {LEVELS.map((lvl, i) => (
           <button
-            key={lvl.label}
+            key={i}
             className={`pill ${lvl.pairs === level.pairs ? 'pill-active' : ''}`}
             onClick={() => reset(lvl)}
           >
-            {lvl.label}
+            {t(`diff.${i}`)}
           </button>
         ))}
         <button className="pill" onClick={() => reset()}>
-          🔄 משחק חדש
+          🔄 {t('mem.new')}
         </button>
       </div>
 
       {won && (
         <div className="banner banner-success" role="status">
-          כל הכבוד אסף! 🎉
+          {t('mem.win')}
         </div>
       )}
 
@@ -130,15 +134,16 @@ export default function MemoryGame({ onExit }: GameProps) {
               key={card.id}
               className={`memory-card ${isOpen ? 'is-open' : ''} ${isMatched ? 'is-matched' : ''}`}
               onClick={() => handleFlip(index)}
-              aria-label={isOpen ? friendName(card.friend) : 'קלף סגור'}
+              aria-label={isOpen ? friendName(card.friend) : t('mem.closed')}
             >
-              {isOpen ? (
-                <Friend index={card.friend} scale={friendPx / friendMaxDim(card.friend)} showNumber={false} />
-              ) : (
-                <span className="memory-face" aria-hidden="true">
+              <span className="memory-inner">
+                <span className="memory-front" aria-hidden="true">
                   ❓
                 </span>
-              )}
+                <span className="memory-back" aria-hidden="true">
+                  {isOpen && <Friend index={card.friend} scale={friendPx / friendMaxDim(card.friend)} showNumber={false} />}
+                </span>
+              </span>
             </button>
           )
         })}

@@ -67,6 +67,11 @@ export const HE: Dict = {
   'missing.prompt': { text: 'מי חסר?' },
   'missing.new': { text: 'תרגיל חדש' },
 
+  // memory game
+  'mem.new': { text: 'משחק חדש' },
+  'mem.win': { text: 'כל הכבוד! 🎉' },
+  'mem.closed': { text: 'קלף סגור' },
+
   // car race game
   'race.garage': { text: 'מוסך ומרוץ' },
   'race.build': { text: 'בנו את המכונית!' },

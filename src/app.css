@@ -520,27 +520,49 @@ button {
 
 .memory-card {
   aspect-ratio: 1 / 1;
-  border-radius: 20px;
-  background: var(--panel-strong);
-  border: 2px solid var(--line);
+  background: none;
+  border: none;
+  padding: 0;
+  perspective: 700px;
+  font-size: clamp(2rem, 11vw, 3.2rem);
+  transition: transform 0.15s ease;
+}
+.memory-card:active {
+  transform: scale(0.95);
+}
+/* the real 3D card flip */
+.memory-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transition: transform 0.45s cubic-bezier(0.2, 0.7, 0.3, 1.15);
+}
+.memory-card.is-open .memory-inner {
+  transform: rotateY(180deg);
+}
+.memory-front,
+.memory-back {
+  position: absolute;
+  inset: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: clamp(2rem, 11vw, 3.2rem);
-  transition: transform 0.15s ease, background 0.2s ease;
+  border-radius: 20px;
+  border: 2px solid var(--line);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }
-
-.memory-card.is-open {
+.memory-front {
+  background: var(--panel-strong);
+}
+.memory-back {
+  transform: rotateY(180deg);
   background: rgba(124, 196, 245, 0.22);
 }
-
-.memory-card.is-matched {
+.memory-card.is-matched .memory-back {
   background: rgba(134, 245, 196, 0.28);
   border-color: var(--success);
-}
-
-.memory-card:active {
-  transform: scale(0.95);
 }
 
 /* ---------- counting game ---------- */

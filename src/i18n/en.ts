@@ -66,6 +66,11 @@ export const EN: Dict = {
   'missing.prompt': { text: "Who's missing?" },
   'missing.new': { text: 'New one' },
 
+  // memory game
+  'mem.new': { text: 'New game' },
+  'mem.win': { text: 'Well done! 🎉' },
+  'mem.closed': { text: 'closed card' },
+
   // car race game
   'race.garage': { text: 'Garage & Race' },
   'race.build': { text: 'Build your car!' },
