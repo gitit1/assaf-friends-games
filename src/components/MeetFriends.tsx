@@ -31,7 +31,9 @@ export default function MeetFriends({ onExit, onOpen }: { onExit: () => void; on
     window.addEventListener('resize', onResize)
     return () => window.removeEventListener('resize', onResize)
   }, [])
-  // biggest friend fills ~90% of the available width (.meet-grid maxes at 560)
+  // Friend SIZE is capped at a 560px reference (biggest friend ≈ 90% of it) so
+  // nobody balloons on a wide screen; the grid itself widens responsively (CSS)
+  // so on bigger screens the friends just wrap to fill more per row.
   const scale = (0.9 * Math.min(vw - 16, 560)) / MAX_W
 
   return (
@@ -67,6 +69,7 @@ export default function MeetFriends({ onExit, onOpen }: { onExit: () => void; on
             <button
               className="meet-friend"
               key={friend.name}
+              style={{ animationDelay: `${j * 0.04}s` }}
               onClick={() => {
                 unlockAudio()
                 playTap()

@@ -336,6 +336,23 @@ button {
   margin: 0 auto;
 }
 
+/* real responsiveness: on bigger screens widen the grid (and the range pills
+   above it) so the friends wrap to fill the extra width — more per row instead
+   of a narrow 560px column with empty sides. The friend SIZE is capped
+   separately (see MeetFriends), so they stay sensible and just pack tighter. */
+@media (min-width: 640px) {
+  .meet-decades,
+  .meet-grid {
+    max-width: 760px;
+  }
+}
+@media (min-width: 1024px) {
+  .meet-decades,
+  .meet-grid {
+    max-width: 960px;
+  }
+}
+
 .meet-friend {
   display: flex;
   flex-direction: column;
@@ -345,6 +362,19 @@ button {
   /* room above the friend for a hat/item (and the number) so it never overlaps
      the name of the friend in the row above */
   padding-top: 34px;
+  /* gentle staggered entrance each time a decade is shown (delay set inline) */
+  animation: meet-in 0.42s cubic-bezier(0.2, 0.7, 0.3, 1.3) both;
+}
+
+@keyframes meet-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.85);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 .meet-name {
