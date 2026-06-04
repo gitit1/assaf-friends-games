@@ -5,6 +5,7 @@ import FullscreenButton from './FullscreenButton'
 import { playTap, unlockAudio } from '../audio'
 import { stopSpeech } from '../speech'
 import { useT } from '../i18n'
+import { SHOW_3D } from '../devFlags'
 
 type HomeScreenProps = {
   // open a special screen: 'meet' (meet the friends) or 'gallery'
@@ -33,9 +34,11 @@ export default function HomeScreen({ onOpen, onOpenCategory }: HomeScreenProps) 
     <div className="home-screen">
       <header className="home-header">
         <div className="home-controls">
-          <button className="gallery-button" aria-label={t('home.gallery')} onClick={() => open('gallery')}>
-            🧊
-          </button>
+          {SHOW_3D && (
+            <button className="gallery-button" aria-label={t('home.gallery')} onClick={() => open('gallery')}>
+              🧊
+            </button>
+          )}
           <FullscreenButton />
           <SettingsPanel />
         </div>
@@ -47,9 +50,9 @@ export default function HomeScreen({ onOpen, onOpenCategory }: HomeScreenProps) 
       {/* Featured: meet the friends */}
       <button className="featured-card" onClick={() => open('meet')}>
         <span className="friend-cluster" aria-hidden="true">
-          <Friend index={0} scale={0.32} showNumber={false} />
-          <Friend index={1} scale={0.32} showNumber={false} />
-          <Friend index={2} scale={0.32} showNumber={false} />
+          <Friend index={0} scale={0.32} showNumber={false} lively />
+          <Friend index={1} scale={0.32} showNumber={false} lively />
+          <Friend index={2} scale={0.32} showNumber={false} lively />
         </span>
         <span className="featured-text">
           <span className="featured-title">{t('home.meet.title')}</span>

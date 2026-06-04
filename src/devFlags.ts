@@ -11,3 +11,10 @@
  * no matter what .env says. Toggle it via VITE_TOUCH_LOCK in .env.
  */
 export const TOUCH_LOCK = import.meta.env.DEV && import.meta.env.VITE_TOUCH_LOCK === 'true'
+
+/**
+ * The 3D friend gallery (Three.js) is a heavy dev-only toy. Only available in dev
+ * mode — in production the button is hidden and the Three.js chunk is never
+ * loaded (its lazy import is only reached behind this flag), so it costs nothing.
+ */
+export const SHOW_3D = import.meta.env.DEV

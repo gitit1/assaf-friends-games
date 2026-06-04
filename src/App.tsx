@@ -8,6 +8,7 @@ import { FRIENDS } from './friends'
 import { useT } from './i18n'
 import { BackContext, type BackTarget } from './nav'
 import { useTouchLock } from './useTouchLock'
+import { SHOW_3D } from './devFlags'
 
 // 3D screen pulls in Three.js — load it only when opened, so it never weighs
 // down the first paint of the rest of the app.
@@ -77,7 +78,7 @@ export default function App() {
       back = { emoji: '⭐', label: t('home.meet.title') } // back to the friends list
       view = <FriendWorld index={i} onExit={() => go('meet')} onNavigate={(j) => go(`friend/${j}`)} />
     }
-  } else if (route.kind === 'gallery') {
+  } else if (route.kind === 'gallery' && SHOW_3D) {
     view = (
       <Suspense fallback={<p className="three-loading">טוען תלת מימד… 🧊</p>}>
         <Friend3D onExit={home} />
