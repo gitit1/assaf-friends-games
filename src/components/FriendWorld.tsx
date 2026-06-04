@@ -169,12 +169,12 @@ export default function FriendWorld({
   return (
     <GameShell title={friendName(index)} emoji="⭐" onExit={onExit}>
       <div className="world-screen">
-        {/* prev-friend / home / next-friend. direction:ltr (in CSS) keeps the
-            arrows on the right side for RTL: ◀ goes to the lower number, ▶ to
-            the higher, matching the number-line order. */}
+        {/* prev-friend / next-friend. direction:ltr (in CSS) keeps the arrows on
+            the right side for RTL: ◀ goes to the lower number, ▶ to the higher,
+            matching the number-line order. (Home / back-to-friends now live in
+            the top bar, so no in-body button is needed between the arrows.) */}
         <div className="world-nav">
           <IconButton icon="◀" label="החבר הקודם" onClick={goPrev} />
-          <IconButton icon="🏠" label="חזרה לחברים" onClick={onExit} />
           <IconButton icon="▶" label="החבר הבא" onClick={goNext} />
         </div>
 

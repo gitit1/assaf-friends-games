@@ -11,44 +11,46 @@ type GameShellProps = {
   children: ReactNode
 }
 
-// Shared frame for every game: a calm header with one big, obvious "back" button.
-// The button returns one level up (a game → its category, a friend → the friends
-// list, …) — App says where via the nav context, so it never dumps you all the
-// way out to the main page. On screens that sit deeper than one level (a game,
-// a friend's world) we ALSO show a small 🏠 button that jumps straight home.
+// Shared frame for every game: a calm header. A small 🏠 button is ALWAYS there
+// (a consistent anchor — one tap to the main page from any screen). When the
+// screen sits deeper than one level (a game → its category, a friend → the
+// friends list) we ALSO show the labeled "back" button that goes just one level
+// up. On a one-level screen, "back" would be home anyway, so only 🏠 shows — we
+// never replace a real back-to-previous button, and never duplicate it.
 export default function GameShell({ title, emoji, onExit, children }: GameShellProps) {
   const { t } = useT()
   const nav = useNav()
   const backEmoji = nav?.back.emoji ?? '🏠'
   const backLabel = nav?.back.label ?? t('nav.home')
-  const showHome = nav ? !nav.backIsHome : false
+  const showBack = nav ? !nav.backIsHome : true
   return (
     <div className="game-screen">
       <header className="game-top-bar">
         <button
-          className="back-button"
+          className="back-button home-button"
           onClick={() => {
             unlockAudio()
             stopSpeech()
             playTap()
-            onExit()
+            nav ? nav.goHome() : onExit()
           }}
-          aria-label={backLabel}
+          aria-label={t('nav.home.aria')}
         >
-          <span aria-hidden="true">{backEmoji}</span>
-          <span>{backLabel}</span>
+          <span aria-hidden="true">🏠</span>
         </button>
-        {showHome && (
+        {showBack && (
           <button
-            className="back-button home-button"
+            className="back-button"
             onClick={() => {
+              unlockAudio()
               stopSpeech()
               playTap()
-              nav!.goHome()
+              onExit()
             }}
-            aria-label={t('nav.home.aria')}
+            aria-label={backLabel}
           >
-            <span aria-hidden="true">🏠</span>
+            <span aria-hidden="true">{backEmoji}</span>
+            <span>{backLabel}</span>
           </button>
         )}
         <h1 className="game-title">

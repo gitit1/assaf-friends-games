@@ -25,7 +25,7 @@ export default function CategoryScreen({ category, onPick, onExit }: Props) {
     <div className="game-screen">
       <header className="game-top-bar">
         <button
-          className="back-button"
+          className="back-button home-button"
           onClick={() => {
             tap()
             onExit()
@@ -33,7 +33,6 @@ export default function CategoryScreen({ category, onPick, onExit }: Props) {
           aria-label={t('nav.home.aria')}
         >
           <span aria-hidden="true">🏠</span>
-          <span>{t('nav.home')}</span>
         </button>
         <h1 className="game-title">
           <span aria-hidden="true">{category.emoji}</span> {catTitle}
