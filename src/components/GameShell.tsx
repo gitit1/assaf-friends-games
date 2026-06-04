@@ -28,21 +28,11 @@ export default function GameShell({ title, emoji, onExit, children }: GameShellP
   return (
     <div className="game-screen">
       <header className="game-top-bar">
-        {/* round icon buttons in a row above the title — same as the home page */}
+        {/* round icon buttons in a row above the title — same as the home page.
+            DOM order = back, then home: a flex row honours the document `dir`, so
+            in RTL the back arrow sits on the right (the leading edge) and in LTR
+            on the left — both correct without any manual mirroring. */}
         <div className="game-controls">
-          <button
-            className="control-btn"
-            onClick={() => {
-              unlockAudio()
-              stopSpeech()
-              playTap()
-              if (nav) nav.goHome()
-              else onExit()
-            }}
-            aria-label={t('nav.home.aria')}
-          >
-            <span aria-hidden="true">🏠</span>
-          </button>
           {showBack && (
             <button
               className="control-btn"
@@ -57,6 +47,19 @@ export default function GameShell({ title, emoji, onExit, children }: GameShellP
               <span aria-hidden="true">{backArrow}</span>
             </button>
           )}
+          <button
+            className="control-btn"
+            onClick={() => {
+              unlockAudio()
+              stopSpeech()
+              playTap()
+              if (nav) nav.goHome()
+              else onExit()
+            }}
+            aria-label={t('nav.home.aria')}
+          >
+            <span aria-hidden="true">🏠</span>
+          </button>
         </div>
         <h1 className="game-title">
           <span aria-hidden="true">{emoji}</span> {title}
