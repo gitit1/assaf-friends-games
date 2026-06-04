@@ -43,11 +43,11 @@ export default function CategoryScreen({ category, onPick, onExit }: Props) {
       </header>
       <main className="game-body">
         <nav className="game-grid" aria-label={catTitle}>
-          {games.map((game) => (
+          {games.map((game, i) => (
             <button
               key={game.id}
               className="game-card"
-              style={{ background: game.color }}
+              style={{ background: game.color, animationDelay: `${i * 0.05}s` }}
               onClick={() => {
                 tap()
                 onPick(game.id)
