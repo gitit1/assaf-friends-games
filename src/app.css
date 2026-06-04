@@ -756,11 +756,16 @@ button {
   justify-content: center;
   padding: 20px;
   z-index: 10;
+  animation: settings-fade 0.2s ease;
 }
 
 .settings-card {
   width: 100%;
   max-width: 420px;
+  /* never taller than the screen — scroll inside so the close button is always
+     reachable on a short phone (the overlay's 20px padding top+bottom = 40px) */
+  max-height: calc(100svh - 40px);
+  overflow-y: auto;
   background: linear-gradient(180deg, #163b58, #0c2436);
   border: 1px solid var(--line);
   border-radius: 26px;
@@ -769,6 +774,7 @@ button {
   display: flex;
   flex-direction: column;
   gap: 14px;
+  animation: settings-pop 0.28s cubic-bezier(0.2, 0.7, 0.3, 1.2);
 }
 
 .settings-title {
@@ -833,8 +839,31 @@ button {
 }
 
 .switch-on .switch-knob {
-  /* RTL-aware: knob slides to the other end when on. */
-  transform: translateX(-26px);
+  /* slide to the trailing end when on. translateX is PHYSICAL (not mirrored), so
+     give RTL its own value — otherwise the knob slides off-frame in LTR. */
+  transform: translateX(26px); /* LTR: trailing end is the right */
+}
+[dir='rtl'] .switch-on .switch-knob {
+  transform: translateX(-26px); /* RTL: trailing end is the left */
+}
+
+@keyframes settings-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes settings-pop {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }
 
 .settings-warning {
