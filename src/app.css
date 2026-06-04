@@ -172,15 +172,9 @@ button {
     grid-template-columns: repeat(3, 1fr);
     max-width: 760px;
   }
-  .featured-card {
-    max-width: 760px;
-  }
 }
 @media (min-width: 1024px) {
   .category-grid {
-    max-width: 920px;
-  }
-  .featured-card {
     max-width: 920px;
   }
 }
@@ -281,6 +275,19 @@ button {
   flex-direction: column;
   align-items: center;
   gap: 2px;
+}
+
+/* keep the My-Friends card matching the category grid's width at every breakpoint
+   (placed AFTER the base rule so these win over the 560px default) */
+@media (min-width: 640px) {
+  .featured-card {
+    max-width: 760px;
+  }
+}
+@media (min-width: 1024px) {
+  .featured-card {
+    max-width: 920px;
+  }
 }
 
 .featured-title {
