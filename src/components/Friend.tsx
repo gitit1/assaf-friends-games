@@ -23,6 +23,8 @@ type Props = {
   outfit?: Outfit
   /** "Alive" — gentle blink (for a featured friend, not the whole grid). */
   lively?: boolean
+  /** A one-shot gesture: hug / high-five / kiss (arms + pseudo-3D lean). */
+  action?: 'five' | 'hug' | 'kiss' | null
 }
 
 // The little moves a friend can do when tapped (besides jumping).
@@ -38,6 +40,7 @@ export default function Friend({
   eating = false,
   outfit,
   lively = false,
+  action = null,
 }: Props) {
   const [move, setMove] = useState<string | null>(null)
   const kind = FRIEND_KINDS[index % FRIEND_KINDS.length]
@@ -61,7 +64,16 @@ export default function Friend({
 
   const inner = (
     <span className="friend-scale" style={scaleStyle}>
-      <FriendArt kind={kind} number={n} showHalo={showNumber} litUnits={litUnits} eating={eating} outfit={outfit} lively={lively} />
+      <FriendArt
+        kind={kind}
+        number={n}
+        showHalo={showNumber}
+        litUnits={litUnits}
+        eating={eating}
+        outfit={outfit}
+        lively={lively}
+        action={action}
+      />
     </span>
   )
 

@@ -58,6 +58,8 @@ export default function FriendWorld({
     onNavigate((index + 1) % total)
   }
   const [bounce, setBounce] = useState(false)
+  const [action, setAction] = useState<'five' | 'hug' | 'kiss' | null>(null)
+  const [kissFx, setKissFx] = useState(false)
   const [motion, setMotion] = useState<string | null>(null)
   const [lit, setLit] = useState<number | undefined>(undefined)
   const like = LIKES[index % LIKES.length]
@@ -104,29 +106,30 @@ export default function FriendWorld({
     later(() => setFx((f) => f.filter((x) => !ids.has(x.id))), 1300)
   }
 
-  function hop() {
-    setBounce(true)
-    later(() => setBounce(false), 600)
+  // trigger a one-shot gesture (arms + pseudo-3D lean) on the friend
+  function doAction(a: 'five' | 'hug' | 'kiss') {
+    setAction(a)
+    later(() => setAction(null), 1000)
   }
-
   function five() {
     unlockAudio()
-    hop()
+    doAction('five')
     burst('🙌')
     playSuccess()
     playClip('fx-five', 'כיף!')
   }
   function hug() {
     unlockAudio()
-    hop()
+    doAction('hug')
     burst('❤️')
     playFriend(index)
     playClip('fx-hug', 'חיבוק גדול!')
   }
   function kiss() {
     unlockAudio()
-    hop()
-    burst('💋')
+    doAction('kiss')
+    setKissFx(true)
+    later(() => setKissFx(false), 950)
     playFriend(index)
     playClip('fx-kiss', 'מְמְמוּאָה! נשיקה!')
   }
@@ -177,8 +180,13 @@ export default function FriendWorld({
 
         <div className="world-stage">
           <div className={`world-friend ${motion ? `motion-${motion}` : ''}`}>
-            <Friend index={index} scale={scale} showNumber bouncing={bounce} litUnits={lit} lively />
+            <Friend index={index} scale={scale} showNumber bouncing={bounce} litUnits={lit} lively action={action} />
           </div>
+          {kissFx && (
+            <span className="world-kiss" aria-hidden="true">
+              💋
+            </span>
+          )}
           <div className="world-fx-layer" aria-hidden="true">
             {fx.map((f) => (
               <span key={f.id} className="world-fx" style={{ left: `${f.x}%` }}>

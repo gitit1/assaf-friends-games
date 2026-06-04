@@ -550,6 +550,8 @@ type Props = {
   /** "Alive" mode — the friend blinks gently (for a featured friend, not the
    *  whole grid). Calm + respects reduced-motion. */
   lively?: boolean
+  /** A one-shot gesture the friend performs (arms + pseudo-3D body lean). */
+  action?: 'five' | 'hug' | 'kiss' | null
 }
 
 export type PaintProps = { colors: (string | null)[]; onPick: (i: number) => void }
@@ -847,6 +849,7 @@ export default function FriendArt({
   outfit,
   paint,
   lively = false,
+  action = null,
 }: Props) {
   const order = PART_ORDER[kind]
   const lit = litUnits ?? order.length
@@ -1191,7 +1194,10 @@ export default function FriendArt({
   // stagger the blink a touch per friend so a few lively friends don't blink in sync
   const liveStyle = lively ? ({ '--blink-delay': `${((number ?? 1) % 5) * 0.8}s` } as React.CSSProperties) : undefined
   return (
-    <div className={`friend-art ${eating ? 'is-eating' : ''} ${lively ? 'is-lively' : ''}`} style={liveStyle}>
+    <div
+      className={`friend-art ${eating ? 'is-eating' : ''} ${lively ? 'is-lively' : ''} ${action ? `act-${action}` : ''}`}
+      style={liveStyle}
+    >
       {design}
     </div>
   )

@@ -8905,3 +8905,84 @@ button {
   animation-iteration-count: 1 !important;
   transition-duration: 0.001ms !important;
 }
+
+/* ===================== friend gestures (hug / high-five / kiss) ===================== */
+/* the whole friend performs the gesture with a pseudo-3D lean / approach */
+.friend-art.act-hug {
+  animation: act-hug-body 0.95s ease-in-out;
+}
+.friend-art.act-five {
+  animation: act-five-body 0.75s ease;
+}
+.friend-art.act-kiss {
+  animation: act-kiss-body 0.85s ease;
+}
+@keyframes act-hug-body {
+  0%, 100% { transform: perspective(600px) translateZ(0) scale(1); }
+  50% { transform: perspective(600px) translateZ(70px) scale(1.05); } /* come in close */
+}
+@keyframes act-five-body {
+  0%, 100% { transform: perspective(600px) rotateY(0deg) translateY(0); }
+  35% { transform: perspective(600px) rotateY(-16deg) translateY(-9px); } /* lean + reach up */
+  55% { transform: perspective(600px) rotateY(-9deg) translateY(-4px); }
+}
+@keyframes act-kiss-body {
+  0%, 100% { transform: perspective(600px) rotateY(0deg) scale(1); }
+  45% { transform: perspective(600px) rotateY(12deg) scale(1.04); } /* turn + lean */
+}
+/* arms reach for the gesture (pivot at the shoulder, on the body side) */
+.friend-art.act-hug .gal-arm.l,
+.friend-art.act-five .gal-arm.l,
+.friend-art.act-kiss .gal-arm.l {
+  transform-origin: right center;
+}
+.friend-art.act-hug .gal-arm.r,
+.friend-art.act-five .gal-arm.r,
+.friend-art.act-kiss .gal-arm.r {
+  transform-origin: left center;
+}
+.friend-art.act-hug .gal-arm.l {
+  animation: act-hug-l 0.95s ease-in-out;
+}
+.friend-art.act-hug .gal-arm.r {
+  animation: act-hug-r 0.95s ease-in-out;
+}
+@keyframes act-hug-l {
+  0%, 100% { transform: rotate(16deg); }
+  50% { transform: rotate(-46deg); } /* swing forward + in */
+}
+@keyframes act-hug-r {
+  0%, 100% { transform: rotate(-16deg); }
+  50% { transform: rotate(46deg); }
+}
+.friend-art.act-five .gal-arm.r {
+  animation: act-five-r 0.75s ease;
+}
+@keyframes act-five-r {
+  0%, 100% { transform: rotate(-16deg); }
+  35% { transform: rotate(-80deg); } /* shoots up */
+  48% { transform: rotate(-66deg); } /* the "slap" */
+  62% { transform: rotate(-80deg); }
+}
+.friend-art.act-kiss .gal-arm.r {
+  animation: act-kiss-r 0.85s ease;
+}
+@keyframes act-kiss-r {
+  0%, 100% { transform: rotate(-16deg); }
+  45% { transform: rotate(-64deg) translateX(-6px); } /* hand up to the mouth */
+}
+/* a kiss that flies toward the viewer */
+.world-kiss {
+  position: absolute;
+  top: 32%;
+  left: 50%;
+  font-size: 3rem;
+  pointer-events: none;
+  z-index: 20;
+  animation: kiss-fly 0.95s ease-out forwards;
+}
+@keyframes kiss-fly {
+  0% { transform: translate(-50%, -50%) scale(0.3); opacity: 0; }
+  25% { opacity: 1; }
+  100% { transform: translate(-50%, 130%) scale(2.8); opacity: 0; }
+}
