@@ -9,12 +9,15 @@ import { speak } from '../speech'
 import { FRIENDS, friendName, friendSay } from '../friends'
 import { numberWord, randInt } from './util'
 import { speakNumber } from '../voice'
+import Confetti from '../components/Confetti'
+import { useT } from '../i18n'
 
 // "Connect the dots" — numbered dots sit on a friend's bumps. Tap them in order
 // 1→N: a line is drawn and each bump lights up, until the whole friend is
 // revealed. Counting practice + drawing. Works for every friend (1–30): the dot
 // positions are MEASURED from the rendered friend, so no per-friend setup.
 export default function ConnectDots({ onExit }: GameProps) {
+  const { t } = useT()
   const [index, setIndex] = useState(() => randInt(0, FRIENDS.length - 1))
   const [connected, setConnected] = useState(0)
   const [wrong, setWrong] = useState(false)
@@ -92,7 +95,8 @@ export default function ConnectDots({ onExit }: GameProps) {
     .join(' ')
 
   return (
-    <GameShell title="חיבור נקודות" emoji="✏️" onExit={onExit}>
+    <GameShell title={t('game.dots')} emoji="✏️" onExit={onExit}>
+      <Confetti active={done} />
       <div className="color-screen">
         <Stepper
           label={`${friendName(index)} · ${index + 1}`}
@@ -129,7 +133,7 @@ export default function ConnectDots({ onExit }: GameProps) {
                     className={`dot ${state}`}
                     style={{ left: c.x, top: c.y }}
                     onClick={() => tapDot(n)}
-                    aria-label={`נקודה ${n}`}
+                    aria-label={t('dots.dotAria', { n })}
                   >
                     {n <= connected ? '' : n}
                   </button>
@@ -140,9 +144,9 @@ export default function ConnectDots({ onExit }: GameProps) {
         </div>
 
         <div className="color-actions">
-          <IconButton icon="↩️" label="אחורה" onClick={undo} disabled={connected === 0} />
-          <IconButton icon="🔄" label="מתחילים מחדש" onClick={() => goTo(index)} />
-          <IconButton icon="🎲" label="חבר חדש" onClick={() => goTo(randInt(0, FRIENDS.length - 1))} />
+          <IconButton icon="↩️" label={t('dots.back')} onClick={undo} disabled={connected === 0} />
+          <IconButton icon="🔄" label={t('dots.restart')} onClick={() => goTo(index)} />
+          <IconButton icon="🎲" label={t('color.new')} onClick={() => goTo(randInt(0, FRIENDS.length - 1))} />
         </div>
       </div>
     </GameShell>
