@@ -66,6 +66,11 @@ export const EN: Dict = {
   'missing.prompt': { text: "Who's missing?" },
   'missing.new': { text: 'New one' },
 
+  // number & quantity game
+  'qty.find': { text: 'Find' },
+  'qty.more': { text: 'More than' },
+  'qty.groupAria': { text: 'group of {n}' },
+
   // missing-friend-in-the-sequence game
   'seq.hint': { text: 'Show me' },
   'seq.again': { text: 'Again' },

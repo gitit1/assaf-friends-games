@@ -67,6 +67,11 @@ export const HE: Dict = {
   'missing.prompt': { text: 'מי חסר?' },
   'missing.new': { text: 'תרגיל חדש' },
 
+  // number & quantity game
+  'qty.find': { text: 'מצאו' },
+  'qty.more': { text: 'יותר מ' },
+  'qty.groupAria': { text: 'קבוצה של {n}' },
+
   // missing-friend-in-the-sequence game
   'seq.hint': { text: 'הראו לי' },
   'seq.again': { text: 'עוד פעם' },

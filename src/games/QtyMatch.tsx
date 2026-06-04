@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import GameShell from '../components/GameShell'
 import Friend from '../components/Friend'
+import Confetti from '../components/Confetti'
 import { friendMaxDim } from '../components/FriendArt'
 import type { GameProps } from './registry'
 import { playNudge, playSuccess, playWin, unlockAudio } from '../audio'
@@ -10,6 +11,7 @@ import { numberWordNiqqud, randInt, shuffle } from './util'
 import { speakNumber } from '../voice'
 import { screenScale, useViewport } from '../useViewport'
 import { getSettings } from '../settings'
+import { useT } from '../i18n'
 
 // "Match the number to the quantity" — pick the group that has exactly that many
 // friends. From קשה up it also asks "pick the group with MORE than X". Each group
@@ -61,7 +63,9 @@ export default function QtyMatch({ onExit }: GameProps) {
   const [score, setScore] = useState(0)
   const [wrong, setWrong] = useState<number | null>(null)
   const [solved, setSolved] = useState(false)
+  const [party, setParty] = useState(false)
   const vp = useViewport()
+  const { t } = useT()
 
   const maxCount = Math.max(...round.groups.map((g) => g.count))
   const px = tokenPx(maxCount) * screenScale(vp.w)
@@ -87,6 +91,8 @@ export default function QtyMatch({ onExit }: GameProps) {
       if (ns % 5 === 0) {
         playWin()
         speakNumber(ns)
+        setParty(true)
+        window.setTimeout(() => setParty(false), 2500)
       } else {
         playSuccess()
         speak('כל הכבוד')
@@ -103,17 +109,20 @@ export default function QtyMatch({ onExit }: GameProps) {
   }
 
   return (
-    <GameShell title="מספר וכמות" emoji="🔟" onExit={onExit}>
+    <GameShell title={t('game.quantity')} emoji="🔟" onExit={onExit}>
+      <Confetti active={party} />
       <div className="qty-head">
-        <span className="qty-score" aria-label={`ניקוד ${score}`}>
+        <span className="qty-score" aria-label={t('bs.score', { n: score })}>
           ⭐ {score}
         </span>
       </div>
 
       <div className="qty-target-row">
-        <span className="qty-prompt">{round.mode === 'more' ? 'יותר מ' : 'מצאו'}</span>
-        <span className="qty-target">{round.mode === 'more' ? `>${round.target}` : round.target}</span>
-        <button className="pill qty-say" onClick={say} aria-label="שמע שוב">
+        <span className="qty-prompt">{round.mode === 'more' ? t('qty.more') : t('qty.find')}</span>
+        <span className="qty-target" dir="ltr">
+          {round.mode === 'more' ? `>${round.target}` : round.target}
+        </span>
+        <button className="pill qty-say" onClick={say} aria-label={t('bs.replay')}>
           🔊
         </button>
       </div>
@@ -125,7 +134,7 @@ export default function QtyMatch({ onExit }: GameProps) {
             className={`qty-card ${wrong === i ? 'is-wrong' : ''} ${solved && i === round.correct ? 'is-win' : ''}`}
             onClick={() => pick(i)}
             disabled={solved}
-            aria-label={`קבוצה של ${g.count}`}
+            aria-label={t('qty.groupAria', { n: g.count })}
           >
             <span className="qty-cluster">
               {g.friends.map((f, k) => (
