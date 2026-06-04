@@ -66,6 +66,11 @@ export const EN: Dict = {
   'missing.prompt': { text: "Who's missing?" },
   'missing.new': { text: 'New one' },
 
+  // calculator game
+  'calc.free': { text: 'Calculator' },
+  'calc.goal': { text: 'Challenge' },
+  'calc.make': { text: 'Make' },
+
   // build-a-number game
   'build.how': { text: 'How much?' },
   'build.add': { text: 'Add' },

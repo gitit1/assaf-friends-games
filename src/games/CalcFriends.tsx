@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import GameShell from '../components/GameShell'
 import Friend from '../components/Friend'
+import Confetti from '../components/Confetti'
 import type { GameProps } from './registry'
 import { playNudge, playTap, playWin, unlockAudio } from '../audio'
 import { speak } from '../speech'
@@ -8,6 +9,7 @@ import { friendColor, friendName } from '../friends'
 import { FRIEND_KINDS, friendMaxDim } from '../components/FriendArt'
 import { numberWord, numberWordNiqqud, randInt } from './util'
 import { getSettings } from '../settings'
+import { useT } from '../i18n'
 
 const REAL_FRIENDS = FRIEND_KINDS.length // numbers up to here have a real friend
 
@@ -121,6 +123,7 @@ function NumberView({ value, scale }: { value: number; scale: number }) {
 }
 
 export default function CalcFriends({ onExit }: GameProps) {
+  const { t } = useT()
   const wide = useIsWide()
   const tier = getSettings().difficulty
   const [display, setDisplay] = useState('0')
@@ -129,6 +132,8 @@ export default function CalcFriends({ onExit }: GameProps) {
   const [fresh, setFresh] = useState(true)
   const [mode, setMode] = useState<'free' | 'goal'>('free')
   const [goal, setGoal] = useState<Goal>(() => newGoal(tier))
+  const [reveal, setReveal] = useState(0) // bumps on "=", so the result friend pops in
+  const [party, setParty] = useState(false)
 
   const value = Number(display)
 
@@ -176,10 +181,13 @@ export default function CalcFriends({ onExit }: GameProps) {
     setAcc(null)
     setOp(null)
     setFresh(true)
+    setReveal((k) => k + 1) // pop the result friend in
     if (mode === 'goal') {
       if (r === goal.target) {
         playWin()
         speak(`${numberWordNiqqud(r)}! כל הכבוד!`)
+        setParty(true)
+        window.setTimeout(() => setParty(false), 2500)
         window.setTimeout(() => {
           setGoal(newGoal(tier))
           setDisplay('0')
@@ -248,21 +256,22 @@ export default function CalcFriends({ onExit }: GameProps) {
   ]
 
   return (
-    <GameShell title="מחשבון" emoji="🧮" onExit={onExit}>
+    <GameShell title={t('game.calc')} emoji="🧮" onExit={onExit}>
+      <Confetti active={party} />
       <div className="calc-modes">
         <button className={`pill pill-small ${mode === 'free' ? 'pill-active' : ''}`} onClick={() => chooseMode('free')}>
-          🧮 מחשבון
+          🧮 {t('calc.free')}
         </button>
         <button className={`pill pill-small ${mode === 'goal' ? 'pill-active' : ''}`} onClick={() => chooseMode('goal')}>
-          🎯 אתגר
+          🎯 {t('calc.goal')}
         </button>
       </div>
 
       {mode === 'goal' && (
         <div className="calc-goal">
-          <span className="calc-goal-label">תרכיבו</span>
+          <span className="calc-goal-label">{t('calc.make')}</span>
           <span className="calc-goal-target">{goal.target}</span>
-          <span className="calc-goal-hint" aria-hidden="true">
+          <span className="calc-goal-hint" aria-hidden="true" dir="ltr">
             💡 {goal.hint[0]} · {goal.hint[1]}
           </span>
         </div>
@@ -270,10 +279,14 @@ export default function CalcFriends({ onExit }: GameProps) {
 
       <div className={`calc-layout ${wide ? 'is-wide' : ''}`}>
         <div className="calc-panel">
-          <NumberView value={value} scale={wide ? 0.85 : 0.5} />
+          <div className="calc-reveal" key={reveal}>
+            <NumberView value={value} scale={wide ? 0.85 : 0.5} />
+          </div>
         </div>
 
-        <div className="calc-pad">
+        {/* a calculator keypad is always laid out LTR (7-8-9 left-to-right), in
+            both languages */}
+        <div className="calc-pad" dir="ltr">
           <div className="calc-display">
             <span className="calc-history">{acc !== null && op ? `${acc} ${op}` : ''}</span>
             <span className="calc-current">{display}</span>

@@ -9333,8 +9333,10 @@ button {
   justify-content: center;
   width: 100%;
 }
-/* the answer friend pops out of the merge point */
-.build-result {
+/* the answer friend pops out of the merge point (also reused by the calculator
+   panel when you press "=") */
+.build-result,
+.calc-reveal {
   display: inline-flex;
   animation: build-pop 0.5s cubic-bezier(0.2, 0.7, 0.3, 1.45);
 }

@@ -67,6 +67,11 @@ export const HE: Dict = {
   'missing.prompt': { text: 'מי חסר?' },
   'missing.new': { text: 'תרגיל חדש' },
 
+  // calculator game
+  'calc.free': { text: 'מחשבון' },
+  'calc.goal': { text: 'אתגר' },
+  'calc.make': { text: 'תרכיבו' },
+
   // build-a-number game
   'build.how': { text: 'כמה יוצא?' },
   'build.add': { text: 'חיבור' },
