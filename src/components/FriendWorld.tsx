@@ -240,6 +240,22 @@ export default function FriendWorld({
     setSplit({ a, b: n - a })
     playSuccess()
   }
+  // tap the friend itself — it gives a happy little jump + sparkles + says its
+  // own number (in the recorded voice). Direct, immediate, no button needed.
+  const PATS = ['jump', 'wiggle', 'float']
+  function pat() {
+    unlockAudio()
+    clearTimers()
+    stopClip()
+    setSplit(null)
+    setFact(null)
+    setLit(undefined)
+    setMotion(PATS[Math.floor(Math.random() * PATS.length)])
+    later(() => setMotion(null), 900)
+    burst('✨', 5)
+    playFriend(index)
+    playClip(`num-${n}`, numberWord(n))
+  }
   // "what's special about me": show a visual fact, cycling to the next on each tap
   function showFact() {
     unlockAudio()
@@ -312,9 +328,13 @@ export default function FriendWorld({
               </div>
             </div>
           ) : (
-            <div className={`world-friend ${motion ? `motion-${motion}` : ''}`}>
+            <button
+              className={`world-friend ${motion ? `motion-${motion}` : ''}`}
+              onClick={pat}
+              aria-label={friendName(index)}
+            >
               <Friend index={index} scale={scale} showNumber bouncing={bounce} litUnits={lit} lively action={action} />
-            </div>
+            </button>
           )}
           {kissFx && (
             <span className="world-kiss" aria-hidden="true">

@@ -7736,9 +7736,16 @@ button {
   0%, 100% { transform: translateY(0) scale(1); }
   50% { transform: translateY(-2px) scale(1.05); }
 }
-/* the friend's themed motion when its special button is tapped */
+/* the friend's themed motion when its special button is tapped. It's also a
+   button you can tap directly — it jumps + sparkles + says its number. */
 .world-friend {
   display: inline-flex;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+  transition: filter 0.12s ease;
+}
+.world-friend:active {
+  filter: brightness(1.08); /* press feedback that doesn't fight the move transforms */
 }
 .world-friend.motion-jump { animation: motion-jump 0.5s ease-in-out 2; }
 .world-friend.motion-wiggle { animation: motion-wiggle 0.5s ease-in-out 2; }
