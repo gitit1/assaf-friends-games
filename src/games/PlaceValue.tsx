@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react'
 import GameShell from '../components/GameShell'
 import Friend from '../components/Friend'
+import Confetti from '../components/Confetti'
 import type { GameProps } from './registry'
 import { playRise, playTap, playWin, unlockAudio } from '../audio'
 import { speak } from '../speech'
@@ -69,6 +70,7 @@ export default function PlaceValue({ onExit }: GameProps) {
 
   return (
     <GameShell title={t('game.placevalue')} emoji="🔟" onExit={onExit}>
+      <Confetti active={done} />
       <p className="count-target" aria-hidden="true">
         {t('pv.make')} <strong>{target}</strong>
       </p>
@@ -112,15 +114,15 @@ export default function PlaceValue({ onExit }: GameProps) {
       <div className="pv-eq" aria-live="polite">
         <strong>{tens}</strong> {t('pv.tens')} + <strong>{ones}</strong> {t('pv.ones')} ={' '}
         <strong className={done ? 'pv-eq-done' : ''}>{current}</strong>
+        {done && ' 🎉'}
       </div>
 
+      {/* on completion the steppers become a single "new number" button — no extra
+          banner; the confetti + bouncing friend + green equation say "done!" */}
       {done ? (
-        <div className="counting-next">
-          <div className="banner banner-success" role="status">
-            {target} 🎉
-          </div>
+        <div className="pv-controls">
           <button className="big-button" onClick={newTarget}>
-            ✨ {t('pv.new')}
+            🔄 {t('pv.new')}
           </button>
         </div>
       ) : (

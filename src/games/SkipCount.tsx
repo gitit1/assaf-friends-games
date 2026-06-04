@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import GameShell from '../components/GameShell'
 import Friend from '../components/Friend'
+import Confetti from '../components/Confetti'
 import type { GameProps } from './registry'
 import { playRise, playWin, unlockAudio } from '../audio'
 import { speakNumber } from '../voice'
@@ -41,6 +42,7 @@ export default function SkipCount({ onExit }: GameProps) {
 
   return (
     <GameShell title={t('game.skipcount')} emoji="🦘" onExit={onExit}>
+      <Confetti active={done} />
       <div className="count-opt-row hop-steps">
         <span className="count-opt-label">{t('skip.by')}</span>
         {STEPS.map((s) => (
@@ -62,6 +64,7 @@ export default function SkipCount({ onExit }: GameProps) {
               {step} × {hops} ={' '}
             </span>
             <strong>{current}</strong>
+            {done && ' 🎉'}
           </span>
         )}
       </div>
@@ -75,7 +78,7 @@ export default function SkipCount({ onExit }: GameProps) {
               {i === hops && hops > 0 && (
                 // the friend IS the number it's standing on (the current multiple)
                 <span className="hop-friend-inner" key={hops}>
-                  <Friend index={current - 1} scale={fitScale(current - 1, vp, 0.13, 0.085)} showNumber={false} lively />
+                  <Friend index={current - 1} scale={fitScale(current - 1, vp, 0.13, 0.085)} showNumber={false} bouncing={done} lively />
                 </span>
               )}
               <span className="hop-num">{i === 0 ? 0 : step * i}</span>
@@ -84,28 +87,12 @@ export default function SkipCount({ onExit }: GameProps) {
         </div>
       </div>
 
+      {/* one button that transforms: hop while playing → restart once finished
+          (no extra "more" element; the confetti + celebrating friend say "done!") */}
       <div className="counting-next">
-        {done ? (
-          <>
-            <div className="banner banner-success" role="status">
-              {current} 🎉
-            </div>
-            <button className="big-button" onClick={reset}>
-              ✨ {t('skip.again')}
-            </button>
-          </>
-        ) : (
-          <>
-            <button className="big-button" onClick={hop}>
-              🦘 {t('skip.hop')}
-            </button>
-            {hops > 0 && (
-              <button className="pill" onClick={reset}>
-                {t('skip.again')}
-              </button>
-            )}
-          </>
-        )}
+        <button className="big-button" onClick={done ? reset : hop}>
+          {done ? `🔄 ${t('skip.again')}` : `🦘 ${t('skip.hop')}`}
+        </button>
       </div>
     </GameShell>
   )

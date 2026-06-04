@@ -55,7 +55,7 @@ export const HE: Dict = {
   'pv.make': { text: 'בנו את' },
   'pv.tens': { text: 'עשרות' },
   'pv.ones': { text: 'אחדות' },
-  'pv.new': { text: 'עוד' },
+  'pv.new': { text: 'מספר חדש' },
 
   // skip-count game (number line)
   'skip.by': { text: 'קופצים ב' },

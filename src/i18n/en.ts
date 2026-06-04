@@ -54,7 +54,7 @@ export const EN: Dict = {
   'pv.make': { text: 'Build' },
   'pv.tens': { text: 'Tens' },
   'pv.ones': { text: 'Ones' },
-  'pv.new': { text: 'More' },
+  'pv.new': { text: 'New number' },
 
   // skip-count game (number line)
   'skip.by': { text: 'Hops of' },
