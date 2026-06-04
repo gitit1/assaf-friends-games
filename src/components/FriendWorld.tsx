@@ -106,6 +106,24 @@ export default function FriendWorld({
   const timers = useRef<number[]>([])
   const fxId = useRef(0)
 
+  // "living face": the pupils follow the finger/cursor. We set --gaze-x/y straight
+  // on the stage DOM (no re-render per move); the friends inside inherit it, and a
+  // CSS transition on the pupil makes the look smooth. Eyes re-centre when idle.
+  const stageRef = useRef<HTMLDivElement>(null)
+  function aimGaze(e: { clientX: number; clientY: number }) {
+    const el = stageRef.current
+    if (!el) return
+    const r = el.getBoundingClientRect()
+    const nx = Math.max(-1, Math.min(1, (e.clientX - (r.left + r.width / 2)) / (r.width / 2)))
+    const ny = Math.max(-1, Math.min(1, (e.clientY - (r.top + r.height * 0.42)) / (r.height / 2)))
+    el.style.setProperty('--gaze-x', `${nx * 38}%`)
+    el.style.setProperty('--gaze-y', `${ny * 32}%`)
+  }
+  function centerGaze() {
+    stageRef.current?.style.setProperty('--gaze-x', '0%')
+    stageRef.current?.style.setProperty('--gaze-y', '0%')
+  }
+
   const clearTimers = () => {
     timers.current.forEach((t) => window.clearTimeout(t))
     timers.current = []
@@ -128,6 +146,7 @@ export default function FriendWorld({
     unlockAudio()
     setSplit(null) // a fresh friend starts whole
     setFact(null)
+    centerGaze()
     const id = window.setTimeout(describe, 350)
     timers.current.push(id)
     return () => {
@@ -297,7 +316,14 @@ export default function FriendWorld({
           <IconButton icon="▶" label={t('nav.next')} onClick={goNext} />
         </div>
 
-        <div className="world-stage">
+        <div
+          className="world-stage"
+          ref={stageRef}
+          onPointerMove={aimGaze}
+          onPointerLeave={centerGaze}
+          onPointerUp={centerGaze}
+          onPointerCancel={centerGaze}
+        >
           {split ? (
             // "who am I made of": equation in big digits (he reads numbers!) + the
             // two real friends it's built from, with a bridge to build it for real

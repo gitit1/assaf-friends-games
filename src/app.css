@@ -1462,6 +1462,10 @@ button {
   /* a small soft white glint → eyes feel alive; small enough to sit well on every eye shape */
   background: radial-gradient(circle at 35% 30%, #ffffff 0 12%, rgba(255, 255, 255, 0) 20%), #1a1a1a;
   border-radius: 50%;
+  /* the pupil follows a gaze direction (set on an ancestor, default centred). The
+     friend's world points it at the finger/cursor → the friend "looks at you". */
+  transform: translate(var(--gaze-x, 0%), var(--gaze-y, 0%));
+  transition: transform 0.13s ease-out;
 }
 /* rosy cheeks — warmth + ties the face to the body. On every friend. */
 .gf-cheek {
