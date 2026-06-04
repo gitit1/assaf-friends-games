@@ -66,6 +66,22 @@ export const EN: Dict = {
   'missing.prompt': { text: "Who's missing?" },
   'missing.new': { text: 'New one' },
 
+  // free-draw game
+  'draw.color': { text: 'colour' },
+  'draw.brush': { text: 'thickness {n}' },
+  'draw.eraser': { text: 'free eraser (drawing only)' },
+  'draw.stampFriend': { text: '{name} sticker' },
+  'draw.sticker': { text: 'sticker' },
+  'draw.grab': { text: 'grab & move a sticker' },
+  'draw.clear': { text: 'Clear all' },
+  'draw.randomStamp': { text: 'random friend sticker' },
+  'draw.grabHint': { text: 'Tap a sticker to move or delete it' },
+  'draw.up': { text: 'up' },
+  'draw.down': { text: 'down' },
+  'draw.left': { text: 'left' },
+  'draw.right': { text: 'right' },
+  'draw.del': { text: 'delete sticker' },
+
   // connect-the-dots game
   'dots.dotAria': { text: 'dot {n}' },
   'dots.back': { text: 'Back' },

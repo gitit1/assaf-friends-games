@@ -9,6 +9,7 @@ import { playPop, playTap, unlockAudio } from '../audio'
 import { FRIENDS, friendName } from '../friends'
 import { randInt } from './util'
 import { MORE_COLORS } from './palette'
+import { useT } from '../i18n'
 
 // Free-draw board: draw with your finger in any colour + brush size, and stamp
 // friends (= numbers) or fun stickers anywhere on the page. No timer, no rules.
@@ -19,6 +20,7 @@ const EMOJI = ['⭐', '❤️', '🌈', '🌟', '🎈', '🌸']
 type Stamp = { id: number; x: number; y: number; friend?: number; emoji?: string }
 
 export default function DrawBoard({ onExit }: GameProps) {
+  const { t } = useT()
   const boardRef = useRef<HTMLDivElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const ctxRef = useRef<CanvasRenderingContext2D | null>(null)
@@ -309,7 +311,7 @@ export default function DrawBoard({ onExit }: GameProps) {
   const padY = sel ? (boardSize.h ? Math.max(PAD, Math.min(boardSize.h - PAD, sel.y)) : sel.y) : 0
 
   return (
-    <GameShell title="ציור חופשי" emoji="🖍️" onExit={onExit}>
+    <GameShell title={t('game.draw')} emoji="🖍️" onExit={onExit}>
       <div className="draw-screen">
         <div className="draw-palette">
           {COLORS.map((c) => (
@@ -318,7 +320,7 @@ export default function DrawBoard({ onExit }: GameProps) {
               className={`color-swatch ${!grab && !stamp && !eraser && color === c ? 'is-active' : ''}`}
               style={{ background: c }}
               onClick={() => pickColor(c)}
-              aria-label="צבע"
+              aria-label={t('draw.color')}
             />
           ))}
           <button
@@ -328,7 +330,7 @@ export default function DrawBoard({ onExit }: GameProps) {
               playTap()
               setMore(true)
             }}
-            aria-label="עוד צבעים"
+            aria-label={t('color.more')}
           >
             <span aria-hidden="true">➕</span>
           </button>
@@ -337,7 +339,7 @@ export default function DrawBoard({ onExit }: GameProps) {
               key={b}
               className={`brush-btn ${!grab && !stamp && size === b ? 'is-active' : ''}`}
               onClick={() => pickBrush(b)}
-              aria-label={`עובי ${i + 1}`}
+              aria-label={t('draw.brush', { n: i + 1 })}
             >
               <span className="brush-dot" style={{ width: 6 + i * 7, height: 6 + i * 7 }} />
             </button>
@@ -345,7 +347,7 @@ export default function DrawBoard({ onExit }: GameProps) {
           <button
             className={`eraser-btn ${!grab && !stamp && eraser ? 'is-active' : ''}`}
             onClick={pickEraser}
-            aria-label="מחק חופשי (מוחק רק ציור)"
+            aria-label={t('draw.eraser')}
           >
             <span className="eraser-icon" aria-hidden="true" />
           </button>
@@ -361,7 +363,7 @@ export default function DrawBoard({ onExit }: GameProps) {
                 <button
                   className={`stamp-friend ${!grab && stamp === 'friend' ? 'is-active' : ''}`}
                   onClick={() => pickStamp('friend')}
-                  aria-label={`מדבקת ${friendName(stampFriend)}`}
+                  aria-label={t('draw.stampFriend', { name: friendName(stampFriend) })}
                 >
                   <Friend index={stampFriend} scale={52 / friendMaxDim(stampFriend)} showNumber={false} />
                 </button>
@@ -382,7 +384,7 @@ export default function DrawBoard({ onExit }: GameProps) {
                 key={em}
                 className={`emoji-stamp ${!grab && stamp === em ? 'is-active' : ''}`}
                 onClick={() => pickStamp(em)}
-                aria-label="מדבקה"
+                aria-label={t('draw.sticker')}
               >
                 {em}
               </button>
@@ -423,22 +425,22 @@ export default function DrawBoard({ onExit }: GameProps) {
 
           {/* grab mode: a hint until something is picked, then a move-pad that
               floats over the canvas centred on the selected sticker */}
-          {grab && !sel && <div className="draw-grabhint">געו במדבקה כדי להזיז או למחוק</div>}
+          {grab && !sel && <div className="draw-grabhint">{t('draw.grabHint')}</div>}
           {sel && (
             <div className="draw-movepad" style={{ left: padX, top: padY }}>
-              <button className="move-btn mp-up" onPointerDown={stopProp} onClick={() => moveSel(0, -14)} aria-label="למעלה">
+              <button className="move-btn mp-up" onPointerDown={stopProp} onClick={() => moveSel(0, -14)} aria-label={t('draw.up')}>
                 ↑
               </button>
-              <button className="move-btn mp-left" onPointerDown={stopProp} onClick={() => moveSel(-14, 0)} aria-label="שמאלה">
+              <button className="move-btn mp-left" onPointerDown={stopProp} onClick={() => moveSel(-14, 0)} aria-label={t('draw.left')}>
                 ←
               </button>
-              <button className="move-btn move-del mp-del" onPointerDown={stopProp} onClick={removeSel} aria-label="מחיקת מדבקה">
+              <button className="move-btn move-del mp-del" onPointerDown={stopProp} onClick={removeSel} aria-label={t('draw.del')}>
                 🗑️
               </button>
-              <button className="move-btn mp-right" onPointerDown={stopProp} onClick={() => moveSel(14, 0)} aria-label="ימינה">
+              <button className="move-btn mp-right" onPointerDown={stopProp} onClick={() => moveSel(14, 0)} aria-label={t('draw.right')}>
                 →
               </button>
-              <button className="move-btn mp-down" onPointerDown={stopProp} onClick={() => moveSel(0, 14)} aria-label="למטה">
+              <button className="move-btn mp-down" onPointerDown={stopProp} onClick={() => moveSel(0, 14)} aria-label={t('draw.down')}>
                 ↓
               </button>
             </div>
@@ -448,7 +450,7 @@ export default function DrawBoard({ onExit }: GameProps) {
         <div className="color-actions">
           <IconButton
             icon="✋"
-            label="תפיסה והזזה של מדבקה"
+            label={t('draw.grab')}
             active={grab}
             onClick={() => {
               setGrab((g) => !g)
@@ -456,12 +458,12 @@ export default function DrawBoard({ onExit }: GameProps) {
               playTap()
             }}
           />
-          <IconButton icon="↺" label="ביטול" onClick={undo} disabled={!canUndo} />
-          <IconButton icon="↻" label="חזרה" onClick={redo} disabled={!canRedo} />
-          <IconButton icon="🧽" label="מנקים הכול" onClick={clearAll} />
+          <IconButton icon="↺" label={t('color.undo')} onClick={undo} disabled={!canUndo} />
+          <IconButton icon="↻" label={t('color.redo')} onClick={redo} disabled={!canRedo} />
+          <IconButton icon="🧽" label={t('draw.clear')} onClick={clearAll} />
           <IconButton
             icon="🎲"
-            label="חבר אקראי למדבקה"
+            label={t('draw.randomStamp')}
             onClick={() => {
               setStampFriend(randInt(0, FRIENDS.length - 1))
               setStamp('friend')
@@ -475,10 +477,10 @@ export default function DrawBoard({ onExit }: GameProps) {
       {more && (
         <div className="color-more-overlay" onClick={() => setMore(false)}>
           <div className="color-more-card" onClick={(e) => e.stopPropagation()}>
-            <button className="hint-close" onClick={() => setMore(false)} aria-label="סגור">
+            <button className="hint-close" onClick={() => setMore(false)} aria-label={t('seq.close')}>
               ✕
             </button>
-            <h3 className="color-more-title">🌈 עוד צבעים</h3>
+            <h3 className="color-more-title">🌈 {t('color.more')}</h3>
             <div className="color-more-grid">
               {MORE_COLORS.map((p, i) => (
                 <button

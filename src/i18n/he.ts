@@ -67,6 +67,22 @@ export const HE: Dict = {
   'missing.prompt': { text: 'מי חסר?' },
   'missing.new': { text: 'תרגיל חדש' },
 
+  // free-draw game
+  'draw.color': { text: 'צבע' },
+  'draw.brush': { text: 'עובי {n}' },
+  'draw.eraser': { text: 'מחק חופשי (מוחק רק ציור)' },
+  'draw.stampFriend': { text: 'מדבקת {name}' },
+  'draw.sticker': { text: 'מדבקה' },
+  'draw.grab': { text: 'תפיסה והזזה של מדבקה' },
+  'draw.clear': { text: 'מנקים הכול' },
+  'draw.randomStamp': { text: 'חבר אקראי למדבקה' },
+  'draw.grabHint': { text: 'געו במדבקה כדי להזיז או למחוק' },
+  'draw.up': { text: 'למעלה' },
+  'draw.down': { text: 'למטה' },
+  'draw.left': { text: 'שמאלה' },
+  'draw.right': { text: 'ימינה' },
+  'draw.del': { text: 'מחיקת מדבקה' },
+
   // connect-the-dots game
   'dots.dotAria': { text: 'נקודה {n}' },
   'dots.back': { text: 'אחורה' },
