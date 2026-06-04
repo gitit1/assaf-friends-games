@@ -67,6 +67,10 @@ export const HE: Dict = {
   'missing.prompt': { text: 'מי חסר?' },
   'missing.new': { text: 'תרגיל חדש' },
 
+  // pop / match game
+  'pop.new': { text: 'חדש' },
+  'pop.hint': { text: 'חברו 3 חברים זהים ושחררו 💥' },
+
   // catch-a-friend game
   'catch.tap': { text: 'תפסו את' },
 

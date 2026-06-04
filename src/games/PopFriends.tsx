@@ -9,6 +9,8 @@ import { FRIENDS } from '../friends'
 import { randInt, shuffle } from './util'
 import { speakNumber } from '../voice'
 import { useViewport } from '../useViewport'
+import Confetti from '../components/Confetti'
+import { useT } from '../i18n'
 
 // A calm "pop" game (no timer, no losing): drag across 3+ connected friends of
 // the SAME kind, then let go to pop them all. Friends above fall down and fresh
@@ -55,6 +57,8 @@ function collapse(grid: number[], popped: Set<number>, palette: number[]): numbe
 }
 
 export default function PopFriends({ onExit }: GameProps) {
+  const { t } = useT()
+  const [party, setParty] = useState(false)
   const [palette, setPalette] = useState<number[]>(pickPalette)
   const [grid, setGrid] = useState<number[]>(() => makeGrid(palette))
   const [chain, setChain] = useState<number[]>([])
@@ -127,7 +131,11 @@ export default function PopFriends({ onExit }: GameProps) {
     const popped = new Set(picked)
     const gained = picked.length
     setPopping(popped)
-    if (gained >= 5) speak('וואו!') // power-up feel for a long chain
+    if (gained >= 5) {
+      speak('וואו!') // power-up feel for a long chain
+      setParty(true)
+      window.setTimeout(() => setParty(false), 2500)
+    }
     window.setTimeout(() => {
       setGrid((g) => collapse(g, popped, palette))
       setPopping(new Set())
@@ -159,17 +167,18 @@ export default function PopFriends({ onExit }: GameProps) {
   const friendPx = (boardW / COLS) * 0.62
 
   return (
-    <GameShell title="פיצוץ חברים" emoji="🎈" onExit={onExit}>
+    <GameShell title={t('game.pop')} emoji="🎈" onExit={onExit}>
+      <Confetti active={party} />
       <div className="pop-head">
-        <span className="pop-score" aria-label={`ניקוד ${score}`}>
+        <span className="pop-score" aria-label={t('bs.score', { n: score })}>
           ⭐ {score}
         </span>
         <button className="pill pill-small" onClick={reshuffle}>
-          🔄 חדש
+          🔄 {t('pop.new')}
         </button>
       </div>
       <p className="pop-hint" aria-hidden="true">
-        חברו 3 חברים זהים ושחררו 💥
+        {t('pop.hint')}
       </p>
 
       <div

@@ -66,6 +66,10 @@ export const EN: Dict = {
   'missing.prompt': { text: "Who's missing?" },
   'missing.new': { text: 'New one' },
 
+  // pop / match game
+  'pop.new': { text: 'New' },
+  'pop.hint': { text: 'Connect 3 same friends and let go 💥' },
+
   // catch-a-friend game
   'catch.tap': { text: 'Catch' },
 
