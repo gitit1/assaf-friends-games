@@ -11,7 +11,7 @@ import { useT } from '../i18n'
 // on its multiples. Each landing shows step × hops = current, so skip-counting and
 // multiplication click together. Spatial + Numberblocks "Step Squad" — distinct
 // from plain block-counting (which lives in the friend's world). No timer/fail.
-const STEPS = [2, 5, 10]
+const STEPS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] // the whole times table — pick any
 const HOPS = 10 // land on step×1 … step×10
 
 export default function SkipCount({ onExit }: GameProps) {
@@ -72,9 +72,10 @@ export default function SkipCount({ onExit }: GameProps) {
         <div className="hop-track">
           {Array.from({ length: HOPS + 1 }).map((_, i) => (
             <span className={`hop-dot ${i > 0 && i <= hops ? 'lit' : ''} ${i === hops ? 'cur' : ''}`} key={i}>
-              {i === hops && (
+              {i === hops && hops > 0 && (
+                // the friend IS the number it's standing on (the current multiple)
                 <span className="hop-friend-inner" key={hops}>
-                  <Friend index={step - 1} scale={fitScale(step - 1, vp, 0.13, 0.085)} showNumber={false} lively />
+                  <Friend index={current - 1} scale={fitScale(current - 1, vp, 0.13, 0.085)} showNumber={false} lively />
                 </span>
               )}
               <span className="hop-num">{i === 0 ? 0 : step * i}</span>
