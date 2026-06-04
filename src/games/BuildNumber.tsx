@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import GameShell from '../components/GameShell'
 import Friend from '../components/Friend'
+import Confetti from '../components/Confetti'
 import Stepper from '../components/Stepper'
 import { friendMaxDim } from '../components/FriendArt'
 import type { GameProps } from './registry'
@@ -63,11 +64,7 @@ export default function BuildNumber({ onExit }: GameProps) {
   }
 
   const hint =
-    valid || phase !== 'pick'
-      ? ''
-      : op === 'sub'
-        ? 'בחרו מספר ראשון גדול יותר ➖'
-        : 'בחרו מספרים שמתחלקים יפה ➗'
+    valid || phase !== 'pick' ? '' : op === 'sub' ? t('build.hintSub') : t('build.hintDiv')
 
   function combine() {
     if (phase !== 'pick' || !valid) return
@@ -91,8 +88,9 @@ export default function BuildNumber({ onExit }: GameProps) {
 
   return (
     <GameShell title={t('game.build')} emoji="🧮" onExit={onExit}>
+      <Confetti active={phase === 'done'} />
       <div className="build-screen">
-        <div className="build-eq" aria-live="polite">
+        <div className="build-eq" aria-live="polite" dir="ltr">
           <span>{a}</span>
           <span className="build-op">{sym}</span>
           <span>{b}</span>
@@ -132,7 +130,7 @@ export default function BuildNumber({ onExit }: GameProps) {
                   key={o.id}
                   className={`pill pill-small ${op === o.id ? 'pill-active' : ''}`}
                   onClick={() => pickOp(o.id)}
-                  aria-label={o.label}
+                  aria-label={t(`build.${o.id}`)}
                 >
                   {o.sym}
                 </button>
@@ -154,14 +152,14 @@ export default function BuildNumber({ onExit }: GameProps) {
               <p className="build-hint">{hint}</p>
             ) : (
               <button className="big-button" onClick={combine}>
-                🟰 כמה יוצא?
+                🟰 {t('build.how')}
               </button>
             )}
           </div>
         )}
         {phase === 'done' && (
           <button className="big-button" onClick={again}>
-            🎲 עוד
+            🔄 {t('missing.new')}
           </button>
         )}
       </div>

@@ -67,6 +67,15 @@ export const HE: Dict = {
   'missing.prompt': { text: 'מי חסר?' },
   'missing.new': { text: 'תרגיל חדש' },
 
+  // build-a-number game
+  'build.how': { text: 'כמה יוצא?' },
+  'build.add': { text: 'חיבור' },
+  'build.sub': { text: 'חיסור' },
+  'build.mul': { text: 'כפל' },
+  'build.div': { text: 'חילוק' },
+  'build.hintSub': { text: 'בחרו מספר ראשון גדול יותר ➖' },
+  'build.hintDiv': { text: 'בחרו מספרים שמתחלקים יפה ➗' },
+
   // number & quantity game
   'qty.find': { text: 'מצאו' },
   'qty.more': { text: 'יותר מ' },

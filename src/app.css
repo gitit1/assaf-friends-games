@@ -9325,11 +9325,32 @@ button {
   color: #16a34a;
 }
 .build-stage {
-  min-height: 40svh;
+  /* sized to the friends (px-based in JS), not an oversized band — keeps the
+     ops + steppers + button on screen on a phone */
+  min-height: 30svh;
   display: flex;
   align-items: center;
   justify-content: center;
   width: 100%;
+}
+/* the answer friend pops out of the merge point */
+.build-result {
+  display: inline-flex;
+  animation: build-pop 0.5s cubic-bezier(0.2, 0.7, 0.3, 1.45);
+}
+@keyframes build-pop {
+  0% {
+    transform: scale(0.2);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.12);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 .build-pair {
   display: flex;

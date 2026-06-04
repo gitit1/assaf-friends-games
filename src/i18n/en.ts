@@ -66,6 +66,15 @@ export const EN: Dict = {
   'missing.prompt': { text: "Who's missing?" },
   'missing.new': { text: 'New one' },
 
+  // build-a-number game
+  'build.how': { text: 'How much?' },
+  'build.add': { text: 'Add' },
+  'build.sub': { text: 'Subtract' },
+  'build.mul': { text: 'Multiply' },
+  'build.div': { text: 'Divide' },
+  'build.hintSub': { text: 'Pick a bigger first number ➖' },
+  'build.hintDiv': { text: 'Pick numbers that divide evenly ➗' },
+
   // number & quantity game
   'qty.find': { text: 'Find' },
   'qty.more': { text: 'More than' },
