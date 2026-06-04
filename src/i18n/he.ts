@@ -67,6 +67,10 @@ export const HE: Dict = {
   'missing.prompt': { text: 'מי חסר?' },
   'missing.new': { text: 'תרגיל חדש' },
 
+  // who's missing game
+  'who.cover': { text: 'כסו אותם!' },
+  'who.prompt': { text: 'מי נעלם?' },
+
   // memory game
   'mem.new': { text: 'משחק חדש' },
   'mem.win': { text: 'כל הכבוד! 🎉' },

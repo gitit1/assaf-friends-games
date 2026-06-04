@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import GameShell from '../components/GameShell'
 import Friend from '../components/Friend'
+import Confetti from '../components/Confetti'
 import { friendMaxDim } from '../components/FriendArt'
 import type { GameProps } from './registry'
 import { playNudge, playSuccess, playWin, unlockAudio } from '../audio'
@@ -10,6 +11,7 @@ import { randInt, shuffle } from './util'
 import { getSettings } from '../settings'
 import { levelForTier } from '../difficulty'
 import { screenScale, useViewport } from '../useViewport'
+import { useT } from '../i18n'
 
 // "Who's missing?" — look at a group of friends, cover them when ready (the
 // child controls the timing → no time pressure), one hides, and recall who's
@@ -46,7 +48,9 @@ export default function WhoGame({ onExit }: GameProps) {
   const [solved, setSolved] = useState(false)
   const [score, setScore] = useState(0)
   const [wrong, setWrong] = useState<number | null>(null)
+  const [party, setParty] = useState(false)
 
+  const { t } = useT()
   const vp = useViewport()
   const scaleTo = (px: number, n: number) => (px * screenScale(vp.w)) / friendMaxDim(n)
 
@@ -83,8 +87,11 @@ export default function WhoGame({ onExit }: GameProps) {
       setSolved(true)
       const ns = score + 1
       setScore(ns)
-      if (ns % 5 === 0) playWin()
-      else playSuccess()
+      if (ns % 5 === 0) {
+        playWin()
+        setParty(true)
+        window.setTimeout(() => setParty(false), 2500)
+      } else playSuccess()
       speak(`${friendSay(n)}! כל הכבוד`)
       window.setTimeout(() => start(LEVELS[levelIdx].k, levelIdx), 1300)
     } else {
@@ -95,16 +102,17 @@ export default function WhoGame({ onExit }: GameProps) {
   }
 
   return (
-    <GameShell title="מי נעלם?" emoji="🙈" onExit={onExit}>
+    <GameShell title={t('game.who')} emoji="🙈" onExit={onExit}>
+      <Confetti active={party} />
       <div className="who-head">
         <div className="who-levels">
           {LEVELS.map((l, i) => (
             <button key={l.label} className={`pill ${i === levelIdx ? 'pill-active' : ''}`} onClick={() => start(l.k, i)}>
-              {l.label}
+              {t(`diff.${LEVEL_TIERS[i]}`)}
             </button>
           ))}
         </div>
-        <span className="who-score" aria-label={`ניקוד ${score}`}>
+        <span className="who-score" aria-label={t('bs.score', { n: score })}>
           ⭐ {score}
         </span>
       </div>
@@ -126,7 +134,7 @@ export default function WhoGame({ onExit }: GameProps) {
             )
           }
           return (
-            <span className="who-item" key={n}>
+            <span className={`who-item ${solved && n === missing ? 'is-back' : ''}`} key={n}>
               <Friend index={n} scale={scaleTo(64, n)} bouncing={solved && n === missing} />
             </span>
           )
@@ -135,13 +143,13 @@ export default function WhoGame({ onExit }: GameProps) {
 
       {phase === 'show' && (
         <button className="big-button who-cta" onClick={cover}>
-          🙈 כסו אותם!
+          🙈 {t('who.cover')}
         </button>
       )}
 
       {phase === 'guess' && (
         <>
-          <p className="who-prompt">מי נעלם?</p>
+          <p className="who-prompt">{t('who.prompt')}</p>
           <div className="who-choices">
             {choices.map((n) => (
               <button
@@ -149,7 +157,7 @@ export default function WhoGame({ onExit }: GameProps) {
                 className={`who-choice ${wrong === n ? 'is-wrong' : ''}`}
                 onClick={() => pick(n)}
                 disabled={solved}
-                aria-label={`חבר מספר ${n + 1}`}
+                aria-label={t('bs.friendAria', { n: n + 1 })}
               >
                 <Friend index={n} scale={scaleTo(72, n)} />
               </button>

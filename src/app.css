@@ -5137,6 +5137,21 @@ button {
   font-size: 2.2rem;
   background: var(--accent);
   box-shadow: var(--shadow);
+  animation: who-drop 0.3s cubic-bezier(0.2, 0.7, 0.3, 1.3);
+}
+@keyframes who-drop {
+  0% {
+    transform: translateY(-14px) scale(0.8);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+/* the missing friend pops back into its spot when you guess right */
+.who-item.is-back {
+  animation: build-pop 0.5s cubic-bezier(0.2, 0.7, 0.3, 1.45);
 }
 .who-gap {
   border: 3px dashed var(--line);
