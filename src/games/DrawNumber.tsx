@@ -9,6 +9,8 @@ import { playRise, playTap, playWin, unlockAudio } from '../audio'
 import { speak } from '../speech'
 import { FRIENDS, friendColor, friendName, friendSay } from '../friends'
 import { numberWord, randInt } from './util'
+import Confetti from '../components/Confetti'
+import { useT } from '../i18n'
 
 // "Draw the number" — the friend's number, drawn big from a 5×7 block font.
 // Drag a finger to fill the blocks in (any path — no strict tracing, so no
@@ -27,6 +29,7 @@ const FONT: Record<string, string[]> = {
 }
 
 export default function DrawNumber({ onExit }: GameProps) {
+  const { t } = useT()
   const [index, setIndex] = useState(() => randInt(0, FRIENDS.length - 1))
   const [filled, setFilled] = useState<Set<number>>(new Set())
   const [done, setDone] = useState(false)
@@ -113,7 +116,8 @@ export default function DrawNumber({ onExit }: GameProps) {
   }
 
   return (
-    <GameShell title="מציירים מספר" emoji="✍️" onExit={onExit}>
+    <GameShell title={t('game.drawnum')} emoji="✍️" onExit={onExit}>
+      <Confetti active={done} />
       <div className="color-screen">
         <Stepper
           label={`${friendName(index)} · ${index + 1}`}
@@ -132,7 +136,7 @@ export default function DrawNumber({ onExit }: GameProps) {
             />
           </span>
 
-          <div className={`dn-pad ${done ? 'is-done' : ''}`} style={{ gap: cell }} onPointerDown={down} onPointerMove={move} onPointerUp={up} onPointerCancel={up}>
+          <div className={`dn-pad ${done ? 'is-done' : ''}`} dir="ltr" style={{ gap: cell }} onPointerDown={down} onPointerMove={move} onPointerUp={up} onPointerCancel={up}>
             {digits.map((digit, di) => (
               <div key={di} className="dn-digit" style={{ gridTemplateColumns: `repeat(5, ${cell}px)`, gridAutoRows: `${cell}px` }}>
                 {digit.flatMap((row, ri) =>
@@ -155,8 +159,8 @@ export default function DrawNumber({ onExit }: GameProps) {
         </div>
 
         <div className="color-actions">
-          <IconButton icon="🧽" label="מתחילים מחדש" onClick={clearAll} />
-          <IconButton icon="🎲" label="מספר חדש" onClick={() => goTo(randInt(0, FRIENDS.length - 1))} />
+          <IconButton icon="🧽" label={t('dots.restart')} onClick={clearAll} />
+          <IconButton icon="🎲" label={t('pv.new')} onClick={() => goTo(randInt(0, FRIENDS.length - 1))} />
         </div>
       </div>
     </GameShell>
