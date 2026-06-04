@@ -4390,12 +4390,12 @@ button {
   content: '';
   position: absolute;
   left: 50%;
-  bottom: 1%;
-  width: 56%;
-  height: 7%;
+  bottom: 0;
+  width: 60%;
+  height: 9%;
   transform: translateX(-50%);
   border-radius: 50%;
-  background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.26), rgba(0, 0, 0, 0.1) 50%, transparent 74%);
+  background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.2) 48%, transparent 75%);
   pointer-events: none;
 }
 .friend-scale {
