@@ -67,6 +67,27 @@ export const HE: Dict = {
   'missing.prompt': { text: 'מי חסר?' },
   'missing.new': { text: 'תרגיל חדש' },
 
+  // car race game
+  'race.garage': { text: 'מוסך ומרוץ' },
+  'race.build': { text: 'בנו את המכונית!' },
+  'race.driver': { text: 'נהג' },
+  'race.colorAria': { text: 'צבע מכונית' },
+  'race.go': { text: 'למרוץ!' },
+  'race.garageBtn': { text: 'מוסך' },
+  'race.win': { text: 'ניצחת! 🏁🎉' },
+  'race.lose': { text: 'כמעט! עוד פעם?' },
+  'race.again': { text: 'מרוץ נוסף' },
+  'race.env.forest': { text: 'יער' },
+  'race.env.beach': { text: 'חוף ים' },
+  'race.env.winter': { text: 'חורף' },
+  'race.env.rain': { text: 'גשם' },
+  'race.env.snow': { text: 'שלג' },
+  'race.env.desert': { text: 'מדבר' },
+  'race.env.rainbow': { text: 'קשת בענן' },
+  'race.env.night': { text: 'לילה' },
+  'race.env.city': { text: 'עיר' },
+  'race.env.mountains': { text: 'הרים' },
+
   // calculator game
   'calc.free': { text: 'מחשבון' },
   'calc.goal': { text: 'אתגר' },

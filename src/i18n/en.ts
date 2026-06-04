@@ -66,6 +66,27 @@ export const EN: Dict = {
   'missing.prompt': { text: "Who's missing?" },
   'missing.new': { text: 'New one' },
 
+  // car race game
+  'race.garage': { text: 'Garage & Race' },
+  'race.build': { text: 'Build your car!' },
+  'race.driver': { text: 'Driver' },
+  'race.colorAria': { text: 'car colour' },
+  'race.go': { text: "Let's race!" },
+  'race.garageBtn': { text: 'Garage' },
+  'race.win': { text: 'You won! 🏁🎉' },
+  'race.lose': { text: 'Almost! Again?' },
+  'race.again': { text: 'Race again' },
+  'race.env.forest': { text: 'Forest' },
+  'race.env.beach': { text: 'Beach' },
+  'race.env.winter': { text: 'Winter' },
+  'race.env.rain': { text: 'Rain' },
+  'race.env.snow': { text: 'Snow' },
+  'race.env.desert': { text: 'Desert' },
+  'race.env.rainbow': { text: 'Rainbow' },
+  'race.env.night': { text: 'Night' },
+  'race.env.city': { text: 'City' },
+  'race.env.mountains': { text: 'Mountains' },
+
   // calculator game
   'calc.free': { text: 'Calculator' },
   'calc.goal': { text: 'Challenge' },

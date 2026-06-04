@@ -4,26 +4,28 @@ import Friend from '../components/Friend'
 import Stepper from '../components/Stepper'
 import { friendMaxDim } from '../components/FriendArt'
 import type { GameProps } from './registry'
+import Confetti from '../components/Confetti'
 import { playNudge, playSuccess, playTap, playWin, unlockAudio } from '../audio'
 import { speak } from '../speech'
 import { FRIENDS, friendColor, friendName } from '../friends'
 import { numberChoices, randInt, shuffle } from './util'
 import { getSettings } from '../settings'
 import { levelForTier } from '../difficulty'
+import { useT } from '../i18n'
 
 // "Garage + race" — build a car (driver friend + colour), then race a slow rival
 // by solving maths. Every correct answer drives YOU forward. NO timer. A race is
 // 15 questions, and the scenery changes every 5 correct answers, picking from 10
 // random environments per game.
 const CAR_COLORS = ['#ef4444', '#f97316', '#facc15', '#22c55e', '#3b82f6', '#8b5cf6', '#ec4899', '#111827']
-const LEVELS = [{ name: 'קל' }, { name: 'בינוני' }, { name: 'אלוף' }]
-// קל / בינוני / אלוף on the canonical scale (no קשה → "קשה" falls back to בינוני)
+// three levels mapped onto the canonical difficulty tiers (their labels reuse the
+// shared diff.* i18n keys: 0 easy / 1 medium / 3 champ)
 const LEVEL_TIERS = [0, 1, 3]
 const WIN = 15 // correct answers to finish a race
 const SEGMENT = 5 // environment changes every 5 correct answers
 
 type Env = {
-  name: string
+  key: string // i18n key (race.env.<key>)
   skyTop: string
   skyBottom: string
   ground: string
@@ -33,16 +35,16 @@ type Env = {
   overlay?: 'rain' | 'snow' | 'stars' | 'rainbow'
 }
 const ENVIRONMENTS: Env[] = [
-  { name: 'יער', skyTop: '#bae6fd', skyBottom: '#dcfce7', ground: '#4ade80', road: '#586273', clouds: ['☁️', '⛅'], scenery: ['🌲', '🌳', '🍄', '🦌', '🌲', '🌳'] },
-  { name: 'חוף ים', skyTop: '#7dd3fc', skyBottom: '#bae6fd', ground: '#fde68a', road: '#cbb58a', clouds: ['☁️', '🌤️'], scenery: ['🌴', '⛱️', '🏖️', '🐚', '🦀', '🌴'] },
-  { name: 'חורף', skyTop: '#cfe8f5', skyBottom: '#eef6fb', ground: '#e5eef5', road: '#9aa7b3', clouds: ['☁️', '🌫️'], scenery: ['🌲', '🏔️', '⛄', '🌲'] },
-  { name: 'גשם', skyTop: '#94a3b8', skyBottom: '#cbd5e1', ground: '#65a30d', road: '#4b5563', clouds: ['☁️', '🌧️', '☁️'], scenery: ['🌳', '🏠', '🌳', '☂️'], overlay: 'rain' },
-  { name: 'שלג', skyTop: '#dbeafe', skyBottom: '#eff6ff', ground: '#eef6fb', road: '#94a3b8', clouds: ['🌨️', '☁️'], scenery: ['⛄', '🌲', '🏔️', '🌲'], overlay: 'snow' },
-  { name: 'מדבר', skyTop: '#fdba74', skyBottom: '#fde68a', ground: '#fbbf24', road: '#d6a77a', clouds: ['☀️', '🌤️'], scenery: ['🌵', '🏜️', '🐫', '🌵', '🦂'] },
-  { name: 'קשת בענן', skyTop: '#bfdbfe', skyBottom: '#e0f2fe', ground: '#86efac', road: '#586273', clouds: ['☁️', '☁️'], scenery: ['🌳', '🏠', '🌷', '🌳'], overlay: 'rainbow' },
-  { name: 'לילה', skyTop: '#1e293b', skyBottom: '#334155', ground: '#1f3d2f', road: '#2f3a49', clouds: ['🌙', '⭐'], scenery: ['🏠', '🌲', '🦉', '🌲'], overlay: 'stars' },
-  { name: 'עיר', skyTop: '#93c5fd', skyBottom: '#dbeafe', ground: '#9ca3af', road: '#4b5563', clouds: ['☁️', '🏙️'], scenery: ['🏢', '🏬', '🚦', '🏢', '🏪'] },
-  { name: 'הרים', skyTop: '#a5d8f3', skyBottom: '#dceefb', ground: '#86efac', road: '#586273', clouds: ['☁️', '🦅'], scenery: ['⛰️', '🏔️', '🌲', '🏕️', '⛰️'] },
+  { key: 'forest', skyTop: '#bae6fd', skyBottom: '#dcfce7', ground: '#4ade80', road: '#586273', clouds: ['☁️', '⛅'], scenery: ['🌲', '🌳', '🍄', '🦌', '🌲', '🌳'] },
+  { key: 'beach', skyTop: '#7dd3fc', skyBottom: '#bae6fd', ground: '#fde68a', road: '#cbb58a', clouds: ['☁️', '🌤️'], scenery: ['🌴', '⛱️', '🏖️', '🐚', '🦀', '🌴'] },
+  { key: 'winter', skyTop: '#cfe8f5', skyBottom: '#eef6fb', ground: '#e5eef5', road: '#9aa7b3', clouds: ['☁️', '🌫️'], scenery: ['🌲', '🏔️', '⛄', '🌲'] },
+  { key: 'rain', skyTop: '#94a3b8', skyBottom: '#cbd5e1', ground: '#65a30d', road: '#4b5563', clouds: ['☁️', '🌧️', '☁️'], scenery: ['🌳', '🏠', '🌳', '☂️'], overlay: 'rain' },
+  { key: 'snow', skyTop: '#dbeafe', skyBottom: '#eff6ff', ground: '#eef6fb', road: '#94a3b8', clouds: ['🌨️', '☁️'], scenery: ['⛄', '🌲', '🏔️', '🌲'], overlay: 'snow' },
+  { key: 'desert', skyTop: '#fdba74', skyBottom: '#fde68a', ground: '#fbbf24', road: '#d6a77a', clouds: ['☀️', '🌤️'], scenery: ['🌵', '🏜️', '🐫', '🌵', '🦂'] },
+  { key: 'rainbow', skyTop: '#bfdbfe', skyBottom: '#e0f2fe', ground: '#86efac', road: '#586273', clouds: ['☁️', '☁️'], scenery: ['🌳', '🏠', '🌷', '🌳'], overlay: 'rainbow' },
+  { key: 'night', skyTop: '#1e293b', skyBottom: '#334155', ground: '#1f3d2f', road: '#2f3a49', clouds: ['🌙', '⭐'], scenery: ['🏠', '🌲', '🦉', '🌲'], overlay: 'stars' },
+  { key: 'city', skyTop: '#93c5fd', skyBottom: '#dbeafe', ground: '#9ca3af', road: '#4b5563', clouds: ['☁️', '🏙️'], scenery: ['🏢', '🏬', '🚦', '🏢', '🏪'] },
+  { key: 'mountains', skyTop: '#a5d8f3', skyBottom: '#dceefb', ground: '#86efac', road: '#586273', clouds: ['☁️', '🦅'], scenery: ['⛰️', '🏔️', '🌲', '🏕️', '⛰️'] },
 ]
 
 function makeProblem(level: number) {
@@ -110,6 +112,7 @@ function Car({ color, driver }: { color: string; driver: number }) {
 }
 
 export default function CarRace({ onExit }: GameProps) {
+  const { t } = useT()
   const [phase, setPhase] = useState<'garage' | 'race'>('garage')
   const [driver, setDriver] = useState(() => randInt(0, FRIENDS.length - 1))
   const [carColor, setCarColor] = useState<string>(() => friendColor(driver))
@@ -177,15 +180,15 @@ export default function CarRace({ onExit }: GameProps) {
 
   if (phase === 'garage') {
     return (
-      <GameShell title="מוסך ומרוץ" emoji="🏎️" onExit={onExit}>
+      <GameShell title={t('race.garage')} emoji="🏎️" onExit={onExit}>
         <div className="garage">
-          <p className="garage-title">בנו את המכונית! 🔧</p>
+          <p className="garage-title">{t('race.build')} 🔧</p>
           <div className="garage-preview">
             <Car color={carColor} driver={driver} />
           </div>
 
           <Stepper
-            label={`נהג: ${friendName(driver)}`}
+            label={`${t('race.driver')}: ${friendName(driver)}`}
             onPrev={() => setDriver((d) => (d + FRIENDS.length - 1) % FRIENDS.length)}
             onNext={() => setDriver((d) => (d + 1) % FRIENDS.length)}
           />
@@ -200,28 +203,28 @@ export default function CarRace({ onExit }: GameProps) {
                   playTap()
                   setCarColor(c)
                 }}
-                aria-label="צבע מכונית"
+                aria-label={t('race.colorAria')}
               />
             ))}
           </div>
 
           <div className="garage-levels">
-            {LEVELS.map((l, i) => (
+            {LEVEL_TIERS.map((tier, i) => (
               <button
-                key={l.name}
+                key={tier}
                 className={`pill ${level === i ? 'pill-active' : ''}`}
                 onClick={() => {
                   playTap()
                   setLevel(i)
                 }}
               >
-                {l.name}
+                {t(`diff.${tier}`)}
               </button>
             ))}
           </div>
 
           <button className="big-button" onClick={startRace}>
-            🏁 למרוץ!
+            🏁 {t('race.go')}
           </button>
         </div>
       </GameShell>
@@ -229,14 +232,15 @@ export default function CarRace({ onExit }: GameProps) {
   }
 
   return (
-    <GameShell title="מרוץ מכוניות" emoji="🏎️" onExit={onExit}>
+    <GameShell title={t('game.race')} emoji="🏎️" onExit={onExit}>
+      <Confetti active={result === 'win'} />
       <div className="race">
         <div className="race-top">
           <button className="pill" onClick={() => setPhase('garage')}>
-            🔧 מוסך
+            🔧 {t('race.garageBtn')}
           </button>
           <span className="race-count">✅ {correct} / {WIN}</span>
-          <span className="race-level">{LEVELS[level].name}</span>
+          <span className="race-level">{t(`diff.${LEVEL_TIERS[level]}`)}</span>
         </div>
 
         <div className="race-progress" aria-hidden="true">
@@ -255,7 +259,7 @@ export default function CarRace({ onExit }: GameProps) {
             background: `linear-gradient(180deg, ${env.skyTop} 0%, ${env.skyBottom} 54%, ${env.ground} 54%, ${env.ground} 100%)`,
           }}
         >
-          <span className="env-name">{env.name}</span>
+          <span className="env-name">{t(`race.env.${env.key}`)}</span>
           <SceneRow items={env.clouds} dur={22} className="layer-clouds" />
           <SceneRow items={env.scenery} dur={7} className="layer-scenery" />
           {env.overlay === 'rainbow' && (
@@ -276,13 +280,13 @@ export default function CarRace({ onExit }: GameProps) {
 
         {result ? (
           <div className="race-result">
-            <p className="race-result-text">{result === 'win' ? 'ניצחת! 🏁🎉' : 'כמעט! עוד פעם?'}</p>
+            <p className="race-result-text">{result === 'win' ? t('race.win') : t('race.lose')}</p>
             <div className="race-result-btns">
               <button className="big-button" onClick={raceAgain}>
-                🔁 עוד מרוץ
+                🔁 {t('race.again')}
               </button>
               <button className="pill" onClick={() => setPhase('garage')}>
-                🔧 מוסך
+                🔧 {t('race.garageBtn')}
               </button>
             </div>
           </div>
