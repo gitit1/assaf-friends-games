@@ -6,6 +6,9 @@ import type { Lang } from './i18n/types'
 // Small persisted settings store. Parents can turn the Hebrew voice or the
 // sound effects on/off; choices survive a refresh via localStorage.
 
+/** Which arithmetic operations the child sees (parent-configurable). */
+export type Ops = { add: boolean; sub: boolean; mul: boolean; div: boolean }
+
 export type Settings = {
   voice: boolean
   sound: boolean
@@ -15,6 +18,12 @@ export type Settings = {
   catchSeconds: number
   /** Default difficulty every game opens at (0 קל · 1 בינוני · 2 קשה · 3 אלוף). */
   difficulty: number
+  /** Highest number / friend shown to the child (5 / 10 / 20 / 50 / 100). */
+  maxNumber: number
+  /** Which arithmetic operations are enabled. */
+  ops: Ops
+  /** When true, `maxNumber` also caps the "My Friends" roster (not only games). */
+  limitRoster: boolean
   /** App language (drives text, voice, and page direction). */
   lang: Lang
   /** Calmer motion: dampens idle/celebration animations (also auto-on if the
@@ -23,12 +32,17 @@ export type Settings = {
 }
 
 const STORAGE_KEY = 'assaf-games:settings'
+// Defaults = "Assaf's level" (advanced): the whole range, every operation, top
+// difficulty. A parent lowers it via the level controls / presets in Settings.
 const DEFAULTS: Settings = {
   voice: true,
   sound: true,
   sayNames: true,
   catchSeconds: 30,
-  difficulty: 1,
+  difficulty: 3,
+  maxNumber: 100,
+  ops: { add: true, sub: true, mul: true, div: true },
+  limitRoster: false,
   lang: 'he',
   reduceMotion: false,
 }
@@ -37,7 +51,9 @@ function load(): Settings {
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
     if (!raw) return DEFAULTS
-    return { ...DEFAULTS, ...JSON.parse(raw) }
+    const saved = JSON.parse(raw)
+    // merge `ops` deeply so an older/partial saved object never drops a key
+    return { ...DEFAULTS, ...saved, ops: { ...DEFAULTS.ops, ...(saved.ops ?? {}) } }
   } catch {
     return DEFAULTS
   }

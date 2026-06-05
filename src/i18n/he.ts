@@ -316,6 +316,16 @@ export const HE: Dict = {
 
   // settings
   'settings.title': { text: 'הגדרות' },
+  'settings.level': { text: 'רמה והתאמה' },
+  'settings.level.hint': { text: 'בחרו פריסט מהיר, או כוונו ידנית למטה' },
+  'settings.range': { text: 'מספרים עד' },
+  'settings.ops': { text: 'פעולות חשבון' },
+  'settings.limitRoster': { text: 'הגבילו גם את "החברים שלי"' },
+  'settings.limitRoster.hint': { text: 'הצגת חברים עד הטווח בלבד (לא רק במשחקים)' },
+  'preset.kinder': { text: 'גן' },
+  'preset.grade1': { text: 'כיתה א׳' },
+  'preset.grade23': { text: 'כיתה ב׳-ג׳' },
+  'preset.assaf': { text: 'אסף' },
   'settings.lang': { text: 'שפה' },
   'settings.hi': { text: 'שלום אסף', say: 'שָׁלוֹם אָסָף' },
   'settings.voice': { text: '🔊 קול' },

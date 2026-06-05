@@ -315,6 +315,16 @@ export const EN: Dict = {
 
   // settings
   'settings.title': { text: 'Settings' },
+  'settings.level': { text: 'Level & fit' },
+  'settings.level.hint': { text: 'Pick a quick preset, or fine-tune below' },
+  'settings.range': { text: 'Numbers up to' },
+  'settings.ops': { text: 'Arithmetic' },
+  'settings.limitRoster': { text: 'Limit "My Friends" too' },
+  'settings.limitRoster.hint': { text: 'Show friends only up to the range (not just in games)' },
+  'preset.kinder': { text: 'Kindergarten' },
+  'preset.grade1': { text: 'Grade 1' },
+  'preset.grade23': { text: 'Grades 2–3' },
+  'preset.assaf': { text: 'Assaf' },
   'settings.lang': { text: 'Language' },
   'settings.hi': { text: 'Hi Assaf' },
   'settings.voice': { text: '🔊 Voice' },
