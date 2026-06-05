@@ -3,12 +3,13 @@ import GameShell from './GameShell'
 import Friend from './Friend'
 import IconButton from './IconButton'
 import { friendMaxDim } from './FriendArt'
-import { FRIENDS, friendName, friendNumber, friendSay } from '../friends'
+import { friendName, friendNumber, friendSay } from '../friends'
 import { playCount, playFriend, playSuccess, playTap, playWin, unlockAudio } from '../audio'
 import { stopSpeech } from '../speech'
 import { numberWord, randInt } from '../games/util'
 import { playClip, stopClip } from '../voice'
 import { setBuildPreset } from '../games/buildPreset'
+import { rosterCount } from '../level'
 import { useT } from '../i18n'
 import { useViewport, screenScale } from '../useViewport'
 
@@ -78,7 +79,7 @@ export default function FriendWorld({
   const { t } = useT()
   const vp = useViewport()
   const n = friendNumber(index)
-  const total = FRIENDS.length
+  const total = rosterCount()
   // browse to the friend before / after this one, wrapping around the whole
   // cast so there's never a dead-end (no disabled buttons to puzzle a child)
   const goPrev = () => {

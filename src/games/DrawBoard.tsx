@@ -1,13 +1,13 @@
 import { useEffect, useRef, useState } from 'react'
 import GameShell from '../components/GameShell'
+import { friendCount, randFriendIndex } from '../level'
 import Friend from '../components/Friend'
 import IconButton from '../components/IconButton'
 import Stepper from '../components/Stepper'
 import { friendMaxDim } from '../components/FriendArt'
 import type { GameProps } from './registry'
 import { playPop, playTap, unlockAudio } from '../audio'
-import { FRIENDS, friendName } from '../friends'
-import { randInt } from './util'
+import { friendName } from '../friends'
 import { MORE_COLORS } from './palette'
 import { useT } from '../i18n'
 
@@ -370,11 +370,11 @@ export default function DrawBoard({ onExit }: GameProps) {
               </span>
             }
             onPrev={() => {
-              setStampFriend((p) => (p + FRIENDS.length - 1) % FRIENDS.length)
+              setStampFriend((p) => (p + friendCount() - 1) % friendCount())
               pickStamp('friend') // browsing friends re-selects the friend stamp
             }}
             onNext={() => {
-              setStampFriend((p) => (p + 1) % FRIENDS.length)
+              setStampFriend((p) => (p + 1) % friendCount())
               pickStamp('friend')
             }}
           />
@@ -465,7 +465,7 @@ export default function DrawBoard({ onExit }: GameProps) {
             icon="🎲"
             label={t('draw.randomStamp')}
             onClick={() => {
-              setStampFriend(randInt(0, FRIENDS.length - 1))
+              setStampFriend(randFriendIndex())
               setStamp('friend')
               setGrab(false)
               playTap()

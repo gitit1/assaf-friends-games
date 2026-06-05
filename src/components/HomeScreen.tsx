@@ -4,7 +4,7 @@ import Friend from './Friend'
 import { FRIEND_NATURAL, friendKindForIndex } from './FriendArt'
 import SettingsPanel from './SettingsPanel'
 import FullscreenButton from './FullscreenButton'
-import { FRIENDS } from '../friends'
+import { rosterCount } from '../level'
 import { playTap, unlockAudio } from '../audio'
 import { stopSpeech } from '../speech'
 import { useT } from '../i18n'
@@ -12,7 +12,7 @@ import { SHOW_3D } from '../devFlags'
 
 // 3 distinct random friends to greet on the home card (fresh each visit)
 function pickThree(): number[] {
-  const all = Array.from({ length: FRIENDS.length }, (_, i) => i)
+  const all = Array.from({ length: rosterCount() }, (_, i) => i)
   for (let i = all.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1))
     ;[all[i], all[j]] = [all[j], all[i]]

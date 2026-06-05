@@ -1,12 +1,13 @@
 import { useEffect, useRef, useState } from 'react'
 import GameShell from '../components/GameShell'
+import { friendCount, randFriendIndex } from '../level'
 import Friend from '../components/Friend'
 import Stepper from '../components/Stepper'
 import { friendMaxDim } from '../components/FriendArt'
 import type { GameProps } from './registry'
 import { playFriend, playMunch, playPop, playSuccess, playTap, unlockAudio } from '../audio'
 import { speak } from '../speech'
-import { FRIENDS, friendName, friendSay } from '../friends'
+import { friendName, friendSay } from '../friends'
 import { numberWordNiqqud } from './util'
 import { screenScale, useViewport } from '../useViewport'
 import { useT } from '../i18n'
@@ -408,8 +409,8 @@ export default function Tamagotchi({ onExit }: GameProps) {
     setEatFood(null)
     setPoof(false)
     if (a.kind === 'ball') {
-      let b = Math.floor(Math.random() * FRIENDS.length)
-      if (b === pet.friend) b = (b + 1) % FRIENDS.length
+      let b = randFriendIndex()
+      if (b === pet.friend) b = (b + 1) % friendCount()
       setBuddy(b)
     }
     setPlaying(a)
@@ -437,8 +438,8 @@ export default function Tamagotchi({ onExit }: GameProps) {
               <Friend index={pick} scale={petPx / friendMaxDim(pick)} showNumber={false} />
             </span>
           }
-          onPrev={() => setPick((p) => (p + FRIENDS.length - 1) % FRIENDS.length)}
-          onNext={() => setPick((p) => (p + 1) % FRIENDS.length)}
+          onPrev={() => setPick((p) => (p + friendCount() - 1) % friendCount())}
+          onNext={() => setPick((p) => (p + 1) % friendCount())}
         />
         <p className="pet-pick-name">
           {friendName(pick)} · {pick + 1}

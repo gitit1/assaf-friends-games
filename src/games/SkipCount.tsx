@@ -7,19 +7,24 @@ import { playRise, playWin, unlockAudio } from '../audio'
 import { speakNumber } from '../voice'
 import { fitScale, useViewport } from '../useViewport'
 import { useT } from '../i18n'
+import { numberMax } from '../level'
 
 // Skip-counting on a NUMBER LINE: the step-friend (2 / 5 / 10) hops along, landing
 // on its multiples. Each landing shows step × hops = current, so skip-counting and
 // multiplication click together. Spatial + Numberblocks "Step Squad" — distinct
 // from plain block-counting (which lives in the friend's world). No timer/fail.
-const STEPS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] // the whole times table — pick any
-const HOPS = 10 // land on step×1 … step×10
+const ALL_STEPS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] // the whole times table — pick any
 
 export default function SkipCount({ onExit }: GameProps) {
   const { t } = useT()
   const vp = useViewport()
   const [step, setStep] = useState(2)
   const [hops, setHops] = useState(0)
+  // keep every multiple within the level: only offer steps ≤ max, and stop the
+  // line where step × hops would exceed it
+  const max = numberMax()
+  const STEPS = ALL_STEPS.filter((s) => s <= max)
+  const HOPS = Math.max(1, Math.min(10, Math.floor(max / step)))
   const current = step * hops
   const done = hops >= HOPS
 

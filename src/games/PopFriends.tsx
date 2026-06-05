@@ -1,11 +1,11 @@
 import { useRef, useState } from 'react'
 import GameShell from '../components/GameShell'
+import { friendCount } from '../level'
 import Friend from '../components/Friend'
 import { friendMaxDim } from '../components/FriendArt'
 import type { GameProps } from './registry'
 import { playNudge, playPop, playSuccess, playWin, unlockAudio } from '../audio'
 import { speak } from '../speech'
-import { FRIENDS } from '../friends'
 import { randInt, shuffle } from './util'
 import { speakNumber } from '../voice'
 import { useViewport } from '../useViewport'
@@ -25,7 +25,7 @@ const PALETTE_SIZE = 5
 const MIN_CHAIN = 3 // need at least 3 connected same friends to pop
 
 function pickPalette(): number[] {
-  return shuffle(Array.from({ length: FRIENDS.length }, (_, i) => i)).slice(0, PALETTE_SIZE)
+  return shuffle(Array.from({ length: friendCount() }, (_, i) => i)).slice(0, PALETTE_SIZE)
 }
 
 function makeGrid(palette: number[]): number[] {

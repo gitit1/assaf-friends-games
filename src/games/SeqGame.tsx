@@ -6,12 +6,13 @@ import { friendMaxDim } from '../components/FriendArt'
 import type { GameProps } from './registry'
 import { playFriend, playNudge, playSuccess, playWin, unlockAudio } from '../audio'
 import { speak, stopSpeech } from '../speech'
-import { FRIENDS, friendSay } from '../friends'
+import { friendSay } from '../friends'
 import { numberWord, randInt, shuffle } from './util'
 import { getSettings } from '../settings'
 import { levelForTier } from '../difficulty'
 import { screenScale, useViewport } from '../useViewport'
 import { useT } from '../i18n'
+import { numberMax } from '../level'
 
 // "Missing friend in the sequence" — a run of friends follows a rule (counting,
 // jumps, times-tables, doubling) with one gap; pick the friend that completes
@@ -21,7 +22,6 @@ import { useT } from '../i18n'
 // the = stay put); every finished equation flies UP and stacks in a list; the
 // missing term shows `???`. Slow + spoken. No timer; wrong = gentle nudge.
 const LEN = 4
-const MAXN = FRIENDS.length
 
 type SeqType = 'add' | 'mult' | 'geo'
 type Round = { terms: number[]; gapPos: number; type: SeqType; step: number; choices: number[] }
@@ -46,18 +46,18 @@ function buildTerms(type: SeqType, start: number, step: number): number[] {
 }
 
 function pickConfig(level: number): { type: SeqType; start: number; step: number } {
-  const maxN = Math.max(2, Math.floor(MAXN / LEN))
-  if (level === 0) return { type: 'add', start: randInt(2, MAXN - 3), step: 1 }
+  const maxN = Math.max(2, Math.floor(numberMax() / LEN))
+  if (level === 0) return { type: 'add', start: randInt(2, numberMax() - 3), step: 1 }
   if (level === 1) {
     const step = [1, -1, 2, -2][randInt(0, 3)]
-    const start = step > 0 ? randInt(1, MAXN - 3 * step) : randInt(1 - 3 * step, MAXN)
+    const start = step > 0 ? randInt(1, numberMax() - 3 * step) : randInt(1 - 3 * step, numberMax())
     return { type: 'add', start, step }
   }
   if (level === 2) {
     const kind = randInt(0, 2)
     if (kind === 0) {
       const step = [2, 3, -2, -3][randInt(0, 3)]
-      const start = step > 0 ? randInt(1, MAXN - 3 * step) : randInt(1 - 3 * step, MAXN)
+      const start = step > 0 ? randInt(1, numberMax() - 3 * step) : randInt(1 - 3 * step, numberMax())
       return { type: 'add', start, step }
     }
     if (kind === 1) {
@@ -78,9 +78,9 @@ function pickChoices(missing: number, terms: number[], count: number): number[] 
   while (set.size < count + 1 && guard < 300) {
     guard++
     const d = missing + randInt(1, 3) * (randInt(0, 1) === 0 ? -1 : 1)
-    if (d >= 1 && d <= MAXN && !visible.has(d)) set.add(d)
+    if (d >= 1 && d <= numberMax() && !visible.has(d)) set.add(d)
   }
-  for (let n = 1; n <= MAXN && set.size < count + 1; n++) if (n === missing || !visible.has(n)) set.add(n)
+  for (let n = 1; n <= numberMax() && set.size < count + 1; n++) if (n === missing || !visible.has(n)) set.add(n)
   return shuffle([...set])
 }
 
@@ -88,15 +88,15 @@ function genRound(level: number): Round {
   for (let t = 0; t < 400; t++) {
     const { type, start, step } = pickConfig(level)
     const terms = buildTerms(type, start, step)
-    if (!terms.every((v) => v >= 1 && v <= MAXN) || new Set(terms).size !== LEN) continue
+    if (!terms.every((v) => v >= 1 && v <= numberMax()) || new Set(terms).size !== LEN) continue
     if (type === 'add') {
       const c = terms[0] - step
-      if (c < 1 || c > MAXN || 4 * Math.abs(step) > MAXN) continue
+      if (c < 1 || c > numberMax() || 4 * Math.abs(step) > numberMax()) continue
     }
     const gapPos = randInt(1, LEN - 1)
     return { terms, gapPos, type, step, choices: pickChoices(terms[gapPos], terms, level === 3 ? 3 : 2) }
   }
-  const start = randInt(2, MAXN - 3)
+  const start = randInt(2, numberMax() - 3)
   const terms = [start, start + 1, start + 2, start + 3]
   const gapPos = randInt(1, LEN - 1)
   return { terms, gapPos, type: 'add', step: 1, choices: pickChoices(terms[gapPos], terms, 2) }

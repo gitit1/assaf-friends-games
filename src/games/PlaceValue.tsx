@@ -9,6 +9,7 @@ import { friendSay } from '../friends'
 import { numberWord, randInt } from './util'
 import { fitScale, useViewport } from '../useViewport'
 import { useT } from '../i18n'
+import { numberMax } from '../level'
 
 // Build a two-digit number from TEN-rods and ONE-cubes — place value the
 // Numberblocks "Tens" way. A live "X tens + Y ones = N" updates as you build, and
@@ -17,7 +18,7 @@ import { useT } from '../i18n'
 export default function PlaceValue({ onExit }: GameProps) {
   const { t } = useT()
   const vp = useViewport()
-  const [target, setTarget] = useState(() => randInt(11, 99))
+  const [target, setTarget] = useState(() => randInt(Math.min(11, numberMax()), numberMax()))
   const [tens, setTens] = useState(0)
   const [ones, setOnes] = useState(0)
   const current = tens * 10 + ones
@@ -63,8 +64,9 @@ export default function PlaceValue({ onExit }: GameProps) {
   function newTarget() {
     setTens(0)
     setOnes(0)
-    let next = randInt(11, 99)
-    if (next === target) next = target >= 99 ? 11 : target + 1
+    const lo = Math.min(11, numberMax())
+    let next = randInt(lo, numberMax())
+    if (next === target) next = target >= numberMax() ? lo : target + 1
     setTarget(next)
   }
 

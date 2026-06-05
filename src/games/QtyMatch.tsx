@@ -6,9 +6,9 @@ import { friendMaxDim } from '../components/FriendArt'
 import type { GameProps } from './registry'
 import { playNudge, playSuccess, playWin, unlockAudio } from '../audio'
 import { speak } from '../speech'
-import { FRIENDS } from '../friends'
 import { numberWordNiqqud, randInt, shuffle } from './util'
 import { speakNumber } from '../voice'
+import { randFriendIndex, numberMax } from '../level'
 import { screenScale, useViewport } from '../useViewport'
 import { getSettings } from '../settings'
 import { useT } from '../i18n'
@@ -29,13 +29,14 @@ function tokenPx(maxCount: number) {
 type Group = { count: number; friends: number[] }
 type Round = { mode: 'exact' | 'more'; target: number; groups: Group[]; correct: number }
 
-const cluster = (count: number): number[] => Array.from({ length: count }, () => randInt(0, FRIENDS.length - 1))
+const cluster = (count: number): number[] => Array.from({ length: count }, () => randFriendIndex())
 
 function newRound(tier: number): Round {
+  const maxT = Math.max(3, Math.min(MAXT, numberMax())) // quantities stay within the level
   if (tier >= 2 && Math.random() < 0.5) {
     // "more than X": exactly one group is above the threshold
-    const x = randInt(2, MAXT - 4)
-    const big = randInt(x + 1, Math.min(MAXT, x + 6))
+    const x = randInt(2, Math.max(3, maxT - 4))
+    const big = randInt(x + 1, Math.min(maxT, x + 6))
     const lows = new Set<number>()
     let guard = 0
     while (lows.size < 2 && guard++ < 200) lows.add(randInt(1, x))
@@ -44,14 +45,14 @@ function newRound(tier: number): Round {
     const groups = counts.map((c) => ({ count: c, friends: cluster(c) }))
     return { mode: 'more', target: x, groups, correct: groups.findIndex((g) => g.count === big) }
   }
-  const target = randInt(1, MAXT)
+  const target = randInt(1, maxT)
   const set = new Set<number>([target])
   let guard = 0
   while (set.size < 3 && guard++ < 200) {
     const d = target + randInt(1, 3) * (randInt(0, 1) === 0 ? -1 : 1)
-    if (d >= 1 && d <= MAXT) set.add(d)
+    if (d >= 1 && d <= maxT) set.add(d)
   }
-  for (let n = 1; n <= MAXT && set.size < 3; n++) set.add(n)
+  for (let n = 1; n <= maxT && set.size < 3; n++) set.add(n)
   const counts = shuffle([...set])
   const groups = counts.map((c) => ({ count: c, friends: cluster(c) }))
   return { mode: 'exact', target, groups, correct: groups.findIndex((g) => g.count === target) }

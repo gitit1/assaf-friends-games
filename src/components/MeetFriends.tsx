@@ -3,6 +3,7 @@ import GameShell from './GameShell'
 import Friend from './Friend'
 import { FRIEND_KINDS, FRIEND_NATURAL } from './FriendArt'
 import { FRIENDS } from '../friends'
+import { rosterCount } from '../level'
 import { playTap, unlockAudio } from '../audio'
 import { useT } from '../i18n'
 
@@ -20,10 +21,11 @@ const MAX_W = Math.max(...FRIEND_KINDS.map((k) => FRIEND_NATURAL[k].w))
 // friends makes a new button appear on its own. Tap any friend to enter its WORLD.
 export default function MeetFriends({ onExit, onOpen }: { onExit: () => void; onOpen: (index: number) => void }) {
   const { t } = useT()
-  const groups = Math.ceil(FRIENDS.length / PER_PAGE)
+  const total = rosterCount() // capped to the level only if the parent opted in
+  const groups = Math.ceil(total / PER_PAGE)
   const [group, setGroup] = useState(0)
   const start = group * PER_PAGE
-  const end = Math.min(start + PER_PAGE, FRIENDS.length)
+  const end = Math.min(start + PER_PAGE, total)
 
   const [vw, setVw] = useState(() => (typeof window !== 'undefined' ? window.innerWidth : 360))
   useEffect(() => {
@@ -51,7 +53,7 @@ export default function MeetFriends({ onExit, onOpen }: { onExit: () => void; on
         <div className="meet-decades" dir="ltr">
           {Array.from({ length: groups }, (_, g) => {
             const s = g * PER_PAGE
-            const e = Math.min(s + PER_PAGE, FRIENDS.length)
+            const e = Math.min(s + PER_PAGE, total)
             return (
               <button
                 key={g}

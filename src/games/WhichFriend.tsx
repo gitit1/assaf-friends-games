@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react'
 import GameShell from '../components/GameShell'
+import { randFriendIndex } from '../level'
 import Friend from '../components/Friend'
 import { friendMaxDim } from '../components/FriendArt'
 import type { GameProps } from './registry'
 import { playNudge, playSuccess, playWin, playTap, unlockAudio } from '../audio'
 import { speak } from '../speech'
 import { FRIENDS, friendName, friendSay } from '../friends'
-import { randInt, shuffle } from './util'
+import { shuffle } from './util'
 import { speakNumber } from '../voice'
 import { screenScale, useViewport } from '../useViewport'
 import Confetti from '../components/Confetti'
@@ -23,7 +24,7 @@ const LETTER_NAMES: Record<string, string> = {
 
 type Round = { target: number; options: number[]; letter: string }
 function newRound(): Round {
-  const target = randInt(0, FRIENDS.length - 1)
+  const target = randFriendIndex()
   const letter = FRIENDS[target].name[0]
   const others = shuffle(FRIENDS.map((_, i) => i).filter((i) => i !== target && FRIENDS[i].name[0] !== letter)).slice(0, 2)
   const options = shuffle([target, ...others])

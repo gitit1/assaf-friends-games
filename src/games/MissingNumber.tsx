@@ -9,6 +9,7 @@ import { friendSay } from '../friends'
 import { numberWord, randInt } from './util'
 import { fitScale, useViewport } from '../useViewport'
 import { useT } from '../i18n'
+import { numberMax } from '../level'
 
 // "The missing number": a + ? = c — find the friend that fills the blank. Unlike
 // "Build a Number" (which computes a result), here the RESULT is given and an
@@ -26,8 +27,9 @@ function shuffle<T>(arr: T[]): T[] {
 }
 
 function makePuzzle(prev?: number): Puzzle {
-  let c = randInt(4, 18)
-  if (c === prev) c = c >= 18 ? 4 : c + 1
+  const hi = Math.max(4, Math.min(18, numberMax())) // result stays within the level
+  let c = randInt(4, hi)
+  if (c === prev) c = c >= hi ? 4 : c + 1
   const a = randInt(1, c - 1)
   const b = c - a
   const missing: 'a' | 'b' = Math.random() < 0.5 ? 'a' : 'b'

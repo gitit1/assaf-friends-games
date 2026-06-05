@@ -1,18 +1,18 @@
 import { useEffect, useRef, useState } from 'react'
 import GameShell from '../components/GameShell'
+import { friendCount, randFriendIndex } from '../level'
 import Friend from '../components/Friend'
 import { friendMaxDim } from '../components/FriendArt'
 import type { GameProps } from './registry'
 import { playNudge, playPop, playSuccess, playWin, unlockAudio } from '../audio'
 import { speak } from '../speech'
-import { FRIENDS, friendName, friendSay } from '../friends'
+import { friendName, friendSay } from '../friends'
 import { useSettings } from '../settings'
 import { randInt, shuffle } from './util'
 import { screenScale, useViewport } from '../useViewport'
 import Confetti from '../components/Confetti'
 import { useT } from '../i18n'
 
-const COUNT = FRIENDS.length // friend identities — the whole cast
 const BOARD = 9 // friends visible at once
 const WANT_TARGETS = 3 // targets placed at the start and on each switch (≈ 1 : 2 vs decoys)
 const FLOOR_TARGETS = 1 // never let the board run out of catchable friends
@@ -59,9 +59,9 @@ export default function CatchFriend({ onExit }: GameProps) {
   const { catchSeconds } = useSettings()
   const { t } = useT()
   const [party, setParty] = useState(false)
-  const [target, setTarget] = useState(() => randInt(0, COUNT - 1))
+  const [target, setTarget] = useState(() => randFriendIndex())
   const [cards, setCards] = useState<Card[]>(() => {
-    const arr = Array.from({ length: BOARD }, () => makeCard(randInt(0, COUNT - 1), randInt(0, LIFETIME - 1000)))
+    const arr = Array.from({ length: BOARD }, () => makeCard(randFriendIndex(), randInt(0, LIFETIME - 1000)))
     return ensureTargets(arr, target, WANT_TARGETS)
   })
   const [score, setScore] = useState(0)
@@ -81,8 +81,8 @@ export default function CatchFriend({ onExit }: GameProps) {
   useEffect(() => {
     const id = window.setInterval(() => {
       setTarget((prev) => {
-        let next = randInt(0, COUNT - 1)
-        if (next === prev) next = (next + 1) % COUNT
+        let next = randFriendIndex()
+        if (next === prev) next = (next + 1) % friendCount()
         return next
       })
     }, catchSeconds * 1000)
@@ -113,7 +113,7 @@ export default function CatchFriend({ onExit }: GameProps) {
         const gone = next.length - survivors.length
         if (gone > 0) {
           changed = true
-          const fresh = Array.from({ length: gone }, () => makeCard(randInt(0, COUNT - 1)))
+          const fresh = Array.from({ length: gone }, () => makeCard(randFriendIndex()))
           next = ensureTargets([...survivors, ...fresh], targetRef.current, FLOOR_TARGETS)
         }
         return changed ? next : cs
@@ -143,7 +143,7 @@ export default function CatchFriend({ onExit }: GameProps) {
           // The friend that appears in the popped spot is a RANDOM one (usually
           // not the target) — that's the variety. Catchability is kept by
           // topping the board back up to MIN_TARGETS elsewhere if needed.
-          const withNew = [...remaining, makeCard(randInt(0, COUNT - 1))]
+          const withNew = [...remaining, makeCard(randFriendIndex())]
           return ensureTargets(withNew, targetRef.current, FLOOR_TARGETS)
         })
       }, 430)

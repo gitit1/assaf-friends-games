@@ -4,8 +4,9 @@ import Friend from '../components/Friend'
 import type { GameProps } from './registry'
 import { playNudge, playSuccess, playWin, unlockAudio } from '../audio'
 import { speak } from '../speech'
-import { FRIENDS, friendSay } from '../friends'
+import { friendSay } from '../friends'
 import { numberChoices, numberWord, randInt } from './util'
+import { randFriendIndex } from '../level'
 
 // A calm "race" quiz (no timer): every correct +/−/× answer hops a friend one
 // step toward the finish flag. Wrong answers give a gentle nudge — no penalty,
@@ -49,7 +50,7 @@ export default function MathRace({ onExit }: GameProps) {
   const [step, setStep] = useState(0)
   const [wrong, setWrong] = useState<number | null>(null)
   const [locked, setLocked] = useState(false)
-  const [racer, setRacer] = useState(() => randInt(0, FRIENDS.length - 1))
+  const [racer, setRacer] = useState(() => randFriendIndex())
 
   const won = step >= STEPS
 
@@ -69,7 +70,7 @@ export default function MathRace({ onExit }: GameProps) {
     setStep(0)
     setLocked(false)
     setWrong(null)
-    setRacer(randInt(0, FRIENDS.length - 1))
+    setRacer(randFriendIndex())
     setRound(newRound(next))
   }
 
@@ -77,7 +78,7 @@ export default function MathRace({ onExit }: GameProps) {
     setStep(0)
     setLocked(false)
     setWrong(null)
-    setRacer(randInt(0, FRIENDS.length - 1))
+    setRacer(randFriendIndex())
     setRound(newRound(op))
   }
 

@@ -1,12 +1,13 @@
 import { useState } from 'react'
 import GameShell from '../components/GameShell'
+import { friendCount } from '../level'
 import Friend from '../components/Friend'
 import Confetti from '../components/Confetti'
 import { friendMaxDim } from '../components/FriendArt'
 import type { GameProps } from './registry'
 import { playSuccess, playTap, playWin, unlockAudio } from '../audio'
 import { speak } from '../speech'
-import { FRIENDS, friendName, friendSay } from '../friends'
+import { friendName, friendSay } from '../friends'
 import { shuffle } from './util'
 import { getSettings } from '../settings'
 import { levelForTier } from '../difficulty'
@@ -25,9 +26,10 @@ const LEVEL_TIERS = [0, 1, 2, 3]
 
 type Card = { id: number; friend: number }
 
-// Draw distinct friends from the whole cast (cards auto-scale to fit any friend).
+// Draw distinct friends from the cast (capped by the level so we never ask for
+// more pairs than there are friends; cards auto-scale to fit any friend).
 function buildDeck(pairs: number): Card[] {
-  const friends = shuffle(Array.from({ length: FRIENDS.length }, (_, i) => i)).slice(0, pairs)
+  const friends = shuffle(Array.from({ length: friendCount() }, (_, i) => i)).slice(0, Math.min(pairs, friendCount()))
   const deck = friends.flatMap((friend, i) => [
     { id: i * 2, friend },
     { id: i * 2 + 1, friend },
@@ -46,7 +48,9 @@ export default function MemoryGame({ onExit }: GameProps) {
   const [locked, setLocked] = useState(false)
 
   const vp = useViewport()
-  const won = matched.length === level.pairs
+  // win when every distinct friend in the (possibly level-capped) deck is matched
+  const totalPairs = deck.length / 2
+  const won = matched.length === totalPairs
   // column count by density; the board fills up to 720px so it's big on a
   // desktop, and each friend fills its (responsive) card.
   const cols = level.pairs <= 3 ? 3 : level.pairs <= 8 ? 4 : 5
@@ -82,7 +86,7 @@ export default function MemoryGame({ onExit }: GameProps) {
           setMatched(nextMatched)
           setFlipped([])
           setLocked(false)
-          if (nextMatched.length === level.pairs) playWin()
+          if (nextMatched.length === deck.length / 2) playWin()
           else {
             playSuccess()
             speak(friendSay(friend))

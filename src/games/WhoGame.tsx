@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react'
 import GameShell from '../components/GameShell'
+import { friendCount } from '../level'
 import Friend from '../components/Friend'
 import Confetti from '../components/Confetti'
 import { friendMaxDim } from '../components/FriendArt'
 import type { GameProps } from './registry'
 import { playNudge, playSuccess, playWin, unlockAudio } from '../audio'
 import { speak } from '../speech'
-import { FRIENDS, friendSay } from '../friends'
+import { friendSay } from '../friends'
 import { randInt, shuffle } from './util'
 import { getSettings } from '../settings'
 import { levelForTier } from '../difficulty'
@@ -29,7 +30,7 @@ const LEVEL_TIERS = [0, 1, 3]
 type Phase = 'show' | 'hide' | 'guess'
 
 function newGroup(k: number): number[] {
-  return shuffle(Array.from({ length: FRIENDS.length }, (_, i) => i)).slice(0, k)
+  return shuffle(Array.from({ length: friendCount() }, (_, i) => i)).slice(0, k)
 }
 
 // options: the missing friend + `count` friends drawn from `outsiders` (friends
@@ -72,7 +73,7 @@ export default function WhoGame({ onExit }: GameProps) {
     unlockAudio()
     if (phase !== 'show') return
     const m = group[randInt(0, group.length - 1)]
-    const outsiders = Array.from({ length: FRIENDS.length }, (_, i) => i).filter((i) => !group.includes(i))
+    const outsiders = Array.from({ length: friendCount() }, (_, i) => i).filter((i) => !group.includes(i))
     const count = levelIdx === 2 ? 3 : 2 // a couple more decoys on the hard level
     setMissing(m)
     setChoices(pickChoices(m, outsiders, count))

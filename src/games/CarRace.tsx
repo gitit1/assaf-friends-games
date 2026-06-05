@@ -7,11 +7,12 @@ import type { GameProps } from './registry'
 import Confetti from '../components/Confetti'
 import { playNudge, playSuccess, playTap, playWin, unlockAudio } from '../audio'
 import { speak } from '../speech'
-import { FRIENDS, friendColor, friendName } from '../friends'
+import { friendColor, friendName } from '../friends'
 import { numberChoices, randInt, shuffle } from './util'
 import { getSettings } from '../settings'
 import { levelForTier } from '../difficulty'
 import { useT } from '../i18n'
+import { friendCount, randFriendIndex, opEnabled } from '../level'
 
 // "Garage + race" — build a car (driver friend + colour), then race a slow rival
 // by solving maths. Every correct answer drives YOU forward. NO timer. A race is
@@ -50,31 +51,33 @@ const ENVIRONMENTS: Env[] = [
 function makeProblem(level: number) {
   let text: string
   let ans: number
-  if (level === 0) {
+  // honour the parent's enabled operations: only use × on the harder levels if it
+  // is on, and respect which of + − are available on the easy level
+  const useMul = level >= 1 && opEnabled('mul')
+  if (useMul) {
+    const cap = level >= 3 ? 6 : 9
+    const a = randInt(2, cap)
+    const b = randInt(2, cap)
+    const c = randInt(1, 9)
+    if (level >= 3 && opEnabled('sub') && Math.random() < 0.4 && a * b > c) {
+      text = `${a} × ${b} − ${c}`
+      ans = a * b - c
+    } else if (level >= 3 && opEnabled('add') && Math.random() < 0.5) {
+      text = `${a} × ${b} + ${c}`
+      ans = a * b + c
+    } else {
+      text = `${a} × ${b}`
+      ans = a * b
+    }
+  } else {
     const a = randInt(2, 9)
     const b = randInt(1, 9)
-    if (Math.random() < 0.5 && a >= b) {
+    if (opEnabled('sub') && (!opEnabled('add') || Math.random() < 0.5) && a >= b) {
       text = `${a} − ${b}`
       ans = a - b
     } else {
-      text = `${a} + ${b}`
+      text = `${a} + ${b}` // add is always available (enabledOps never empty)
       ans = a + b
-    }
-  } else if (level === 1) {
-    const a = randInt(2, 9)
-    const b = randInt(2, 9)
-    text = `${a} × ${b}`
-    ans = a * b
-  } else {
-    const a = randInt(2, 6)
-    const b = randInt(2, 6)
-    const c = randInt(1, 9)
-    if (Math.random() < 0.4 && a * b > c) {
-      text = `${a} × ${b} − ${c}`
-      ans = a * b - c
-    } else {
-      text = `${a} × ${b} + ${c}`
-      ans = a * b + c
     }
   }
   return { text, ans, choices: numberChoices(ans, 3, Math.max(0, ans - 6), ans + 6) }
@@ -114,7 +117,7 @@ function Car({ color, driver }: { color: string; driver: number }) {
 export default function CarRace({ onExit }: GameProps) {
   const { t } = useT()
   const [phase, setPhase] = useState<'garage' | 'race'>('garage')
-  const [driver, setDriver] = useState(() => randInt(0, FRIENDS.length - 1))
+  const [driver, setDriver] = useState(() => randFriendIndex())
   const [carColor, setCarColor] = useState<string>(() => friendColor(driver))
   const [level, setLevel] = useState(() => levelForTier(LEVEL_TIERS, getSettings().difficulty))
 
@@ -189,8 +192,8 @@ export default function CarRace({ onExit }: GameProps) {
 
           <Stepper
             label={`${t('race.driver')}: ${friendName(driver)}`}
-            onPrev={() => setDriver((d) => (d + FRIENDS.length - 1) % FRIENDS.length)}
-            onNext={() => setDriver((d) => (d + 1) % FRIENDS.length)}
+            onPrev={() => setDriver((d) => (d + friendCount() - 1) % friendCount())}
+            onNext={() => setDriver((d) => (d + 1) % friendCount())}
           />
 
           <div className="garage-colors">

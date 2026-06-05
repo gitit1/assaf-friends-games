@@ -1,11 +1,12 @@
 import { useState } from 'react'
 import GameShell from '../components/GameShell'
+import { friendCount } from '../level'
 import Friend from '../components/Friend'
 import { friendMaxDim } from '../components/FriendArt'
 import type { GameProps } from './registry'
 import { playNudge, playPiano, playWin, unlockAudio } from '../audio'
 import { speak } from '../speech'
-import { FRIENDS, friendColor } from '../friends'
+import { friendColor } from '../friends'
 import { numberWordNiqqud, randInt, shuffle } from './util'
 import { screenScale, useViewport } from '../useViewport'
 import Confetti from '../components/Confetti'
@@ -19,7 +20,7 @@ import { useT } from '../i18n'
 const LANES = 6 // 6 lanes = Do Re Mi Fa Sol La (the pitch is fixed per lane)
 
 function pickBand(): number[] {
-  return shuffle(Array.from({ length: FRIENDS.length }, (_, i) => i)).slice(0, LANES)
+  return shuffle(Array.from({ length: friendCount() }, (_, i) => i)).slice(0, LANES)
 }
 
 type Song = { key: string; emoji: string; notes: number[] } // notes = scale degrees 0..5

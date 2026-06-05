@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react'
 import GameShell from '../components/GameShell'
+import { randFriendIndex } from '../level'
 import Friend from '../components/Friend'
 import Confetti from '../components/Confetti'
 import { friendMaxDim } from '../components/FriendArt'
 import type { GameProps } from './registry'
 import { playNudge, playSuccess, playWin, unlockAudio } from '../audio'
 import { speak } from '../speech'
-import { FRIENDS, friendSay } from '../friends'
+import { friendSay } from '../friends'
 import { numberWord, randInt, shuffle } from './util'
 import { speakNumber } from '../voice'
 import { getSettings } from '../settings'
@@ -61,7 +62,7 @@ export default function MathChallenge({ onExit }: GameProps) {
   const [score, setScore] = useState(0)
   const [wrong, setWrong] = useState<number | null>(null)
   const [locked, setLocked] = useState(false)
-  const [mascot] = useState(() => randInt(0, FRIENDS.length - 1))
+  const [mascot] = useState(() => randFriendIndex())
 
   function say(p: Problem = problem) {
     const opw = p.op === '+' ? 'ועוד' : 'פחות'

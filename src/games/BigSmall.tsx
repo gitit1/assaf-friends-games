@@ -12,6 +12,7 @@ import { speakNumber } from '../voice'
 import { screenScale, useViewport } from '../useViewport'
 import { getSettings } from '../settings'
 import { useT } from '../i18n'
+import { numberMax } from '../level'
 
 // "Bigger / smaller / closest?" — two friends appear (each IS its number, so the
 // bigger number is also the bigger friend). A visual cue SHOWS what we're after
@@ -44,7 +45,7 @@ function makeRound(maxn: number, allowNear: boolean, prev?: Round): Round {
 
 export default function BigSmall({ onExit }: GameProps) {
   const tier = getSettings().difficulty
-  const maxn = RANGE[Math.min(3, tier)]
+  const maxn = Math.max(2, Math.min(RANGE[Math.min(3, tier)], numberMax()))
   const allowNear = tier >= 2
   const [round, setRound] = useState<Round>(() => makeRound(maxn, allowNear))
   const [score, setScore] = useState(0)

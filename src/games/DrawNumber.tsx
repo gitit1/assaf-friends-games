@@ -7,10 +7,11 @@ import { friendKindForIndex, friendMaxDim, friendPartCount } from '../components
 import type { GameProps } from './registry'
 import { playRise, playTap, playWin, unlockAudio } from '../audio'
 import { speak } from '../speech'
-import { FRIENDS, friendColor, friendName, friendSay } from '../friends'
-import { numberWord, randInt } from './util'
+import { friendColor, friendName, friendSay } from '../friends'
+import { numberWord } from './util'
 import Confetti from '../components/Confetti'
 import { useT } from '../i18n'
+import { friendCount, randFriendIndex } from '../level'
 
 // "Draw the number" — the friend's number, drawn big from a 5×7 block font.
 // Drag a finger to fill the blocks in (any path — no strict tracing, so no
@@ -30,7 +31,7 @@ const FONT: Record<string, string[]> = {
 
 export default function DrawNumber({ onExit }: GameProps) {
   const { t } = useT()
-  const [index, setIndex] = useState(() => randInt(0, FRIENDS.length - 1))
+  const [index, setIndex] = useState(() => randFriendIndex())
   const [filled, setFilled] = useState<Set<number>>(new Set())
   const [done, setDone] = useState(false)
   const painting = useRef(false)
@@ -121,8 +122,8 @@ export default function DrawNumber({ onExit }: GameProps) {
       <div className="color-screen">
         <Stepper
           label={`${friendName(index)} · ${index + 1}`}
-          onPrev={() => goTo((index + FRIENDS.length - 1) % FRIENDS.length)}
-          onNext={() => goTo((index + 1) % FRIENDS.length)}
+          onPrev={() => goTo((index + friendCount() - 1) % friendCount())}
+          onNext={() => goTo((index + 1) % friendCount())}
         />
 
         <div className="dn-stage">
@@ -160,7 +161,7 @@ export default function DrawNumber({ onExit }: GameProps) {
 
         <div className="color-actions">
           <IconButton icon="🧽" label={t('dots.restart')} onClick={clearAll} />
-          <IconButton icon="🎲" label={t('pv.new')} onClick={() => goTo(randInt(0, FRIENDS.length - 1))} />
+          <IconButton icon="🎲" label={t('pv.new')} onClick={() => goTo(randFriendIndex())} />
         </div>
       </div>
     </GameShell>

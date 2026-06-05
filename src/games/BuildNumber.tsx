@@ -11,6 +11,7 @@ import { screenScale, useViewport } from '../useViewport'
 import { randInt } from './util'
 import { takeBuildPreset } from './buildPreset'
 import { useT } from '../i18n'
+import { enabledOps, opEnabled, numberMax } from '../level'
 
 // One arithmetic game with a chooser for ➕ ➖ ✖️ ➗. Pick an operation and two
 // friends, tap "how much?", and they merge into the answer friend (who bounces),
@@ -38,12 +39,16 @@ function compute(op: Op, a: number, b: number): number {
 export default function BuildNumber({ onExit }: GameProps) {
   const { t } = useT()
   const grow = screenScale(useViewport().w, 1.6)
+  // only the operations the parent enabled, and operands/results within the level
+  const ops = OPS.filter((o) => opEnabled(o.id))
+  const max = numberMax()
+  const maxOp = Math.max(1, Math.min(MAXOP, max))
   // if a friend's world sent us here via "build me!", open already set to that
   // split (e.g. 3 + 4) instead of a random one — read once on mount
   const [preset] = useState(takeBuildPreset)
-  const [op, setOp] = useState<Op>('add')
-  const [a, setA] = useState(() => preset?.a ?? randInt(1, 9))
-  const [b, setB] = useState(() => preset?.b ?? randInt(1, 9))
+  const [op, setOp] = useState<Op>(() => enabledOps()[0])
+  const [a, setA] = useState(() => preset?.a ?? randInt(1, Math.min(9, maxOp)))
+  const [b, setB] = useState(() => preset?.b ?? randInt(1, Math.min(9, maxOp)))
   const [phase, setPhase] = useState<'pick' | 'merge' | 'done'>('pick')
   const timers = useRef<number[]>([])
   const clear = () => {
@@ -53,9 +58,9 @@ export default function BuildNumber({ onExit }: GameProps) {
   useEffect(() => clear, [])
 
   const c = compute(op, a, b)
-  const valid = Number.isInteger(c) && c >= 1 && c <= 100
+  const valid = Number.isInteger(c) && c >= 1 && c <= max
   const sym = OPS.find((o) => o.id === op)!.sym
-  const clamp = (n: number) => Math.max(1, Math.min(MAXOP, n))
+  const clamp = (n: number) => Math.max(1, Math.min(maxOp, n))
   const set = (fn: (v: number) => void, v: number) => {
     if (phase === 'pick') fn(clamp(v))
   }
@@ -82,8 +87,8 @@ export default function BuildNumber({ onExit }: GameProps) {
   function again() {
     clear()
     setPhase('pick')
-    setA(randInt(1, 9))
-    setB(randInt(1, 9))
+    setA(randInt(1, Math.min(9, maxOp)))
+    setB(randInt(1, Math.min(9, maxOp)))
   }
 
   return (
@@ -125,7 +130,7 @@ export default function BuildNumber({ onExit }: GameProps) {
         {phase === 'pick' && (
           <div className="build-controls">
             <div className="build-ops">
-              {OPS.map((o) => (
+              {ops.map((o) => (
                 <button
                   key={o.id}
                   className={`pill pill-small ${op === o.id ? 'pill-active' : ''}`}

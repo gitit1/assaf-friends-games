@@ -10,11 +10,12 @@ import FriendArt, {
 import type { GameProps } from './registry'
 import { playPop, playSuccess, playTap, unlockAudio } from '../audio'
 import { speak } from '../speech'
-import { FRIENDS, friendName, friendSay } from '../friends'
+import { friendName, friendSay } from '../friends'
 import { randInt } from './util'
 import { MORE_COLORS, type Swatch } from './palette'
 import Confetti from '../components/Confetti'
 import { useT } from '../i18n'
+import { friendCount, randFriendIndex } from '../level'
 
 // "Color a friend" — a friend appears as a blank outline (its body bumps are
 // empty). Pick a colour, then tap each bump to fill it in. No timer, no wrong:
@@ -55,7 +56,7 @@ function useIsWide() {
 
 export default function ColorFriends({ onExit }: GameProps) {
   const { t } = useT()
-  const [index, setIndex] = useState(() => randInt(0, FRIENDS.length - 1))
+  const [index, setIndex] = useState(() => randFriendIndex())
   const [colors, setColors] = useState<Grid>(() => blank(friendPartCount(friendKindForIndex(index))))
   const [undoStack, setUndoStack] = useState<Grid[]>([])
   const [redoStack, setRedoStack] = useState<Grid[]>([])
@@ -171,8 +172,8 @@ export default function ColorFriends({ onExit }: GameProps) {
       <div className="color-screen">
         <Stepper
           label={`${friendName(index)} · ${index + 1}`}
-          onPrev={() => goTo((index + FRIENDS.length - 1) % FRIENDS.length)}
-          onNext={() => goTo((index + 1) % FRIENDS.length)}
+          onPrev={() => goTo((index + friendCount() - 1) % friendCount())}
+          onNext={() => goTo((index + 1) % friendCount())}
         />
 
         <div className="color-stage">
@@ -216,7 +217,7 @@ export default function ColorFriends({ onExit }: GameProps) {
           <IconButton icon="↻" label={t('color.redo')} onClick={redo} disabled={!redoStack.length} />
           <IconButton icon="🧽" label={t('color.clear')} onClick={clearAll} />
           <IconButton icon="✨" label={t('color.magic')} onClick={magic} />
-          <IconButton icon="🎲" label={t('color.new')} onClick={() => goTo(randInt(0, FRIENDS.length - 1))} />
+          <IconButton icon="🎲" label={t('color.new')} onClick={() => goTo(randFriendIndex())} />
         </div>
       </div>
 

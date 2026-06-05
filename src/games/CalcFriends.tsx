@@ -10,6 +10,7 @@ import { FRIEND_KINDS, friendMaxDim } from '../components/FriendArt'
 import { numberWord, numberWordNiqqud, randInt } from './util'
 import { getSettings } from '../settings'
 import { useT } from '../i18n'
+import { opEnabled, numberMax } from '../level'
 
 const REAL_FRIENDS = FRIEND_KINDS.length // numbers up to here have a real friend
 
@@ -97,14 +98,21 @@ function CompositeFriend({ value, scale }: { value: number; scale: number }) {
 }
 
 // "Build N" challenge: a target number + two hint numbers that make it (one way;
-// the child can reach it however they like). Range grows with difficulty.
+// the child can reach it however they like). Range grows with difficulty, and the
+// target stays within the level + uses only an enabled operation.
 type Goal = { target: number; hint: number[] }
 function newGoal(tier: number): Goal {
   const maxF = [6, 9, 10, 12][Math.min(3, tier)]
-  const a = randInt(2, maxF)
-  const b = randInt(2, maxF)
-  const target = tier >= 1 && Math.random() < 0.5 ? a * b : a + b
-  return { target, hint: [a, b] }
+  const max = numberMax()
+  for (let i = 0; i < 40; i++) {
+    const a = randInt(2, maxF)
+    const b = randInt(2, maxF)
+    const useMul = opEnabled('mul') && (!opEnabled('add') || (tier >= 1 && Math.random() < 0.5))
+    const target = useMul ? a * b : a + b
+    if (target >= 2 && target <= max) return { target, hint: [a, b] }
+  }
+  const a = Math.max(1, Math.min(maxF, max - 1))
+  return { target: Math.min(max, a + 1), hint: [a, 1] }
 }
 
 // What the friends panel shows for the number currently on the display.

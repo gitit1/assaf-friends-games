@@ -5,9 +5,10 @@ import { friendMaxDim } from '../components/FriendArt'
 import type { GameProps } from './registry'
 import { playDice, playSuccess, playTap, unlockAudio } from '../audio'
 import { speak } from '../speech'
-import { FRIENDS, friendSay } from '../friends'
+import { friendSay } from '../friends'
 import { numberWord, randInt } from './util'
 import { useT } from '../i18n'
+import { numberMax } from '../level'
 
 // "Roll a dice" — pick a dice TYPE (each a different 3D shape), add as many dice
 // as fit the screen, tap to roll: they rattle, flicker, and land. The total is
@@ -129,7 +130,7 @@ export default function RollDice({ onExit }: GameProps) {
       setRollId((r) => r + 1)
       const s = final.reduce((a, b) => a + b, 0)
       playSuccess()
-      const tail = s >= 1 && s <= FRIENDS.length ? `! ${friendSay(s - 1)}` : ''
+      const tail = s >= 1 && s <= numberMax() ? `! ${friendSay(s - 1)}` : ''
       // with a few dice, read the addition aloud ("6 ועוד 4 ועוד 4, ביחד 14");
       // with many, just the total so it doesn't drone on
       if (final.length >= 2 && final.length <= SAY_EACH) speak(`${spokenAddition(final, s)}${tail}`)
@@ -157,7 +158,7 @@ export default function RollDice({ onExit }: GameProps) {
     setSettled(true)
   }
 
-  const hasFriend = settled && !rolling && sum >= 1 && sum <= FRIENDS.length
+  const hasFriend = settled && !rolling && sum >= 1 && sum <= numberMax()
 
   return (
     <GameShell title={t('game.dice')} emoji="🎲" onExit={onExit}>
