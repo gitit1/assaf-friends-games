@@ -10,6 +10,7 @@ import { numberWord, randInt } from '../games/util'
 import { playClip, stopClip } from '../voice'
 import { setBuildPreset } from '../games/buildPreset'
 import { rosterCount } from '../level'
+import { getSettings } from '../settings'
 import { useT } from '../i18n'
 import { useViewport, screenScale } from '../useViewport'
 
@@ -297,8 +298,12 @@ export default function FriendWorld({
     setSplit(null)
     setLit(undefined)
     setMotion(null)
+    const opening = fact === null
     setFact((f) => (f === null ? 0 : (f + 1) % facts.length))
     playSuccess()
+    // on opening, also SAY the fact in the friend's voice, at the child's level
+    // (missing clip → silent fallback; only recorded friends speak it)
+    if (opening) playClip(`fact-${index}-${getSettings().difficulty}`, '')
   }
   // bridge to the "Build a Number" game. If the current split is buildable there
   // (both parts ≤ 10), pre-load it so "build me!" literally rebuilds this friend.

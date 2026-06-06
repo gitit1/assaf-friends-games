@@ -66,6 +66,18 @@ const SPECIAL = {
   4: ['לה לה לה לה', 'איזה שיר אתם הכי אוהבים?', 'איזה שיר מקסים'],             // 5 דובי — שיר
 }
 
+// Per-friend number facts SPOKEN by the ✨ fact button, one per difficulty level
+// (0 קל · 1 בינוני · 2 קשה · 3 אלוף), recorded in the friend's voice. The visual
+// fact (big digits) still shows alongside. Filled in per friend.
+const FACTS = {
+  0: [ // 1 לולו
+    'אני הראשונה! אני המספר אחת.',
+    'אחריי בא המספר שתיים.',
+    'אני הכי קטנה — כל מספר גדול ממני.',
+    'כל מספר שתכפיל בי יישאר אותו דבר!',
+  ],
+}
+
 // Friend gender (index → 'f'/'m') for verb agreement in the intros. Filled in as
 // each batch is QA'd; anything unset defaults to male. Kept in sync with friends.ts.
 const GENDER = { 0: 'f', 3: 'f' } // 1 לולו, 4 גוגו = girls; 2 טוקי, 3 בובי, 5 דובי = boys
@@ -120,6 +132,10 @@ for (let i = 0; i < COUNT; i++) {
 for (const [i, phrases] of Object.entries(SPECIAL)) {
   phrases.forEach((text, n) => lines.push({ id: `special-${i}-${n}`, text, voice: voiceFor(Number(i)) }))
 }
+// per-friend spoken facts, one per difficulty level, in the friend's own voice
+for (const [i, byLevel] of Object.entries(FACTS)) {
+  byLevel.forEach((text, lvl) => lines.push({ id: `fact-${i}-${lvl}`, text, voice: voiceFor(Number(i)) }))
+}
 // shared buttons recorded in every chosen voice → fx-five-Ayelet, fx-hug-Erez, …
 const ALL_VOICES = [...FEMALE_VOICES, ...MALE_VOICES]
 for (const v of ALL_VOICES) for (const b of SHARED) lines.push({ id: `${b.id}-${v}`, text: b.text, voice: v })
@@ -132,8 +148,8 @@ for (const b of SHARED) lines.push({ id: b.id, text: b.text })
 const friendOf = (id) => {
   let m = id.match(/^(num|intro)-(\d+)$/)
   if (m) return m[1] === 'num' ? Number(m[2]) : Number(m[2]) + 1
-  m = id.match(/^special-(\d+)-\d+$/)
-  if (m) return Number(m[1]) + 1
+  m = id.match(/^(special|fact)-(\d+)-\d+$/)
+  if (m) return Number(m[2]) + 1
   return null
 }
 // clip kind, for KINDS filtering
@@ -141,7 +157,8 @@ const kindOf = (id) =>
   /^num-/.test(id) ? 'num'
     : /^intro-/.test(id) ? 'intro'
       : /^special-/.test(id) ? 'special'
-        : /^fx-\w+-/.test(id) ? 'shared'
+        : /^fact-/.test(id) ? 'fact'
+          : /^fx-\w+-/.test(id) ? 'shared'
           : /^fx-/.test(id) ? 'fx'
             : /^like-/.test(id) ? 'like'
               : 'other'
