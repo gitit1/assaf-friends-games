@@ -25,7 +25,7 @@ type Route =
   | { kind: 'home' }
   | { kind: 'meet' }
   | { kind: 'gallery' }
-  | { kind: 'friend'; id: string }
+  | { kind: 'friend'; id: string; quiet?: boolean }
   | { kind: 'cat'; id: string }
   | { kind: 'game'; id: string; from?: string }
 
@@ -39,7 +39,8 @@ function parse(hash: string): Route {
   if (seg === 'cat' && id) return { kind: 'cat', id }
   // a game can carry where it was opened from: game/<id>/f/<friendIndex>
   if (seg === 'game' && id) return { kind: 'game', id, from: parts[2] === 'f' ? parts[3] : undefined }
-  if (seg === 'friend' && id) return { kind: 'friend', id }
+  // friend/<i> narrates the intro; friend/<i>/q is "quiet" (paging / back from a game)
+  if (seg === 'friend' && id) return { kind: 'friend', id, quiet: parts[2] === 'q' }
   return { kind: 'home' }
 }
 
@@ -84,8 +85,9 @@ export default function App() {
       view = (
         <FriendWorld
           index={i}
+          quiet={route.quiet}
           onExit={() => go('meet')}
-          onNavigate={(j) => go(`friend/${j}`)}
+          onNavigate={(j) => go(`friend/${j}/q`)}
           onPlayGame={(id) => go(`game/${id}/f/${i}`)}
         />
       )
@@ -104,7 +106,7 @@ export default function App() {
         // opened from a friend's world → "back" returns to that friend, not the category
         back = { emoji: '⭐', label: friendName(fromFriend) }
         backIsHome = false
-        view = <game.Component onExit={() => go(`friend/${fromFriend}`)} />
+        view = <game.Component onExit={() => go(`friend/${fromFriend}/q`)} />
       } else {
         const cat = CATEGORIES.find((c) => c.id === game.category)
         // back to the category this game lives in, so picking another game is one tap

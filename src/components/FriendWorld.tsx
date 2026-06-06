@@ -67,11 +67,13 @@ function factsFor(n: number): Fact[] {
 
 export default function FriendWorld({
   index,
+  quiet,
   onExit,
   onNavigate,
   onPlayGame,
 }: {
   index: number
+  quiet?: boolean // true when paging ◀▶ or returning from a game → don't replay the intro
   onExit: () => void
   onNavigate: (index: number) => void
   onPlayGame: (gameId: string) => void
@@ -152,8 +154,12 @@ export default function FriendWorld({
     setFact(null)
     setGameLink(false)
     centerGaze()
-    const id = window.setTimeout(describe, 350)
-    timers.current.push(id)
+    // narrate the intro only on a fresh entry FROM the friends list — not when
+    // paging ◀▶ between friends, nor when returning from a game (quiet)
+    if (!quiet) {
+      const id = window.setTimeout(describe, 350)
+      timers.current.push(id)
+    }
     return () => {
       clearTimers()
       stopClip()
@@ -302,10 +308,11 @@ export default function FriendWorld({
     onPlayGame('build')
   }
 
-  // all friends show at one comfortable size in their world (~210px on a phone),
-  // growing on bigger screens — but ALSO capped by viewport HEIGHT so the action
-  // buttons below always stay on screen on a phone (never pushed past the fold)
-  const scale = Math.min((210 / friendMaxDim(index)) * screenScale(vp.w, 1.7), (vp.h * 0.32) / friendMaxDim(index))
+  // all friends show at one comfortable size in their world, growing on bigger
+  // screens — but capped to fit INSIDE the stage (30vh) with room above for the
+  // floating number, so the friend never rides up onto the ◀ number ▶ pager, and
+  // the action buttons below always stay on screen on a phone
+  const scale = Math.min((210 / friendMaxDim(index)) * screenScale(vp.w, 1.7), (vp.h * 0.26) / friendMaxDim(index))
   // the two split friends share one scale (so 3 still looks smaller than 4),
   // sized so the larger one fits with both side by side AND the equation + button
   // still leave the action buttons visible

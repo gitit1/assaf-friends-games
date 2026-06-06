@@ -8073,6 +8073,9 @@ button {
      so the action buttons below stay on screen on a phone */
   min-height: 30vh;
   width: 100%;
+  /* a little air below the ◀ number ▶ pager, so the friend's floating number
+     has somewhere to go instead of overlapping the arrows */
+  margin-top: 8px;
 }
 .world-fx-layer {
   position: absolute;
