@@ -10,14 +10,17 @@ export type Friend = {
   color: string
   name: string
   say: string
+  gender?: 'f' | 'm' // set per batch as voices are recorded; defaults 'm'
+  special?: number // index into FriendWorld's LIKES (the friend's special button); defaults index % 12
+  game?: string // registry id the special button leads to; undefined = no matching game yet
 }
 
 export const FRIENDS: Friend[] = [
-  { color: '#ef4444', name: 'לולו', say: 'לוּלוּ' }, // 1 red
-  { color: '#f97316', name: 'טוקי', say: 'טוּקִי' }, // 2 orange
-  { color: '#facc15', name: 'בובי', say: 'בּוּבִּי' }, // 3 yellow
-  { color: '#4ade80', name: 'גוגו', say: 'גוּגוּ' }, // 4 green
-  { color: '#14b8a6', name: 'דובי', say: 'דּוּבִּי' }, // 5 teal (boy)
+  { color: '#ef4444', name: 'לולו', say: 'לוּלוּ', gender: 'f', special: 0, game: 'skipcount' }, // 1 red — קפיצה → קפיצות
+  { color: '#f97316', name: 'טוקי', say: 'טוּקִי', gender: 'm', special: 1, game: 'piano' }, // 2 orange — ריקוד → פסנתר
+  { color: '#facc15', name: 'בובי', say: 'בּוּבִּי', gender: 'm', special: 2 }, // 3 yellow — צחוק
+  { color: '#4ade80', name: 'גוגו', say: 'גוּגוּ', gender: 'f', special: 3 }, // 4 green — חיבוק
+  { color: '#14b8a6', name: 'דובי', say: 'דּוּבִּי', gender: 'm', special: 4 }, // 5 teal — שיר
   { color: '#22d3ee', name: 'נוני', say: 'נוּנִי' }, // 6 cyan
   { color: '#3b82f6', name: 'פיקו', say: 'פִּיקוֹ' }, // 7 blue
   { color: '#8b5cf6', name: 'דודי', say: 'דוּדִי' }, // 8 violet
@@ -133,6 +136,38 @@ export function friendName(index: number) {
 // What the voice should say (niqqud spelling for correct pronunciation).
 export function friendSay(index: number) {
   return FRIENDS[index % FRIENDS.length].say
+}
+
+// Boy/girl — drives the recorded voice + spoken verb agreement. Defaults male
+// until set per batch. Kept in sync with GENDER in scripts/gen-voice.mjs.
+export function friendGender(index: number): 'f' | 'm' {
+  return FRIENDS[index % FRIENDS.length].gender ?? 'm'
+}
+
+// Which special button this friend has (index into FriendWorld's LIKES).
+export function friendSpecial(index: number): number {
+  return FRIENDS[index % FRIENDS.length].special ?? index % 12
+}
+
+// The game id this friend's special button leads to (or undefined if its game
+// isn't built yet). Two-way: every friend should eventually point at a game,
+// and every game should be reachable from at least one friend.
+export function friendGame(index: number): string | undefined {
+  return FRIENDS[index % FRIENDS.length].game
+}
+
+// The recorded Narakeet voice for this friend — boys cycle the male voices,
+// girls the female ones, by rank within their gender. MUST mirror voiceFor in
+// scripts/gen-voice.mjs so the per-voice button clips (fx-*-<Voice>) line up.
+const FEMALE_VOICES = ['Ayelet', 'Tamar', 'Nurit']
+const MALE_VOICES = ['Erez', 'Doron']
+export function friendVoice(index: number): string {
+  const i = index % FRIENDS.length
+  const g = friendGender(i)
+  const pool = g === 'f' ? FEMALE_VOICES : MALE_VOICES
+  let rank = 0
+  for (let j = 0; j < i; j++) if (friendGender(j) === g) rank++
+  return pool[rank % pool.length]
 }
 
 // Simple, kid-friendly colour name per friend (for the spoken "my colour is…").

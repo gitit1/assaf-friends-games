@@ -3,7 +3,7 @@ import GameShell from './GameShell'
 import Friend from './Friend'
 import IconButton from './IconButton'
 import { friendMaxDim } from './FriendArt'
-import { friendName, friendNumber, friendSay } from '../friends'
+import { friendGame, friendName, friendNumber, friendSay, friendSpecial, friendVoice } from '../friends'
 import { playCount, playFriend, playSuccess, playTap, playWin, unlockAudio } from '../audio'
 import { stopSpeech } from '../speech'
 import { numberWord, randInt } from '../games/util'
@@ -102,7 +102,10 @@ export default function FriendWorld({
   // "what's special about me": cycles through visual number facts (index, or null)
   const facts = factsFor(n)
   const [fact, setFact] = useState<number | null>(null)
-  const like = LIKES[index % LIKES.length]
+  // after the special button is tapped, a "go to the matching game" CTA appears
+  const [gameLink, setGameLink] = useState(false)
+  const like = LIKES[friendSpecial(index)]
+  const voice = friendVoice(index) // the recorded voice for this friend (shared buttons use it)
   const [fx, setFx] = useState<Fx[]>([])
   const timers = useRef<number[]>([])
   const fxId = useRef(0)
@@ -147,6 +150,7 @@ export default function FriendWorld({
     unlockAudio()
     setSplit(null) // a fresh friend starts whole
     setFact(null)
+    setGameLink(false)
     centerGaze()
     const id = window.setTimeout(describe, 350)
     timers.current.push(id)
@@ -183,14 +187,14 @@ export default function FriendWorld({
     doAction('five')
     burst('🙌')
     playSuccess()
-    playClip('fx-five', 'כיף!')
+    playClip(`fx-five-${voice}`, 'כיף!')
   }
   function hug() {
     unlockAudio()
     doAction('hug')
     burst('❤️')
     playFriend(index)
-    playClip('fx-hug', 'חיבוק גדול!')
+    playClip(`fx-hug-${voice}`, 'חיבוק גדול!')
   }
   function kiss() {
     unlockAudio()
@@ -198,7 +202,7 @@ export default function FriendWorld({
     setKissFx(true)
     later(() => setKissFx(false), 950)
     playFriend(index)
-    playClip('fx-kiss', 'מְמְמוּאָה! נשיקה!')
+    playClip(`fx-kiss-${voice}`, 'מְמְמוּאָה! נשיקה!')
   }
   // the friend's OWN button: it does its favourite thing (themed emoji + motion)
   function special() {
@@ -210,7 +214,9 @@ export default function FriendWorld({
     burst(like.burst, 9)
     playSuccess()
     playFriend(index)
-    playClip(`like-${index % LIKES.length}`, like.label)
+    // one of the friend's 3 recorded "special" lines, at random, in its own voice
+    playClip(`special-${index}-${randInt(0, 2)}`, like.label)
+    setGameLink(true) // reveal the "go to the matching game" button (if it has one)
   }
   function count() {
     unlockAudio()
@@ -380,7 +386,7 @@ export default function FriendWorld({
         <div className="world-actions">
           <button className="world-btn world-btn-special" onClick={special}>
             <span className="world-btn-emoji" aria-hidden="true">{like.emoji}</span>
-            <span>{t(`world.like.${index % LIKES.length}`)}</span>
+            <span>{t(`world.like.${friendSpecial(index)}`)}</span>
           </button>
           <button className="world-btn" onClick={five}>
             <span className="world-btn-emoji" aria-hidden="true">✋</span>
@@ -411,6 +417,13 @@ export default function FriendWorld({
             <span>{t('world.again')}</span>
           </button>
         </div>
+
+        {gameLink && friendGame(index) && (
+          <button className="world-cta" onClick={() => { playTap(); onPlayGame(friendGame(index)!) }}>
+            <span className="world-cta-emoji" aria-hidden="true">{like.emoji}</span>
+            <span>{t('world.toGame')}</span>
+          </button>
+        )}
       </div>
     </GameShell>
   )

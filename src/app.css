@@ -8106,6 +8106,38 @@ button {
   justify-content: center;
   margin: 12px 0 6px;
 }
+/* "go to the matching game" CTA, revealed under the action buttons once the
+   friend's special button is tapped */
+.world-cta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin: 4px auto 16px;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 999px;
+  background: linear-gradient(160deg, #f59e0b, #db2777);
+  color: #fff;
+  font-size: 1.05rem;
+  font-weight: 800;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.22);
+  cursor: pointer;
+  animation: world-cta-in 0.25s ease both;
+}
+.world-cta-emoji {
+  font-size: 1.3rem;
+}
+@keyframes world-cta-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
 .world-btn {
   display: flex;
   flex-direction: column;

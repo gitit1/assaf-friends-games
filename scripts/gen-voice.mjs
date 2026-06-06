@@ -47,6 +47,25 @@ const INVITE = ['בואו נקפוץ','בואו נרקוד','בואו נצחק',
 // order matches LIKES / FriendWorld.tsx
 const LIKE_FX = ['קפיצה!','ריקוד!','צחוק!','חיבוק!','שיר!','ספירה!','מחבואים!','גלידה!','ציור!','בועות!','כדור!','נשיקות!']
 
+// Shared interaction buttons — recorded in EVERY chosen voice so each plays in
+// the VISITED friend's voice. כיף via niqqud (works on all voices; IPA doesn't).
+const SHARED = [
+  { id: 'fx-five', text: 'תן לי כִּיף!' },
+  { id: 'fx-hug', text: 'חיבוק גדול!' },
+  { id: 'fx-kiss', text: 'נשיקה!' },
+]
+
+// Per-friend "special" button — 3 random lines in the friend's OWN voice,
+// matching what they love. Indexed by friend index; filled in per batch
+// (alongside GENDER) before generating.
+const SPECIAL = {
+  0: ['יאללה קופצים! hop hop hop', 'גבוה גבוה!', 'wow איזה קפיצה'],            // 1 לולו — קפיצה
+  1: ['ולהזיז את הישבן!', 'ימינה ושמאלה', 'וסיבוב!'],                          // 2 טוקי — ריקוד
+  2: ['איזה מצחיק אתה!', 'wow כמה צחקתי', 'חַה חַה חַה חַה!'],                   // 3 בובי — צחוק
+  3: ['איזה חיבוק גדול!', 'wow איזה כיף לי', 'חיבוקייי!'],                      // 4 גוגו — חיבוק
+  4: ['לה לה לה לה', 'איזה שיר אתם הכי אוהבים?', 'איזה שיר מקסים'],             // 5 דובי — שיר
+}
+
 // Friend gender (index → 'f'/'m') for verb agreement in the intros. Filled in as
 // each batch is QA'd; anything unset defaults to male. Kept in sync with friends.ts.
 const GENDER = { 0: 'f', 3: 'f' } // 1 לולו, 4 גוגו = girls; 2 טוקי, 3 בובי, 5 דובי = boys
@@ -97,16 +116,36 @@ for (let i = 0; i < COUNT; i++) {
   const intro = TEMPLATES[i % TEMPLATES.length](nameToken(i), numWord(i + 1), LIKES[i % LIKES.length], genderOf(i), INVITE[i % INVITE.length])
   lines.push({ id: `intro-${i}`, text: intro, voice: voiceFor(i) })
 }
-for (let i = 0; i < LIKE_FX.length; i++) lines.push({ id: `like-${i}`, text: LIKE_FX[i] })
-lines.push({ id: 'fx-five', text: 'תן לי [kif]{ipa}!' }, { id: 'fx-hug', text: 'חיבוק גדול!' }, { id: 'fx-kiss', text: 'נשיקה!' })
-
-// Keep only the requested batch: num-/intro- by friend number (FROM..TO); the
-// extras (like-*/fx-*) ride along only on the last batch (TO covers 100).
-const friendOf = (id) => {
-  const m = id.match(/^(num|intro)-(\d+)$/)
-  if (!m) return null
-  return m[1] === 'num' ? Number(m[2]) : Number(m[2]) + 1
+// per-friend "special" button lines, in the friend's own voice
+for (const [i, phrases] of Object.entries(SPECIAL)) {
+  phrases.forEach((text, n) => lines.push({ id: `special-${i}-${n}`, text, voice: voiceFor(Number(i)) }))
 }
+// shared buttons recorded in every chosen voice → fx-five-Ayelet, fx-hug-Erez, …
+const ALL_VOICES = [...FEMALE_VOICES, ...MALE_VOICES]
+for (const v of ALL_VOICES) for (const b of SHARED) lines.push({ id: `${b.id}-${v}`, text: b.text, voice: v })
+// legacy single-voice fallbacks (used until the app picks the per-voice variant)
+for (let i = 0; i < LIKE_FX.length; i++) lines.push({ id: `like-${i}`, text: LIKE_FX[i] })
+for (const b of SHARED) lines.push({ id: b.id, text: b.text })
+
+// selection -----------------------------------------------------------------
+// friend number for friend-indexed ids (num/intro/special); null = an "extra".
+const friendOf = (id) => {
+  let m = id.match(/^(num|intro)-(\d+)$/)
+  if (m) return m[1] === 'num' ? Number(m[2]) : Number(m[2]) + 1
+  m = id.match(/^special-(\d+)-\d+$/)
+  if (m) return Number(m[1]) + 1
+  return null
+}
+// clip kind, for KINDS filtering
+const kindOf = (id) =>
+  /^num-/.test(id) ? 'num'
+    : /^intro-/.test(id) ? 'intro'
+      : /^special-/.test(id) ? 'special'
+        : /^fx-\w+-/.test(id) ? 'shared'
+          : /^fx-/.test(id) ? 'fx'
+            : /^like-/.test(id) ? 'like'
+              : 'other'
+const KINDS = (process.env.KINDS || '').split(',').map((s) => s.trim()).filter(Boolean) // empty = all
 const extrasOn = TO >= COUNT || process.env.EXTRAS === '1'
 // ONLY=intro-0,fx-five → regenerate just those exact ids (cheapest QA re-run).
 const ONLY = (process.env.ONLY || '').split(',').map((s) => s.trim()).filter(Boolean)
@@ -115,9 +154,11 @@ const SAMPLE_VOICES = [...FEMALE_VOICES, ...MALE_VOICES]
 const selected = process.env.SAMPLE
   ? SAMPLE_VOICES.map((v) => ({ id: `sample-${v}`, text: `שלום! אני ${HAMISPAR} חמש! בואו לשחק יחד!`, voice: v }))
   : lines.filter((l) => {
+      if (KINDS.length && !KINDS.includes(kindOf(l.id))) return false
       if (ONLY.length) return ONLY.includes(l.id)
       const f = friendOf(l.id)
-      return f === null ? extrasOn : f >= FROM && f <= TO
+      if (f === null) return KINDS.length ? true : extrasOn // non-friend kinds: include when their kind is requested
+      return f >= FROM && f <= TO
     })
 
 // DRY_RUN=1 prints every line's text (to eyeball pronunciation) and exits — no API calls.

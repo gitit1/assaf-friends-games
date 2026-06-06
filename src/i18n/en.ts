@@ -36,6 +36,7 @@ export const EN: Dict = {
   'world.fact': { text: 'Fact' },
   'world.build': { text: 'Build me!' },
   'world.again': { text: 'Again' },
+  'world.toGame': { text: "Let's play!" },
   // the per-friend "special" button label (chosen by index % 12)
   'world.like.0': { text: 'Jump' },
   'world.like.1': { text: 'Dance' },
