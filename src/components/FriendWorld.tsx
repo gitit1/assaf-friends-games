@@ -107,7 +107,6 @@ export default function FriendWorld({
   const [fact, setFact] = useState<number | null>(null)
   // after the special button is tapped, a "go to the matching game" CTA appears
   const [gameLink, setGameLink] = useState(false)
-  const [stageH, setStageH] = useState(0) // measured stage height → fit the friend inside it
   const like = LIKES[friendSpecial(index)]
   const voice = friendVoice(index) // the recorded voice for this friend (shared buttons use it)
   const [fx, setFx] = useState<Fx[]>([])
@@ -169,18 +168,6 @@ export default function FriendWorld({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [index])
-
-  // measure the stage so the friend is sized to fit INSIDE it (never overflowing
-  // up onto the ◀ number ▶ pager) — sizing off the real frame, not a % of screen
-  useEffect(() => {
-    const el = stageRef.current
-    if (!el) return
-    const measure = () => setStageH(el.clientHeight)
-    measure()
-    const ro = new ResizeObserver(measure)
-    ro.observe(el)
-    return () => ro.disconnect()
-  }, [])
 
   function burst(emoji: string, count = 7) {
     // cluster around the centre (the friend) so hearts/sparkles feel like they
@@ -327,12 +314,11 @@ export default function FriendWorld({
     onPlayGame('build')
   }
 
-  // size the friend off the MEASURED stage: ~70% of its height leaves room above
-  // for the floating number so it never rides up onto the ◀ number ▶ pager, and
-  // keeps the action buttons below on screen. Falls back to a screen fraction
-  // until the stage is measured.
-  const stageCap = stageH > 0 ? stageH * 0.7 : vp.h * 0.24
-  const scale = Math.min((210 / friendMaxDim(index)) * screenScale(vp.w, 1.7), stageCap / friendMaxDim(index))
+  // the stage is 30vh; size the friend to ~0.21·vh (≈70% of the stage) so it sits
+  // INSIDE the frame with room above for its floating number. A FIXED fraction of
+  // the viewport — never the measured stage, since measuring a frame that holds
+  // the friend caused a feedback loop that grew the friend on every tap.
+  const scale = Math.min((210 / friendMaxDim(index)) * screenScale(vp.w, 1.7), (vp.h * 0.21) / friendMaxDim(index))
   // the two split friends share one scale (so 3 still looks smaller than 4),
   // sized so the larger one fits with both side by side AND the equation + button
   // still leave the action buttons visible
