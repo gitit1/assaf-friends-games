@@ -17,6 +17,11 @@ const PROVIDER = process.env.VOICE_PROVIDER || 'edge'
 const LANG = process.env.VOICE_LANG || 'he' // writes to public/voice/<LANG>/
 const SPEED = Number(process.env.VOICE_SPEED || 0.9)
 const DELAY = Number(process.env.VOICE_DELAY || 600)
+// Generate just a batch of friends so they can be QA'd a few at a time before
+// spending more (paid) minutes: `FROM=1 TO=5 ... node scripts/gen-voice.mjs`
+// covers num-1..5 + intro-0..4. Extras (like-*/fx-*) come with the final batch.
+const FROM = Number(process.env.FROM || 1)
+const TO = Number(process.env.TO || 100)
 
 // ── data (Hebrew) for the Narakeet voice. Recipe locked from manual QA:
 //   • PLAIN text, NO niqqud — niqqud broke these voices (even "שתיים").
@@ -25,24 +30,52 @@ const DELAY = Number(process.env.VOICE_DELAY || 600)
 //     working on the Ayelet voice.
 //   • "לשחק" (not "נשחק").
 //   Kept in sync with friends.ts / FriendWorld.tsx. 1–50, no colours.
-const HAMISPAR = '[hamisˈpaʁ]{ipa}' // "the number" — plain reads as מסַפֵּר
-const NAME = ['לולו','טוקי','בובי','גוגו','מימי','נוני','פיקו','דודי','זוזו','קוקו','טוטו','לילי','מומו','ריקי','שושו','גילי','רוני','יויו','סופי','קיקי','רומי','ניני','פופי','תותי','מישי','בוזי','דגי','לאלה','חומי','צוצי','טינו','רוזי','ליאו','מיקה','גוזי','בינו','טופי','קימי','שומי','דיני','פפו','ניבי','לוקי','ריו','מיו','גוני','בובה','קלי','שיר','דנה','רוקי','ננה','פינו','מולי','מיקי','ליבי','דומי','נטי','פלי','זיו','ריקו','דאבי','פוקי','לוטי','ביבו','טוני','נוקי','לומי','גבי','זומי','טיקה','בומי','לאלו','פיני','ססי','מומי','דודו','נונו','קולי','רביב','תמי','גיגי','לובי','נימי','פולי','זאזא','לואי','מילו','רינה','בובו','קוקי','לולה','דידי','פיצי','נונה','גאגא','טיפו','סוסו','תומי','מאיה']
+const isEdge = PROVIDER === 'edge'
+// "the number": use NIQQUD, not IPA. IPA works only on Ayelet/Lior, so it broke
+// the other Narakeet voices; niqqud is read correctly as "ha-mispar" (not the
+// look-alike "mesaper") by every voice, and by Edge too.
+const HAMISPAR = 'הַמִּסְפָּר'
+const NAME = ['לולו','טוקי','בובי','גוגו','דובי','נוני','פיקו','דודי','זוזו','קוקו','טוטו','לילי','מומו','ריקי','שושו','גילי','רוני','יויו','סופי','קיקי','רומי','ניני','פופי','תותי','מישי','בוזי','דגי','לאלה','חומי','צוצי','טינו','רוזי','ליאו','מיקה','גוזי','בינו','טופי','קימי','שומי','דיני','פפו','ניבי','לוקי','ריו','מיו','גוני','בובה','קלי','שיר','דנה','רוקי','ננה','פינו','מולי','מיקי','ליבי','דומי','נטי','פלי','זיו','ריקו','דאבי','פוקי','לוטי','ביבו','טוני','נוקי','לומי','גבי','זומי','טיקה','בומי','לאלו','פיני','ססי','מומי','דודו','נונו','קולי','רביב','תמי','גיגי','לובי','נימי','פולי','זאזא','לואי','מילו','רינה','בובו','קוקי','לולה','דידי','פיצי','נונה','גאגא','טיפו','סוסו','תומי','מאיה']
 // IPA override per name index — only where the plain reading is wrong. Grows as QA finds more.
-const NAME_IPA = { 4: '[ˈmimi]{ipa}' } // 5 מימי → "Mimi", not "meimi"
-const nameToken = (i) => NAME_IPA[i] || NAME[i]
+const NAME_IPA = { 0: '[ˈlulu]{ipa}' } // 1 לולו → "Lulu" (plain reads wrong)
+const nameToken = (i) => (isEdge ? NAME[i] : NAME_IPA[i] || NAME[i])
 const LIKES = ['לקפוץ','לרקוד','לצחוק','להתחבק','לשיר','לספור','לשחק מחבואים','לאכול גלידה','לצייר','לעשות בועות','לשחק בכדור','לחלק נשיקות']
+// Closing invitation per like (same order as LIKES). The hug one is a warm
+// "אשמח לחיבוק" rather than a plain "בואו נתחבק".
+const INVITE = ['בואו נקפוץ','בואו נרקוד','בואו נצחק','אשמח לחיבוק','בואו נשיר','בואו נספור','בואו נשחק מחבואים','בואו נאכל גלידה','בואו נצייר','בואו נעשה בועות','בואו נשחק בכדור','בואו נחלק נשיקות']
 // short exclamation said when a friend's own "special" button is tapped (like-<n>);
 // order matches LIKES / FriendWorld.tsx
 const LIKE_FX = ['קפיצה!','ריקוד!','צחוק!','חיבוק!','שיר!','ספירה!','מחבואים!','גלידה!','ציור!','בועות!','כדור!','נשיקות!']
 
+// Friend gender (index → 'f'/'m') for verb agreement in the intros. Filled in as
+// each batch is QA'd; anything unset defaults to male. Kept in sync with friends.ts.
+const GENDER = { 0: 'f', 3: 'f' } // 1 לולו, 4 גוגו = girls; 2 טוקי, 3 בובי, 5 דובי = boys
+const genderOf = (i) => GENDER[i] || 'm'
+const vg = (g, m, f) => (g === 'f' ? f : m) // pick the gendered word form
+
+// Narakeet Hebrew voices, by gender — boys speak in a male voice, girls female,
+// and we move across several so not every boy (or girl) sounds the same. Picked
+// deterministically by friend index, so regenerating a clip keeps its voice.
+const FEMALE_VOICES = ['Ayelet', 'Tamar', 'Nurit'] // the voices she chose
+const MALE_VOICES = ['Erez', 'Doron']
+// pick a voice by the friend's RANK within its gender, so successive girls (and
+// boys) cycle through the pool instead of all landing on the same voice.
+const voiceFor = (i) => {
+  const g = genderOf(i)
+  const pool = g === 'f' ? FEMALE_VOICES : MALE_VOICES
+  let rank = 0
+  for (let j = 0; j < i; j++) if (genderOf(j) === g) rank++
+  return pool[rank % pool.length]
+}
+
 // Several intro shapes so not every friend says the same sentence (short +
-// exclamatory for energy; avoids the bare word "כיף" — it clashed with ✋ "כיף").
+// exclamatory for energy). Each is gender-aware (אוהב/אוהבת, נהנה/נהנית).
 const TEMPLATES = [
-  (name, num, like) => `שלום!! אני ${name}, ${HAMISPAR} ${num}! אני ממש אוהב ${like}! בואו לשחק יחד!`,
+  (name, num, like, g) => `שלום!! אני ${name}, ${HAMISPAR} ${num}! אני ממש ${vg(g, 'אוהב', 'אוהבת')} ${like}! בואו לשחק יחד!`,
   (name, num, like) => `היי! קוראים לי ${name}, ואני ${HAMISPAR} ${num}! בואו ${like} איתי!`,
-  (name, num, like) => `וואו, מצאתם אותי! אני ${name}, ${HAMISPAR} ${num}! אני נהנה ${like} כל היום!`,
-  (name, num, like) => `שלום שלום! ${name} כאן, ${HAMISPAR} ${num}! אני אוהב ${like}, בואו איתי!`,
-  (name, num, like) => `הינה אני, ${name}! ${HAMISPAR} ${num}! יותר מכל אני אוהב ${like}! נצא לשחק?`,
+  (name, num, like, g) => `wow! מצאתם אותי! אני ${name}, ${HAMISPAR} ${num}! אני ${vg(g, 'נהנה', 'נהנית')} ${like} כל היום!`,
+  (name, num, like, g, invite) => `שלום שלום! ${name} כאן, ${HAMISPAR} ${num}! אני ${vg(g, 'אוהב', 'אוהבת')} ${like}, ${invite}!`,
+  (name, num, like, g, invite) => `הנה אני, ${name}! ${HAMISPAR} ${num}! יותר מכל אני ${vg(g, 'אוהב', 'אוהבת')} ${like}! ${invite}?`,
 ]
 
 const ONES = ['', 'אחת', 'שתיים', 'שלוש', 'ארבע', 'חמש', 'שש', 'שבע', 'שמונה', 'תשע']
@@ -59,17 +92,37 @@ function numWord(n) {
 
 const COUNT = 100 // friends / numbers covered
 const lines = []
-for (let k = 1; k <= COUNT; k++) lines.push({ id: `num-${k}`, text: numWord(k) })
+for (let k = 1; k <= COUNT; k++) lines.push({ id: `num-${k}`, text: numWord(k), voice: voiceFor(k - 1) })
 for (let i = 0; i < COUNT; i++) {
-  const intro = TEMPLATES[i % TEMPLATES.length](nameToken(i), numWord(i + 1), LIKES[i % LIKES.length])
-  lines.push({ id: `intro-${i}`, text: intro })
+  const intro = TEMPLATES[i % TEMPLATES.length](nameToken(i), numWord(i + 1), LIKES[i % LIKES.length], genderOf(i), INVITE[i % INVITE.length])
+  lines.push({ id: `intro-${i}`, text: intro, voice: voiceFor(i) })
 }
 for (let i = 0; i < LIKE_FX.length; i++) lines.push({ id: `like-${i}`, text: LIKE_FX[i] })
-lines.push({ id: 'fx-five', text: 'כיף!' }, { id: 'fx-hug', text: 'חיבוק גדול!' }, { id: 'fx-kiss', text: 'נשיקה!' })
+lines.push({ id: 'fx-five', text: 'תן לי [kif]{ipa}!' }, { id: 'fx-hug', text: 'חיבוק גדול!' }, { id: 'fx-kiss', text: 'נשיקה!' })
+
+// Keep only the requested batch: num-/intro- by friend number (FROM..TO); the
+// extras (like-*/fx-*) ride along only on the last batch (TO covers 100).
+const friendOf = (id) => {
+  const m = id.match(/^(num|intro)-(\d+)$/)
+  if (!m) return null
+  return m[1] === 'num' ? Number(m[2]) : Number(m[2]) + 1
+}
+const extrasOn = TO >= COUNT || process.env.EXTRAS === '1'
+// ONLY=intro-0,fx-five → regenerate just those exact ids (cheapest QA re-run).
+const ONLY = (process.env.ONLY || '').split(',').map((s) => s.trim()).filter(Boolean)
+// SAMPLE=1 → one demo clip per Hebrew voice (sample-<voice>.mp3) to audition them.
+const SAMPLE_VOICES = [...FEMALE_VOICES, ...MALE_VOICES]
+const selected = process.env.SAMPLE
+  ? SAMPLE_VOICES.map((v) => ({ id: `sample-${v}`, text: `שלום! אני ${HAMISPAR} חמש! בואו לשחק יחד!`, voice: v }))
+  : lines.filter((l) => {
+      if (ONLY.length) return ONLY.includes(l.id)
+      const f = friendOf(l.id)
+      return f === null ? extrasOn : f >= FROM && f <= TO
+    })
 
 // DRY_RUN=1 prints every line's text (to eyeball pronunciation) and exits — no API calls.
 if (process.env.DRY_RUN) {
-  for (const l of lines) console.log(`${l.id}\t${l.text}`)
+  for (const l of selected) console.log(`${l.id}\t${l.text}`)
   process.exit(0)
 }
 
@@ -84,7 +137,7 @@ if (PROVIDER === 'edge') {
   const VOICE = process.env.EDGE_VOICE || (LANG === 'he' ? 'he-IL-HilaNeural' : 'en-US-AvaNeural')
   // A touch higher + a touch faster = lively/energetic, not robotic (for a kid).
   const PROSODY = { pitch: process.env.EDGE_PITCH || '+12%', rate: process.env.EDGE_RATE || '+6%' }
-  console.log(`ספק: Edge Neural (חינם, בלי מפתח) · קול ${VOICE} · pitch ${PROSODY.pitch} rate ${PROSODY.rate} · שפה ${LANG} · ${lines.length} קליפים`)
+  console.log(`ספק: Edge Neural (חינם, בלי מפתח) · קול ${VOICE} · pitch ${PROSODY.pitch} rate ${PROSODY.rate} · שפה ${LANG} · ${selected.length} קליפים`)
   const connect = async () => {
     const t = new MsEdgeTTS()
     await t.setMetadata(VOICE, OUTPUT_FORMAT.AUDIO_24KHZ_48KBITRATE_MONO_MP3)
@@ -118,16 +171,16 @@ if (PROVIDER === 'edge') {
   // Lior / Erez / Doron / Oren (male). Speed + (optional) niqqud stripping.
   const KEY = process.env.NARAKEET_API_KEY
   if (!KEY) throw new Error('צריך NARAKEET_API_KEY (מההגדרות של חשבון Narakeet)')
-  const VOICE = process.env.NARAKEET_VOICE || (LANG === 'he' ? 'Ayelet' : 'Brian')
-  const NSPEED = process.env.VOICE_SPEED || '0.9' // a touch slow for a young child
+  const VOICE = process.env.NARAKEET_VOICE || (LANG === 'he' ? 'Ayelet' : 'Brian') // default / fallback
+  const NSPEED = process.env.VOICE_SPEED || '1.0' // natural pace — livelier than a slow read
   // Niqqud helps these voices say מִימִי / נִשְׂחַק / הַמִּסְפָּר correctly, so KEEP it
   // by default; strip only if a future test shows a voice prefers plain text.
   const stripNiq = (s) => s.replace(/[֑-ׇ]/g, '')
   const dropNiq = process.env.STRIP_NIQQUD === '1'
-  console.log(`ספק: Narakeet · קול ${VOICE} · speed ${NSPEED} · ניקוד ${dropNiq ? 'מוסר' : 'נשמר'} · שפה ${LANG} · ${lines.length} קליפים`)
-  synth = async (text) => {
+  console.log(`ספק: Narakeet · קולות לפי מגדר (ברירת מחדל ${VOICE}) · speed ${NSPEED} · ניקוד ${dropNiq ? 'מוסר' : 'נשמר'} · שפה ${LANG} · ${selected.length} קליפים`)
+  synth = async (text, voiceName) => {
     const body = dropNiq ? stripNiq(text) : text
-    const url = `https://api.narakeet.com/text-to-speech/mp3?voice=${encodeURIComponent(VOICE)}&voice-speed=${NSPEED}`
+    const url = `https://api.narakeet.com/text-to-speech/mp3?voice=${encodeURIComponent(voiceName || VOICE)}&voice-speed=${NSPEED}`
     const res = await fetch(url, {
       method: 'POST',
       headers: { 'x-api-key': KEY, 'content-type': 'text/plain', accept: 'application/octet-stream' },
@@ -139,7 +192,7 @@ if (PROVIDER === 'edge') {
     return buf
   }
 } else if (PROVIDER === 'gtx') {
-  console.log(`ספק: Google Translate (חינם, בלי מפתח) · ${lines.length} קליפים`)
+  console.log(`ספק: Google Translate (חינם, בלי מפתח) · ${selected.length} קליפים`)
   synth = async (text) => {
     const url = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(text)}&tl=he&client=tw-ob&total=1&idx=0&textlen=${text.length}`
     const res = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0' } })
@@ -193,14 +246,14 @@ if (PROVIDER === 'edge') {
 }
 
 let ok = 0
-for (const l of lines) {
+for (const l of selected) {
   let done = false
   for (let attempt = 0; attempt < 4 && !done; attempt++) {
     try {
-      writeFileSync(`${OUT}/${l.id}.mp3`, await synth(l.text))
+      writeFileSync(`${OUT}/${l.id}.mp3`, await synth(l.text, l.voice))
       ok++
       done = true
-      if (ok % 10 === 0 || ok === lines.length) console.log(`  …${ok}/${lines.length}`)
+      if (ok % 10 === 0 || ok === selected.length) console.log(`  …${ok}/${selected.length}`)
     } catch (e) {
       const code = String(e.message)
       if ((code.includes('429') || code.includes('too small')) && attempt < 3) {
@@ -213,4 +266,4 @@ for (const l of lines) {
   }
   await sleep(DELAY)
 }
-console.log(`\nנוצרו ${ok}/${lines.length} קליפים ב-public/voice/`)
+console.log(`\nנוצרו ${ok}/${selected.length} קליפים ב-public/voice/`)

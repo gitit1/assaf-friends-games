@@ -12,6 +12,10 @@ dist
 dist-ssr
 *.local
 
+# Local voice-QA artifacts (never deployed)
+public/voicetest.html
+public/voice/**/sample-*.mp3
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
