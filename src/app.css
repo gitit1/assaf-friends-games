@@ -8075,7 +8075,7 @@ button {
   width: 100%;
   /* a little air below the ◀ number ▶ pager, so the friend's floating number
      has somewhere to go instead of overlapping the arrows */
-  margin-top: 8px;
+  margin-top: 14px;
 }
 .world-fx-layer {
   position: absolute;

@@ -107,6 +107,7 @@ export default function FriendWorld({
   const [fact, setFact] = useState<number | null>(null)
   // after the special button is tapped, a "go to the matching game" CTA appears
   const [gameLink, setGameLink] = useState(false)
+  const [stageH, setStageH] = useState(0) // measured stage height → fit the friend inside it
   const like = LIKES[friendSpecial(index)]
   const voice = friendVoice(index) // the recorded voice for this friend (shared buttons use it)
   const [fx, setFx] = useState<Fx[]>([])
@@ -168,6 +169,18 @@ export default function FriendWorld({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [index])
+
+  // measure the stage so the friend is sized to fit INSIDE it (never overflowing
+  // up onto the ◀ number ▶ pager) — sizing off the real frame, not a % of screen
+  useEffect(() => {
+    const el = stageRef.current
+    if (!el) return
+    const measure = () => setStageH(el.clientHeight)
+    measure()
+    const ro = new ResizeObserver(measure)
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [])
 
   function burst(emoji: string, count = 7) {
     // cluster around the centre (the friend) so hearts/sparkles feel like they
@@ -301,9 +314,10 @@ export default function FriendWorld({
     const opening = fact === null
     setFact((f) => (f === null ? 0 : (f + 1) % facts.length))
     playSuccess()
-    // on opening, also SAY the fact in the friend's voice, at the child's level
-    // (missing clip → silent fallback; only recorded friends speak it)
-    if (opening) playClip(`fact-${index}-${getSettings().difficulty}`, '')
+    // on opening, also SAY a fact in the friend's voice — random among the levels
+    // UP TO the child's difficulty (קל hears only the simplest; אלוף hears any of
+    // the 4). Missing clip → silent fallback, so only recorded friends speak.
+    if (opening) playClip(`fact-${index}-${randInt(0, getSettings().difficulty)}`, '')
   }
   // bridge to the "Build a Number" game. If the current split is buildable there
   // (both parts ≤ 10), pre-load it so "build me!" literally rebuilds this friend.
@@ -313,11 +327,12 @@ export default function FriendWorld({
     onPlayGame('build')
   }
 
-  // all friends show at one comfortable size in their world, growing on bigger
-  // screens — but capped to fit INSIDE the stage (30vh) with room above for the
-  // floating number, so the friend never rides up onto the ◀ number ▶ pager, and
-  // the action buttons below always stay on screen on a phone
-  const scale = Math.min((210 / friendMaxDim(index)) * screenScale(vp.w, 1.7), (vp.h * 0.26) / friendMaxDim(index))
+  // size the friend off the MEASURED stage: ~70% of its height leaves room above
+  // for the floating number so it never rides up onto the ◀ number ▶ pager, and
+  // keeps the action buttons below on screen. Falls back to a screen fraction
+  // until the stage is measured.
+  const stageCap = stageH > 0 ? stageH * 0.7 : vp.h * 0.24
+  const scale = Math.min((210 / friendMaxDim(index)) * screenScale(vp.w, 1.7), stageCap / friendMaxDim(index))
   // the two split friends share one scale (so 3 still looks smaller than 4),
   // sized so the larger one fits with both side by side AND the equation + button
   // still leave the action buttons visible
