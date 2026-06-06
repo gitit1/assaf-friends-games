@@ -8278,6 +8278,9 @@ button {
 }
 .world-fact .wf-friend {
   display: inline-flex;
+  /* extra clearance so the friend's floating number (halo) doesn't crowd the
+     equation above it */
+  margin-top: 16px;
 }
 
 /* ===================== מיון לפי צבע (sort by colour) ===================== */

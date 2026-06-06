@@ -4,6 +4,7 @@ import Friend from './Friend'
 import { FRIEND_NATURAL, friendKindForIndex } from './FriendArt'
 import SettingsPanel from './SettingsPanel'
 import FullscreenButton from './FullscreenButton'
+import MuteButton from './MuteButton'
 import { rosterCount } from '../level'
 import { playTap, unlockAudio } from '../audio'
 import { stopSpeech } from '../speech'
@@ -71,6 +72,7 @@ export default function HomeScreen({ onOpen, onOpenCategory }: HomeScreenProps) 
               🧊
             </button>
           )}
+          <MuteButton className="fullscreen-button" />
           <FullscreenButton />
           <SettingsPanel />
         </div>

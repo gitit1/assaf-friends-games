@@ -2,6 +2,7 @@ import { gamesInCategory, type Category } from '../games/registry'
 import { playTap, unlockAudio } from '../audio'
 import { stopSpeech } from '../speech'
 import { useT } from '../i18n'
+import MuteButton from './MuteButton'
 
 type Props = {
   category: Category
@@ -36,6 +37,7 @@ export default function CategoryScreen({ category, onPick, onExit }: Props) {
           >
             <span aria-hidden="true">🏠</span>
           </button>
+          <MuteButton />
         </div>
         <h1 className="game-title">
           <span aria-hidden="true">{category.emoji}</span> {catTitle}

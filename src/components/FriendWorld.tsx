@@ -242,7 +242,8 @@ export default function FriendWorld({
     later(() => {
       setLit(undefined)
       playWin()
-      playClip(`num-${n}`, numberWord(n))
+      // n===1 was already said once in the loop — don't repeat it for לולו
+      if (n > 1) playClip(`num-${n}`, numberWord(n))
     }, n * STEP + 500)
   }
 
@@ -404,10 +405,12 @@ export default function FriendWorld({
             <span className="world-btn-emoji" aria-hidden="true">🔢</span>
             <span>{t('world.count')}</span>
           </button>
-          <button className={`world-btn ${split ? 'world-btn-on' : ''}`} onClick={decompose}>
-            <span className="world-btn-emoji" aria-hidden="true">🧩</span>
-            <span>{t('world.split')}</span>
-          </button>
+          {n >= 2 && (
+            <button className={`world-btn ${split ? 'world-btn-on' : ''}`} onClick={decompose}>
+              <span className="world-btn-emoji" aria-hidden="true">🧩</span>
+              <span>{t('world.split')}</span>
+            </button>
+          )}
           <button className={`world-btn ${fact !== null ? 'world-btn-on' : ''}`} onClick={showFact}>
             <span className="world-btn-emoji" aria-hidden="true">✨</span>
             <span>{t('world.fact')}</span>

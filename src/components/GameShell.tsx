@@ -3,6 +3,7 @@ import { playTap, unlockAudio } from '../audio'
 import { stopSpeech } from '../speech'
 import { useT } from '../i18n'
 import { useNav } from '../nav'
+import MuteButton from './MuteButton'
 
 type GameShellProps = {
   title: string
@@ -60,6 +61,7 @@ export default function GameShell({ title, emoji, onExit, children }: GameShellP
           >
             <span aria-hidden="true">🏠</span>
           </button>
+          <MuteButton />
         </div>
         <h1 className="game-title">
           <span aria-hidden="true">{emoji}</span> {title}

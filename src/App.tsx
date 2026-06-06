@@ -4,7 +4,7 @@ import CategoryScreen from './components/CategoryScreen'
 import MeetFriends from './components/MeetFriends'
 import FriendWorld from './components/FriendWorld'
 import { GAMES, CATEGORIES } from './games/registry'
-import { FRIENDS } from './friends'
+import { FRIENDS, friendName } from './friends'
 import { useT } from './i18n'
 import { BackContext, type BackTarget } from './nav'
 import { useTouchLock } from './useTouchLock'
@@ -27,16 +27,18 @@ type Route =
   | { kind: 'gallery' }
   | { kind: 'friend'; id: string }
   | { kind: 'cat'; id: string }
-  | { kind: 'game'; id: string }
+  | { kind: 'game'; id: string; from?: string }
 
 function parse(hash: string): Route {
   const h = hash.replace(/^#\/?/, '')
   if (h === '') return { kind: 'home' }
   if (h === 'meet') return { kind: 'meet' }
   if (h === 'gallery') return { kind: 'gallery' }
-  const [seg, id] = h.split('/')
+  const parts = h.split('/')
+  const [seg, id] = parts
   if (seg === 'cat' && id) return { kind: 'cat', id }
-  if (seg === 'game' && id) return { kind: 'game', id }
+  // a game can carry where it was opened from: game/<id>/f/<friendIndex>
+  if (seg === 'game' && id) return { kind: 'game', id, from: parts[2] === 'f' ? parts[3] : undefined }
   if (seg === 'friend' && id) return { kind: 'friend', id }
   return { kind: 'home' }
 }
@@ -84,7 +86,7 @@ export default function App() {
           index={i}
           onExit={() => go('meet')}
           onNavigate={(j) => go(`friend/${j}`)}
-          onPlayGame={(id) => go(`game/${id}`)}
+          onPlayGame={(id) => go(`game/${id}/f/${i}`)}
         />
       )
     }
@@ -97,13 +99,21 @@ export default function App() {
   } else if (route.kind === 'game') {
     const game = GAMES.find((g) => g.id === route.id)
     if (game) {
-      const cat = CATEGORIES.find((c) => c.id === game.category)
-      // back to the category this game lives in, so picking another game is one tap
-      if (cat) {
-        back = { emoji: cat.emoji, label: t(`cat.${cat.id}`) }
+      const fromFriend = route.from !== undefined ? Number(route.from) : NaN
+      if (Number.isInteger(fromFriend) && fromFriend >= 0 && fromFriend < FRIENDS.length) {
+        // opened from a friend's world → "back" returns to that friend, not the category
+        back = { emoji: '⭐', label: friendName(fromFriend) }
         backIsHome = false
+        view = <game.Component onExit={() => go(`friend/${fromFriend}`)} />
+      } else {
+        const cat = CATEGORIES.find((c) => c.id === game.category)
+        // back to the category this game lives in, so picking another game is one tap
+        if (cat) {
+          back = { emoji: cat.emoji, label: t(`cat.${cat.id}`) }
+          backIsHome = false
+        }
+        view = <game.Component onExit={() => go(`cat/${game.category}`)} />
       }
-      view = <game.Component onExit={() => go(`cat/${game.category}`)} />
     }
   } else if (route.kind === 'cat') {
     const category = CATEGORIES.find((c) => c.id === route.id)
