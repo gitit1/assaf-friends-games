@@ -106,7 +106,7 @@ export default function App() {
         // opened from a friend's world → "back" returns to that friend, not the category
         back = { emoji: '⭐', label: friendName(fromFriend) }
         backIsHome = false
-        view = <game.Component onExit={() => go(`friend/${fromFriend}/q`)} />
+        view = <game.Component onExit={() => go(`friend/${fromFriend}/q`)} friend={fromFriend} />
       } else {
         const cat = CATEGORIES.find((c) => c.id === game.category)
         // back to the category this game lives in, so picking another game is one tap

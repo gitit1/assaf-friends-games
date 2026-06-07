@@ -9769,22 +9769,91 @@ button {
   align-items: center;
   gap: 14px;
   padding-bottom: 16px;
+  /* a DEFINITE width tied to the viewport, so the rows inside (width:100%) are
+     definite too and their flex buttons actually shrink to fit one row */
+  width: min(560px, calc(100vw - 32px));
+  margin: 0 auto;
 }
 .dance-songs {
   display: flex;
-  flex-wrap: wrap;
+  align-items: center;
   justify-content: center;
-  gap: 8px;
-  max-width: 520px;
+  gap: 10px;
+  width: 100%;
+}
+.dance-song {
+  flex: 1;
+  min-width: 0;
+  padding: 10px 14px;
+  border: none;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 800;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+}
+.dance-song.is-playing {
+  background: linear-gradient(160deg, #2dd4bf, #0891b2);
 }
 .dance-floor {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 30vh;
+  min-height: 28vh;
   width: 100%;
   /* a soft "stage" glow under the dancer */
   background: radial-gradient(60% 45% at 50% 78%, rgba(244, 114, 182, 0.18), transparent 70%);
+}
+/* swap the dancer (the end side: right in RTL, left in LTR) */
+.dance-swap {
+  position: absolute;
+  top: 6px;
+  inset-inline-end: 10px;
+  width: 46px;
+  height: 46px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  font-size: 1.4rem;
+  cursor: pointer;
+}
+.dance-swap:active {
+  transform: scale(0.92);
+}
+/* big 3·2·1 countdown over the floor, before recording starts */
+.dance-count {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Fredoka', 'Heebo', sans-serif;
+  font-weight: 800;
+  font-size: clamp(5rem, 28vw, 9rem);
+  color: #fff;
+  text-shadow: 0 6px 24px rgba(0, 0, 0, 0.45);
+  pointer-events: none;
+  animation: dance-count-pop 0.7s ease;
+}
+@keyframes dance-count-pop {
+  0% {
+    opacity: 0;
+    transform: scale(0.4);
+  }
+  30% {
+    opacity: 1;
+    transform: scale(1.12);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.9);
+  }
 }
 .dancer {
   transform-origin: center bottom;
@@ -9839,23 +9908,25 @@ button {
   }
 }
 .dance-moves {
+  /* always ONE row — the buttons shrink to fit the screen instead of wrapping */
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   justify-content: center;
-  gap: 10px;
+  gap: clamp(4px, 1.5vw, 10px);
+  width: 100%;
 }
 .dance-move-btn {
+  flex: 1 1 0;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 3px;
-  width: 72px;
-  padding: 10px 6px;
+  gap: 2px;
+  padding: 10px 2px;
   border: none;
   border-radius: 16px;
   background: rgba(255, 255, 255, 0.07);
   color: #fff;
-  font-size: 0.85rem;
   font-weight: 700;
   cursor: pointer;
 }
@@ -9866,16 +9937,52 @@ button {
   opacity: 0.45;
 }
 .dance-move-emoji {
-  font-size: 1.7rem;
+  font-size: clamp(1.3rem, 6vw, 1.9rem);
+}
+.dance-move-label {
+  font-size: clamp(0.62rem, 2.6vw, 0.9rem);
+  white-space: nowrap;
 }
 .dance-controls {
   display: flex;
   align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
+  gap: 18px;
+  justify-content: center;
+  margin-top: 4px;
+}
+.dance-ctrl {
+  width: 58px;
+  height: 58px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.12);
+  font-size: 1.6rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
   justify-content: center;
 }
+.dance-ctrl:active {
+  transform: scale(0.92);
+}
+.dance-ctrl:disabled {
+  opacity: 0.4;
+}
+/* universal record button — red */
+.dance-rec {
+  background: rgba(239, 68, 68, 0.22);
+}
+.dance-rec.is-on {
+  background: rgba(239, 68, 68, 0.5);
+  animation: dance-rec-pulse 1s ease-in-out infinite;
+}
+@keyframes dance-rec-pulse {
+  50% {
+    box-shadow: 0 0 0 7px rgba(239, 68, 68, 0.22);
+  }
+}
 /* honour reduce-motion: keep the moves gentle */
-.reduce-motion .dancer {
+.reduce-motion .dancer,
+.reduce-motion .dance-rec.is-on {
   animation: none !important;
 }

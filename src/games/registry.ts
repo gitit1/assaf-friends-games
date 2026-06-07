@@ -33,6 +33,9 @@ import DanceGame from './DanceGame'
 // Every game gets a callback to return to the home screen.
 export type GameProps = {
   onExit: () => void
+  // when opened from a friend's world, that friend's index (so e.g. the dance
+  // game shows THAT friend dancing)
+  friend?: number
 }
 
 // Home-screen sections. Games are grouped so the home screen stays tidy as the

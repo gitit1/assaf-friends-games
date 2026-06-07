@@ -153,7 +153,8 @@ export function stopMelody() {
     melodyTimer = null
   }
 }
-export function playMelody(id: string) {
+export function playMelody(id: string, opts: { loop?: boolean; onEnd?: () => void } = {}) {
+  const { loop = true, onEnd } = opts
   stopMelody()
   const song = getSong(id)
   if (!song) return
@@ -166,8 +167,20 @@ export function playMelody(id: string) {
     const freq = 261.63 * Math.pow(2, semi / 12)
     tone({ freq, duration: beat * beats * 0.9, type: 'triangle', volume: 0.16 })
     tone({ freq: freq * 2, duration: beat * beats * 0.6, type: 'sine', volume: 0.035 })
-    i = (i + 1) % song.notes.length
-    melodyTimer = window.setTimeout(step, beat * beats * 1000)
+    const dur = beat * beats * 1000
+    i += 1
+    if (i < song.notes.length) {
+      melodyTimer = window.setTimeout(step, dur)
+    } else if (loop) {
+      i = 0
+      melodyTimer = window.setTimeout(step, dur)
+    } else {
+      // play through ONCE (a preview), then signal it's done
+      melodyTimer = window.setTimeout(() => {
+        melodyTimer = null
+        if (!melodyStop) onEnd?.()
+      }, dur)
+    }
   }
   step()
 }
