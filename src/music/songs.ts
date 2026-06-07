@@ -138,3 +138,30 @@ export const SONG_IDS = SONGS.map((s) => s.id)
 export function getSong(id: string): Song | undefined {
   return SONGS.find((s) => s.id === id)
 }
+
+// Public-domain tunes still TO ENCODE — kept here so nothing is forgotten. Each
+// moves up into SONGS once its notes are written and checked by ear.
+export const SONG_QUEUE: { id: string; label: string; note?: string }[] = [
+  { id: 'itsy', label: 'עכביש קטנטן' },
+  { id: 'headshoulders', label: 'ראש, כתפיים, ברך ואצבעות' },
+  { id: 'happy', label: 'אם טוב לך ושמח' },
+  { id: 'wheels', label: 'גלגלי האוטובוס' },
+  { id: 'bingo', label: 'בינגו (Bingo)' },
+  { id: 'loobyloo', label: 'Here We Go Looby Loo' },
+  { id: 'humpty', label: 'Humpty Dumpty' },
+  { id: 'ladybug', label: 'Ladybug Ladybug' },
+  { id: 'buckle', label: 'One, Two, Buckle My Shoe' },
+  { id: 'patacake', label: 'Pat-a-cake' },
+  { id: 'mountain', label: "She'll Be Coming 'Round the Mountain" },
+  { id: 'kittens', label: 'Three Little Kittens' },
+  { id: 'tweedle', label: 'Tweedledum and Tweedledee' },
+  { id: 'downbay', label: 'Down by the Bay', note: 'verify melody is public domain (Raffi popularised it)' },
+  { id: 'fingerfamily', label: 'Finger Family', note: 'verify melody origin is public domain' },
+]
+
+// NOT public domain — recorded here so we remember NOT to use them.
+export const SONG_EXCLUDED: { label: string; reason: string }[] = [
+  { label: "I'm a Little Teapot", reason: '1939 — still under copyright' },
+  { label: 'I Can Sing a Rainbow', reason: '1955, Arthur Hamilton — copyrighted' },
+  { label: 'Hokey Cokey / Hokey Pokey', reason: '1949 — disputed / likely copyrighted' },
+]
