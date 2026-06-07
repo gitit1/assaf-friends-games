@@ -333,7 +333,7 @@ export default function FriendWorld({
   const splitW = (idx: number) => FRIEND_NATURAL[friendKindForIndex(idx)].w
   const splitNatH = split ? Math.max(splitH(split.a - 1), splitH(split.b - 1)) : 1
   const splitNatW = split ? Math.max(splitW(split.a - 1), splitW(split.b - 1)) : 1
-  const splitScale = Math.min((vp.h * 0.095) / splitNatH, (vp.w * 0.3) / splitNatW)
+  const splitScale = Math.min((vp.h * 0.082) / splitNatH, (vp.w * 0.28) / splitNatW)
 
   return (
     <GameShell title={friendName(index)} emoji="⭐" onExit={onExit}>
