@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import GameShell from './GameShell'
 import Friend from './Friend'
 import IconButton from './IconButton'
-import { friendMaxDim } from './FriendArt'
+import { FRIEND_NATURAL, friendKindForIndex, friendMaxDim } from './FriendArt'
 import { friendGame, friendName, friendNumber, friendSay, friendSpecial, friendVoice } from '../friends'
 import { playCount, playFriend, playSuccess, playTap, playWin, unlockAudio } from '../audio'
 import { stopSpeech } from '../speech'
@@ -12,7 +12,7 @@ import { setBuildPreset } from '../games/buildPreset'
 import { rosterCount } from '../level'
 import { getSettings } from '../settings'
 import { useT } from '../i18n'
-import { useViewport, screenScale } from '../useViewport'
+import { useViewport } from '../useViewport'
 
 // A friend's own little "world": tap into it from "החברים שלי" and the friend
 // introduces itself (spoken description + animation, like a tiny narrated clip),
@@ -314,11 +314,12 @@ export default function FriendWorld({
     onPlayGame('build')
   }
 
-  // the stage is 30vh; size the friend to ~0.21·vh (≈70% of the stage) so it sits
-  // INSIDE the frame with room above for its floating number. A FIXED fraction of
-  // the viewport — never the measured stage, since measuring a frame that holds
-  // the friend caused a feedback loop that grew the friend on every tap.
-  const scale = Math.min((210 / friendMaxDim(index)) * screenScale(vp.w, 1.7), (vp.h * 0.21) / friendMaxDim(index))
+  // Size every friend to the SAME HEIGHT (a consistent character size) regardless
+  // of how wide its number-shape is — normalise by natural HEIGHT, not the max
+  // dimension, so לולו (1 block, square) and טוקי (2 blocks, wide) match instead of
+  // לולו towering. Capped by stage width too, so a wide friend never overflows.
+  const nat = FRIEND_NATURAL[friendKindForIndex(index)]
+  const scale = Math.min((vp.h * 0.17) / nat.h, (vp.w * 0.8) / nat.w)
   // the two split friends share one scale (so 3 still looks smaller than 4),
   // sized so the larger one fits with both side by side AND the equation + button
   // still leave the action buttons visible
