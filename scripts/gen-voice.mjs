@@ -154,8 +154,12 @@ function numWord(n) {
 const COUNT = 100 // friends / numbers covered
 const lines = []
 for (let k = 1; k <= COUNT; k++) lines.push({ id: `num-${k}`, text: numWord(k), voice: voiceFor(k - 1) })
+// Most friends' intro "I love X / let's X" follows their position; override when
+// a friend's special activity differs (e.g. Gugu → drawing instead of hugging).
+const INTRO_LIKE = { 3: 8 }
 for (let i = 0; i < COUNT; i++) {
-  const intro = TEMPLATES[i % TEMPLATES.length](nameToken(i), numWord(i + 1), LIKES[i % LIKES.length], genderOf(i), INVITE[i % INVITE.length])
+  const li = INTRO_LIKE[i] ?? i
+  const intro = TEMPLATES[i % TEMPLATES.length](nameToken(i), numWord(i + 1), LIKES[li % LIKES.length], genderOf(i), INVITE[li % INVITE.length])
   lines.push({ id: `intro-${i}`, text: intro, voice: voiceFor(i) })
 }
 // per-friend "special" button lines, in the friend's own voice
