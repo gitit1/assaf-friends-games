@@ -52,6 +52,12 @@ export const EN: Dict = {
   'dance.pause': { text: 'Stop' },
   'dance.delete': { text: 'Delete' },
   'dance.swap': { text: 'Another friend' },
+  // laugh game
+  'game.laugh': { text: 'Laugh' },
+  'laugh.tickle': { text: 'Tickle' },
+  'laugh.face': { text: 'Funny face' },
+  'laugh.sound': { text: 'Silly sound' },
+  'laugh.joke': { text: 'Joke' },
   // the per-friend "special" button label (chosen by index % 12)
   'world.like.0': { text: 'Jump' },
   'world.like.1': { text: 'Dance' },

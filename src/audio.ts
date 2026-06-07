@@ -190,3 +190,17 @@ export function playMove(i: number) {
   const scale = [392, 440, 523.25, 587.33, 659.25]
   tone({ freq: scale[i % scale.length], duration: 0.16, type: 'triangle', volume: 0.18 })
 }
+
+// ── Silly sounds for the laugh game ──
+export function playGiggle() {
+  ;[680, 760, 680, 800, 720].forEach((f, i) => tone({ freq: f, duration: 0.07, type: 'sine', volume: 0.14, delay: i * 0.08 }))
+}
+export function playRaspberry() {
+  ;[0, 0.05, 0.1, 0.15, 0.2, 0.25].forEach((d, i) =>
+    tone({ freq: 95 + (i % 2) * 30, duration: 0.06, type: 'sawtooth', volume: 0.12, delay: d }),
+  )
+}
+export function playHonk() {
+  tone({ freq: 330, duration: 0.18, type: 'square', volume: 0.12 })
+  tone({ freq: 247, duration: 0.2, type: 'square', volume: 0.12, delay: 0.16 })
+}

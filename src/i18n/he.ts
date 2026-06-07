@@ -53,6 +53,12 @@ export const HE: Dict = {
   'dance.pause': { text: 'עצור' },
   'dance.delete': { text: 'מחיקה' },
   'dance.swap': { text: 'חבר אחר' },
+  // laugh game
+  'game.laugh': { text: 'צחוק' },
+  'laugh.tickle': { text: 'דגדוג' },
+  'laugh.face': { text: 'פרצוף' },
+  'laugh.sound': { text: 'קול מצחיק' },
+  'laugh.joke': { text: 'בדיחה' },
   // the per-friend "special" button label (chosen by index % 12)
   'world.like.0': { text: 'קפיצה' },
   'world.like.1': { text: 'ריקוד' },

@@ -9986,3 +9986,137 @@ button {
 .reduce-motion .dance-rec.is-on {
   animation: none !important;
 }
+
+/* ===================== משחק צחוק (laugh) ===================== */
+.laugh-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding-bottom: 16px;
+  width: min(560px, calc(100vw - 32px));
+  margin: 0 auto;
+}
+.laugh-stage {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 36vh;
+  width: 100%;
+  background: radial-gradient(60% 45% at 50% 78%, rgba(251, 191, 36, 0.16), transparent 70%);
+}
+.laugh-friend {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  transform-origin: center bottom;
+}
+.laugh-tickle {
+  animation: laugh-tickle 0.7s ease;
+}
+.laugh-face {
+  animation: laugh-face 0.8s ease;
+}
+.laugh-wiggle {
+  animation: laugh-wiggle 0.6s ease;
+}
+@keyframes laugh-tickle {
+  0%,
+  100% {
+    transform: rotate(0);
+  }
+  15% {
+    transform: rotate(-7deg);
+  }
+  30% {
+    transform: rotate(7deg);
+  }
+  45% {
+    transform: rotate(-6deg);
+  }
+  60% {
+    transform: rotate(6deg);
+  }
+  78% {
+    transform: rotate(-3deg);
+  }
+}
+@keyframes laugh-face {
+  30% {
+    transform: scale(1.12, 0.85);
+  }
+  60% {
+    transform: scale(0.9, 1.12);
+  }
+}
+@keyframes laugh-wiggle {
+  25% {
+    transform: translateY(-12px) rotate(-5deg);
+  }
+  55% {
+    transform: translateY(0) rotate(5deg);
+  }
+  80% {
+    transform: translateY(-5px);
+  }
+}
+.laugh-face-pop {
+  position: absolute;
+  top: 6%;
+  font-size: clamp(2.6rem, 15vw, 4.6rem);
+  pointer-events: none;
+  animation: laugh-face-pop 1.1s ease;
+}
+@keyframes laugh-face-pop {
+  0% {
+    opacity: 0;
+    transform: scale(0.4);
+  }
+  25% {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.9) translateY(-24px);
+  }
+}
+.laugh-buttons {
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: center;
+  gap: clamp(5px, 1.8vw, 12px);
+  width: 100%;
+}
+.laugh-btn {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 12px 4px;
+  border: none;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  font-weight: 700;
+  cursor: pointer;
+}
+.laugh-btn:active {
+  transform: scale(0.94);
+}
+.laugh-joke {
+  background: linear-gradient(160deg, #fbbf24, #f97316);
+}
+.laugh-btn-emoji {
+  font-size: clamp(1.5rem, 7vw, 2.1rem);
+}
+.laugh-btn span:last-child {
+  font-size: clamp(0.7rem, 2.8vw, 0.95rem);
+  white-space: nowrap;
+}
+.reduce-motion .laugh-friend {
+  animation: none !important;
+}

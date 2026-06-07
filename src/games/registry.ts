@@ -29,6 +29,7 @@ import GoalGame from './GoalGame'
 import HockeyGame from './HockeyGame'
 import BowlingGame from './BowlingGame'
 import DanceGame from './DanceGame'
+import LaughGame from './LaughGame'
 
 // Every game gets a callback to return to the home screen.
 export type GameProps = {
@@ -230,6 +231,14 @@ export const GAMES: GameDef[] = [
     color: 'linear-gradient(160deg, #f472b6, #a855f7)',
     category: 'fun',
     Component: DanceGame,
+  },
+  {
+    id: 'laugh',
+    title: 'צחוק',
+    emoji: '😂',
+    color: 'linear-gradient(160deg, #fbbf24, #f97316)',
+    category: 'fun',
+    Component: LaughGame,
   },
   {
     id: 'colorme',

@@ -84,7 +84,21 @@ const FACTS = {
     'אחת ועוד אחת — זה אני, שתיים.',
     'אני הַמִּסְפָּר הזוגי הראשון.',
   ],
+  2: [ // 3 בובי
+    'אני הַמִּסְפָּר שלוש.',
+    'שלוש זה אחת, ועוד אחת, ועוד אחת.',
+    'יש לי שלוש פינות, כמו משולש.',
+    'שלוש זה מִסְפָּר אי-זוגי.',
+  ],
 }
+
+// Knock-knock jokes for the laugh game (Assaf loves them). Bobby (3) tells them,
+// so they're recorded in his voice. Niqqud where a word could be misread.
+const JOKES = [
+  'טוק טוק! מי שם? פָּרָה! פָּרָה מי? מוּוּוּ! חַה חַה חַה!',
+  'טוק טוק! מי שם? כֶּלֶב! כֶּלֶב מי? הַב הַב הַב! חַה חַה!',
+  'טוק טוק! מי שם? בננה! בננה מי? טוק טוק! מי שם? בננה! בננה מי? טוק טוק! מי שם? תפוז! אֲנִי כל כך שמח שלא אמרתי שוב בננה! חַה חַה חַה!',
+]
 
 // Friend gender (index → 'f'/'m') for verb agreement in the intros. Filled in as
 // each batch is QA'd; anything unset defaults to male. Kept in sync with friends.ts.
@@ -157,6 +171,8 @@ for (const i of Object.keys(FACTS).map(Number)) {
     }
   }
 }
+// knock-knock jokes for the laugh game, in Bobby's voice (friend 3)
+JOKES.forEach((text, n) => lines.push({ id: `joke-${n}`, text, voice: voiceFor(2) }))
 // shared buttons recorded in every chosen voice → fx-five-Ayelet, fx-hug-Erez, …
 const ALL_VOICES = [...FEMALE_VOICES, ...MALE_VOICES]
 for (const v of ALL_VOICES) for (const b of SHARED) lines.push({ id: `${b.id}-${v}`, text: b.text, voice: v })
@@ -179,6 +195,7 @@ const kindOf = (id) =>
     : /^num-/.test(id) ? 'num'
     : /^intro-/.test(id) ? 'intro'
       : /^special-/.test(id) ? 'special'
+        : /^joke-/.test(id) ? 'joke'
         : /^fact-/.test(id) ? 'fact'
           : /^fx-\w+-/.test(id) ? 'shared'
           : /^fx-/.test(id) ? 'fx'
