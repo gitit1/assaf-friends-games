@@ -19,7 +19,7 @@ export const FRIENDS: Friend[] = [
   { color: '#ef4444', name: 'לולו', say: 'לוּלוּ', gender: 'f', special: 0, game: 'skipcount' }, // 1 red — קפיצה → קפיצות
   { color: '#f97316', name: 'טוקי', say: 'טוּקִי', gender: 'm', special: 1, game: 'dance' }, // 2 orange — ריקוד → משחק ריקוד
   { color: '#facc15', name: 'בובי', say: 'בּוּבִּי', gender: 'm', special: 2, game: 'laugh' }, // 3 yellow — צחוק → משחק צחוק
-  { color: '#4ade80', name: 'גוגו', say: 'גוּגוּ', gender: 'f', special: 3 }, // 4 green — חיבוק
+  { color: '#4ade80', name: 'גוגו', say: 'גוּגוּ', gender: 'f', special: 8, game: 'draw' }, // 4 green — ציור → משחק ציור
   { color: '#14b8a6', name: 'דובי', say: 'דּוּבִּי', gender: 'm', special: 4 }, // 5 teal — שיר
   { color: '#22d3ee', name: 'נוני', say: 'נוּנִי' }, // 6 cyan
   { color: '#3b82f6', name: 'פיקו', say: 'פִּיקוֹ' }, // 7 blue
