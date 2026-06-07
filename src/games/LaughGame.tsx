@@ -84,7 +84,7 @@ export default function LaughGame({ onExit, friend }: GameProps) {
     }
     trigger('wiggle')
     playClip(`joke-${j}-${n}`, '', () => {
-      jokeTimer.current = window.setTimeout(() => playJokeLine(j, n + 1), n === 0 ? 1500 : 1000)
+      jokeTimer.current = window.setTimeout(() => playJokeLine(j, n + 1), n === 0 ? 600 : 320)
     })
   }
   function tellJoke() {
