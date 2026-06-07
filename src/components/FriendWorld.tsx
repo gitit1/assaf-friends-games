@@ -50,13 +50,13 @@ function factsFor(n: number): Fact[] {
   if (n >= 10) {
     const tens = Math.floor(n / 10) * 10
     const ones = n % 10
-    out.push(ones === 0 ? { label: 'עשרות', big: `${n} = ${n / 10} × 10` } : { label: 'עשרות ואחדות', big: `${n} = ${tens} + ${ones}` })
+    out.push(ones === 0 ? { label: 'עשרות', big: `${n / 10} × 10 = ${n}` } : { label: 'עשרות ואחדות', big: `${tens} + ${ones} = ${n}` })
   }
-  if (n % 2 === 0) out.push({ label: 'זוגי', big: `${n} = ${n / 2} + ${n / 2}` })
-  else if (n >= 3) out.push({ label: 'אי-זוגי', big: `${n} = ${n - 1} + 1` })
+  if (n % 2 === 0) out.push({ label: 'זוגי', big: `${n / 2} + ${n / 2} = ${n}` })
+  else if (n >= 3) out.push({ label: 'אי-זוגי', big: `${n - 1} + 1 = ${n}` })
   for (let d = 2; d * d <= n; d++) {
     if (n % d === 0) {
-      out.push({ label: 'כפל', big: `${n} = ${d} × ${n / d}` })
+      out.push({ label: 'כפל', big: `${d} × ${n / d} = ${n}` })
       break
     }
   }

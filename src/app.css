@@ -8210,7 +8210,10 @@ button {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 24px;
+  /* sit the equation near the top of the stage (it was floating too low), with
+     air down to the friends */
+  align-self: flex-start;
+  gap: 22px;
   /* replays each time a new split is shown (the element is keyed by a+b) */
   animation: world-split-in 0.45s cubic-bezier(0.2, 0.7, 0.3, 1.2) both;
 }
