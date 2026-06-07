@@ -1,6 +1,8 @@
 // Gentle Web Audio feedback. No external files, no harsh sounds.
 // Designed to be calm and predictable for sensory comfort.
 
+import { getSong } from './music/songs'
+
 let ctx: AudioContext | null = null
 let muted = false
 
@@ -138,4 +140,40 @@ export function playNudge() {
 export function playWin() {
   const notes = [523.25, 659.25, 783.99, 1046.5]
   notes.forEach((freq, i) => tone({ freq, duration: 0.24, type: 'triangle', volume: 0.16, delay: i * 0.14 }))
+}
+
+// ── Children's melodies (the list lives in src/music/songs.ts — public-domain
+// tunes generated in code, no audio files). Loops the chosen song.
+let melodyTimer: number | null = null
+let melodyStop = false
+export function stopMelody() {
+  melodyStop = true
+  if (melodyTimer) {
+    window.clearTimeout(melodyTimer)
+    melodyTimer = null
+  }
+}
+export function playMelody(id: string) {
+  stopMelody()
+  const song = getSong(id)
+  if (!song) return
+  melodyStop = false
+  const beat = 60 / song.bpm
+  let i = 0
+  const step = () => {
+    if (melodyStop) return
+    const [semi, beats] = song.notes[i]
+    const freq = 261.63 * Math.pow(2, semi / 12)
+    tone({ freq, duration: beat * beats * 0.9, type: 'triangle', volume: 0.16 })
+    tone({ freq: freq * 2, duration: beat * beats * 0.6, type: 'sine', volume: 0.035 })
+    i = (i + 1) % song.notes.length
+    melodyTimer = window.setTimeout(step, beat * beats * 1000)
+  }
+  step()
+}
+
+// A short, bright "hit" per dance move (each move a different pitch).
+export function playMove(i: number) {
+  const scale = [392, 440, 523.25, 587.33, 659.25]
+  tone({ freq: scale[i % scale.length], duration: 0.16, type: 'triangle', volume: 0.18 })
 }
