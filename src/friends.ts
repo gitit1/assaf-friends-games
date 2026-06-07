@@ -17,7 +17,7 @@ export type Friend = {
 
 export const FRIENDS: Friend[] = [
   { color: '#ef4444', name: 'לולו', say: 'לוּלוּ', gender: 'f', special: 0, game: 'skipcount' }, // 1 red — קפיצה → קפיצות
-  { color: '#f97316', name: 'טוקי', say: 'טוּקִי', gender: 'm', special: 1 }, // 2 orange — ריקוד (needs a dance game)
+  { color: '#f97316', name: 'טוקי', say: 'טוּקִי', gender: 'm', special: 1, game: 'dance' }, // 2 orange — ריקוד → משחק ריקוד
   { color: '#facc15', name: 'בובי', say: 'בּוּבִּי', gender: 'm', special: 2 }, // 3 yellow — צחוק
   { color: '#4ade80', name: 'גוגו', say: 'גוּגוּ', gender: 'f', special: 3 }, // 4 green — חיבוק
   { color: '#14b8a6', name: 'דובי', say: 'דּוּבִּי', gender: 'm', special: 4 }, // 5 teal — שיר

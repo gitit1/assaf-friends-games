@@ -9761,3 +9761,121 @@ button {
 .reduce-motion .category-card {
   animation: none !important;
 }
+
+/* ===================== משחק ריקוד (dance) ===================== */
+.dance-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding-bottom: 16px;
+}
+.dance-songs {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  max-width: 520px;
+}
+.dance-floor {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 30vh;
+  width: 100%;
+  /* a soft "stage" glow under the dancer */
+  background: radial-gradient(60% 45% at 50% 78%, rgba(244, 114, 182, 0.18), transparent 70%);
+}
+.dancer {
+  transform-origin: center bottom;
+}
+.dance-left {
+  animation: dance-left 0.6s ease;
+}
+.dance-right {
+  animation: dance-right 0.6s ease;
+}
+.dance-spin {
+  animation: dance-spin 0.6s ease;
+}
+.dance-jump {
+  animation: dance-jump 0.55s cubic-bezier(0.3, 0.8, 0.4, 1);
+}
+.dance-wiggle {
+  animation: dance-wiggle 0.55s ease;
+}
+@keyframes dance-left {
+  50% {
+    transform: translateX(-26px) rotate(-12deg);
+  }
+}
+@keyframes dance-right {
+  50% {
+    transform: translateX(26px) rotate(12deg);
+  }
+}
+@keyframes dance-spin {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+@keyframes dance-jump {
+  40% {
+    transform: translateY(-34px) scale(1.04);
+  }
+  70% {
+    transform: translateY(0);
+  }
+}
+@keyframes dance-wiggle {
+  20% {
+    transform: rotate(-10deg);
+  }
+  50% {
+    transform: rotate(10deg);
+  }
+  80% {
+    transform: rotate(-6deg);
+  }
+}
+.dance-moves {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+}
+.dance-move-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  width: 72px;
+  padding: 10px 6px;
+  border: none;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.07);
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+.dance-move-btn:active {
+  transform: scale(0.94);
+}
+.dance-move-btn:disabled {
+  opacity: 0.45;
+}
+.dance-move-emoji {
+  font-size: 1.7rem;
+}
+.dance-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+/* honour reduce-motion: keep the moves gentle */
+.reduce-motion .dancer {
+  animation: none !important;
+}

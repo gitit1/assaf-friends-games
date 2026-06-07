@@ -40,6 +40,16 @@ export const HE: Dict = {
   'world.toGame': { text: 'בואו למשחק!' },
   'mute.silence': { text: 'השתקת קול' },
   'mute.unmute': { text: 'הפעלת קול' },
+  // dance game
+  'game.dance': { text: 'ריקוד' },
+  'dance.pick': { text: 'בחרו שיר' },
+  'dance.left': { text: 'שמאלה' },
+  'dance.right': { text: 'ימינה' },
+  'dance.spin': { text: 'סיבוב' },
+  'dance.jump': { text: 'קפיצה' },
+  'dance.wiggle': { text: 'נדנוד' },
+  'dance.play': { text: 'הריקוד שלי' },
+  'dance.clear': { text: 'מחדש' },
   // the per-friend "special" button label (chosen by index % 12)
   'world.like.0': { text: 'קפיצה' },
   'world.like.1': { text: 'ריקוד' },

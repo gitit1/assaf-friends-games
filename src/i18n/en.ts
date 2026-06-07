@@ -39,6 +39,16 @@ export const EN: Dict = {
   'world.toGame': { text: "Let's play!" },
   'mute.silence': { text: 'Mute voice' },
   'mute.unmute': { text: 'Unmute voice' },
+  // dance game
+  'game.dance': { text: 'Dance' },
+  'dance.pick': { text: 'Pick a song' },
+  'dance.left': { text: 'Left' },
+  'dance.right': { text: 'Right' },
+  'dance.spin': { text: 'Spin' },
+  'dance.jump': { text: 'Jump' },
+  'dance.wiggle': { text: 'Wiggle' },
+  'dance.play': { text: 'My dance' },
+  'dance.clear': { text: 'Start over' },
   // the per-friend "special" button label (chosen by index % 12)
   'world.like.0': { text: 'Jump' },
   'world.like.1': { text: 'Dance' },

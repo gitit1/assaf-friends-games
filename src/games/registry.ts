@@ -28,6 +28,7 @@ import BasketGame from './BasketGame'
 import GoalGame from './GoalGame'
 import HockeyGame from './HockeyGame'
 import BowlingGame from './BowlingGame'
+import DanceGame from './DanceGame'
 
 // Every game gets a callback to return to the home screen.
 export type GameProps = {
@@ -218,6 +219,14 @@ export const GAMES: GameDef[] = [
     color: 'linear-gradient(160deg, #fb7185, #9333ea)',
     category: 'fun',
     Component: RollDice,
+  },
+  {
+    id: 'dance',
+    title: 'ריקוד',
+    emoji: '💃',
+    color: 'linear-gradient(160deg, #f472b6, #a855f7)',
+    category: 'fun',
+    Component: DanceGame,
   },
   {
     id: 'colorme',
