@@ -333,7 +333,7 @@ export default function FriendWorld({
   const splitW = (idx: number) => FRIEND_NATURAL[friendKindForIndex(idx)].w
   const splitNatH = split ? Math.max(splitH(split.a - 1), splitH(split.b - 1)) : 1
   const splitNatW = split ? Math.max(splitW(split.a - 1), splitW(split.b - 1)) : 1
-  const splitScale = Math.min((vp.h * 0.12) / splitNatH, (vp.w * 0.32) / splitNatW)
+  const splitScale = Math.min((vp.h * 0.095) / splitNatH, (vp.w * 0.3) / splitNatW)
 
   return (
     <GameShell title={friendName(index)} emoji="⭐" onExit={onExit}>
@@ -359,12 +359,14 @@ export default function FriendWorld({
             // "who am I made of": equation in big digits (he reads numbers!) + the
             // two real friends it's built from, with a bridge to build it for real
             <div className="world-split" key={`${split.a}-${split.b}`}>
+              {/* the familiar addition form: parts first, then the whole
+                  (1 + 1 = 2), left-to-right like any equation */}
               <div className="world-split-eq" aria-live="polite" dir="ltr">
-                <span className="wse-whole">{n}</span>
-                <span className="wse-sym">=</span>
                 <span>{split.a}</span>
                 <span className="wse-sym">+</span>
                 <span>{split.b}</span>
+                <span className="wse-sym">=</span>
+                <span className="wse-whole">{n}</span>
               </div>
               <div className="world-split-friends">
                 <Friend index={split.a - 1} scale={splitScale} showNumber lively />
