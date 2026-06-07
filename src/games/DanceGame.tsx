@@ -38,11 +38,17 @@ export default function DanceGame({ onExit, friend }: GameProps) {
   const startT = useRef(0)
   const moveN = useRef(0)
   const timers = useRef<number[]>([])
+  const recTimer = useRef<number | null>(null) // the 30s recording cap
 
   const clearTimers = () => {
     timers.current.forEach((id) => window.clearTimeout(id))
     timers.current = []
+    if (recTimer.current) {
+      window.clearTimeout(recTimer.current)
+      recTimer.current = null
+    }
   }
+  const SONG_MAX = 30000 // a dance recording is at most 30 seconds
   useEffect(
     () => () => {
       stopMelody()
@@ -90,9 +96,7 @@ export default function DanceGame({ onExit, friend }: GameProps) {
     unlockAudio()
     playTap()
     if (recording) {
-      setRecording(false)
-      stopMelody()
-      setPlaying(false)
+      stopRecording()
       return
     }
     if (countdown !== null) {
@@ -130,26 +134,32 @@ export default function DanceGame({ onExit, friend }: GameProps) {
     )
   }
 
+  function stopRecording() {
+    if (recTimer.current) {
+      window.clearTimeout(recTimer.current)
+      recTimer.current = null
+    }
+    stopMelody()
+    setRecording(false)
+    setPlaying(false)
+  }
   function beginRecording() {
     rec.current = []
     setRecCount(0)
     startT.current = Date.now()
     setRecording(true)
     setPlaying(true)
-    // the song plays once; when it finishes, recording stops automatically
-    playMelody(song.id, {
-      loop: false,
-      onEnd: () => {
-        setRecording(false)
-        setPlaying(false)
-      },
-    })
+    // record WITH the chosen song; it plays once, and recording stops at the
+    // song's end OR after 30s (whichever comes first)
+    playMelody(song.id, { loop: false, onEnd: stopRecording })
+    recTimer.current = window.setTimeout(stopRecording, SONG_MAX)
   }
 
   // ▶️ play / ⏸️ stop the replay
   function togglePlayback() {
     if (replaying) {
       clearTimers()
+      stopMelody()
       setReplaying(false)
       return
     }
@@ -158,10 +168,16 @@ export default function DanceGame({ onExit, friend }: GameProps) {
     playTap()
     clearTimers()
     setReplaying(true)
+    playMelody(song.id, { loop: false }) // replay the dance WITH its music
     const moves = rec.current
     moves.forEach((m) => timers.current.push(window.setTimeout(() => doMove(m.i, false), m.t)))
     const last = moves[moves.length - 1]?.t ?? 0
-    timers.current.push(window.setTimeout(() => setReplaying(false), last + 900))
+    timers.current.push(
+      window.setTimeout(() => {
+        setReplaying(false)
+        stopMelody()
+      }, last + 900),
+    )
   }
 
   // 🗑️ clear the recorded dance
