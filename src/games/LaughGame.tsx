@@ -14,8 +14,7 @@ import { useT } from '../i18n'
 // hear a recorded knock-knock joke (Assaf's favourite). After EVERY action the
 // friend laughs out loud (recorded, in his voice). No timer, no win/lose.
 const FACES = ['😝', '🤪', '😜', '😛', '🤓', '😬']
-const JOKE_COUNT = 3
-const LAUGH_COUNT = 3
+const JOKE_LINES = [5, 5, 9] // lines per joke — keep in sync with JOKES in scripts/gen-voice.mjs
 const ACTIONS = [
   { key: 'tickle', emoji: '🪶', anim: 'tickle', sound: playGiggle, face: false },
   { key: 'face', emoji: '😝', anim: 'face', sound: playHonk, face: true },
@@ -34,6 +33,7 @@ export default function LaughGame({ onExit, friend }: GameProps) {
   const actN = useRef(0)
   const fxId = useRef(0)
   const timers = useRef<number[]>([])
+  const jokeTimer = useRef<number | null>(null)
 
   const clearTimers = () => {
     timers.current.forEach((id) => window.clearTimeout(id))
@@ -43,6 +43,7 @@ export default function LaughGame({ onExit, friend }: GameProps) {
     () => () => {
       stopClip()
       clearTimers()
+      if (jokeTimer.current) window.clearTimeout(jokeTimer.current)
     },
     [],
   )
@@ -62,11 +63,6 @@ export default function LaughGame({ onExit, friend }: GameProps) {
     setAct({ kind, n: actN.current })
     timers.current.push(window.setTimeout(() => setAct(null), 1000))
   }
-  // the friend laughs out loud (recorded), after every action
-  function laugh() {
-    playClip(`laugh-${randInt(0, LAUGH_COUNT - 1)}`, '')
-  }
-
   function doGag(a: (typeof ACTIONS)[number]) {
     unlockAudio()
     stopClip()
@@ -77,14 +73,22 @@ export default function LaughGame({ onExit, friend }: GameProps) {
     }
     a.sound()
     burst('😂', 6)
-    laugh()
+  }
+  // tell a knock-knock joke LINE BY LINE, with a gap after each so it doesn't
+  // rush (a longer beat after the "knock knock")
+  function playJokeLine(j: number, n: number) {
+    if (n >= JOKE_LINES[j]) return
+    trigger('wiggle')
+    playClip(`joke-${j}-${n}`, '', () => {
+      jokeTimer.current = window.setTimeout(() => playJokeLine(j, n + 1), n === 0 ? 1500 : 1000)
+    })
   }
   function tellJoke() {
     unlockAudio()
     stopClip()
-    trigger('wiggle')
-    playClip(`joke-${randInt(0, JOKE_COUNT - 1)}`, 'טוק טוק!')
-    burst('😂', 9)
+    if (jokeTimer.current) window.clearTimeout(jokeTimer.current)
+    burst('😂', 6)
+    playJokeLine(randInt(0, JOKE_LINES.length - 1), 0)
   }
   function swap() {
     playTap()

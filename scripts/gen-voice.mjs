@@ -94,14 +94,13 @@ const FACTS = {
 
 // Knock-knock jokes for the laugh game (Assaf loves them). Bobby (3) tells them,
 // so they're recorded in his voice. Niqqud where a word could be misread.
-// niqqud everywhere, and "..." for breathing room between the call and response.
+// Per-LINE so the game can space them out (the friend doesn't rush). "knock
+// knock" is English (the Hebrew "טוק טוק" was mispronounced); the rest is niqqud.
 const JOKES = [
-  'טוֹק טוֹק! ... ... מי שָׁם? ... כֶּלֶב! ... כֶּלֶב מי? ... ... הַב הַב הַב! ... חַה חַה חַה!',
-  'טוֹק טוֹק! ... ... מי שָׁם? ... פָּרָה! ... פָּרָה מי? ... ... מוּוּוּ! ... חַה חַה!',
-  'טוֹק טוֹק! ... ... מי שָׁם? ... בָּנָנָה! ... בָּנָנָה מי? ... ... טוֹק טוֹק! ... מי שָׁם? ... תַּפּוּז! ... תַּפּוּז מי? ... ... אֲנִי כָּל כָּךְ שָׂמֵחַ שֶׁלֹּא אָמַרְתִּי שׁוּב בָּנָנָה! ... חַה חַה חַה!',
+  ['knock knock!', 'מי שָׁם?', 'כֶּלֶב!', 'כֶּלֶב מי?', 'הַב הַב הַב!'],
+  ['knock knock!', 'מי שָׁם?', 'פָּרָה!', 'פָּרָה מי?', 'מוּוּוּ!'],
+  ['knock knock!', 'מי שָׁם?', 'בָּנָנָה!', 'בָּנָנָה מי?', 'knock knock!', 'מי שָׁם?', 'תַּפּוּז!', 'תַּפּוּז מי?', 'אֲנִי כָּל כָּךְ שָׂמֵחַ שֶׁלֹּא אָמַרְתִּי שׁוּב בָּנָנָה!'],
 ]
-// short laughs the friend makes after each gag in the laugh game
-const LAUGHS = ['חַה חַה חַה!', 'הֵא הֵא הֵא הֵא!', 'חִי חִי חִי חִי!']
 
 // Friend gender (index → 'f'/'m') for verb agreement in the intros. Filled in as
 // each batch is QA'd; anything unset defaults to male. Kept in sync with friends.ts.
@@ -174,9 +173,9 @@ for (const i of Object.keys(FACTS).map(Number)) {
     }
   }
 }
-// knock-knock jokes + laughs for the laugh game, in Bobby's voice (friend 3)
-JOKES.forEach((text, n) => lines.push({ id: `joke-${n}`, text, voice: voiceFor(2) }))
-LAUGHS.forEach((text, n) => lines.push({ id: `laugh-${n}`, text, voice: voiceFor(2) }))
+// knock-knock jokes for the laugh game (one clip per line so the game can pace
+// them), in Bobby's voice (friend 3)
+JOKES.forEach((arr, j) => arr.forEach((text, n) => lines.push({ id: `joke-${j}-${n}`, text, voice: voiceFor(2) })))
 // shared buttons recorded in every chosen voice → fx-five-Ayelet, fx-hug-Erez, …
 const ALL_VOICES = [...FEMALE_VOICES, ...MALE_VOICES]
 for (const v of ALL_VOICES) for (const b of SHARED) lines.push({ id: `${b.id}-${v}`, text: b.text, voice: v })

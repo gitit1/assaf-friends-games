@@ -18,13 +18,24 @@ export function stopClip() {
   stopSpeech()
 }
 
-export function playClip(id: string, fallback: string) {
-  if (!speechOn()) return
+export function playClip(id: string, fallback: string, onEnd?: () => void) {
+  if (!speechOn()) {
+    onEnd?.()
+    return
+  }
   stopClip()
   // clips live per language: public/voice/<lang>/<id>.mp3
   const key = `${getSettings().lang}/${id}`
+  let done = false
+  const finish = () => {
+    if (!done) {
+      done = true
+      onEnd?.()
+    }
+  }
   if (missing.has(key)) {
     speak(fallback)
+    if (onEnd) window.setTimeout(finish, 1200)
     return
   }
   const audio = new Audio(`${import.meta.env.BASE_URL}voice/${key}.mp3`)
@@ -36,8 +47,10 @@ export function playClip(id: string, fallback: string) {
     missing.add(key)
     if (current === audio) current = null
     speak(fallback)
+    if (onEnd) window.setTimeout(finish, 1200)
   }
   audio.addEventListener('error', onFail)
+  audio.addEventListener('ended', finish)
   audio.play().catch(onFail)
 }
 
