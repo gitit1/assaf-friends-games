@@ -10061,6 +10061,14 @@ button {
     transform: translateY(-5px);
   }
 }
+.laugh-spin {
+  animation: laugh-spin 0.7s ease;
+}
+@keyframes laugh-spin {
+  100% {
+    transform: rotate(360deg);
+  }
+}
 .laugh-face-pop {
   position: absolute;
   top: 6%;
@@ -10084,14 +10092,13 @@ button {
 }
 .laugh-buttons {
   display: flex;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
   justify-content: center;
-  gap: clamp(5px, 1.8vw, 12px);
+  gap: 10px;
   width: 100%;
 }
 .laugh-btn {
-  flex: 1 1 0;
-  min-width: 0;
+  width: 82px;
   display: flex;
   flex-direction: column;
   align-items: center;

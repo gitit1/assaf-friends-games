@@ -56,7 +56,9 @@ export const EN: Dict = {
   'game.laugh': { text: 'Laugh' },
   'laugh.tickle': { text: 'Tickle' },
   'laugh.face': { text: 'Funny face' },
-  'laugh.sound': { text: 'Silly sound' },
+  'laugh.raspberry': { text: 'Silly sound' },
+  'laugh.honk': { text: 'Honk' },
+  'laugh.spin': { text: 'Spin' },
   'laugh.joke': { text: 'Joke' },
   // the per-friend "special" button label (chosen by index % 12)
   'world.like.0': { text: 'Jump' },

@@ -94,11 +94,14 @@ const FACTS = {
 
 // Knock-knock jokes for the laugh game (Assaf loves them). Bobby (3) tells them,
 // so they're recorded in his voice. Niqqud where a word could be misread.
+// niqqud everywhere, and "..." for breathing room between the call and response.
 const JOKES = [
-  'טוק טוק! מי שם? פָּרָה! פָּרָה מי? מוּוּוּ! חַה חַה חַה!',
-  'טוק טוק! מי שם? כֶּלֶב! כֶּלֶב מי? הַב הַב הַב! חַה חַה!',
-  'טוק טוק! מי שם? בננה! בננה מי? טוק טוק! מי שם? בננה! בננה מי? טוק טוק! מי שם? תפוז! אֲנִי כל כך שמח שלא אמרתי שוב בננה! חַה חַה חַה!',
+  'טוֹק טוֹק! ... ... מי שָׁם? ... כֶּלֶב! ... כֶּלֶב מי? ... ... הַב הַב הַב! ... חַה חַה חַה!',
+  'טוֹק טוֹק! ... ... מי שָׁם? ... פָּרָה! ... פָּרָה מי? ... ... מוּוּוּ! ... חַה חַה!',
+  'טוֹק טוֹק! ... ... מי שָׁם? ... בָּנָנָה! ... בָּנָנָה מי? ... ... טוֹק טוֹק! ... מי שָׁם? ... תַּפּוּז! ... תַּפּוּז מי? ... ... אֲנִי כָּל כָּךְ שָׂמֵחַ שֶׁלֹּא אָמַרְתִּי שׁוּב בָּנָנָה! ... חַה חַה חַה!',
 ]
+// short laughs the friend makes after each gag in the laugh game
+const LAUGHS = ['חַה חַה חַה!', 'הֵא הֵא הֵא הֵא!', 'חִי חִי חִי חִי!']
 
 // Friend gender (index → 'f'/'m') for verb agreement in the intros. Filled in as
 // each batch is QA'd; anything unset defaults to male. Kept in sync with friends.ts.
@@ -171,8 +174,9 @@ for (const i of Object.keys(FACTS).map(Number)) {
     }
   }
 }
-// knock-knock jokes for the laugh game, in Bobby's voice (friend 3)
+// knock-knock jokes + laughs for the laugh game, in Bobby's voice (friend 3)
 JOKES.forEach((text, n) => lines.push({ id: `joke-${n}`, text, voice: voiceFor(2) }))
+LAUGHS.forEach((text, n) => lines.push({ id: `laugh-${n}`, text, voice: voiceFor(2) }))
 // shared buttons recorded in every chosen voice → fx-five-Ayelet, fx-hug-Erez, …
 const ALL_VOICES = [...FEMALE_VOICES, ...MALE_VOICES]
 for (const v of ALL_VOICES) for (const b of SHARED) lines.push({ id: `${b.id}-${v}`, text: b.text, voice: v })
@@ -196,6 +200,7 @@ const kindOf = (id) =>
     : /^intro-/.test(id) ? 'intro'
       : /^special-/.test(id) ? 'special'
         : /^joke-/.test(id) ? 'joke'
+        : /^laugh-/.test(id) ? 'laugh'
         : /^fact-/.test(id) ? 'fact'
           : /^fx-\w+-/.test(id) ? 'shared'
           : /^fx-/.test(id) ? 'fx'

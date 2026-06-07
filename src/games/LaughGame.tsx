@@ -10,11 +10,19 @@ import { randInt } from './util'
 import { useViewport } from '../useViewport'
 import { useT } from '../i18n'
 
-// "Make Bobby laugh": tickle the friend with a feather, pull funny faces, make
-// silly sounds, or hear a recorded knock-knock joke (Assaf's favourite). The
-// friend giggles and wiggles, with 😂 bursts. No timer, no winning or losing.
+// "Make the friend laugh": tickle, pull faces, make silly sounds, spin him, or
+// hear a recorded knock-knock joke (Assaf's favourite). After EVERY action the
+// friend laughs out loud (recorded, in his voice). No timer, no win/lose.
 const FACES = ['😝', '🤪', '😜', '😛', '🤓', '😬']
 const JOKE_COUNT = 3
+const LAUGH_COUNT = 3
+const ACTIONS = [
+  { key: 'tickle', emoji: '🪶', anim: 'tickle', sound: playGiggle, face: false },
+  { key: 'face', emoji: '😝', anim: 'face', sound: playHonk, face: true },
+  { key: 'raspberry', emoji: '💨', anim: 'wiggle', sound: playRaspberry, face: false },
+  { key: 'honk', emoji: '📯', anim: 'wiggle', sound: playHonk, face: false },
+  { key: 'spin', emoji: '🌀', anim: 'spin', sound: playGiggle, face: false },
+] as const
 
 export default function LaughGame({ onExit, friend }: GameProps) {
   const { t } = useT()
@@ -54,35 +62,30 @@ export default function LaughGame({ onExit, friend }: GameProps) {
     setAct({ kind, n: actN.current })
     timers.current.push(window.setTimeout(() => setAct(null), 1000))
   }
+  // the friend laughs out loud (recorded), after every action
+  function laugh() {
+    playClip(`laugh-${randInt(0, LAUGH_COUNT - 1)}`, '')
+  }
 
-  function tickle() {
+  function doGag(a: (typeof ACTIONS)[number]) {
     unlockAudio()
-    trigger('tickle')
-    playGiggle()
-    burst('😆')
-  }
-  function makeFace() {
-    unlockAudio()
-    trigger('face')
-    setFaceEmoji(FACES[randInt(0, FACES.length - 1)])
-    timers.current.push(window.setTimeout(() => setFaceEmoji(null), 1100))
-    playHonk()
+    stopClip()
+    trigger(a.anim)
+    if (a.face) {
+      setFaceEmoji(FACES[randInt(0, FACES.length - 1)])
+      timers.current.push(window.setTimeout(() => setFaceEmoji(null), 1100))
+    }
+    a.sound()
     burst('😂', 6)
-  }
-  function sillySound() {
-    unlockAudio()
-    trigger('wiggle')
-    playRaspberry()
-    burst('💨', 5)
+    laugh()
   }
   function tellJoke() {
     unlockAudio()
     stopClip()
     trigger('wiggle')
-    playClip(`joke-${randInt(0, JOKE_COUNT - 1)}`, 'טוק טוק! חה חה חה!')
+    playClip(`joke-${randInt(0, JOKE_COUNT - 1)}`, 'טוק טוק!')
     burst('😂', 9)
   }
-
   function swap() {
     playTap()
     let n = randFriendIndex()
@@ -103,7 +106,7 @@ export default function LaughGame({ onExit, friend }: GameProps) {
           <button
             className={`laugh-friend ${act ? `laugh-${act.kind}` : ''}`}
             key={act?.n ?? 0}
-            onClick={tickle}
+            onClick={() => doGag(ACTIONS[0])}
             aria-label={t('laugh.tickle')}
           >
             <Friend index={who} scale={scale} lively />
@@ -123,24 +126,14 @@ export default function LaughGame({ onExit, friend }: GameProps) {
         </div>
 
         <div className="laugh-buttons">
-          <button className="laugh-btn" onClick={tickle}>
-            <span className="laugh-btn-emoji" aria-hidden="true">
-              🪶
-            </span>
-            <span>{t('laugh.tickle')}</span>
-          </button>
-          <button className="laugh-btn" onClick={makeFace}>
-            <span className="laugh-btn-emoji" aria-hidden="true">
-              😝
-            </span>
-            <span>{t('laugh.face')}</span>
-          </button>
-          <button className="laugh-btn" onClick={sillySound}>
-            <span className="laugh-btn-emoji" aria-hidden="true">
-              💨
-            </span>
-            <span>{t('laugh.sound')}</span>
-          </button>
+          {ACTIONS.map((a) => (
+            <button key={a.key} className="laugh-btn" onClick={() => doGag(a)}>
+              <span className="laugh-btn-emoji" aria-hidden="true">
+                {a.emoji}
+              </span>
+              <span>{t(`laugh.${a.key}`)}</span>
+            </button>
+          ))}
           <button className="laugh-btn laugh-joke" onClick={tellJoke}>
             <span className="laugh-btn-emoji" aria-hidden="true">
               🚪
