@@ -2,7 +2,7 @@
 // No build tooling: the app shell is precached on install, and Vite's
 // content-hashed assets are cached the first time they're fetched, so after one
 // online visit the whole app works offline. Bump CACHE to purge old caches.
-const CACHE = 'assaf-friends-v1'
+const CACHE = 'assaf-friends-v2'
 const SHELL = [
   '/',
   '/index.html',
@@ -53,7 +53,24 @@ self.addEventListener('fetch', (event) => {
     return
   }
 
-  // Hashed assets, voice clips, etc.: cache-first, then network (and store it).
+  // Voice clips & sound effects change content under a STABLE name — go
+  // network-first so updates always reach the user (fall back to cache offline).
+  if (url.pathname.includes('/voice/') || url.pathname.includes('/sfx/')) {
+    event.respondWith(
+      fetch(request)
+        .then((res) => {
+          if (res && res.status === 200 && res.type === 'basic') {
+            const copy = res.clone()
+            caches.open(CACHE).then((cache) => cache.put(request, copy))
+          }
+          return res
+        })
+        .catch(() => caches.match(request)),
+    )
+    return
+  }
+
+  // Hashed assets, etc.: cache-first, then network (and store it).
   event.respondWith(
     caches.match(request).then((cached) => {
       if (cached) return cached

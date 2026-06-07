@@ -204,3 +204,15 @@ export function playHonk() {
   tone({ freq: 330, duration: 0.18, type: 'square', volume: 0.12 })
   tone({ freq: 247, duration: 0.2, type: 'square', volume: 0.12, delay: 0.16 })
 }
+
+// A REAL recorded laugh (royalty-free sound files in public/sfx/) — used by the
+// laugh game instead of a robotic spoken "ha ha".
+let laughEl: HTMLAudioElement | null = null
+const LAUGH_FILES = ['sfx/laugh1.wav', 'sfx/laugh2.mp3']
+export function playLaugh() {
+  if (muted || typeof Audio === 'undefined') return
+  if (laughEl) laughEl.pause()
+  laughEl = new Audio(import.meta.env.BASE_URL + LAUGH_FILES[Math.floor(Math.random() * LAUGH_FILES.length)])
+  laughEl.volume = 0.75
+  laughEl.play().catch(() => {})
+}

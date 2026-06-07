@@ -3,7 +3,7 @@ import GameShell from '../components/GameShell'
 import Friend from '../components/Friend'
 import { FRIEND_NATURAL, friendKindForIndex } from '../components/FriendArt'
 import type { GameProps } from './registry'
-import { playGiggle, playRaspberry, playHonk, playTap, unlockAudio } from '../audio'
+import { playGiggle, playRaspberry, playHonk, playLaugh, playTap, unlockAudio } from '../audio'
 import { playClip, stopClip } from '../voice'
 import { randFriendIndex, friendCount } from '../level'
 import { randInt } from './util'
@@ -73,11 +73,15 @@ export default function LaughGame({ onExit, friend }: GameProps) {
     }
     a.sound()
     burst('😂', 6)
+    playLaugh() // the friend laughs out loud (real recorded laugh)
   }
   // tell a knock-knock joke LINE BY LINE, with a gap after each so it doesn't
-  // rush (a longer beat after the "knock knock")
+  // rush (a longer beat after the "knock knock"); the friend laughs at the end
   function playJokeLine(j: number, n: number) {
-    if (n >= JOKE_LINES[j]) return
+    if (n >= JOKE_LINES[j]) {
+      playLaugh()
+      return
+    }
     trigger('wiggle')
     playClip(`joke-${j}-${n}`, '', () => {
       jokeTimer.current = window.setTimeout(() => playJokeLine(j, n + 1), n === 0 ? 1500 : 1000)
