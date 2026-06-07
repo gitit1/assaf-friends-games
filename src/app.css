@@ -8207,13 +8207,14 @@ button {
   outline-offset: 2px;
 }
 .world-split {
-  display: flex;
-  flex-direction: column;
+  /* split the stage 25% / 50% / 25%: equation on top, friends in the middle,
+     "build me" button at the bottom */
+  display: grid;
+  grid-template-rows: 25% 50% 25%;
+  align-self: stretch;
+  justify-items: center;
   align-items: center;
-  /* sit the equation near the top of the stage (it was floating too low), with
-     air down to the friends */
-  align-self: flex-start;
-  gap: 22px;
+  width: 100%;
   /* replays each time a new split is shown (the element is keyed by a+b) */
   animation: world-split-in 0.45s cubic-bezier(0.2, 0.7, 0.3, 1.2) both;
 }
