@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import GameShell from './GameShell'
 import Friend from './Friend'
 import IconButton from './IconButton'
-import { FRIEND_NATURAL, friendKindForIndex, friendMaxDim } from './FriendArt'
+import { FRIEND_NATURAL, friendKindForIndex } from './FriendArt'
 import { friendGame, friendName, friendNumber, friendSay, friendSpecial, friendVoice } from '../friends'
 import { playCount, playFriend, playSuccess, playTap, playWin, unlockAudio } from '../audio'
 import { stopSpeech } from '../speech'
@@ -243,14 +243,17 @@ export default function FriendWorld({
       later(() => {
         setLit(i)
         playCount(i)
-        if (speakEach) playClip(`num-${i}`, numberWord(i))
+        // count in THIS friend's own voice (num-<i>-<Voice>), so e.g. טוקי counts
+        // 1,2 all in Erez — not mixed with each number's own friend's voice
+        if (speakEach) playClip(`num-${i}-${voice}`, numberWord(i))
       }, i * STEP)
     }
     later(() => {
       setLit(undefined)
       playWin()
-      // n===1 was already said once in the loop — don't repeat it for לולו
-      if (n > 1) playClip(`num-${n}`, numberWord(n))
+      // only announce the total here when the loop DIDN'T speak it (big numbers) —
+      // otherwise the last number would be said twice
+      if (!speakEach) playClip(`num-${n}-${voice}`, numberWord(n))
     }, n * STEP + 500)
   }
 
@@ -323,8 +326,14 @@ export default function FriendWorld({
   // the two split friends share one scale (so 3 still looks smaller than 4),
   // sized so the larger one fits with both side by side AND the equation + button
   // still leave the action buttons visible
-  const splitMaxDim = split ? Math.max(friendMaxDim(split.a - 1), friendMaxDim(split.b - 1)) : 1
-  const splitScale = Math.min((vp.w * 0.3) / splitMaxDim, (vp.h * 0.22) / splitMaxDim, 1.3)
+  // the two split friends share one scale, normalised by HEIGHT (like the main
+  // friend) and kept SMALLER than it, so they sit under the equation without
+  // overlapping it and both fit side by side
+  const splitH = (idx: number) => FRIEND_NATURAL[friendKindForIndex(idx)].h
+  const splitW = (idx: number) => FRIEND_NATURAL[friendKindForIndex(idx)].w
+  const splitNatH = split ? Math.max(splitH(split.a - 1), splitH(split.b - 1)) : 1
+  const splitNatW = split ? Math.max(splitW(split.a - 1), splitW(split.b - 1)) : 1
+  const splitScale = Math.min((vp.h * 0.12) / splitNatH, (vp.w * 0.32) / splitNatW)
 
   return (
     <GameShell title={friendName(index)} emoji="⭐" onExit={onExit}>
@@ -350,7 +359,7 @@ export default function FriendWorld({
             // "who am I made of": equation in big digits (he reads numbers!) + the
             // two real friends it's built from, with a bridge to build it for real
             <div className="world-split" key={`${split.a}-${split.b}`}>
-              <div className="world-split-eq" aria-live="polite">
+              <div className="world-split-eq" aria-live="polite" dir="ltr">
                 <span className="wse-whole">{n}</span>
                 <span className="wse-sym">=</span>
                 <span>{split.a}</span>

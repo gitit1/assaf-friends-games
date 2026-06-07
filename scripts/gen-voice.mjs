@@ -69,18 +69,20 @@ const SPECIAL = {
 // Per-friend number facts SPOKEN by the ✨ fact button, one per difficulty level
 // (0 קל · 1 בינוני · 2 קשה · 3 אלוף), recorded in the friend's voice. The visual
 // fact (big digits) still shows alongside. Filled in per friend.
+// NOTE: "מספר" must be NIQQUD ('מִסְפָּר' / 'הַמִּסְפָּר') or the voices read it as
+// "מסַפֵּר" (storyteller). Same rule as HAMISPAR in the intros.
 const FACTS = {
   0: [ // 1 לולו
-    'אני הראשונה! אני המספר אחת.',
-    'אחריי בא המספר שתיים.',
-    'אני הכי קטנה — כל מספר גדול ממני.',
-    'כל מספר שתכפיל בי יישאר אותו דבר!',
+    'אני הראשונה! אני הַמִּסְפָּר אחת.',
+    'אחריי בא הַמִּסְפָּר שתיים.',
+    'אני הכי קטנה — כל מִסְפָּר גדול ממני.',
+    'כל מִסְפָּר שתכפיל בי יישאר אותו דבר!',
   ],
   1: [ // 2 טוקי
-    'אני המספר שתיים. אני בא אחרי אחת.',
+    'אני הַמִּסְפָּר שתיים. אני בא אחרי אחת.',
     'שתיים זה זוג — שתי ידיים, שתי רגליים!',
     'אחת ועוד אחת — זה אני, שתיים.',
-    'אני המספר הזוגי הראשון.',
+    'אני הַמִּסְפָּר הזוגי הראשון.',
   ],
 }
 
@@ -142,6 +144,19 @@ for (const [i, phrases] of Object.entries(SPECIAL)) {
 for (const [i, byLevel] of Object.entries(FACTS)) {
   byLevel.forEach((text, lvl) => lines.push({ id: `fact-${i}-${lvl}`, text, voice: voiceFor(Number(i)) }))
 }
+// counting numbers in the friend's OWN voice, so e.g. טוקי counts "1,2" all in
+// Erez (not mixed with לולו's Ayelet). num-<k>-<Voice>, for completed friends.
+const cnumSeen = new Set()
+for (const i of Object.keys(FACTS).map(Number)) {
+  const v = voiceFor(i)
+  for (let k = 1; k <= i + 1; k++) {
+    const id = `num-${k}-${v}`
+    if (!cnumSeen.has(id)) {
+      cnumSeen.add(id)
+      lines.push({ id, text: numWord(k), voice: v })
+    }
+  }
+}
 // shared buttons recorded in every chosen voice → fx-five-Ayelet, fx-hug-Erez, …
 const ALL_VOICES = [...FEMALE_VOICES, ...MALE_VOICES]
 for (const v of ALL_VOICES) for (const b of SHARED) lines.push({ id: `${b.id}-${v}`, text: b.text, voice: v })
@@ -160,7 +175,8 @@ const friendOf = (id) => {
 }
 // clip kind, for KINDS filtering
 const kindOf = (id) =>
-  /^num-/.test(id) ? 'num'
+  /^num-\d+-/.test(id) ? 'cnum' // num-<k>-<Voice> (counting in a friend's voice)
+    : /^num-/.test(id) ? 'num'
     : /^intro-/.test(id) ? 'intro'
       : /^special-/.test(id) ? 'special'
         : /^fact-/.test(id) ? 'fact'
