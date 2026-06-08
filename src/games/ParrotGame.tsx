@@ -16,7 +16,7 @@ const SPEAK = 0.045 // RMS above this = the child is speaking
 const SILENCE = 0.025 // RMS below this = quiet
 const PAUSE_MS = 650 // this much quiet after speech → the parrot repeats
 const MIN_SPEECH_MS = 250 // ignore tiny blips
-const MAX_UTTER_MS = 6000 // cap one phrase
+const MAX_UTTER_MS = 10000 // repeat on a pause OR after 10s — whichever comes first
 
 export default function ParrotGame({ onExit, friend }: GameProps) {
   const { t } = useT()
