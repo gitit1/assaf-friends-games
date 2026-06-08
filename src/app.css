@@ -10127,3 +10127,41 @@ button {
 .reduce-motion .laugh-friend {
   animation: none !important;
 }
+
+/* ===================== משחק תוכי (parrot) ===================== */
+.parrot-talk {
+  animation: parrot-talk 0.5s ease-in-out infinite;
+}
+@keyframes parrot-talk {
+  50% {
+    transform: translateY(-8px) scale(1.03);
+  }
+}
+.parrot-badge {
+  position: absolute;
+  top: 10px;
+  inset-inline-start: 12px;
+  font-size: 1.7rem;
+  animation: parrot-rec 1s ease-in-out infinite;
+}
+@keyframes parrot-rec {
+  50% {
+    opacity: 0.3;
+  }
+}
+.parrot-hint {
+  color: #fca5a5;
+  font-weight: 700;
+  text-align: center;
+}
+.parrot-tip {
+  color: rgba(255, 255, 255, 0.7);
+  font-weight: 600;
+  text-align: center;
+  max-width: 320px;
+  margin: 0 auto;
+}
+.reduce-motion .parrot-talk,
+.reduce-motion .parrot-badge {
+  animation: none !important;
+}

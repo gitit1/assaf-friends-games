@@ -60,6 +60,12 @@ export const EN: Dict = {
   'laugh.honk': { text: 'Honk' },
   'laugh.spin': { text: 'Spin' },
   'laugh.joke': { text: 'Joke' },
+  // parrot game
+  'game.parrot': { text: 'Parrot' },
+  'parrot.record': { text: 'Record' },
+  'parrot.play': { text: 'Repeat' },
+  'parrot.tip': { text: 'Record — talk or sing — and the friend repeats you!' },
+  'parrot.denied': { text: 'Allow the microphone to play 🎤' },
   // the per-friend "special" button label (chosen by index % 12)
   'world.like.0': { text: 'Jump' },
   'world.like.1': { text: 'Dance' },

@@ -61,6 +61,12 @@ export const HE: Dict = {
   'laugh.honk': { text: 'צפצוף' },
   'laugh.spin': { text: 'סחרחורת' },
   'laugh.joke': { text: 'בדיחה' },
+  // parrot game
+  'game.parrot': { text: 'תוכי' },
+  'parrot.record': { text: 'הקלטה' },
+  'parrot.play': { text: 'שיחזור' },
+  'parrot.tip': { text: 'הקליטו — דברו או שירו — והחבר יחזור אחריכם!' },
+  'parrot.denied': { text: 'צריך לאשר את המיקרופון כדי לשחק 🎤' },
   // the per-friend "special" button label (chosen by index % 12)
   'world.like.0': { text: 'קפיצה' },
   'world.like.1': { text: 'ריקוד' },
