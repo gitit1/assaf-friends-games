@@ -3,142 +3,179 @@ import GameShell from '../components/GameShell'
 import Friend from '../components/Friend'
 import { FRIEND_NATURAL, friendKindForIndex } from '../components/FriendArt'
 import type { GameProps } from './registry'
-import { playMove, playTap, unlockAudio } from '../audio'
+import { playTap, unlockAudio } from '../audio'
 import { randFriendIndex, friendCount } from '../level'
 import { useViewport } from '../useViewport'
 import { useT } from '../i18n'
 
-// "Parrot": the child records their voice (talking or singing) and the friend
-// repeats it back in a funny high parrot voice. A 3·2·1 countdown before
-// recording. No timer, no win/lose. Needs mic permission (asked once).
-type Phase = 'idle' | 'count' | 'recording' | 'has'
+// "Parrot": a parrot perches on the chosen friend. In live mode it LISTENS, and
+// when the child pauses, it repeats what was said in a funny high parrot voice —
+// like a real parrot, no record button needed. (It records each phrase under the
+// hood.) No timer, no win/lose. Needs mic permission (asked once).
+const SPEAK = 0.045 // RMS above this = the child is speaking
+const SILENCE = 0.025 // RMS below this = quiet
+const PAUSE_MS = 650 // this much quiet after speech → the parrot repeats
+const MIN_SPEECH_MS = 250 // ignore tiny blips
+const MAX_UTTER_MS = 6000 // cap one phrase
 
 export default function ParrotGame({ onExit, friend }: GameProps) {
   const { t } = useT()
   const vp = useViewport()
   const [who, setWho] = useState(() => friend ?? randFriendIndex())
-  const [phase, setPhase] = useState<Phase>('idle')
-  const [count, setCount] = useState<number | null>(null)
-  const [talking, setTalking] = useState(false)
+  const [listening, setListening] = useState(false)
+  const [status, setStatus] = useState<'off' | 'listen' | 'repeat'>('off')
   const [denied, setDenied] = useState(false)
+
+  const acRef = useRef<AudioContext | null>(null)
+  const analyserRef = useRef<AnalyserNode | null>(null)
+  const streamRef = useRef<MediaStream | null>(null)
   const recRef = useRef<MediaRecorder | null>(null)
   const chunksRef = useRef<Blob[]>([])
-  const urlRef = useRef<string | null>(null)
+  const dataRef = useRef<Float32Array<ArrayBuffer> | null>(null)
+  const rafRef = useRef<number | null>(null)
   const audioRef = useRef<HTMLAudioElement | null>(null)
-  const streamRef = useRef<MediaStream | null>(null)
-  const timers = useRef<number[]>([])
+  const capturingRef = useRef(false)
+  const repeatingRef = useRef(false)
+  const captureStartRef = useRef(0)
+  const lastLoudRef = useRef(0)
+  const onRef = useRef(false)
 
-  const clearTimers = () => {
-    timers.current.forEach((id) => window.clearTimeout(id))
-    timers.current = []
-  }
-  const dropStream = () => {
+  function stopAll() {
+    onRef.current = false
+    if (rafRef.current) cancelAnimationFrame(rafRef.current)
+    rafRef.current = null
+    if (recRef.current && recRef.current.state !== 'inactive') {
+      recRef.current.onstop = null
+      try {
+        recRef.current.stop()
+      } catch {
+        /* already stopped */
+      }
+    }
+    capturingRef.current = false
+    repeatingRef.current = false
+    audioRef.current?.pause()
     streamRef.current?.getTracks().forEach((tr) => tr.stop())
     streamRef.current = null
+    acRef.current?.close().catch(() => {})
+    acRef.current = null
   }
-  useEffect(
-    () => () => {
-      clearTimers()
-      audioRef.current?.pause()
-      if (urlRef.current) URL.revokeObjectURL(urlRef.current)
-      dropStream()
-    },
-    [],
-  )
+  useEffect(() => () => stopAll(), [])
 
-  // the friend repeats the recording back, in a funny high "parrot" voice
-  function repeat() {
-    if (!urlRef.current) return
-    audioRef.current?.pause()
-    const a = new Audio(urlRef.current)
-    // raise the pitch (faster playback, pitch NOT preserved) → parrot voice
+  function rms() {
+    const an = analyserRef.current
+    const buf = dataRef.current
+    if (!an || !buf) return 0
+    an.getFloatTimeDomainData(buf)
+    let s = 0
+    for (let i = 0; i < buf.length; i++) s += buf[i] * buf[i]
+    return Math.sqrt(s / buf.length)
+  }
+
+  // the parrot repeats the captured phrase, in a funny high voice
+  function repeatPhrase() {
+    if (!chunksRef.current.length) {
+      repeatingRef.current = false
+      if (onRef.current) setStatus('listen')
+      return
+    }
+    const type = chunksRef.current[0]?.type || 'audio/webm'
+    const url = URL.createObjectURL(new Blob(chunksRef.current, { type }))
+    const a = new Audio(url)
     a.preservesPitch = false
     ;(a as unknown as { mozPreservesPitch?: boolean }).mozPreservesPitch = false
     ;(a as unknown as { webkitPreservesPitch?: boolean }).webkitPreservesPitch = false
     a.playbackRate = 1.45
     audioRef.current = a
-    setTalking(true)
-    a.onended = () => setTalking(false)
-    a.play().catch(() => setTalking(false))
+    repeatingRef.current = true
+    setStatus('repeat')
+    const done = () => {
+      URL.revokeObjectURL(url)
+      repeatingRef.current = false
+      if (onRef.current) setStatus('listen')
+    }
+    a.onended = done
+    a.play().catch(done)
   }
 
-  async function beginRecording() {
+  function startCapture(now: number) {
+    if (!streamRef.current) return
+    const rec = new MediaRecorder(streamRef.current)
+    chunksRef.current = []
+    rec.ondataavailable = (e) => {
+      if (e.data.size) chunksRef.current.push(e.data)
+    }
+    rec.onstop = repeatPhrase
+    recRef.current = rec
+    rec.start()
+    capturingRef.current = true
+    captureStartRef.current = now
+    lastLoudRef.current = now
+  }
+  function endCapture(doRepeat: boolean) {
+    capturingRef.current = false
+    const rec = recRef.current
+    if (rec && rec.state !== 'inactive') {
+      if (!doRepeat) rec.onstop = null
+      try {
+        rec.stop()
+      } catch {
+        /* noop */
+      }
+    }
+  }
+
+  function loop() {
+    if (!onRef.current) return
+    rafRef.current = requestAnimationFrame(loop)
+    if (repeatingRef.current) return // don't listen while the parrot is talking
+    const now = performance.now()
+    const level = rms()
+    if (!capturingRef.current) {
+      if (level > SPEAK) startCapture(now)
+    } else {
+      if (level > SILENCE) lastLoudRef.current = now
+      const dur = now - captureStartRef.current
+      const quiet = now - lastLoudRef.current
+      if (dur > MAX_UTTER_MS || quiet > PAUSE_MS) endCapture(dur > MIN_SPEECH_MS)
+    }
+  }
+
+  async function start() {
+    unlockAudio()
     if (!navigator.mediaDevices || typeof MediaRecorder === 'undefined') {
       setDenied(true)
-      setPhase('idle')
       return
     }
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
       streamRef.current = stream
-      const rec = new MediaRecorder(stream)
-      chunksRef.current = []
-      rec.ondataavailable = (e) => {
-        if (e.data.size) chunksRef.current.push(e.data)
-      }
-      rec.onstop = () => {
-        if (urlRef.current) URL.revokeObjectURL(urlRef.current)
-        const type = chunksRef.current[0]?.type || 'audio/webm'
-        urlRef.current = URL.createObjectURL(new Blob(chunksRef.current, { type }))
-        dropStream()
-        setPhase('has')
-        timers.current.push(window.setTimeout(repeat, 250)) // friend repeats right away
-      }
-      recRef.current = rec
-      rec.start()
-      setPhase('recording')
+      const AC = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext
+      const ac = new AC()
+      acRef.current = ac
+      const an = ac.createAnalyser()
+      an.fftSize = 1024
+      ac.createMediaStreamSource(stream).connect(an)
+      analyserRef.current = an
+      dataRef.current = new Float32Array(an.fftSize)
+      onRef.current = true
+      setListening(true)
+      setStatus('listen')
+      setDenied(false)
+      rafRef.current = requestAnimationFrame(loop)
     } catch {
       setDenied(true)
-      setPhase('idle')
     }
   }
-
-  function startCountdown() {
-    unlockAudio()
+  function toggle() {
     playTap()
-    setDenied(false)
-    audioRef.current?.pause()
-    setTalking(false)
-    setPhase('count')
-    setCount(3)
-    playMove(0)
-    timers.current.push(
-      window.setTimeout(() => {
-        setCount(2)
-        playMove(1)
-      }, 700),
-    )
-    timers.current.push(
-      window.setTimeout(() => {
-        setCount(1)
-        playMove(2)
-      }, 1400),
-    )
-    timers.current.push(
-      window.setTimeout(() => {
-        setCount(null)
-        beginRecording()
-      }, 2100),
-    )
-  }
-
-  function stopRecording() {
-    if (recRef.current && recRef.current.state !== 'inactive') recRef.current.stop()
-  }
-
-  function recordButton() {
-    if (phase === 'recording') stopRecording()
-    else startCountdown()
-  }
-
-  function del() {
-    audioRef.current?.pause()
-    if (urlRef.current) {
-      URL.revokeObjectURL(urlRef.current)
-      urlRef.current = null
+    if (listening) {
+      stopAll()
+      setListening(false)
+      setStatus('off')
+    } else {
+      start()
     }
-    setTalking(false)
-    setPhase('idle')
   }
   function swap() {
     playTap()
@@ -149,6 +186,13 @@ export default function ParrotGame({ onExit, friend }: GameProps) {
 
   const nat = FRIEND_NATURAL[friendKindForIndex(who)]
   const scale = Math.min((vp.h * 0.26) / nat.h, (vp.w * 0.55) / nat.w)
+  const tip = denied
+    ? t('parrot.denied')
+    : status === 'repeat'
+      ? t('parrot.repeating')
+      : status === 'listen'
+        ? t('parrot.listening')
+        : t('parrot.tip')
 
   return (
     <GameShell title={t('game.parrot')} emoji="🦜" onExit={onExit}>
@@ -157,37 +201,23 @@ export default function ParrotGame({ onExit, friend }: GameProps) {
           <button className="dance-swap" onClick={swap} aria-label={t('dance.swap')}>
             🔀
           </button>
-          <div className={`dancer ${talking ? 'parrot-talk' : ''}`}>
-            <Friend index={who} scale={scale} lively bouncing={talking} />
+          <div className="dancer">
+            <Friend index={who} scale={scale} lively />
           </div>
-          {count !== null && (
-            <div className="dance-count" key={count} aria-hidden="true">
-              {count}
-            </div>
-          )}
-          {phase === 'recording' && <div className="parrot-badge">🎤</div>}
-        </div>
-
-        {denied && <p className="parrot-hint">{t('parrot.denied')}</p>}
-
-        <div className="dance-controls">
-          <button
-            className={`dance-ctrl dance-rec ${phase === 'recording' ? 'is-on' : ''}`}
-            onClick={recordButton}
-            disabled={phase === 'count'}
-            aria-label={t(phase === 'recording' ? 'dance.stop' : 'parrot.record')}
+          {/* the parrot, perched on the friend's shoulder */}
+          <span
+            className={`parrot-bird ${status === 'repeat' ? 'talk' : status === 'listen' ? 'listen' : ''}`}
+            aria-hidden="true"
           >
-            <span aria-hidden="true">{phase === 'recording' ? '⏹️' : '⏺️'}</span>
-          </button>
-          <button className="dance-ctrl" onClick={repeat} disabled={phase !== 'has'} aria-label={t('parrot.play')}>
-            <span aria-hidden="true">🦜</span>
-          </button>
-          <button className="dance-ctrl" onClick={del} disabled={phase !== 'has'} aria-label={t('dance.delete')}>
-            <span aria-hidden="true">🗑️</span>
-          </button>
+            🦜
+          </span>
         </div>
 
-        <p className="parrot-tip">{t('parrot.tip')}</p>
+        <button className={`big-button parrot-listen ${listening ? 'on' : ''}`} onClick={toggle}>
+          <span aria-hidden="true">{listening ? '⏹️' : '🦜'}</span> {listening ? t('parrot.stop') : t('parrot.start')}
+        </button>
+
+        <p className="parrot-tip">{tip}</p>
       </div>
     </GameShell>
   )

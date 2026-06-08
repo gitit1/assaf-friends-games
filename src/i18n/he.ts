@@ -63,9 +63,11 @@ export const HE: Dict = {
   'laugh.joke': { text: 'בדיחה' },
   // parrot game
   'game.parrot': { text: 'תוכי' },
-  'parrot.record': { text: 'הקלטה' },
-  'parrot.play': { text: 'שיחזור' },
-  'parrot.tip': { text: 'הקליטו — דברו או שירו — והחבר יחזור אחריכם!' },
+  'parrot.start': { text: 'דברו עם התוכי' },
+  'parrot.stop': { text: 'עצור' },
+  'parrot.listening': { text: 'התוכי מקשיב... דברו או שירו! 🦜' },
+  'parrot.repeating': { text: 'התוכי חוזר אחריכם! 🦜' },
+  'parrot.tip': { text: 'לחצו, דברו או שירו — והתוכי יחזור אחריכם!' },
   'parrot.denied': { text: 'צריך לאשר את המיקרופון כדי לשחק 🎤' },
   // the per-friend "special" button label (chosen by index % 12)
   'world.like.0': { text: 'קפיצה' },

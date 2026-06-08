@@ -62,9 +62,11 @@ export const EN: Dict = {
   'laugh.joke': { text: 'Joke' },
   // parrot game
   'game.parrot': { text: 'Parrot' },
-  'parrot.record': { text: 'Record' },
-  'parrot.play': { text: 'Repeat' },
-  'parrot.tip': { text: 'Record — talk or sing — and the friend repeats you!' },
+  'parrot.start': { text: 'Talk to the parrot' },
+  'parrot.stop': { text: 'Stop' },
+  'parrot.listening': { text: 'The parrot is listening… talk or sing! 🦜' },
+  'parrot.repeating': { text: 'The parrot repeats you! 🦜' },
+  'parrot.tip': { text: 'Tap, talk or sing — and the parrot repeats you!' },
   'parrot.denied': { text: 'Allow the microphone to play 🎤' },
   // the per-friend "special" button label (chosen by index % 12)
   'world.like.0': { text: 'Jump' },
