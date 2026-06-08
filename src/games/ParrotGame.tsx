@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import GameShell from '../components/GameShell'
 import Friend from '../components/Friend'
+import IconButton from '../components/IconButton'
 import { FRIEND_NATURAL, friendKindForIndex } from '../components/FriendArt'
 import type { GameProps } from './registry'
 import { playTap, unlockAudio } from '../audio'
@@ -177,11 +178,11 @@ export default function ParrotGame({ onExit, friend }: GameProps) {
       start()
     }
   }
-  function swap() {
+  // page through the friends by number to choose who the parrot sits on
+  function go(d: number) {
     playTap()
-    let n = randFriendIndex()
-    if (friendCount() > 1) while (n === who) n = randFriendIndex()
-    setWho(n)
+    const c = friendCount()
+    setWho((who + d + c) % c)
   }
 
   const nat = FRIEND_NATURAL[friendKindForIndex(who)]
@@ -197,10 +198,15 @@ export default function ParrotGame({ onExit, friend }: GameProps) {
   return (
     <GameShell title={t('game.parrot')} emoji="🦜" onExit={onExit}>
       <div className="laugh-screen">
+        {/* number navigation — choose which friend the parrot sits on */}
+        <div className="world-nav">
+          <IconButton icon="◀" label={t('nav.prev')} onClick={() => go(-1)} />
+          <span className="world-nav-num" aria-hidden="true">
+            {who + 1}
+          </span>
+          <IconButton icon="▶" label={t('nav.next')} onClick={() => go(1)} />
+        </div>
         <div className="laugh-stage">
-          <button className="dance-swap" onClick={swap} aria-label={t('dance.swap')}>
-            🔀
-          </button>
           <div className="dancer">
             <Friend index={who} scale={scale} lively />
           </div>
