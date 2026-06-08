@@ -21,10 +21,10 @@ const FLAVORS = [
   { key: 'blue', color: '#8fc2f0' },
   { key: 'lemon', color: '#f6df5e' },
 ]
-const MAX_SCOOPS = 4
+const MAX_SCOOPS = 5
 
 function makeOrder() {
-  return Array.from({ length: randInt(2, 3) }, () => randInt(0, FLAVORS.length - 1))
+  return Array.from({ length: randInt(2, 4) }, () => randInt(0, FLAVORS.length - 1))
 }
 function nextFriend(prev: number) {
   let n = randFriendIndex()
