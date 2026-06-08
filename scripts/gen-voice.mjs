@@ -65,7 +65,7 @@ const SPECIAL = {
   3: ['בואו נְצַיֵּיר!', 'איזה צבע אתם הכי אוהבים?', 'wow איזה יופי!'],          // 4 גוגו — ציור
   4: ['לה לה לה לה', 'איזה שיר אתם הכי אוהבים?', 'איזה שיר מקסים'],             // 5 דובי — שיר
   5: ['בואו נשחק מחבואים!', 'איפה אני?', 'מצאתם אותי!'],                       // 6 נוני — מחבואים
-  6: ['גול גול גול!!!', 'שעררר!', 'בואו נשחק כדורגל!'],                        // 7 פיקו — כדורגל
+  6: ['גול גול גול!!!', 'איזה שַׁעַר!', 'בואו נשחק כדורגל!'],                   // 7 פיקו — כדורגל
 }
 
 // Per-friend number facts SPOKEN by the ✨ fact button, one per difficulty level
@@ -153,7 +153,7 @@ const voiceFor = (i) => {
 // exclamatory for energy). Each is gender-aware (אוהב/אוהבת, נהנה/נהנית).
 const TEMPLATES = [
   (name, num, like, g) => `שלום!! אני ${name}, ${HAMISPAR} ${num}! אני ממש ${vg(g, 'אוהב', 'אוהבת')} ${like}! בואו לשחק יחד!`,
-  (name, num, like) => `היי! קוראים לי ${name}, ואני ${HAMISPAR} ${num}! בואו ${like} איתי!`,
+  (name, num, like) => `היי! קוראים לי ${name}, ואני ${HAMISPAR} ${num}! בואו ${like} אִתִּי!`,
   (name, num, like, g) => `wow! מצאתם אותי! אני ${name}, ${HAMISPAR} ${num}! אני ${vg(g, 'נהנה', 'נהנית')} ${like} כל היום!`,
   (name, num, like, g, invite) => `שלום שלום! ${name} כאן, ${HAMISPAR} ${num}! אני ${vg(g, 'אוהב', 'אוהבת')} ${like}, ${invite}!`,
   (name, num, like, g, invite) => `הנה אני, ${name}! ${HAMISPAR} ${num}! יותר מכל אני ${vg(g, 'אוהב', 'אוהבת')} ${like}! ${invite}?`,
