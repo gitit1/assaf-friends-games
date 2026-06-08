@@ -38,6 +38,7 @@ const LIKES: Like[] = [
   { verb: 'לְשַׂחֵק בְּכַדּוּר', emoji: '⚽', label: 'כדור', burst: '⚽', motion: 'jump' },
   { verb: 'לְחַלֵּק נְשִׁיקוֹת', emoji: '😘', label: 'נשיקות', burst: '💋', motion: 'jump' },
   { verb: 'לְשַׂחֵק כַּדּוּרֶגֶל', emoji: '⚽', label: 'כדורגל', burst: '⚽', motion: 'jump' },
+  { verb: 'לִצְבּוֹעַ', emoji: '🖍️', label: 'צביעה', burst: '🌈', motion: 'wiggle' },
 ]
 
 type Fx = { id: number; emoji: string; x: number }

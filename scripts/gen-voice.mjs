@@ -39,10 +39,10 @@ const NAME = ['לולו','טוקי','בובי','גוגו','דובי','נוני',
 // IPA override per name index — only where the plain reading is wrong. Grows as QA finds more.
 const NAME_IPA = { 0: '[ˈlulu]{ipa}' } // 1 לולו → "Lulu" (plain reads wrong)
 const nameToken = (i) => (isEdge ? NAME[i] : NAME_IPA[i] || NAME[i])
-const LIKES = ['לקפוץ','לרקוד','לצחוק','להתחבק','לשיר','לספור','לשחק מחבואים','לאכול גלידה','לצייר','לעשות בועות','לשחק בכדור','לחלק נשיקות','לשחק כדורגל']
+const LIKES = ['לקפוץ','לרקוד','לצחוק','להתחבק','לשיר','לספור','לשחק מחבואים','לאכול גלידה','לצייר','לעשות בועות','לשחק בכדור','לחלק נשיקות','לשחק כדורגל','לצבוע']
 // Closing invitation per like (same order as LIKES). The hug one is a warm
 // "אשמח לחיבוק" rather than a plain "בואו נתחבק".
-const INVITE = ['בואו נקפוץ','בואו נרקוד','בואו נצחק','אשמח לחיבוק','בואו נשיר','בואו נספור','בואו נשחק מחבואים','בואו נאכל גלידה','בואו נצייר','בואו נעשה בועות','בואו נשחק בכדור','בואו נחלק נשיקות','בואו נשחק כדורגל']
+const INVITE = ['בואו נקפוץ','בואו נרקוד','בואו נצחק','אשמח לחיבוק','בואו נשיר','בואו נספור','בואו נשחק מחבואים','בואו נאכל גלידה','בואו נצייר','בואו נעשה בועות','בואו נשחק בכדור','בואו נחלק נשיקות','בואו נשחק כדורגל','בואו נצבע']
 // short exclamation said when a friend's own "special" button is tapped (like-<n>);
 // order matches LIKES / FriendWorld.tsx
 const LIKE_FX = ['קפיצה!','ריקוד!','צחוק!','חיבוק!','שיר!','ספירה!','מחבואים!','גלידה!','ציור!','בועות!','כדור!','נשיקות!']
@@ -67,6 +67,7 @@ const SPECIAL = {
   5: ['בואו נשחק מחבואים!', 'איפה אני?', 'מצאתם אותי!'],                       // 6 נוני — מחבואים
   6: ['גול גול גול!!!', 'איזה שַׁעַר!', 'בואו נשחק כדורגל!'],                   // 7 פיקו — כדורגל
   7: ['בא לי גלידה!', 'איזה טעם הכי טעים?', 'אמממ, טעים!'],                     // 8 דודי — גלידה
+  8: ['בואו נצבע!', 'איזה צבע נבחר?', 'איזה יפה יצא!'],                         // 9 זוזו — צביעה
 }
 
 // Per-friend number facts SPOKEN by the ✨ fact button, one per difficulty level
@@ -123,6 +124,12 @@ const FACTS = {
     'לְתַמְנוּן יש שמונה זרועות!',
     'שמונה זה מִסְפָּר זוגי.',
   ],
+  8: [ // 9 זוזו
+    'אני הַמִּסְפָּר תשע.',
+    'תשע זה שמונה ועוד אחת.',
+    'שלוש פעמים שלוש זה תשע.',
+    'תשע זה מִסְפָּר אי-זוגי.',
+  ],
 }
 
 // Knock-knock jokes for the laugh game (Assaf loves them). Bobby (3) tells them,
@@ -137,7 +144,7 @@ const JOKES = [
 
 // Friend gender (index → 'f'/'m') for verb agreement in the intros. Filled in as
 // each batch is QA'd; anything unset defaults to male. Kept in sync with friends.ts.
-const GENDER = { 0: 'f', 3: 'f', 5: 'f' } // 1 לולו, 4 גוגו, 6 נוני = girls; 2 טוקי, 3 בובי, 5 דובי = boys
+const GENDER = { 0: 'f', 3: 'f', 5: 'f', 8: 'f' } // 1 לולו, 4 גוגו, 6 נוני, 9 זוזו = girls
 const genderOf = (i) => GENDER[i] || 'm'
 const vg = (g, m, f) => (g === 'f' ? f : m) // pick the gendered word form
 
@@ -183,7 +190,7 @@ const lines = []
 for (let k = 1; k <= COUNT; k++) lines.push({ id: `num-${k}`, text: numWord(k), voice: voiceFor(k - 1) })
 // Most friends' intro "I love X / let's X" follows their position; override when
 // a friend's special activity differs (e.g. Gugu → drawing instead of hugging).
-const INTRO_LIKE = { 3: 8, 5: 6, 6: 12 }
+const INTRO_LIKE = { 3: 8, 5: 6, 6: 12, 8: 13 }
 for (let i = 0; i < COUNT; i++) {
   const li = INTRO_LIKE[i] ?? i
   const intro = TEMPLATES[i % TEMPLATES.length](nameToken(i), numWord(i + 1), LIKES[li % LIKES.length], genderOf(i), INVITE[li % INVITE.length])

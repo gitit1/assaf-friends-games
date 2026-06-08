@@ -90,6 +90,7 @@ export const HE: Dict = {
   'world.like.10': { text: 'כדור' },
   'world.like.11': { text: 'נשיקות' },
   'world.like.12': { text: 'כדורגל' },
+  'world.like.13': { text: 'צביעה' },
 
   // place value game (tens & ones)
   'pv.make': { text: 'בנו את' },
