@@ -22,7 +22,7 @@ export const FRIENDS: Friend[] = [
   { color: '#4ade80', name: 'גוגו', say: 'גוּגוּ', gender: 'f', special: 8, game: 'draw' }, // 4 green — ציור → משחק ציור
   { color: '#14b8a6', name: 'דובי', say: 'דּוּבִּי', gender: 'm', special: 4, game: 'parrot' }, // 5 teal — שיר → משחק תוכי
   { color: '#22d3ee', name: 'נוני', say: 'נוּנִי', gender: 'f', special: 6, game: 'who' }, // 6 cyan — מחבואים → מי נעלם?
-  { color: '#3b82f6', name: 'פיקו', say: 'פִּיקוֹ' }, // 7 blue
+  { color: '#3b82f6', name: 'פיקו', say: 'פִּיקוֹ', gender: 'm', special: 12, game: 'goal' }, // 7 blue — כדורגל → בעיטה לשער
   { color: '#8b5cf6', name: 'דודי', say: 'דוּדִי' }, // 8 violet
   { color: '#ec4899', name: 'זוזו', say: 'זוּזוּ' }, // 9 pink
   { color: '#f43f5e', name: 'קוקו', say: 'קוּקוֹ' }, // 10 red-pink
