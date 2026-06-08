@@ -9,15 +9,18 @@ import { randFriendIndex, friendCount } from '../level'
 import { useViewport } from '../useViewport'
 import { useT } from '../i18n'
 
-// "Parrot": a parrot perches on the chosen friend. In live mode it LISTENS, and
-// when the child pauses, it repeats what was said in a funny high parrot voice —
-// like a real parrot, no record button needed. (It records each phrase under the
-// hood.) No timer, no win/lose. Needs mic permission (asked once).
+// "Parrot": a parrot perches on the chosen friend and LISTENS. When the child
+// pauses (or after 6s), it repeats what was said in a funny high parrot voice —
+// like a real parrot, no record button. Everything runs inside ONE Web Audio
+// context (capture + playback), which is what makes it work repeatedly on iOS
+// Safari — an <audio> element or MediaRecorder there suspends the mic after one
+// go. No timer, no win/lose. Needs mic permission (asked once).
 const SPEAK = 0.045 // RMS above this = the child is speaking
 const SILENCE = 0.025 // RMS below this = quiet
-const PAUSE_MS = 650 // this much quiet after speech → the parrot repeats
+const PAUSE_MS = 650 // this much quiet after speech → repeat
 const MIN_SPEECH_MS = 250 // ignore tiny blips
-const MAX_UTTER_MS = 6000 // repeat on a pause OR after 6s — whichever comes first
+const MAX_UTTER_MS = 6000 // repeat on a pause OR after 6s — whichever first
+const PITCH = 1.45 // parrot voice = higher & quicker
 
 export default function ParrotGame({ onExit, friend }: GameProps) {
   const { t } = useT()
@@ -28,34 +31,33 @@ export default function ParrotGame({ onExit, friend }: GameProps) {
   const [denied, setDenied] = useState(false)
 
   const acRef = useRef<AudioContext | null>(null)
-  const analyserRef = useRef<AnalyserNode | null>(null)
   const streamRef = useRef<MediaStream | null>(null)
-  const recRef = useRef<MediaRecorder | null>(null)
-  const chunksRef = useRef<Blob[]>([])
-  const dataRef = useRef<Float32Array<ArrayBuffer> | null>(null)
-  const rafRef = useRef<number | null>(null)
-  const audioRef = useRef<HTMLAudioElement | null>(null)
+  const procRef = useRef<ScriptProcessorNode | null>(null)
+  const nodeRef = useRef<AudioBufferSourceNode | null>(null)
+  const onRef = useRef(false)
   const capturingRef = useRef(false)
   const repeatingRef = useRef(false)
+  const buffersRef = useRef<Float32Array[]>([])
   const captureStartRef = useRef(0)
   const lastLoudRef = useRef(0)
-  const onRef = useRef(false)
 
   function stopAll() {
     onRef.current = false
-    if (rafRef.current) cancelAnimationFrame(rafRef.current)
-    rafRef.current = null
-    if (recRef.current && recRef.current.state !== 'inactive') {
-      recRef.current.onstop = null
-      try {
-        recRef.current.stop()
-      } catch {
-        /* already stopped */
-      }
-    }
     capturingRef.current = false
     repeatingRef.current = false
-    audioRef.current?.pause()
+    buffersRef.current = []
+    try {
+      nodeRef.current?.stop()
+    } catch {
+      /* already stopped */
+    }
+    nodeRef.current = null
+    const proc = procRef.current
+    if (proc) {
+      proc.onaudioprocess = null
+      proc.disconnect()
+    }
+    procRef.current = null
     streamRef.current?.getTracks().forEach((tr) => tr.stop())
     streamRef.current = null
     acRef.current?.close().catch(() => {})
@@ -63,108 +65,97 @@ export default function ParrotGame({ onExit, friend }: GameProps) {
   }
   useEffect(() => () => stopAll(), [])
 
-  function rms() {
-    const an = analyserRef.current
-    const buf = dataRef.current
-    if (!an || !buf) return 0
-    an.getFloatTimeDomainData(buf)
-    let s = 0
-    for (let i = 0; i < buf.length; i++) s += buf[i] * buf[i]
-    return Math.sqrt(s / buf.length)
-  }
-
-  // the parrot repeats the captured phrase, in a funny high voice
-  function repeatPhrase() {
-    if (!chunksRef.current.length) {
+  // play the captured phrase back through Web Audio (same context as the mic →
+  // robust on iOS). The higher playbackRate IS the parrot voice.
+  function repeatPhrase(chunks: Float32Array[]) {
+    const ac = acRef.current
+    if (!ac || !chunks.length) {
       repeatingRef.current = false
       if (onRef.current) setStatus('listen')
       return
     }
-    const type = chunksRef.current[0]?.type || 'audio/webm'
-    const url = URL.createObjectURL(new Blob(chunksRef.current, { type }))
-    const a = new Audio(url)
-    a.preservesPitch = false
-    ;(a as unknown as { mozPreservesPitch?: boolean }).mozPreservesPitch = false
-    ;(a as unknown as { webkitPreservesPitch?: boolean }).webkitPreservesPitch = false
-    a.playbackRate = 1.45
-    audioRef.current = a
+    let len = 0
+    for (const c of chunks) len += c.length
+    const data = new Float32Array(len)
+    let o = 0
+    for (const c of chunks) {
+      data.set(c, o)
+      o += c.length
+    }
+    const buf = ac.createBuffer(1, len, ac.sampleRate)
+    buf.copyToChannel(data, 0)
+    const node = ac.createBufferSource()
+    node.buffer = buf
+    node.playbackRate.value = PITCH
+    node.connect(ac.destination)
+    nodeRef.current = node
     repeatingRef.current = true
     setStatus('repeat')
-    const done = () => {
-      URL.revokeObjectURL(url)
+    node.onended = () => {
       repeatingRef.current = false
+      nodeRef.current = null
       if (onRef.current) setStatus('listen')
     }
-    a.onended = done
-    a.play().catch(done)
+    node.start()
   }
 
-  function startCapture(now: number) {
-    if (!streamRef.current) return
-    const rec = new MediaRecorder(streamRef.current)
-    chunksRef.current = []
-    rec.ondataavailable = (e) => {
-      if (e.data.size) chunksRef.current.push(e.data)
-    }
-    rec.onstop = repeatPhrase
-    recRef.current = rec
-    rec.start()
-    capturingRef.current = true
-    captureStartRef.current = now
-    lastLoudRef.current = now
-  }
-  function endCapture(doRepeat: boolean) {
-    capturingRef.current = false
-    const rec = recRef.current
-    if (rec && rec.state !== 'inactive') {
-      if (!doRepeat) rec.onstop = null
-      try {
-        rec.stop()
-      } catch {
-        /* noop */
-      }
-    }
-  }
-
-  function loop() {
-    if (!onRef.current) return
-    rafRef.current = requestAnimationFrame(loop)
-    if (repeatingRef.current) return // don't listen while the parrot is talking
+  // voice-activity detection, called for every audio block from the mic
+  function onAudio(input: Float32Array) {
+    if (!onRef.current || repeatingRef.current) return
+    let s = 0
+    for (let i = 0; i < input.length; i++) s += input[i] * input[i]
+    const level = Math.sqrt(s / input.length)
     const now = performance.now()
-    const level = rms()
     if (!capturingRef.current) {
-      if (level > SPEAK) startCapture(now)
+      if (level > SPEAK) {
+        capturingRef.current = true
+        captureStartRef.current = now
+        lastLoudRef.current = now
+        buffersRef.current = [new Float32Array(input)]
+      }
     } else {
+      buffersRef.current.push(new Float32Array(input))
       if (level > SILENCE) lastLoudRef.current = now
       const dur = now - captureStartRef.current
       const quiet = now - lastLoudRef.current
-      if (dur > MAX_UTTER_MS || quiet > PAUSE_MS) endCapture(dur > MIN_SPEECH_MS)
+      if (dur > MAX_UTTER_MS || quiet > PAUSE_MS) {
+        capturingRef.current = false
+        const chunks = buffersRef.current
+        buffersRef.current = []
+        if (dur > MIN_SPEECH_MS) repeatPhrase(chunks)
+      }
     }
   }
 
   async function start() {
     unlockAudio()
-    if (!navigator.mediaDevices || typeof MediaRecorder === 'undefined') {
+    if (!navigator.mediaDevices) {
       setDenied(true)
       return
     }
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
-      streamRef.current = stream
+      // create the context inside the tap gesture (iOS), before any await
       const AC = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext
       const ac = new AC()
       acRef.current = ac
-      const an = ac.createAnalyser()
-      an.fftSize = 1024
-      ac.createMediaStreamSource(stream).connect(an)
-      analyserRef.current = an
-      dataRef.current = new Float32Array(an.fftSize)
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+      streamRef.current = stream
+      await ac.resume().catch(() => {})
+      const src = ac.createMediaStreamSource(stream)
+      const proc = ac.createScriptProcessor(2048, 1, 1)
+      const sink = ac.createGain()
+      sink.gain.value = 0 // process silently — don't echo the live mic to the speakers
+      proc.onaudioprocess = (e) => onAudio(e.inputBuffer.getChannelData(0))
+      src.connect(proc)
+      proc.connect(sink)
+      sink.connect(ac.destination)
+      procRef.current = proc
       onRef.current = true
       setListening(true)
       setStatus('listen')
       setDenied(false)
-      rafRef.current = requestAnimationFrame(loop)
     } catch {
+      stopAll()
       setDenied(true)
     }
   }
