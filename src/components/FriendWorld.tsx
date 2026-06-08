@@ -303,13 +303,12 @@ export default function FriendWorld({
     setSplit(null)
     setLit(undefined)
     setMotion(null)
-    const opening = fact === null
     setFact((f) => (f === null ? 0 : (f + 1) % facts.length))
     playSuccess()
-    // on opening, also SAY a fact in the friend's voice — random among the levels
-    // UP TO the child's difficulty (קל hears only the simplest; אלוף hears any of
-    // the 4). Missing clip → silent fallback, so only recorded friends speak.
-    if (opening) playClip(`fact-${index}-${randInt(0, getSettings().difficulty)}`, '')
+    // SAY a fact in the friend's voice on EVERY tap — random among the levels UP
+    // TO the child's difficulty (קל hears only the simplest; אלוף hears any of the
+    // 4). Missing clip → silent fallback, so only recorded friends speak.
+    playClip(`fact-${index}-${randInt(0, getSettings().difficulty)}`, '')
   }
   // bridge to the "Build a Number" game. If the current split is buildable there
   // (both parts ≤ 10), pre-load it so "build me!" literally rebuilds this friend.
