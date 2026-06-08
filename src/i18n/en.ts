@@ -68,6 +68,13 @@ export const EN: Dict = {
   'parrot.repeating': { text: 'The parrot repeats you! 🦜' },
   'parrot.tip': { text: 'Tap, talk or sing — and the parrot repeats you!' },
   'parrot.denied': { text: 'Allow the microphone to play 🎤' },
+  // ice-cream game
+  'game.icecream': { text: 'Ice cream' },
+  'ice.open': { text: 'Free' },
+  'ice.closed': { text: 'Orders' },
+  'ice.free': { text: 'Make ice cream!' },
+  'ice.serve': { text: 'Ready!' },
+  'ice.undo': { text: 'Undo' },
   // the per-friend "special" button label (chosen by index % 12)
   'world.like.0': { text: 'Jump' },
   'world.like.1': { text: 'Dance' },

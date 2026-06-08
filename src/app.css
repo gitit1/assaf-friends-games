@@ -10164,3 +10164,186 @@ button {
 .reduce-motion .parrot-bird {
   animation: none !important;
 }
+
+/* ===================== משחק גלידה (icecream) ===================== */
+.ice-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 16px;
+  width: min(560px, calc(100vw - 32px));
+  margin: 0 auto;
+}
+.ice-modes {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+.ice-mode-btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  font-weight: 800;
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+.ice-mode-btn.on {
+  background: linear-gradient(160deg, #f9a8d4, #c084fc);
+}
+.ice-score {
+  margin-inline-start: auto;
+  font-weight: 800;
+  color: #fff;
+}
+.ice-top {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  min-height: 21vh;
+  justify-content: center;
+}
+.ice-queue {
+  display: flex;
+  gap: 4px;
+  opacity: 0.6;
+}
+.ice-counter-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.ice-customer {
+  transition: transform 0.2s;
+}
+.ice-customer.happy {
+  transform: scale(1.08);
+}
+.ice-bubble {
+  position: relative;
+  background: #fff;
+  color: #222;
+  border-radius: 16px;
+  padding: 10px 14px;
+  min-width: 54px;
+  min-height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+.ice-bubble::after {
+  content: '';
+  position: absolute;
+  inset-inline-start: -8px;
+  top: 50%;
+  transform: translateY(-50%);
+  border: 8px solid transparent;
+  border-inline-end-color: #fff;
+}
+.ice-order {
+  display: flex;
+  gap: 6px;
+}
+.ice-dot {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  box-shadow: inset 0 -3px 4px rgba(0, 0, 0, 0.15);
+}
+.ice-free {
+  font-weight: 800;
+  font-size: 1rem;
+}
+.ice-yum {
+  font-size: 1.8rem;
+}
+/* the cone being built */
+.ice-cone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  min-height: 118px;
+}
+.ice-scoops {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.ice-scoop {
+  width: 56px;
+  height: 48px;
+  border-radius: 50%;
+  margin-bottom: -16px;
+  box-shadow: inset 0 -5px 8px rgba(0, 0, 0, 0.18), 0 2px 4px rgba(0, 0, 0, 0.2);
+  animation: ice-plop 0.25s ease;
+}
+.ice-scoops .ice-scoop:last-child {
+  margin-bottom: 0;
+}
+@keyframes ice-plop {
+  0% {
+    transform: scale(0.4) translateY(-12px);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+.ice-cone-base {
+  width: 0;
+  height: 0;
+  border-inline-start: 24px solid transparent;
+  border-inline-end: 24px solid transparent;
+  border-top: 50px solid #d9a566;
+  margin-top: 2px;
+}
+/* the stand */
+.ice-stand {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  width: 100%;
+  padding: 12px 10px 14px;
+  border-radius: 18px 18px 14px 14px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.13), rgba(255, 255, 255, 0.05));
+  border-bottom: 6px solid rgba(0, 0, 0, 0.25);
+}
+.ice-tub {
+  width: 62px;
+  height: 54px;
+  border: none;
+  border-radius: 12px 12px 8px 8px;
+  background: rgba(255, 255, 255, 0.16);
+  cursor: pointer;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 7px;
+}
+.ice-tub:active {
+  transform: scale(0.92);
+}
+.ice-tub-scoop {
+  width: 40px;
+  height: 30px;
+  border-radius: 50% 50% 45% 45%;
+  box-shadow: inset 0 -4px 6px rgba(0, 0, 0, 0.18);
+}
+.ice-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 2px;
+}
+.ice-serve {
+  background: linear-gradient(160deg, #f9a8d4, #c084fc);
+}
+.reduce-motion .ice-scoop {
+  animation: none !important;
+}

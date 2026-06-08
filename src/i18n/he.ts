@@ -69,6 +69,13 @@ export const HE: Dict = {
   'parrot.repeating': { text: 'התוכי חוזר אחריכם! 🦜' },
   'parrot.tip': { text: 'לחצו, דברו או שירו — והתוכי יחזור אחריכם!' },
   'parrot.denied': { text: 'צריך לאשר את המיקרופון כדי לשחק 🎤' },
+  // ice-cream game
+  'game.icecream': { text: 'גלידה' },
+  'ice.open': { text: 'חופשי' },
+  'ice.closed': { text: 'הזמנות' },
+  'ice.free': { text: 'מה מכינים?' },
+  'ice.serve': { text: 'מוכן!' },
+  'ice.undo': { text: 'אחורה' },
   // the per-friend "special" button label (chosen by index % 12)
   'world.like.0': { text: 'קפיצה' },
   'world.like.1': { text: 'ריקוד' },
