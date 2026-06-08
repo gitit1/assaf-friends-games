@@ -64,6 +64,7 @@ const SPECIAL = {
   2: ['איזה מצחיק אתה!', 'wow כמה צחקתי', 'חַה חַה חַה חַה!'],                   // 3 בובי — צחוק
   3: ['בואו נְצַיֵּיר!', 'איזה צבע אתם הכי אוהבים?', 'wow איזה יופי!'],          // 4 גוגו — ציור
   4: ['לה לה לה לה', 'איזה שיר אתם הכי אוהבים?', 'איזה שיר מקסים'],             // 5 דובי — שיר
+  5: ['בואו נשחק מחבואים!', 'איפה אני?', 'מצאתם אותי!'],                       // 6 נוני — מחבואים
 }
 
 // Per-friend number facts SPOKEN by the ✨ fact button, one per difficulty level
@@ -102,6 +103,12 @@ const FACTS = {
     'יש לי חמש אצבעות, כמו ביד.',
     'חמש זה מִסְפָּר אי-זוגי.',
   ],
+  5: [ // 6 נוני
+    'אני הַמִּסְפָּר שש.',
+    'שש זה שלוש ועוד שלוש.',
+    'לַחֲרָקִים יש שש רגליים.',
+    'שש זה מִסְפָּר זוגי.',
+  ],
 }
 
 // Knock-knock jokes for the laugh game (Assaf loves them). Bobby (3) tells them,
@@ -116,7 +123,7 @@ const JOKES = [
 
 // Friend gender (index → 'f'/'m') for verb agreement in the intros. Filled in as
 // each batch is QA'd; anything unset defaults to male. Kept in sync with friends.ts.
-const GENDER = { 0: 'f', 3: 'f' } // 1 לולו, 4 גוגו = girls; 2 טוקי, 3 בובי, 5 דובי = boys
+const GENDER = { 0: 'f', 3: 'f', 5: 'f' } // 1 לולו, 4 גוגו, 6 נוני = girls; 2 טוקי, 3 בובי, 5 דובי = boys
 const genderOf = (i) => GENDER[i] || 'm'
 const vg = (g, m, f) => (g === 'f' ? f : m) // pick the gendered word form
 
@@ -162,7 +169,7 @@ const lines = []
 for (let k = 1; k <= COUNT; k++) lines.push({ id: `num-${k}`, text: numWord(k), voice: voiceFor(k - 1) })
 // Most friends' intro "I love X / let's X" follows their position; override when
 // a friend's special activity differs (e.g. Gugu → drawing instead of hugging).
-const INTRO_LIKE = { 3: 8 }
+const INTRO_LIKE = { 3: 8, 5: 6 }
 for (let i = 0; i < COUNT; i++) {
   const li = INTRO_LIKE[i] ?? i
   const intro = TEMPLATES[i % TEMPLATES.length](nameToken(i), numWord(i + 1), LIKES[li % LIKES.length], genderOf(i), INVITE[li % INVITE.length])
