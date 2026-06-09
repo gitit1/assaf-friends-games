@@ -34,7 +34,7 @@ const LIKES: Like[] = [
   { verb: 'לְשַׂחֵק מַחֲבוֹאִים', emoji: '🙈', label: 'מחבואים', burst: '✨', motion: 'float' },
   { verb: 'לֶאֱכוֹל גְּלִידָה', emoji: '🍦', label: 'גלידה', burst: '🍦', motion: 'jump' },
   { verb: 'לְצַיֵּיר', emoji: '🎨', label: 'ציור', burst: '🖍️', motion: 'wiggle' },
-  { verb: 'לַעֲשׂוֹת בּוּעוֹת', emoji: '🫧', label: 'בועות', burst: '🫧', motion: 'float' },
+  { verb: 'לְהָפְרִיחַ בּוּעוֹת', emoji: '🫧', label: 'בועות', burst: '🫧', motion: 'float' },
   { verb: 'לְשַׂחֵק בְּכַדּוּר', emoji: '⚽', label: 'כדור', burst: '⚽', motion: 'jump' },
   { verb: 'לְחַלֵּק נְשִׁיקוֹת', emoji: '😘', label: 'נשיקות', burst: '💋', motion: 'jump' },
   { verb: 'לְשַׂחֵק כַּדּוּרֶגֶל', emoji: '⚽', label: 'כדורגל', burst: '⚽', motion: 'jump' },
