@@ -70,6 +70,7 @@ export const EN: Dict = {
   'parrot.denied': { text: 'Allow the microphone to play 🎤' },
   // ice-cream game
   'game.icecream': { text: 'Ice cream' },
+  'game.bubbles': { text: 'Bubbles' },
   'ice.open': { text: 'Free' },
   'ice.closed': { text: 'Orders' },
   'ice.free': { text: 'Make ice cream!' },

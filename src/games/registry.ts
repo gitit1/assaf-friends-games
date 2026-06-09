@@ -32,6 +32,7 @@ import DanceGame from './DanceGame'
 import LaughGame from './LaughGame'
 import ParrotGame from './ParrotGame'
 import IceCreamGame from './IceCreamGame'
+import BubblePopGame from './BubblePopGame'
 
 // Every game gets a callback to return to the home screen.
 export type GameProps = {
@@ -257,6 +258,14 @@ export const GAMES: GameDef[] = [
     color: 'linear-gradient(160deg, #f9a8d4, #c084fc)',
     category: 'fun',
     Component: IceCreamGame,
+  },
+  {
+    id: 'bubbles',
+    title: 'בועות',
+    emoji: '🫧',
+    color: 'linear-gradient(160deg, #7cc4f5, #c084fc)',
+    category: 'fun',
+    Component: BubblePopGame,
   },
   {
     id: 'colorme',
