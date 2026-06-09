@@ -231,6 +231,12 @@ export const EN: Dict = {
   'piano.song.threeblind': { text: 'Three Blind Mice' },
   'piano.song.yonatan': { text: 'Hänschen klein' },
   'piano.song.rainrain': { text: 'Rain Rain' },
+  'piano.song.ode': { text: 'Ode to Joy' },
+  'piano.song.itsy': { text: 'Itsy Bitsy Spider' },
+  'piano.song.happy': { text: "If You're Happy" },
+  'piano.song.bingo': { text: 'Bingo' },
+  'piano.song.wheels': { text: 'Wheels on the Bus' },
+  'piano.song.muffin': { text: 'Muffin Man' },
 
   // pop / match game
   'pop.new': { text: 'New' },

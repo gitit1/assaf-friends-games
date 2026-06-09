@@ -39,6 +39,12 @@ const SONGS: Song[] = [
   { key: 'threeblind', emoji: '🐭', notes: [2, 1, 0, 2, 1, 0, 4, 3, 3, 2, 4, 3, 3, 2] }, // שלושה עכברים
   { key: 'yonatan', emoji: '🐦', notes: [4, 2, 2, 3, 1, 1, 0, 1, 2, 3, 4, 4, 4] }, // יונתן הקטן
   { key: 'rainrain', emoji: '🌧️', notes: [4, 2, 4, 2, 4, 4, 2, 4, 2, 4, 2, 2, 1, 0] }, // גשם גשם
+  { key: 'ode', emoji: '🎼', notes: [2, 2, 3, 4, 4, 3, 2, 1, 0, 0, 1, 2, 2, 1, 1] }, // אודה לשמחה (Ode to Joy)
+  { key: 'itsy', emoji: '🕷️', notes: [0, 0, 0, 1, 2, 2, 1, 0, 1, 2, 0] }, // עכביש קטנטן
+  { key: 'happy', emoji: '😊', notes: [0, 0, 3, 3, 3, 3, 5, 5, 5, 5, 4, 3] }, // אם טוב לך
+  { key: 'bingo', emoji: '🐶', notes: [4, 4, 5, 4, 2, 4, 4, 5, 4, 0] }, // בינגו
+  { key: 'wheels', emoji: '🚌', notes: [0, 3, 3, 3, 3, 5, 4, 3, 2, 2, 3, 4] }, // גלגלי האוטובוס
+  { key: 'muffin', emoji: '🧁', notes: [3, 3, 3, 4, 5, 4, 3, 2, 0] }, // איש המאפינס
 ]
 
 export default function PianoFriends({ onExit }: GameProps) {

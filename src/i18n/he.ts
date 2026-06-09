@@ -232,6 +232,12 @@ export const HE: Dict = {
   'piano.song.threeblind': { text: 'שלושה עכברים' },
   'piano.song.yonatan': { text: 'יונתן הקטן' },
   'piano.song.rainrain': { text: 'גשם גשם' },
+  'piano.song.ode': { text: 'אודה לשמחה' },
+  'piano.song.itsy': { text: 'עכביש קטנטן' },
+  'piano.song.happy': { text: 'אם טוב לך' },
+  'piano.song.bingo': { text: 'בינגו' },
+  'piano.song.wheels': { text: 'גלגלי האוטובוס' },
+  'piano.song.muffin': { text: 'איש המאפינס' },
 
   // pop / match game
   'pop.new': { text: 'חדש' },
