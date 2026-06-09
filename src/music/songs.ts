@@ -9,6 +9,13 @@
 //
 // We grow this list a few at a time and verify each one by ear in the app, so
 // the notes are right before relying on it.
+//
+// ⏸ STATUS (paused 2026-06-09): 10 verified tunes are live (both dance + piano use
+// this list). Adding more is ON HOLD until the user can listen — encoding melodies
+// from memory produced wrong tunes (e.g. Wheels on the Bus), so we add ONE from
+// SONG_QUEUE at a time, ear-check it, then the next. Do NOT bulk-add untested tunes.
+// While music is paused we plan the rest of the roster instead — see
+// docs/ROSTER-PLAN.md (gender + game + phrases for friends 12–100).
 
 export type Note = [number, number]
 export type Song = { id: string; label: string; bpm: number; notes: Note[] }
