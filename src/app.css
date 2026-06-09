@@ -985,6 +985,31 @@ button {
 .bubble:active {
   transform: scale(0.8);
 }
+/* a friend floats inside each bubble */
+.bubble {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.bubble-friend {
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.bubble::after {
+  /* glassy shine on top of the bubble */
+  content: '';
+  position: absolute;
+  top: 13%;
+  inset-inline-start: 18%;
+  width: 26%;
+  height: 20%;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.6);
+  filter: blur(2px);
+  pointer-events: none;
+}
 
 /* ---------- animations ---------- */
 
