@@ -134,9 +134,6 @@ export default function MathRace({ onExit }: GameProps) {
 
       {won ? (
         <div className="counting-next">
-          <div className="banner banner-success" role="status">
-            ניצחת! 🎉
-          </div>
           <button className="big-button" onClick={restart}>
             🏁 עוד מירוץ
           </button>

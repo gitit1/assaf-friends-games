@@ -120,12 +120,6 @@ export default function MemoryGame({ onExit }: GameProps) {
         </button>
       </div>
 
-      {won && (
-        <div className="banner banner-success" role="status">
-          {t('mem.win')}
-        </div>
-      )}
-
       <div
         className={`memory-grid ${cols >= 5 ? 'is-wide-board' : ''}`}
         style={{ '--cols': cols, maxWidth: boardW } as React.CSSProperties}

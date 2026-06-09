@@ -227,6 +227,10 @@ export const EN: Dict = {
   'piano.song.birthday': { text: 'Happy Birthday' },
   'piano.song.london': { text: 'London Bridge' },
   'piano.song.arp': { text: 'Arpeggio' },
+  'piano.song.macdonald': { text: 'Old MacDonald' },
+  'piano.song.threeblind': { text: 'Three Blind Mice' },
+  'piano.song.yonatan': { text: 'Hänschen klein' },
+  'piano.song.rainrain': { text: 'Rain Rain' },
 
   // pop / match game
   'pop.new': { text: 'New' },

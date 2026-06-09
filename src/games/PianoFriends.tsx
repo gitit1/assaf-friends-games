@@ -34,6 +34,11 @@ const SONGS: Song[] = [
   { key: 'birthday', emoji: '🎂', notes: [0, 0, 1, 0, 3, 2, 0, 0, 1, 0, 4, 3] }, // Happy Birthday (opening)
   { key: 'london', emoji: '🌉', notes: [4, 5, 4, 3, 2, 3, 4, 1, 2, 3, 2, 3, 4] }, // London Bridge
   { key: 'arp', emoji: '🎶', notes: [0, 2, 4, 2, 0, 0, 2, 4, 2, 0, 4, 3, 2, 1, 0] }, // playful arpeggio
+  // the rest of the shared list (src/music/songs.ts), transposed to fit the 6 keys
+  { key: 'macdonald', emoji: '🐄', notes: [3, 3, 3, 0, 1, 1, 0, 5, 5, 4, 4, 3, 0, 3, 3, 3, 0, 1, 1, 0] }, // לדוד משה
+  { key: 'threeblind', emoji: '🐭', notes: [2, 1, 0, 2, 1, 0, 4, 3, 3, 2, 4, 3, 3, 2] }, // שלושה עכברים
+  { key: 'yonatan', emoji: '🐦', notes: [4, 2, 2, 3, 1, 1, 0, 1, 2, 3, 4, 4, 4] }, // יונתן הקטן
+  { key: 'rainrain', emoji: '🌧️', notes: [4, 2, 4, 2, 4, 4, 2, 4, 2, 4, 2, 2, 1, 0] }, // גשם גשם
 ]
 
 export default function PianoFriends({ onExit }: GameProps) {
@@ -155,14 +160,9 @@ export default function PianoFriends({ onExit }: GameProps) {
       {!free && (
         <div className="gh-foot">
           {done ? (
-            <div className="counting-next">
-              <div className="banner banner-success" role="status">
-                {t('mem.win')}
-              </div>
-              <button className="big-button" onClick={restart}>
-                🔁 {t('seq.again')}
-              </button>
-            </div>
+            <button className="big-button" onClick={restart}>
+              🔁 {t('seq.again')}
+            </button>
           ) : (
             <span className="gh-progress" aria-hidden="true">
               ♪ {pos} / {song.notes.length}

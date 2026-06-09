@@ -228,6 +228,10 @@ export const HE: Dict = {
   'piano.song.birthday': { text: 'יום הולדת' },
   'piano.song.london': { text: 'לונדון' },
   'piano.song.arp': { text: 'דילן' },
+  'piano.song.macdonald': { text: 'לדוד משה' },
+  'piano.song.threeblind': { text: 'שלושה עכברים' },
+  'piano.song.yonatan': { text: 'יונתן הקטן' },
+  'piano.song.rainrain': { text: 'גשם גשם' },
 
   // pop / match game
   'pop.new': { text: 'חדש' },
