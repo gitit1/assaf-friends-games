@@ -132,6 +132,71 @@ export const SONGS: Song[] = [
       [7, 1], [4, 1], [7, 1], [4, 1], [4, 1], [2, 1], [0, 2],
     ],
   },
+  // Ode to Joy (Beethoven — public domain)
+  {
+    id: 'ode',
+    label: 'אודה לשמחה',
+    bpm: 120,
+    notes: [
+      [4, 1], [4, 1], [5, 1], [7, 1], [7, 1], [5, 1], [4, 1], [2, 1],
+      [0, 1], [0, 1], [2, 1], [4, 1], [4, 1.5], [2, 0.5], [2, 2],
+    ],
+  },
+  // Itsy Bitsy Spider (עכביש קטנטן)
+  {
+    id: 'itsy',
+    label: 'עכביש קטנטן',
+    bpm: 120,
+    notes: [
+      [0, 1], [0, 1], [0, 1], [2, 1], [4, 1], [4, 1], [2, 1], [0, 1], [2, 1], [4, 1], [0, 2],
+    ],
+  },
+  // If You're Happy and You Know It (אם טוב לך)
+  {
+    id: 'happy',
+    label: 'אם טוב לך',
+    bpm: 130,
+    notes: [
+      [0, 1], [0, 1], [5, 1], [5, 1], [5, 1], [5, 1], [9, 1], [9, 1], [9, 1], [9, 1], [7, 1], [5, 2],
+    ],
+  },
+  // Bingo (בינגו)
+  {
+    id: 'bingo',
+    label: 'בינגו',
+    bpm: 130,
+    notes: [
+      [7, 1], [7, 1], [9, 1], [7, 1], [4, 1], [7, 1], [7, 1], [9, 1], [7, 2], [0, 2],
+    ],
+  },
+  // The Wheels on the Bus (גלגלי האוטובוס)
+  {
+    id: 'wheels',
+    label: 'גלגלי האוטובוס',
+    bpm: 130,
+    notes: [
+      [0, 1], [5, 1], [5, 1], [5, 1], [5, 1], [9, 1], [7, 1], [5, 1], [4, 1], [4, 1], [5, 1], [7, 2],
+    ],
+  },
+  // The Muffin Man (איש המאפינס)
+  {
+    id: 'muffin',
+    label: 'איש המאפינס',
+    bpm: 120,
+    notes: [
+      [5, 1], [5, 1], [5, 1], [7, 1], [9, 2], [7, 1], [5, 1], [4, 1], [0, 2],
+    ],
+  },
+  // Happy Birthday (public domain since 2016)
+  {
+    id: 'birthday',
+    label: 'יום הולדת שמח',
+    bpm: 120,
+    notes: [
+      [0, 0.75], [0, 0.25], [2, 1], [0, 1], [5, 1], [4, 2],
+      [0, 0.75], [0, 0.25], [2, 1], [0, 1], [7, 1], [5, 2],
+    ],
+  },
 ]
 
 export const SONG_IDS = SONGS.map((s) => s.id)
@@ -139,14 +204,18 @@ export function getSong(id: string): Song | undefined {
   return SONGS.find((s) => s.id === id)
 }
 
+// An emoji per song, for the pickers (dance pager, piano list). Missing → 🎵.
+export const SONG_EMOJI: Record<string, string> = {
+  twinkle: '⭐', jacques: '😴', macdonald: '🐄', mary: '🐑', row: '🚣', london: '🌉',
+  hotcross: '🥯', threeblind: '🐭', yonatan: '🐦', rainrain: '🌧️',
+  ode: '🎼', itsy: '🕷️', happy: '😊', bingo: '🐶', wheels: '🚌', muffin: '🧁', birthday: '🎂',
+}
+export const songEmoji = (id: string) => SONG_EMOJI[id] ?? '🎵'
+
 // Public-domain tunes still TO ENCODE — kept here so nothing is forgotten. Each
 // moves up into SONGS once its notes are written and checked by ear.
 export const SONG_QUEUE: { id: string; label: string; note?: string }[] = [
-  { id: 'itsy', label: 'עכביש קטנטן' },
   { id: 'headshoulders', label: 'ראש, כתפיים, ברך ואצבעות' },
-  { id: 'happy', label: 'אם טוב לך ושמח' },
-  { id: 'wheels', label: 'גלגלי האוטובוס' },
-  { id: 'bingo', label: 'בינגו (Bingo)' },
   { id: 'loobyloo', label: 'Here We Go Looby Loo' },
   { id: 'humpty', label: 'Humpty Dumpty' },
   { id: 'ladybug', label: 'Ladybug Ladybug' },

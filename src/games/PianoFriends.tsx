@@ -10,6 +10,7 @@ import { friendColor } from '../friends'
 import { numberWordNiqqud, randInt, shuffle } from './util'
 import { screenScale, useViewport } from '../useViewport'
 import Confetti from '../components/Confetti'
+import { SONGS as TUNES, songEmoji } from '../music/songs'
 import { useT } from '../i18n'
 
 // "Friends piano" — Guitar-Hero / Just-Dance style but SELF-PACED (no timer):
@@ -23,29 +24,17 @@ function pickBand(): number[] {
   return shuffle(Array.from({ length: friendCount() }, (_, i) => i)).slice(0, LANES)
 }
 
-type Song = { key: string; emoji: string; notes: number[] } // notes = scale degrees 0..5
-const SONGS: Song[] = [
-  { key: 'twinkle', emoji: '⭐', notes: [0, 0, 4, 4, 5, 5, 4, 3, 3, 2, 2, 1, 1, 0] }, // Twinkle / ABC
-  { key: 'lamb', emoji: '🐑', notes: [2, 1, 0, 1, 2, 2, 2, 1, 1, 1, 2, 4, 4] }, // Mary Had a Little Lamb
-  { key: 'boat', emoji: '🚣', notes: [0, 0, 0, 1, 2, 2, 1, 2, 3, 4] }, // Row Row Row Your Boat
-  { key: 'frere', emoji: '😴', notes: [0, 1, 2, 0, 0, 1, 2, 0, 2, 3, 4, 2, 3, 4] }, // Frère Jacques
-  { key: 'drums', emoji: '🥁', notes: [2, 1, 0, 2, 1, 0, 0, 0, 0, 1, 1, 1, 2, 1, 0] }, // Hot Cross Buns
-  { key: 'scale', emoji: '🪜', notes: [0, 1, 2, 3, 4, 5, 5, 4, 3, 2, 1, 0] }, // up & down the scale
-  { key: 'birthday', emoji: '🎂', notes: [0, 0, 1, 0, 3, 2, 0, 0, 1, 0, 4, 3] }, // Happy Birthday (opening)
-  { key: 'london', emoji: '🌉', notes: [4, 5, 4, 3, 2, 3, 4, 1, 2, 3, 2, 3, 4] }, // London Bridge
-  { key: 'arp', emoji: '🎶', notes: [0, 2, 4, 2, 0, 0, 2, 4, 2, 0, 4, 3, 2, 1, 0] }, // playful arpeggio
-  // the rest of the shared list (src/music/songs.ts), transposed to fit the 6 keys
-  { key: 'macdonald', emoji: '🐄', notes: [3, 3, 3, 0, 1, 1, 0, 5, 5, 4, 4, 3, 0, 3, 3, 3, 0, 1, 1, 0] }, // לדוד משה
-  { key: 'threeblind', emoji: '🐭', notes: [2, 1, 0, 2, 1, 0, 4, 3, 3, 2, 4, 3, 3, 2] }, // שלושה עכברים
-  { key: 'yonatan', emoji: '🐦', notes: [4, 2, 2, 3, 1, 1, 0, 1, 2, 3, 4, 4, 4] }, // יונתן הקטן
-  { key: 'rainrain', emoji: '🌧️', notes: [4, 2, 4, 2, 4, 4, 2, 4, 2, 4, 2, 2, 1, 0] }, // גשם גשם
-  { key: 'ode', emoji: '🎼', notes: [2, 2, 3, 4, 4, 3, 2, 1, 0, 0, 1, 2, 2, 1, 1] }, // אודה לשמחה (Ode to Joy)
-  { key: 'itsy', emoji: '🕷️', notes: [0, 0, 0, 1, 2, 2, 1, 0, 1, 2, 0] }, // עכביש קטנטן
-  { key: 'happy', emoji: '😊', notes: [0, 0, 3, 3, 3, 3, 5, 5, 5, 5, 4, 3] }, // אם טוב לך
-  { key: 'bingo', emoji: '🐶', notes: [4, 4, 5, 4, 2, 4, 4, 5, 4, 0] }, // בינגו
-  { key: 'wheels', emoji: '🚌', notes: [0, 3, 3, 3, 3, 5, 4, 3, 2, 2, 3, 4] }, // גלגלי האוטובוס
-  { key: 'muffin', emoji: '🧁', notes: [3, 3, 3, 4, 5, 4, 3, 2, 0] }, // איש המאפינס
-]
+// the 6 keys are Do Re Mi Fa Sol La — fold any semitone onto its nearest of these
+const DEG = [0, 0, 1, 1, 2, 3, 3, 4, 4, 5, 5, 5]
+type Song = { id: string; label: string; emoji: string; notes: number[] } // notes = scale degrees 0..5
+// ONE shared song list for every game (src/music/songs.ts). Each tune's real
+// melody is folded onto the 6 keys here so the child can tap it through.
+const SONGS: Song[] = TUNES.map((s) => ({
+  id: s.id,
+  label: s.label,
+  emoji: songEmoji(s.id),
+  notes: s.notes.map(([semi]) => DEG[((semi % 12) + 12) % 12]),
+}))
 
 export default function PianoFriends({ onExit }: GameProps) {
   const { t } = useT()
@@ -125,7 +114,7 @@ export default function PianoFriends({ onExit }: GameProps) {
       <Confetti active={done} />
       <div className="gh-top">
         <button className="pill gh-choose" onClick={() => { unlockAudio(); setPicker(true) }}>
-          🎵 {free ? t('piano.free') : `${song.emoji} ${t(`piano.song.${song.key}`)}`} ▾
+          🎵 {free ? t('piano.free') : `${song.emoji} ${song.label}`} ▾
         </button>
         <button className="pill" onClick={newRound}>
           🔄 {t('pop.new')}
@@ -186,11 +175,11 @@ export default function PianoFriends({ onExit }: GameProps) {
             <h3 className="song-title">{t('piano.pick')}</h3>
             <div className="song-list">
               {SONGS.map((s, i) => (
-                <button key={s.key} className="song-item" onClick={() => chooseSong(i)}>
+                <button key={s.id} className="song-item" onClick={() => chooseSong(i)}>
                   <span className="song-item-emoji" aria-hidden="true">
                     {s.emoji}
                   </span>
-                  <span className="song-item-name">{t(`piano.song.${s.key}`)}</span>
+                  <span className="song-item-name">{s.label}</span>
                 </button>
               ))}
               <button className="song-item" onClick={chooseFree}>
