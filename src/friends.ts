@@ -27,7 +27,7 @@ export const FRIENDS: Friend[] = [
   { color: '#ec4899', name: 'זוזו', say: 'זוּזוּ', gender: 'f', special: 13, game: 'colorme' }, // 9 pink — צביעה → צובעים חבר
   { color: '#f43f5e', name: 'קוקו', say: 'קוֹקוֹ', gender: 'f', special: 9, game: 'bubbles' }, // 10 red-pink — בועות → משחק בועות (Coco)
   // 11–20 — the bigger friends (deeper rainbow); colours match BIG in FriendArt
-  { color: '#e11d48', name: 'טוטו', say: 'טוֹטוֹ' }, // 11
+  { color: '#e11d48', name: 'טוטו', say: 'טוֹטוֹ', gender: 'm', special: 14, game: 'piano' }, // 11 — נגינה → פסנתר חברים
   { color: '#ea580c', name: 'לילי', say: 'לִילִי' }, // 12
   { color: '#ca8a04', name: 'מומו', say: 'מוֹמוֹ' }, // 13
   { color: '#65a30d', name: 'ריקי', say: 'רִיקִי' }, // 14

@@ -91,6 +91,7 @@ export const EN: Dict = {
   'world.like.11': { text: 'Kisses' },
   'world.like.12': { text: 'Soccer' },
   'world.like.13': { text: 'Coloring' },
+  'world.like.14': { text: 'Piano' },
 
   // place value game (tens & ones)
   'pv.make': { text: 'Build' },
