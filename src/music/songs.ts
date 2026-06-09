@@ -142,51 +142,6 @@ export const SONGS: Song[] = [
       [0, 1], [0, 1], [2, 1], [4, 1], [4, 1.5], [2, 0.5], [2, 2],
     ],
   },
-  // Itsy Bitsy Spider (עכביש קטנטן)
-  {
-    id: 'itsy',
-    label: 'עכביש קטנטן',
-    bpm: 120,
-    notes: [
-      [0, 1], [0, 1], [0, 1], [2, 1], [4, 1], [4, 1], [2, 1], [0, 1], [2, 1], [4, 1], [0, 2],
-    ],
-  },
-  // If You're Happy and You Know It (אם טוב לך)
-  {
-    id: 'happy',
-    label: 'אם טוב לך',
-    bpm: 130,
-    notes: [
-      [0, 1], [0, 1], [5, 1], [5, 1], [5, 1], [5, 1], [9, 1], [9, 1], [9, 1], [9, 1], [7, 1], [5, 2],
-    ],
-  },
-  // Bingo (בינגו)
-  {
-    id: 'bingo',
-    label: 'בינגו',
-    bpm: 130,
-    notes: [
-      [7, 1], [7, 1], [9, 1], [7, 1], [4, 1], [7, 1], [7, 1], [9, 1], [7, 2], [0, 2],
-    ],
-  },
-  // The Wheels on the Bus (גלגלי האוטובוס)
-  {
-    id: 'wheels',
-    label: 'גלגלי האוטובוס',
-    bpm: 130,
-    notes: [
-      [0, 1], [5, 1], [5, 1], [5, 1], [5, 1], [9, 1], [7, 1], [5, 1], [4, 1], [4, 1], [5, 1], [7, 2],
-    ],
-  },
-  // The Muffin Man (איש המאפינס)
-  {
-    id: 'muffin',
-    label: 'איש המאפינס',
-    bpm: 120,
-    notes: [
-      [5, 1], [5, 1], [5, 1], [7, 1], [9, 2], [7, 1], [5, 1], [4, 1], [0, 2],
-    ],
-  },
   // Happy Birthday (public domain since 2016)
   {
     id: 'birthday',
@@ -215,6 +170,12 @@ export const songEmoji = (id: string) => SONG_EMOJI[id] ?? '🎵'
 // Public-domain tunes still TO ENCODE — kept here so nothing is forgotten. Each
 // moves up into SONGS once its notes are written and checked by ear.
 export const SONG_QUEUE: { id: string; label: string; note?: string }[] = [
+  // these need ACCURATE melodies (the from-memory encodings sounded wrong — removed)
+  { id: 'wheels', label: 'גלגלי האוטובוס' },
+  { id: 'itsy', label: 'עכביש קטנטן' },
+  { id: 'happy', label: 'אם טוב לך' },
+  { id: 'bingo', label: 'בינגו' },
+  { id: 'muffin', label: 'איש המאפינס' },
   { id: 'headshoulders', label: 'ראש, כתפיים, ברך ואצבעות' },
   { id: 'loobyloo', label: 'Here We Go Looby Loo' },
   { id: 'humpty', label: 'Humpty Dumpty' },
