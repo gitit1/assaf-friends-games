@@ -28,15 +28,15 @@ export const FRIENDS: Friend[] = [
   { color: '#f43f5e', name: 'קוקו', say: 'קוֹקוֹ', gender: 'f', special: 9, game: 'bubbles' }, // 10 red-pink — בועות → משחק בועות (Coco)
   // 11–20 — the bigger friends (deeper rainbow); colours match BIG in FriendArt
   { color: '#e11d48', name: 'טוטו', say: 'טוֹטוֹ', gender: 'm', special: 14, game: 'piano' }, // 11 — נגינה → פסנתר חברים
-  { color: '#ea580c', name: 'לילי', say: 'לִילִי' }, // 12
-  { color: '#ca8a04', name: 'מומו', say: 'מוֹמוֹ' }, // 13
-  { color: '#65a30d', name: 'ריקי', say: 'רִיקִי' }, // 14
-  { color: '#0d9488', name: 'שושו', say: 'שׁוּשׁוּ' }, // 15
-  { color: '#0891b2', name: 'גילי', say: 'גִילִי' }, // 16
-  { color: '#2563eb', name: 'רוני', say: 'רוֹנִי' }, // 17
-  { color: '#7c3aed', name: 'יויו', say: 'יוֹיוֹ' }, // 18
-  { color: '#c026d3', name: 'סופי', say: 'סוֹפִי' }, // 19
-  { color: '#be123c', name: 'קיקי', say: 'קִיקִי' }, // 20
+  { color: '#ea580c', name: 'לילי', say: 'לִילִי', gender: 'f', special: 15, game: 'sort' }, // 12 — מיון
+  { color: '#ca8a04', name: 'מומו', say: 'מוֹמוֹ', gender: 'm', special: 16, game: 'memory' }, // 13 — זיכרון
+  { color: '#65a30d', name: 'ריקי', say: 'רִיקִי', gender: 'm', special: 17, game: 'pattern' }, // 14 — תבניות
+  { color: '#0d9488', name: 'שושו', say: 'שׁוּשׁוּ', gender: 'm', special: 18, game: 'pet' }, // 15 — חיית מחמד
+  { color: '#0891b2', name: 'גילי', say: 'גִילִי', gender: 'm', special: 19, game: 'dice' }, // 16 — קובייה
+  { color: '#2563eb', name: 'רוני', say: 'רוֹנִי', gender: 'f', special: 20, game: 'catch' }, // 17 — תופסים
+  { color: '#7c3aed', name: 'יויו', say: 'יוֹיוֹ', gender: 'm', special: 21, game: 'basket' }, // 18 — כדורסל
+  { color: '#c026d3', name: 'סופי', say: 'סוֹפִי', gender: 'f', special: 22, game: 'letter' }, // 19 — אותיות
+  { color: '#be123c', name: 'קיקי', say: 'קִיקִי', gender: 'f', special: 23, game: 'paintnum' }, // 20 — צביעה לפי מספר
   // 21–30 — the biggest friends (deepest, jewel-tone rainbow); colours match BIG
   { color: '#be185d', name: 'רומי', say: 'רוֹמִי' }, // 21
   { color: '#c2410c', name: 'ניני', say: 'נִינִי' }, // 22

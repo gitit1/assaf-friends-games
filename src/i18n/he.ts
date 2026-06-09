@@ -93,6 +93,15 @@ export const HE: Dict = {
   'world.like.12': { text: 'כדורגל' },
   'world.like.13': { text: 'צביעה' },
   'world.like.14': { text: 'נגינה' },
+  'world.like.15': { text: 'מיון' },
+  'world.like.16': { text: 'זיכרון' },
+  'world.like.17': { text: 'תבניות' },
+  'world.like.18': { text: 'חיית מחמד' },
+  'world.like.19': { text: 'קובייה' },
+  'world.like.20': { text: 'תופסים' },
+  'world.like.21': { text: 'כדורסל' },
+  'world.like.22': { text: 'אותיות' },
+  'world.like.23': { text: 'צביעה לפי מספר' },
 
   // place value game (tens & ones)
   'pv.make': { text: 'בנו את' },

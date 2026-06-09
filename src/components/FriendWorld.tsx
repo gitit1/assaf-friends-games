@@ -40,6 +40,17 @@ const LIKES: Like[] = [
   { verb: 'לְשַׂחֵק כַּדּוּרֶגֶל', emoji: '⚽', label: 'כדורגל', burst: '⚽', motion: 'jump' },
   { verb: 'לִצְבּוֹעַ', emoji: '🖍️', label: 'צביעה', burst: '🌈', motion: 'wiggle' },
   { verb: 'לְנַגֵּן', emoji: '🎹', label: 'נגינה', burst: '🎵', motion: 'wiggle' },
+  // 15+ — batch 2 activities (friends 12–20). Keep this order in sync with the
+  // LIKES / INVITE arrays in scripts/gen-voice.mjs and the world.like.<n> i18n keys.
+  { verb: 'לְמַיֵּן', emoji: '🧺', label: 'מיון', burst: '🌈', motion: 'wiggle' }, // 15 → sort
+  { verb: 'לְשַׂחֵק זִכָּרוֹן', emoji: '🧠', label: 'זיכרון', burst: '✨', motion: 'jump' }, // 16 → memory
+  { verb: 'לְשַׂחֵק בְּתַבְנִיּוֹת', emoji: '🔵', label: 'תבניות', burst: '🔵', motion: 'wiggle' }, // 17 → pattern
+  { verb: 'לְטַפֵּל בַּחֲבֵרִים', emoji: '🐣', label: 'חיית מחמד', burst: '❤️', motion: 'jump' }, // 18 → pet
+  { verb: 'לְגַלְגֵּל קֻבִּיָּה', emoji: '🎲', label: 'קובייה', burst: '✨', motion: 'jump' }, // 19 → dice
+  { verb: 'לִתְפּוֹס וְלָרוּץ', emoji: '🎯', label: 'תופסים', burst: '💨', motion: 'jump' }, // 20 → catch
+  { verb: 'לְשַׂחֵק כַּדּוּרְסַל', emoji: '🏀', label: 'כדורסל', burst: '⭐', motion: 'jump' }, // 21 → basket
+  { verb: 'לְשַׂחֵק בְּאוֹתִיּוֹת', emoji: '🔤', label: 'אותיות', burst: '✨', motion: 'wiggle' }, // 22 → letter
+  { verb: 'לִצְבּוֹעַ לְפִי מִסְפָּרִים', emoji: '🧩', label: 'צביעה לפי מספר', burst: '🌈', motion: 'wiggle' }, // 23 → paintnum
 ]
 
 type Fx = { id: number; emoji: string; x: number }
