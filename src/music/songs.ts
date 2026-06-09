@@ -132,26 +132,6 @@ export const SONGS: Song[] = [
       [7, 1], [4, 1], [7, 1], [4, 1], [4, 1], [2, 1], [0, 2],
     ],
   },
-  // Ode to Joy (Beethoven — public domain)
-  {
-    id: 'ode',
-    label: 'אודה לשמחה',
-    bpm: 120,
-    notes: [
-      [4, 1], [4, 1], [5, 1], [7, 1], [7, 1], [5, 1], [4, 1], [2, 1],
-      [0, 1], [0, 1], [2, 1], [4, 1], [4, 1.5], [2, 0.5], [2, 2],
-    ],
-  },
-  // Happy Birthday (public domain since 2016)
-  {
-    id: 'birthday',
-    label: 'יום הולדת שמח',
-    bpm: 120,
-    notes: [
-      [0, 0.75], [0, 0.25], [2, 1], [0, 1], [5, 1], [4, 2],
-      [0, 0.75], [0, 0.25], [2, 1], [0, 1], [7, 1], [5, 2],
-    ],
-  },
 ]
 
 export const SONG_IDS = SONGS.map((s) => s.id)
@@ -170,7 +150,9 @@ export const songEmoji = (id: string) => SONG_EMOJI[id] ?? '🎵'
 // Public-domain tunes still TO ENCODE — kept here so nothing is forgotten. Each
 // moves up into SONGS once its notes are written and checked by ear.
 export const SONG_QUEUE: { id: string; label: string; note?: string }[] = [
-  // these need ACCURATE melodies (the from-memory encodings sounded wrong — removed)
+  // candidates to add back ONE AT A TIME, each ear-checked before the next:
+  { id: 'ode', label: 'אודה לשמחה' },
+  { id: 'birthday', label: 'יום הולדת שמח' },
   { id: 'wheels', label: 'גלגלי האוטובוס' },
   { id: 'itsy', label: 'עכביש קטנטן' },
   { id: 'happy', label: 'אם טוב לך' },
