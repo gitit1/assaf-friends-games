@@ -370,7 +370,7 @@ export const HE: Dict = {
   'game.goal': { text: 'בעיטה לשער' },
   'game.hockey': { text: 'הוקי אוויר' },
   'game.bowling': { text: 'באולינג' },
-  'game.spell': { text: 'בונים מילה' },
+  'game.spell': { text: 'אותיות חיות' },
   'spell.hear': { text: 'לשמוע את המילה' },
   'spell.next': { text: 'מילה חדשה' },
   'game.firstletter': { text: 'באיזו אות?' },

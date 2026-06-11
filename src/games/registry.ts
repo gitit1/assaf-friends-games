@@ -352,9 +352,10 @@ export const GAMES: GameDef[] = [
     Component: BowlingGame,
   },
   {
+    // internal id stays 'spell'; shown to the child as "אותיות חיות"
     id: 'spell',
-    title: 'בונים מילה',
-    emoji: '🔠',
+    title: 'אותיות חיות',
+    emoji: '🆎',
     color: 'linear-gradient(160deg, #0ea5e9, #4338ca)',
     category: 'english',
     Component: SpellWord,

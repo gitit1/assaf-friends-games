@@ -369,7 +369,7 @@ export const EN: Dict = {
   'game.goal': { text: 'Score a Goal' },
   'game.hockey': { text: 'Air Hockey' },
   'game.bowling': { text: 'Bowling' },
-  'game.spell': { text: 'Spell the Word' },
+  'game.spell': { text: 'Living Letters' },
   'spell.hear': { text: 'hear the word' },
   'spell.next': { text: 'New word' },
   'game.firstletter': { text: 'First Letter' },
