@@ -731,6 +731,39 @@ button {
   100% { transform: scale(1.18); }
 }
 
+/* ── Rhyme Machine (word families) ───────────────────────────────────── */
+.rm-pic { display: inline-block; animation: rm-morph 0.42s ease; }
+.rm-word { align-items: stretch; }
+.rm-cell {
+  width: clamp(40px, 11.5vw, 70px);
+  height: clamp(48px, 13.5vw, 80px);
+  display: flex;
+}
+/* the first letter is the one that changes — give it a soft ring + gentle bob */
+.rm-cell.is-onset {
+  border-radius: 20px;
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.65);
+  animation: rm-onset 1.6s ease-in-out infinite;
+}
+.ll-tile { position: relative; }
+.ll-tile.is-picked .ll-guy { box-shadow: 0 0 0 3px #fff, 0 5px 0 rgba(0, 0, 0, 0.22); }
+.ll-tile.is-found::after {
+  content: '⭐';
+  position: absolute;
+  top: -8px;
+  right: -6px;
+  font-size: 0.85rem;
+}
+@keyframes rm-morph {
+  0% { transform: scale(0.4) rotate(-12deg); opacity: 0.2; }
+  60% { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}
+@keyframes rm-onset {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+
 .memory-grid {
   display: grid;
   grid-template-columns: repeat(var(--cols, 3), 1fr);

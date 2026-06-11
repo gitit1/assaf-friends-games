@@ -35,6 +35,7 @@ import IceCreamGame from './IceCreamGame'
 import BubblePopGame from './BubblePopGame'
 import SpellWord from './SpellWord'
 import FirstLetter from './FirstLetter'
+import RhymeMachine from './RhymeMachine'
 
 // Every game gets a callback to return to the home screen.
 export type GameProps = {
@@ -365,6 +366,14 @@ export const GAMES: GameDef[] = [
     color: 'linear-gradient(160deg, #22d3ee, #6366f1)',
     category: 'english',
     Component: FirstLetter,
+  },
+  {
+    id: 'rhyme',
+    title: 'מכונת חרוזים',
+    emoji: '🎡',
+    color: 'linear-gradient(160deg, #f59e0b, #db2777)',
+    category: 'english',
+    Component: RhymeMachine,
   },
 ]
 

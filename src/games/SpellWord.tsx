@@ -9,6 +9,7 @@ import { getSettings } from '../settings'
 import { levelForTier } from '../difficulty'
 import { useT } from '../i18n'
 import { POOLS, LEVEL_TIERS, pickWord } from './englishWords'
+import { LetterGuy } from './LetterGuy'
 
 // "Spell the word" (English, Alphablocks-style) — a picture appears and the child
 // builds its English word by tapping the letter CHARACTERS (a coloured body with
@@ -18,29 +19,6 @@ import { POOLS, LEVEL_TIERS, pickWord } from './englishWords'
 // losing: a wrong letter wobbles and isn't placed; the right next one snaps in and
 // says its name; tapping the waiting slot hints its letter. Shared cumulative word
 // pools (englishWords.ts); אלוף draws from everything.
-
-// a cheerful colour (light→dark gradient) per letter, so each is its own little guy
-const LL_COLORS: [string, string][] = [
-  ['#fb7185', '#e11d48'], ['#fbbf24', '#d97706'], ['#34d399', '#059669'],
-  ['#38bdf8', '#0284c7'], ['#a78bfa', '#7c3aed'], ['#f472b6', '#db2777'],
-  ['#facc15', '#ca8a04'], ['#2dd4bf', '#0d9488'], ['#60a5fa', '#4338ca'],
-  ['#f87171', '#b91c1c'],
-]
-const colorFor = (ch: string) => LL_COLORS[(ch.charCodeAt(0) - 65 + 26) % LL_COLORS.length]
-
-function LetterGuy({ ch, className = '' }: { ch: string; className?: string }) {
-  const [c1, c2] = colorFor(ch)
-  return (
-    <span className={`ll-guy ${className}`} style={{ '--c1': c1, '--c2': c2 } as React.CSSProperties}>
-      <span className="ll-eyes" aria-hidden="true">
-        <span className="ll-eye"><span className="ll-pupil" /></span>
-        <span className="ll-eye"><span className="ll-pupil" /></span>
-      </span>
-      <span className="ll-ch">{ch}</span>
-    </span>
-  )
-}
-
 type Tile = { id: number; ch: string; used: boolean }
 function makeTiles(word: string): Tile[] {
   const chars = word.split('')
