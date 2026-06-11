@@ -88,7 +88,7 @@ export default function FriendWorld({
   onPlayGame,
 }: {
   index: number
-  quiet?: boolean // true when paging ◀▶ or returning from a game → don't replay the intro
+  quiet?: boolean // true only when returning from a game → don't replay the intro (paging ◀▶ DOES narrate)
   onExit: () => void
   onNavigate: (index: number) => void
   onPlayGame: (gameId: string) => void
@@ -154,6 +154,7 @@ export default function FriendWorld({
   function describe() {
     setSplit(null) // "say it again" re-assembles a split / fact friend
     setFact(null)
+    setGameLink(false) // any non-special action hides the "go to the game" CTA
     // Short, exclamatory sentences = energy. No colour (many friends are multi-coloured).
     const about = `שָׁלוֹם!! אֲנִי ${friendSay(index)}, הַמִּסְפָּר ${numberWord(n)}! אֲנִי מַמָּשׁ אוֹהֵב ${like.verb}! בּוֹאוּ לְשַׂחֵק יַחַד!`
     playClip(`intro-${index}`, about)
@@ -169,8 +170,8 @@ export default function FriendWorld({
     setFact(null)
     setGameLink(false)
     centerGaze()
-    // narrate the intro only on a fresh entry FROM the friends list — not when
-    // paging ◀▶ between friends, nor when returning from a game (quiet)
+    // narrate the intro on a fresh entry from the friends list AND when paging
+    // ◀▶ to another friend — only returning from a game stays quiet
     if (!quiet) {
       const id = window.setTimeout(describe, 350)
       timers.current.push(id)
@@ -200,6 +201,7 @@ export default function FriendWorld({
   function doAction(a: 'five' | 'hug' | 'kiss') {
     setSplit(null) // gestures act on the whole friend, so re-assemble first
     setFact(null)
+    setGameLink(false) // tapping a gesture hides the "go to the game" CTA
     setAction(a)
     later(() => setAction(null), 1000)
   }
@@ -245,6 +247,7 @@ export default function FriendWorld({
     stopClip()
     setSplit(null)
     setFact(null)
+    setGameLink(false)
     setLit(0)
     // Accelerate by size: small numbers stay calm (~900ms/block); bigger numbers
     // speed up so the whole count finishes in ~16s no matter how big (friend 100
@@ -280,6 +283,7 @@ export default function FriendWorld({
     setLit(undefined)
     setMotion(null)
     setFact(null)
+    setGameLink(false)
     if (n < 2) {
       setBounce(true)
       later(() => setBounce(false), 600)
@@ -300,6 +304,7 @@ export default function FriendWorld({
     stopClip()
     setSplit(null)
     setFact(null)
+    setGameLink(false)
     setLit(undefined)
     setMotion(PATS[Math.floor(Math.random() * PATS.length)])
     later(() => setMotion(null), 900)
@@ -315,6 +320,7 @@ export default function FriendWorld({
     setSplit(null)
     setLit(undefined)
     setMotion(null)
+    setGameLink(false)
     setFact((f) => (f === null ? 0 : (f + 1) % facts.length))
     playSuccess()
     // SAY a fact in the friend's voice on EVERY tap — random among the levels UP

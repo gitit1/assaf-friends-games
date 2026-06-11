@@ -39,7 +39,7 @@ function parse(hash: string): Route {
   if (seg === 'cat' && id) return { kind: 'cat', id }
   // a game can carry where it was opened from: game/<id>/f/<friendIndex>
   if (seg === 'game' && id) return { kind: 'game', id, from: parts[2] === 'f' ? parts[3] : undefined }
-  // friend/<i> narrates the intro; friend/<i>/q is "quiet" (paging / back from a game)
+  // friend/<i> narrates the intro (also when paging ◀▶); friend/<i>/q is "quiet" — back from a game
   if (seg === 'friend' && id) return { kind: 'friend', id, quiet: parts[2] === 'q' }
   return { kind: 'home' }
 }
@@ -87,7 +87,7 @@ export default function App() {
           index={i}
           quiet={route.quiet}
           onExit={() => go('meet')}
-          onNavigate={(j) => go(`friend/${j}/q`)}
+          onNavigate={(j) => go(`friend/${j}`)} // page ◀▶ → narrate the next friend's intro (not quiet)
           onPlayGame={(id) => go(`game/${id}/f/${i}`)}
         />
       )
