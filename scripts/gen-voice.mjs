@@ -282,7 +282,7 @@ const INTRO_LIKE = {
 // the activity, write a custom intro here (keeps name + number + an invite).
 const INTRO_TEXT = {
   // 13 מומו — "I have a really good memory" instead of "I enjoy playing memory all day"
-  12: `וואו! מצאתם אותי! אני ${nameToken(12)}, ${HAMISPAR} ${numWord(13)}! יש לי זכרון ממש טוב! בואו נשחק זיכרון!`,
+  12: `וואו! מצאתם אותי! אני ${nameToken(12)}, ${HAMISPAR} ${numWord(13)}! יש לי זכרון ממש טוב!`,
 }
 for (let i = 0; i < COUNT; i++) {
   const li = INTRO_LIKE[i] ?? i
