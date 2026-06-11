@@ -17,6 +17,7 @@ export const EN: Dict = {
   'cat.create': { text: 'Create' },
   'cat.letters': { text: 'Letters' },
   'cat.sports': { text: 'Sports' },
+  'cat.english': { text: 'English' },
 
   // shared frame
   'nav.home': { text: 'Home' },
@@ -368,6 +369,9 @@ export const EN: Dict = {
   'game.goal': { text: 'Score a Goal' },
   'game.hockey': { text: 'Air Hockey' },
   'game.bowling': { text: 'Bowling' },
+  'game.spell': { text: 'Spell the Word' },
+  'spell.hear': { text: 'hear the word' },
+  'spell.next': { text: 'New word' },
 
   // count game
   'count.step': { text: 'Skip' },

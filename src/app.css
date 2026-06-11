@@ -527,6 +527,103 @@ button {
   color: var(--ink, #1f2937);
 }
 
+/* ── Spell the Word (English) ─────────────────────────────────────────── */
+.spell-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 22px;
+  padding: 8px 4px 16px;
+}
+.spell-pic {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: clamp(4rem, 22vw, 6.5rem);
+  line-height: 1;
+  padding: 6px 10px;
+  transition: transform 0.15s ease;
+}
+.spell-pic:active {
+  transform: scale(0.92);
+}
+.spell-slots {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+.spell-slot {
+  width: clamp(48px, 15vw, 74px);
+  height: clamp(58px, 18vw, 88px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: clamp(1.8rem, 8vw, 2.8rem);
+  font-weight: 800;
+  color: #1d4ed8;
+  border-radius: 16px;
+  border: 3px dashed #c7d2fe;
+  background: #f8faff;
+}
+.spell-slot.is-filled {
+  border-style: solid;
+  border-color: #4f46e5;
+  background: linear-gradient(160deg, #e0e7ff, #c7d2fe);
+  animation: spell-pop 0.3s ease;
+}
+.spell-slot.is-next {
+  border-color: #60a5fa;
+  box-shadow: 0 0 0 4px rgba(96, 165, 250, 0.25);
+}
+.spell-tray {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+  max-width: 420px;
+}
+.spell-tile {
+  width: clamp(52px, 16vw, 72px);
+  height: clamp(52px, 16vw, 72px);
+  font-size: clamp(1.6rem, 7vw, 2.4rem);
+  font-weight: 800;
+  color: #fff;
+  border: none;
+  border-radius: 16px;
+  background: linear-gradient(160deg, #38bdf8, #4338ca);
+  box-shadow: 0 4px 0 rgba(67, 56, 202, 0.5);
+  cursor: pointer;
+  transition: transform 0.1s ease;
+}
+.spell-tile:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 rgba(67, 56, 202, 0.5);
+}
+.spell-tile.is-used {
+  visibility: hidden;
+}
+.spell-tile.is-wrong {
+  animation: spell-shake 0.4s ease;
+}
+.spell-foot {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.spell-say {
+  font-size: 1rem;
+}
+@keyframes spell-pop {
+  0% { transform: scale(0.6); }
+  60% { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}
+@keyframes spell-shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-6px); }
+  75% { transform: translateX(6px); }
+}
+
 .memory-grid {
   display: grid;
   grid-template-columns: repeat(var(--cols, 3), 1fr);

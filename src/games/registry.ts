@@ -33,6 +33,7 @@ import LaughGame from './LaughGame'
 import ParrotGame from './ParrotGame'
 import IceCreamGame from './IceCreamGame'
 import BubblePopGame from './BubblePopGame'
+import SpellWord from './SpellWord'
 
 // Every game gets a callback to return to the home screen.
 export type GameProps = {
@@ -44,7 +45,7 @@ export type GameProps = {
 
 // Home-screen sections. Games are grouped so the home screen stays tidy as the
 // roster of games grows. Empty categories are simply not shown.
-export type CategoryId = 'numbers' | 'thinking' | 'fun' | 'create' | 'letters' | 'sports'
+export type CategoryId = 'numbers' | 'thinking' | 'fun' | 'create' | 'letters' | 'sports' | 'english'
 
 export type Category = {
   id: CategoryId
@@ -61,6 +62,7 @@ export const CATEGORIES: Category[] = [
   { id: 'create', title: 'יצירה', emoji: '🎨', color: 'linear-gradient(160deg, #facc15, #ec4899)' },
   { id: 'letters', title: 'אותיות', emoji: '🔤', color: 'linear-gradient(160deg, #a855f7, #7c3aed)' },
   { id: 'sports', title: 'ספורט', emoji: '🏀', color: 'linear-gradient(160deg, #fb923c, #ea580c)' },
+  { id: 'english', title: 'אנגלית', emoji: '🔠', color: 'linear-gradient(160deg, #0ea5e9, #4338ca)' },
 ]
 
 export type GameDef = {
@@ -346,6 +348,14 @@ export const GAMES: GameDef[] = [
     color: 'linear-gradient(160deg, #f472b6, #be185d)',
     category: 'sports',
     Component: BowlingGame,
+  },
+  {
+    id: 'spell',
+    title: 'בונים מילה',
+    emoji: '🔠',
+    color: 'linear-gradient(160deg, #0ea5e9, #4338ca)',
+    category: 'english',
+    Component: SpellWord,
   },
 ]
 

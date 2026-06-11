@@ -86,6 +86,21 @@ export function speakName(text: string, opts?: SpeakOptions) {
   speak(text, opts)
 }
 
+// Speak forcing ENGLISH, regardless of the app's current language — for the
+// English-learning games (spell a word, etc.) where the letters/word must sound
+// English even though the UI is Hebrew. Picks an English voice if one exists.
+export function speakEn(text: string, { rate = 0.85, pitch = 1.05 }: SpeakOptions = {}) {
+  if (!enabled || !supported()) return
+  window.speechSynthesis.cancel()
+  const utterance = new SpeechSynthesisUtterance(text)
+  const en = window.speechSynthesis.getVoices().find((v) => v.lang.toLowerCase().startsWith('en'))
+  if (en) utterance.voice = en
+  utterance.lang = en?.lang || 'en-US'
+  utterance.rate = rate
+  utterance.pitch = pitch
+  window.speechSynthesis.speak(utterance)
+}
+
 export function stopSpeech() {
   if (supported()) window.speechSynthesis.cancel()
 }

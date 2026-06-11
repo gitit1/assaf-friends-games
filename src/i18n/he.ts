@@ -18,6 +18,7 @@ export const HE: Dict = {
   'cat.create': { text: 'יצירה' },
   'cat.letters': { text: 'אותיות' },
   'cat.sports': { text: 'ספורט' },
+  'cat.english': { text: 'אנגלית' },
 
   // shared frame
   'nav.home': { text: 'בית' },
@@ -369,6 +370,9 @@ export const HE: Dict = {
   'game.goal': { text: 'בעיטה לשער' },
   'game.hockey': { text: 'הוקי אוויר' },
   'game.bowling': { text: 'באולינג' },
+  'game.spell': { text: 'בונים מילה' },
+  'spell.hear': { text: 'לשמוע את המילה' },
+  'spell.next': { text: 'מילה חדשה' },
 
   // count game
   'count.step': { text: 'קפיצות' },
