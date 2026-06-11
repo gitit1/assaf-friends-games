@@ -10,18 +10,38 @@ import { levelForTier } from '../difficulty'
 import { useT } from '../i18n'
 import { POOLS, LEVEL_TIERS, pickWord } from './englishWords'
 
-// "Spell the word" (English) — a picture appears and the child builds its English
-// word by tapping the letter tiles into the slots, left-to-right. The tiles are
-// exactly the word's letters, shuffled, so it's an ordering/spelling challenge.
-// No timer, no losing: a wrong tile gives a gentle nudge and simply isn't placed;
-// the right next letter snaps in, says its name, and when the word is whole the
-// picture cheers and says the word. Tapping the waiting slot hints its letter.
-//
-// Words come from the shared, CUMULATIVE pools in englishWords.ts (אלוף = all).
-type Tile = { id: number; ch: string; used: boolean }
+// "Spell the word" (English, Alphablocks-style) — a picture appears and the child
+// builds its English word by tapping the letter CHARACTERS (a coloured body with
+// googly eyes) into the slots, left-to-right. When the word is whole the row of
+// letter-guys hops in sequence and the picture springs to life (big bounce +
+// sparkles + the word spoken) — a sibling to our number-friends. No timer, no
+// losing: a wrong letter wobbles and isn't placed; the right next one snaps in and
+// says its name; tapping the waiting slot hints its letter. Shared cumulative word
+// pools (englishWords.ts); אלוף draws from everything.
 
-// the word's letters as shuffled tiles (re-shuffle until not already in order so
-// there's always something to do)
+// a cheerful colour (light→dark gradient) per letter, so each is its own little guy
+const LL_COLORS: [string, string][] = [
+  ['#fb7185', '#e11d48'], ['#fbbf24', '#d97706'], ['#34d399', '#059669'],
+  ['#38bdf8', '#0284c7'], ['#a78bfa', '#7c3aed'], ['#f472b6', '#db2777'],
+  ['#facc15', '#ca8a04'], ['#2dd4bf', '#0d9488'], ['#60a5fa', '#4338ca'],
+  ['#f87171', '#b91c1c'],
+]
+const colorFor = (ch: string) => LL_COLORS[(ch.charCodeAt(0) - 65 + 26) % LL_COLORS.length]
+
+function LetterGuy({ ch, className = '' }: { ch: string; className?: string }) {
+  const [c1, c2] = colorFor(ch)
+  return (
+    <span className={`ll-guy ${className}`} style={{ '--c1': c1, '--c2': c2 } as React.CSSProperties}>
+      <span className="ll-eyes" aria-hidden="true">
+        <span className="ll-eye"><span className="ll-pupil" /></span>
+        <span className="ll-eye"><span className="ll-pupil" /></span>
+      </span>
+      <span className="ll-ch">{ch}</span>
+    </span>
+  )
+}
+
+type Tile = { id: number; ch: string; used: boolean }
 function makeTiles(word: string): Tile[] {
   const chars = word.split('')
   let order = shuffle(chars.map((_, i) => i))
@@ -37,9 +57,10 @@ export default function SpellWord({ onExit }: GameProps) {
   const [lvl, setLvl] = useState(() => levelForTier(LEVEL_TIERS, getSettings().difficulty))
   const [idx, setIdx] = useState(() => pickWord(lvl))
   const item = POOLS[lvl][idx]
-  const [placed, setPlaced] = useState<string[]>([]) // letters locked into the slots, in order
+  const [placed, setPlaced] = useState<string[]>([])
   const [tiles, setTiles] = useState<Tile[]>(() => makeTiles(item.word))
-  const [wrong, setWrong] = useState<number | null>(null) // a tile id that was tapped out of order
+  const [wrong, setWrong] = useState<number | null>(null)
+  const [alive, setAlive] = useState(false) // finale: the word has come to life
   const timers = useRef<number[]>([])
 
   const done = placed.length === item.word.length
@@ -65,8 +86,8 @@ export default function SpellWord({ onExit }: GameProps) {
     setPlaced([])
     setTiles(makeTiles(POOLS[nextLvl][nextIdx].word))
     setWrong(null)
+    setAlive(false)
   }
-  // a fresh word in the SAME level (avoid repeating the current one)
   function newWord() {
     const n = POOLS[lvl].length
     load(lvl, n <= 1 ? idx : (idx + 1 + Math.floor(Math.random() * (n - 1))) % n)
@@ -74,15 +95,12 @@ export default function SpellWord({ onExit }: GameProps) {
   function chooseLevel(nextLvl: number) {
     load(nextLvl, pickWord(nextLvl))
   }
-
   function sayWord() {
     unlockAudio()
     speakEn(item.word)
   }
-
-  // tap a slot for a hint: an empty slot says the letter it's WAITING for (the
-  // next one needed), so the child knows which tile to look for; a filled slot
-  // simply re-says its letter.
+  // tap a slot for a hint: the waiting (empty) slot says the letter it needs; a
+  // filled slot re-says its letter.
   function tapSlot(i: number) {
     unlockAudio()
     if (i < placed.length) speakEn(placed[i])
@@ -92,18 +110,19 @@ export default function SpellWord({ onExit }: GameProps) {
   function tapTile(tile: Tile) {
     if (done || tile.used) return
     unlockAudio()
-    const need = item.word[placed.length] // the next letter the word wants
-    if (tile.ch === need) {
+    if (tile.ch === item.word[placed.length]) {
       setTiles((ts) => ts.map((x) => (x.id === tile.id ? { ...x, used: true } : x)))
       const next = [...placed, tile.ch]
       setPlaced(next)
       playSuccess()
-      speakEn(tile.ch) // say the letter's name
+      speakEn(tile.ch)
       if (next.length === item.word.length) {
+        // finale: the letters merge and the picture comes to life
         later(() => {
+          setAlive(true)
           playWin()
-          speakEn(item.word) // cheer the whole word
-        }, 550)
+          speakEn(item.word)
+        }, 650)
       }
     } else {
       setWrong(tile.id)
@@ -114,35 +133,32 @@ export default function SpellWord({ onExit }: GameProps) {
 
   return (
     <GameShell title={t('game.spell')} emoji="🔠" onExit={onExit}>
-      <Confetti active={done} />
+      <Confetti active={alive} />
       <div className="memory-controls">
         {LEVEL_TIERS.map((_, i) => (
-          <button
-            key={i}
-            className={`pill ${i === lvl ? 'pill-active' : ''}`}
-            onClick={() => chooseLevel(i)}
-          >
+          <button key={i} className={`pill ${i === lvl ? 'pill-active' : ''}`} onClick={() => chooseLevel(i)}>
             {t(`diff.${i}`)}
           </button>
         ))}
       </div>
 
       <div className="spell-screen">
-        <button className="spell-pic" onClick={sayWord} aria-label={t('spell.hear')}>
+        <button className={`spell-pic ${alive ? 'is-alive' : ''}`} onClick={sayWord} aria-label={t('spell.hear')}>
           <span aria-hidden="true">{item.emoji}</span>
         </button>
 
-        {/* the word builds left-to-right (English is LTR). Tapping a slot is a
-            hint: the waiting slot says the letter it needs. */}
-        <div className="spell-slots" dir="ltr">
+        {/* the word builds left-to-right (English is LTR); when whole, the row of
+            letter-guys hops. Tapping the waiting slot hints its letter. */}
+        <div className={`spell-slots ll-slots ${done ? 'is-merged' : ''}`} dir="ltr">
           {item.word.split('').map((_, i) => (
             <button
               key={i}
-              className={`spell-slot ${placed[i] ? 'is-filled' : ''} ${i === placed.length && !done ? 'is-next' : ''}`}
+              className={`spell-slot ll-slot ${placed[i] ? 'is-filled' : ''} ${i === placed.length && !done ? 'is-next' : ''}`}
               onClick={() => tapSlot(i)}
+              style={{ '--n': i } as React.CSSProperties}
               aria-label={placed[i] ?? t('spell.hear')}
             >
-              {placed[i] ?? ''}
+              {placed[i] ? <LetterGuy ch={placed[i]} /> : ''}
             </button>
           ))}
         </div>
@@ -158,16 +174,16 @@ export default function SpellWord({ onExit }: GameProps) {
           </div>
         ) : (
           <>
-            <div className="spell-tray" dir="ltr">
+            <div className="spell-tray ll-tray" dir="ltr">
               {tiles.map((tile) => (
                 <button
                   key={tile.id}
-                  className={`spell-tile ${tile.used ? 'is-used' : ''} ${wrong === tile.id ? 'is-wrong' : ''}`}
+                  className={`ll-tile ${tile.used ? 'is-used' : ''} ${wrong === tile.id ? 'is-wrong' : ''}`}
                   onClick={() => tapTile(tile)}
                   disabled={tile.used}
                   aria-label={tile.ch}
                 >
-                  {tile.ch}
+                  <LetterGuy ch={tile.ch} className="idle" />
                 </button>
               ))}
             </div>

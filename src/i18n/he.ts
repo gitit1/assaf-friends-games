@@ -375,7 +375,6 @@ export const HE: Dict = {
   'spell.next': { text: 'מילה חדשה' },
   'game.firstletter': { text: 'באיזו אות?' },
   'fl.q': { text: 'באיזו אות מתחילה המילה?' },
-  'game.liveletters': { text: 'אותיות חיות' },
 
   // count game
   'count.step': { text: 'קפיצות' },
