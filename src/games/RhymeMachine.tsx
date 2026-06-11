@@ -3,17 +3,20 @@ import GameShell from '../components/GameShell'
 import Confetti from '../components/Confetti'
 import type { GameProps } from './registry'
 import { playSuccess, playWin, playTap, unlockAudio } from '../audio'
-import { speakEn } from '../speech'
+import { playClip } from '../voice'
 import { shuffle } from './util'
 import { useT } from '../i18n'
 import { LetterGuy } from './LetterGuy'
 
 // "Rhyme Machine" (English) — a word-family / pattern toy. The ENDING stays the
 // same (e.g. -AT) and the child swaps the FIRST letter to make a new rhyming word:
-// CAT → HAT → BAT → RAT, and the picture morphs each time. Pure pattern play, no
-// timer, no losing — every onset makes a real word. A star ticks for each new
-// word discovered; finding the whole family cheers. Reuses the living-letter
-// characters so it matches "Spell the Word".
+// CAT → HAT → BAT → RAT, and the picture morphs each time. Each word plays a
+// recorded clip in one of our friend voices that names it in BOTH languages
+// ("דוֹג באנגלית, כלב בעברית") — a different voice per family. Pure pattern play,
+// no timer, no losing. A star ticks for each new word; finishing a family cheers.
+//
+// The word list here MUST stay in sync with the RHYME data in scripts/gen-voice.mjs
+// (which records rhyme-<WORD>.mp3 with the Hebrew translation + a per-family voice).
 type FamilyWord = { onset: string; word: string; emoji: string }
 type Family = { rime: string; words: FamilyWord[] }
 const FAMILIES: Family[] = [
@@ -33,11 +36,44 @@ const FAMILIES: Family[] = [
     { onset: 'H', word: 'HEN', emoji: '🐔' }, { onset: 'P', word: 'PEN', emoji: '🖊️' },
     { onset: 'T', word: 'TEN', emoji: '🔟' },
   ] },
+  { rime: 'AP', words: [
+    { onset: 'C', word: 'CAP', emoji: '🧢' }, { onset: 'M', word: 'MAP', emoji: '🗺️' },
+    { onset: 'N', word: 'NAP', emoji: '😴' },
+  ] },
+  { rime: 'AN', words: [
+    { onset: 'M', word: 'MAN', emoji: '👨' }, { onset: 'F', word: 'FAN', emoji: '🪭' },
+    { onset: 'P', word: 'PAN', emoji: '🍳' }, { onset: 'V', word: 'VAN', emoji: '🚐' },
+  ] },
+  { rime: 'UG', words: [
+    { onset: 'B', word: 'BUG', emoji: '🐛' }, { onset: 'M', word: 'MUG', emoji: '☕' },
+    { onset: 'H', word: 'HUG', emoji: '🤗' },
+  ] },
+  { rime: 'ICE', words: [
+    { onset: 'R', word: 'RICE', emoji: '🍚' }, { onset: 'D', word: 'DICE', emoji: '🎲' },
+    { onset: 'M', word: 'MICE', emoji: '🐭' },
+  ] },
+  { rime: 'ING', words: [
+    { onset: 'R', word: 'RING', emoji: '💍' }, { onset: 'K', word: 'KING', emoji: '🤴' },
+    { onset: 'W', word: 'WING', emoji: '🪽' },
+  ] },
+  { rime: 'OAT', words: [
+    { onset: 'B', word: 'BOAT', emoji: '⛵' }, { onset: 'C', word: 'COAT', emoji: '🧥' },
+    { onset: 'G', word: 'GOAT', emoji: '🐐' },
+  ] },
   { rime: 'OX', words: [
     { onset: 'F', word: 'FOX', emoji: '🦊' }, { onset: 'B', word: 'BOX', emoji: '📦' },
   ] },
   { rime: 'AR', words: [
     { onset: 'C', word: 'CAR', emoji: '🚗' }, { onset: 'J', word: 'JAR', emoji: '🫙' },
+  ] },
+  { rime: 'AKE', words: [
+    { onset: 'C', word: 'CAKE', emoji: '🍰' }, { onset: 'L', word: 'LAKE', emoji: '🏞️' },
+  ] },
+  { rime: 'OW', words: [
+    { onset: 'C', word: 'COW', emoji: '🐄' }, { onset: 'B', word: 'BOW', emoji: '🎀' },
+  ] },
+  { rime: 'ALL', words: [
+    { onset: 'B', word: 'BALL', emoji: '🏀' }, { onset: 'W', word: 'WALL', emoji: '🧱' },
   ] },
 ]
 
@@ -58,10 +94,13 @@ export default function RhymeMachine({ onExit }: GameProps) {
     timers.current = []
   }
   const later = (fn: () => void, ms: number) => timers.current.push(window.setTimeout(fn, ms))
+  // play the recorded clip that names the word in both languages, in this family's
+  // friend voice ("דוֹג באנגלית, כלב בעברית"). Falls back to the word if missing.
+  const say = (word: string) => playClip(`rhyme-${word}`, word)
 
   // say the current word whenever it changes (start of family + each swap)
   useEffect(() => {
-    const id = window.setTimeout(() => speakEn(cur.word), 300)
+    const id = window.setTimeout(() => say(cur.word), 300)
     timers.current.push(id)
     return clear
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -80,7 +119,7 @@ export default function RhymeMachine({ onExit }: GameProps) {
 
   function choose(w: FamilyWord) {
     if (w.onset === onset) {
-      speakEn(w.word) // re-hear the same word
+      say(w.word) // re-hear the same word
       return
     }
     unlockAudio()
@@ -111,7 +150,7 @@ export default function RhymeMachine({ onExit }: GameProps) {
       </div>
 
       <div className="spell-screen">
-        <button className="spell-pic" onClick={() => { unlockAudio(); speakEn(cur.word) }} aria-label={t('spell.hear')}>
+        <button className="spell-pic" onClick={() => { unlockAudio(); say(cur.word) }} aria-label={t('spell.hear')}>
           {/* key on the word so it remounts with a little morph each swap */}
           <span key={cur.word} className="rm-pic" aria-hidden="true">{cur.emoji}</span>
         </button>

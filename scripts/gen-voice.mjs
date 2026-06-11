@@ -222,6 +222,28 @@ const JOKES = [
   ['knock knock!', 'מי שָׁם?', 'בָּנָנָה!', 'בָּנָנָה מי?', 'knock knock!', 'מי שָׁם?', 'תַּפּוּז!', 'תַּפּוּז מי?', 'אֲנִי כָּל כָּךְ שָׂמֵחַ שֶׁלֹּא אָמַרְתִּי שׁוּב בָּנָנָה!'],
 ]
 
+// Rhyme Machine (English↔Hebrew) — each word gets a clip that names it in BOTH
+// languages, in one of our friend voices, a DIFFERENT voice per family. Each entry
+// is [WORD, transliteration (so the Hebrew voice says the English word), Hebrew].
+// MUST stay in sync with FAMILIES in src/games/RhymeMachine.tsx.
+const RHYME_FAMILIES = [
+  { voice: 'Erez',   words: [['CAT', 'קאט', 'חתול'], ['HAT', 'האט', 'כובע'], ['BAT', 'בּאט', 'עטלף'], ['RAT', 'ראט', 'חולדה']] },
+  { voice: 'Ayelet', words: [['DOG', 'דּוֹג', 'כלב'], ['LOG', 'לוֹג', 'בול עץ'], ['FOG', 'פוֹג', 'ערפל'], ['HOG', 'הוֹג', 'חזיר בר']] },
+  { voice: 'Doron',  words: [['SUN', 'סאן', 'שמש'], ['BUN', 'בּאן', 'לחמנייה'], ['RUN', 'ראן', 'לרוץ']] },
+  { voice: 'Tamar',  words: [['HEN', 'הֶן', 'תרנגולת'], ['PEN', 'פֶּן', 'עט'], ['TEN', 'טֶן', 'עשר']] },
+  { voice: 'Nurit',  words: [['CAP', 'קאפּ', 'כובע'], ['MAP', 'מאפּ', 'מפה'], ['NAP', 'נאפּ', 'תנומה']] },
+  { voice: 'Erez',   words: [['MAN', 'מאן', 'איש'], ['FAN', 'פאן', 'מאוורר'], ['PAN', 'פּאן', 'מחבת'], ['VAN', 'וואן', 'ואן']] },
+  { voice: 'Ayelet', words: [['BUG', 'בּאג', 'חרק'], ['MUG', 'מאג', 'ספל'], ['HUG', 'האג', 'חיבוק']] },
+  { voice: 'Doron',  words: [['RICE', 'רייס', 'אורז'], ['DICE', 'דייס', 'קובייה'], ['MICE', 'מייס', 'עכברים']] },
+  { voice: 'Tamar',  words: [['RING', 'רינג', 'טבעת'], ['KING', 'קינג', 'מלך'], ['WING', 'ווינג', 'כנף']] },
+  { voice: 'Nurit',  words: [['BOAT', 'בּוֹאט', 'סירה'], ['COAT', 'קוֹאט', 'מעיל'], ['GOAT', 'גוֹאט', 'עז']] },
+  { voice: 'Erez',   words: [['FOX', 'פוֹקס', 'שועל'], ['BOX', 'בּוֹקס', 'קופסה']] },
+  { voice: 'Ayelet', words: [['CAR', 'קאר', 'מכונית'], ['JAR', "ג'אר", 'צנצנת']] },
+  { voice: 'Doron',  words: [['CAKE', 'קייק', 'עוגה'], ['LAKE', 'לייק', 'אגם']] },
+  { voice: 'Tamar',  words: [['COW', 'קאו', 'פרה'], ['BOW', 'בּוֹ', 'פפיון']] },
+  { voice: 'Nurit',  words: [['BALL', 'בּוֹל', 'כדור'], ['WALL', 'ווֹל', 'קיר']] },
+]
+
 // Friend gender (index → 'f'/'m') for verb agreement in the intros. Filled in as
 // each batch is QA'd; anything unset defaults to male. Kept in sync with friends.ts.
 // girls (1-based number in comment): 1 לולו, 4 גוגו, 6 נוני, 9 זוזו, 10 קוקו,
@@ -313,6 +335,9 @@ for (const i of Object.keys(FACTS).map(Number)) {
 // knock-knock jokes for the laugh game (one clip per line so the game can pace
 // them), in Bobby's voice (friend 3)
 JOKES.forEach((arr, j) => arr.forEach((text, n) => lines.push({ id: `joke-${j}-${n}`, text, voice: voiceFor(2) })))
+// Rhyme Machine — name each word in both languages, in this family's voice
+for (const fam of RHYME_FAMILIES) for (const [word, translit, hebrew] of fam.words)
+  lines.push({ id: `rhyme-${word}`, text: `${translit}, באנגלית. ${hebrew}, בעברית.`, voice: fam.voice })
 // shared buttons recorded in every chosen voice → fx-five-Ayelet, fx-hug-Erez, …
 const ALL_VOICES = [...FEMALE_VOICES, ...MALE_VOICES]
 for (const v of ALL_VOICES) for (const b of SHARED) lines.push({ id: `${b.id}-${v}`, text: b.text, voice: v })
@@ -336,6 +361,7 @@ const kindOf = (id) =>
     : /^intro-/.test(id) ? 'intro'
       : /^special-/.test(id) ? 'special'
         : /^joke-/.test(id) ? 'joke'
+        : /^rhyme-/.test(id) ? 'rhyme'
         : /^laugh-/.test(id) ? 'laugh'
         : /^fact-/.test(id) ? 'fact'
           : /^fx-\w+-/.test(id) ? 'shared'
