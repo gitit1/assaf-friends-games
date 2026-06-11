@@ -560,10 +560,17 @@ button {
   justify-content: center;
   font-size: clamp(1.8rem, 8vw, 2.8rem);
   font-weight: 800;
+  font-family: inherit;
   color: #1d4ed8;
   border-radius: 16px;
   border: 3px dashed #c7d2fe;
   background: #f8faff;
+  appearance: none;
+  cursor: pointer;
+  transition: transform 0.1s ease;
+}
+.spell-slot:active {
+  transform: scale(0.94);
 }
 .spell-slot.is-filled {
   border-style: solid;

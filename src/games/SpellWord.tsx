@@ -87,6 +87,15 @@ export default function SpellWord({ onExit }: GameProps) {
     speakEn(item.word)
   }
 
+  // tap a slot for a hint: an empty slot says the letter it's WAITING for (the
+  // next one needed), so the child knows which tile to look for; a filled slot
+  // simply re-says its letter.
+  function tapSlot(i: number) {
+    unlockAudio()
+    if (i < placed.length) speakEn(placed[i])
+    else if (!done) speakEn(item.word[placed.length])
+  }
+
   function tapTile(tile: Tile) {
     if (done || tile.used) return
     unlockAudio()
@@ -118,12 +127,18 @@ export default function SpellWord({ onExit }: GameProps) {
           <span aria-hidden="true">{item.emoji}</span>
         </button>
 
-        {/* the word builds left-to-right (English is LTR) */}
+        {/* the word builds left-to-right (English is LTR). Tapping a slot is a
+            hint: the waiting slot says the letter it needs. */}
         <div className="spell-slots" dir="ltr">
           {item.word.split('').map((_, i) => (
-            <span key={i} className={`spell-slot ${placed[i] ? 'is-filled' : ''} ${i === placed.length && !done ? 'is-next' : ''}`}>
+            <button
+              key={i}
+              className={`spell-slot ${placed[i] ? 'is-filled' : ''} ${i === placed.length && !done ? 'is-next' : ''}`}
+              onClick={() => tapSlot(i)}
+              aria-label={placed[i] ?? t('spell.hear')}
+            >
               {placed[i] ?? ''}
-            </span>
+            </button>
           ))}
         </div>
 
