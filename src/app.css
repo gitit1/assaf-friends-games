@@ -549,12 +549,14 @@ button {
 }
 .spell-slots {
   display: flex;
-  gap: 12px;
+  flex-wrap: wrap;
+  gap: 8px;
   justify-content: center;
+  max-width: min(460px, 100%);
 }
 .spell-slot {
-  width: clamp(48px, 15vw, 74px);
-  height: clamp(58px, 18vw, 88px);
+  width: clamp(34px, 10.5vw, 68px);
+  height: clamp(44px, 13vw, 82px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -585,14 +587,14 @@ button {
 .spell-tray {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
+  gap: 10px;
   justify-content: center;
-  max-width: 420px;
+  max-width: min(460px, 100%);
 }
 .spell-tile {
-  width: clamp(52px, 16vw, 72px);
-  height: clamp(52px, 16vw, 72px);
-  font-size: clamp(1.6rem, 7vw, 2.4rem);
+  width: clamp(38px, 11vw, 68px);
+  height: clamp(38px, 11vw, 68px);
+  font-size: clamp(1.4rem, 6vw, 2.3rem);
   font-weight: 800;
   color: #fff;
   border: none;

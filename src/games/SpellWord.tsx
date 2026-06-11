@@ -5,6 +5,8 @@ import type { GameProps } from './registry'
 import { playSuccess, playNudge, playWin, playTap, unlockAudio } from '../audio'
 import { speakEn } from '../speech'
 import { shuffle } from './util'
+import { getSettings } from '../settings'
+import { levelForTier } from '../difficulty'
 import { useT } from '../i18n'
 
 // "Spell the word" (English) — a picture appears and the child builds its English
@@ -12,28 +14,40 @@ import { useT } from '../i18n'
 // exactly the word's letters, shuffled, so it's an ordering/spelling challenge.
 // No timer, no losing: a wrong tile gives a gentle nudge and simply isn't placed;
 // the right next letter snaps in, says its name, and when the word is whole the
-// picture cheers and says the word. Built for a number-loving non-reader who
-// already knows his ABC by heart and wants a real game.
+// picture cheers and says the word. Tapping the waiting slot hints its letter.
+// Four levels by word length (קל 3 → אלוף 6–7) so it grows with the child.
 type Word = { word: string; emoji: string }
-const WORDS: Word[] = [
-  { word: 'CAT', emoji: '🐱' },
-  { word: 'DOG', emoji: '🐶' },
-  { word: 'SUN', emoji: '☀️' },
-  { word: 'BUS', emoji: '🚌' },
-  { word: 'PIG', emoji: '🐷' },
-  { word: 'COW', emoji: '🐄' },
-  { word: 'HAT', emoji: '🎩' },
-  { word: 'CAR', emoji: '🚗' },
-  { word: 'BEE', emoji: '🐝' },
-  { word: 'FOX', emoji: '🦊' },
-  { word: 'EGG', emoji: '🥚' },
-  { word: 'BED', emoji: '🛏️' },
-  { word: 'CUP', emoji: '🥤' },
-  { word: 'HEN', emoji: '🐔' },
-  { word: 'OWL', emoji: '🦉' },
-  { word: 'ANT', emoji: '🐜' },
-  { word: 'BAT', emoji: '🦇' },
+const LEVELS: Word[][] = [
+  [ // קל — 3 letters
+    { word: 'CAT', emoji: '🐱' }, { word: 'DOG', emoji: '🐶' }, { word: 'SUN', emoji: '☀️' },
+    { word: 'BUS', emoji: '🚌' }, { word: 'PIG', emoji: '🐷' }, { word: 'COW', emoji: '🐄' },
+    { word: 'HAT', emoji: '🎩' }, { word: 'CAR', emoji: '🚗' }, { word: 'BEE', emoji: '🐝' },
+    { word: 'FOX', emoji: '🦊' }, { word: 'EGG', emoji: '🥚' }, { word: 'BED', emoji: '🛏️' },
+    { word: 'CUP', emoji: '🥤' }, { word: 'HEN', emoji: '🐔' }, { word: 'OWL', emoji: '🦉' },
+    { word: 'ANT', emoji: '🐜' }, { word: 'BAT', emoji: '🦇' },
+  ],
+  [ // בינוני — 4 letters
+    { word: 'FISH', emoji: '🐟' }, { word: 'FROG', emoji: '🐸' }, { word: 'STAR', emoji: '⭐' },
+    { word: 'BEAR', emoji: '🐻' }, { word: 'DUCK', emoji: '🦆' }, { word: 'CAKE', emoji: '🍰' },
+    { word: 'MOON', emoji: '🌙' }, { word: 'TREE', emoji: '🌳' }, { word: 'BOAT', emoji: '⛵' },
+    { word: 'LION', emoji: '🦁' }, { word: 'MILK', emoji: '🥛' }, { word: 'BIRD', emoji: '🐦' },
+    { word: 'SHOE', emoji: '👟' }, { word: 'DOOR', emoji: '🚪' }, { word: 'BALL', emoji: '🏀' },
+  ],
+  [ // קשה — 5 letters
+    { word: 'APPLE', emoji: '🍎' }, { word: 'HOUSE', emoji: '🏠' }, { word: 'TIGER', emoji: '🐯' },
+    { word: 'TRAIN', emoji: '🚂' }, { word: 'HORSE', emoji: '🐴' }, { word: 'SNAKE', emoji: '🐍' },
+    { word: 'MOUSE', emoji: '🐭' }, { word: 'SHEEP', emoji: '🐑' }, { word: 'ZEBRA', emoji: '🦓' },
+    { word: 'BREAD', emoji: '🍞' }, { word: 'PIZZA', emoji: '🍕' }, { word: 'PLANE', emoji: '✈️' },
+    { word: 'TRUCK', emoji: '🚚' }, { word: 'CLOCK', emoji: '🕐' },
+  ],
+  [ // אלוף — 6–7 letters
+    { word: 'BANANA', emoji: '🍌' }, { word: 'FLOWER', emoji: '🌸' }, { word: 'ORANGE', emoji: '🍊' },
+    { word: 'ROCKET', emoji: '🚀' }, { word: 'MONKEY', emoji: '🐵' }, { word: 'GUITAR', emoji: '🎸' },
+    { word: 'RABBIT', emoji: '🐰' }, { word: 'PARROT', emoji: '🦜' }, { word: 'TURTLE', emoji: '🐢' },
+    { word: 'CARROT', emoji: '🥕' }, { word: 'PENCIL', emoji: '✏️' }, { word: 'PENGUIN', emoji: '🐧' },
+  ],
 ]
+const LEVEL_TIERS = [0, 1, 2, 3] // קל / בינוני / קשה / אלוף on the canonical scale
 
 type Tile = { id: number; ch: string; used: boolean }
 
@@ -49,10 +63,13 @@ function makeTiles(word: string): Tile[] {
   return order.map((pos, id) => ({ id, ch: chars[pos], used: false }))
 }
 
+const pickWord = (lvl: number) => Math.floor(Math.random() * LEVELS[lvl].length)
+
 export default function SpellWord({ onExit }: GameProps) {
   const { t } = useT()
-  const [idx, setIdx] = useState(() => Math.floor(Math.random() * WORDS.length))
-  const item = WORDS[idx]
+  const [lvl, setLvl] = useState(() => levelForTier(LEVEL_TIERS, getSettings().difficulty))
+  const [idx, setIdx] = useState(() => pickWord(lvl))
+  const item = LEVELS[lvl][idx]
   const [placed, setPlaced] = useState<string[]>([]) // letters locked into the slots, in order
   const [tiles, setTiles] = useState<Tile[]>(() => makeTiles(item.word))
   const [wrong, setWrong] = useState<number | null>(null) // a tile id that was tapped out of order
@@ -71,15 +88,24 @@ export default function SpellWord({ onExit }: GameProps) {
     timers.current.push(id)
     return clear
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [idx])
+  }, [lvl, idx])
 
-  function newWord(next = (idx + 1 + Math.floor(Math.random() * (WORDS.length - 1))) % WORDS.length) {
+  function load(nextLvl: number, nextIdx: number) {
     clear()
     playTap()
-    setIdx(next)
+    setLvl(nextLvl)
+    setIdx(nextIdx)
     setPlaced([])
-    setTiles(makeTiles(WORDS[next].word))
+    setTiles(makeTiles(LEVELS[nextLvl][nextIdx].word))
     setWrong(null)
+  }
+  // a fresh word in the SAME level (avoid repeating the current one)
+  function newWord() {
+    const n = LEVELS[lvl].length
+    load(lvl, n <= 1 ? idx : (idx + 1 + Math.floor(Math.random() * (n - 1))) % n)
+  }
+  function chooseLevel(nextLvl: number) {
+    load(nextLvl, pickWord(nextLvl))
   }
 
   function sayWord() {
@@ -122,6 +148,18 @@ export default function SpellWord({ onExit }: GameProps) {
   return (
     <GameShell title={t('game.spell')} emoji="🔠" onExit={onExit}>
       <Confetti active={done} />
+      <div className="memory-controls">
+        {LEVEL_TIERS.map((_, i) => (
+          <button
+            key={i}
+            className={`pill ${i === lvl ? 'pill-active' : ''}`}
+            onClick={() => chooseLevel(i)}
+          >
+            {t(`diff.${i}`)}
+          </button>
+        ))}
+      </div>
+
       <div className="spell-screen">
         <button className="spell-pic" onClick={sayWord} aria-label={t('spell.hear')}>
           <span aria-hidden="true">{item.emoji}</span>
@@ -147,7 +185,7 @@ export default function SpellWord({ onExit }: GameProps) {
             <button className="pill spell-say" onClick={sayWord} aria-label={t('spell.hear')}>
               🔊
             </button>
-            <button className="big-button" onClick={() => newWord()}>
+            <button className="big-button" onClick={newWord}>
               🔄 {t('spell.next')}
             </button>
           </div>
