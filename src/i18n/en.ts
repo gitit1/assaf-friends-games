@@ -280,6 +280,10 @@ export const EN: Dict = {
   'mem.new': { text: 'New game' },
   'mem.win': { text: 'Well done! 🎉' },
   'mem.closed': { text: 'closed card' },
+  'mem.open': { text: 'Open' },
+  'mem.cards': { text: 'cards' },
+  'mem.fewer': { text: 'fewer cards' },
+  'mem.more': { text: 'more cards' },
 
   // car race game
   'race.garage': { text: 'Garage & Race' },

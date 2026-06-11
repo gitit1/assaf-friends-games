@@ -281,6 +281,10 @@ export const HE: Dict = {
   'mem.new': { text: 'משחק חדש' },
   'mem.win': { text: 'כל הכבוד! 🎉' },
   'mem.closed': { text: 'קלף סגור' },
+  'mem.open': { text: 'פתוח' },
+  'mem.cards': { text: 'קלפים' },
+  'mem.fewer': { text: 'פחות קלפים' },
+  'mem.more': { text: 'עוד קלפים' },
 
   // car race game
   'race.garage': { text: 'מוסך ומרוץ' },

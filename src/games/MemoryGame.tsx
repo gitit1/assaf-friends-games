@@ -23,6 +23,10 @@ const LEVELS: Level[] = [
 ]
 // קל / רגיל / קשה / אלוף on the canonical scale
 const LEVEL_TIERS = [0, 1, 2, 3]
+// "open" mode: the grown-up picks how many CARDS (always even — they come in
+// pairs). Step by 2, from 4 up to the cast size (capped so the board stays sane).
+const MIN_CARDS = 4
+const OPEN_DEFAULT = 8
 
 type Card = { id: number; friend: number }
 
@@ -42,28 +46,56 @@ export default function MemoryGame({ onExit }: GameProps) {
   const { t } = useT()
   const initial = LEVELS[levelForTier(LEVEL_TIERS, getSettings().difficulty)]
   const [level, setLevel] = useState<Level>(initial)
+  const [open, setOpen] = useState(false) // "open" mode: pick the number of cards
+  const [openCards, setOpenCards] = useState(OPEN_DEFAULT) // always even
   const [deck, setDeck] = useState<Card[]>(() => buildDeck(initial.pairs))
   const [flipped, setFlipped] = useState<number[]>([])
   const [matched, setMatched] = useState<number[]>([])
   const [locked, setLocked] = useState(false)
 
   const vp = useViewport()
-  // win when every distinct friend in the (possibly level-capped) deck is matched
+  // most cards = the whole cast (paired), capped so the board stays playable
+  const maxCards = Math.min(friendCount(), 12) * 2
+  // how many pairs are in play right now (open mode vs a preset level)
+  const pairs = open ? openCards / 2 : level.pairs
+  // win when every distinct friend in the (possibly capped) deck is matched
   const totalPairs = deck.length / 2
   const won = matched.length === totalPairs
   // column count by density; the board fills up to 720px so it's big on a
   // desktop, and each friend fills its (responsive) card.
-  const cols = level.pairs <= 3 ? 3 : level.pairs <= 8 ? 4 : 5
+  const cols = pairs <= 3 ? 3 : pairs <= 8 ? 4 : pairs <= 12 ? 5 : 6
   const boardW = Math.min(720, vp.w * 0.92)
   const cardSize = (boardW - (cols - 1) * 12) / cols
   const friendPx = cardSize * 0.72
 
-  function reset(next: Level = level) {
-    setLevel(next)
-    setDeck(buildDeck(next.pairs))
+  function newDeck(p: number) {
+    setDeck(buildDeck(p))
     setFlipped([])
     setMatched([])
     setLocked(false)
+  }
+  function startPreset(next: Level) {
+    unlockAudio()
+    playTap()
+    setOpen(false)
+    setLevel(next)
+    newDeck(next.pairs)
+  }
+  function startOpen(cards = openCards) {
+    unlockAudio()
+    playTap()
+    setOpen(true)
+    setOpenCards(cards)
+    newDeck(cards / 2)
+  }
+  function changeCards(delta: number) {
+    const next = Math.max(MIN_CARDS, Math.min(maxCards, openCards + delta))
+    if (next !== openCards) startOpen(next)
+  }
+  // 🔄 reshuffle the current board (same mode / size)
+  function reshuffle() {
+    playTap()
+    newDeck(pairs)
   }
 
   function handleFlip(index: number) {
@@ -109,16 +141,45 @@ export default function MemoryGame({ onExit }: GameProps) {
         {LEVELS.map((lvl, i) => (
           <button
             key={i}
-            className={`pill ${lvl.pairs === level.pairs ? 'pill-active' : ''}`}
-            onClick={() => reset(lvl)}
+            className={`pill ${!open && lvl.pairs === level.pairs ? 'pill-active' : ''}`}
+            onClick={() => startPreset(lvl)}
           >
             {t(`diff.${i}`)}
           </button>
         ))}
-        <button className="pill" onClick={() => reset()}>
+        <button className={`pill ${open ? 'pill-active' : ''}`} onClick={() => startOpen()}>
+          🎚️ {t('mem.open')}
+        </button>
+        <button className="pill" onClick={reshuffle}>
           🔄 {t('mem.new')}
         </button>
       </div>
+
+      {open && (
+        // pick the number of cards (even, in pairs). dir=ltr keeps ➖ on the left
+        // and ➕ on the right in both Hebrew and English.
+        <div className="memory-open" dir="ltr">
+          <button
+            className="pill memory-step"
+            onClick={() => changeCards(-2)}
+            disabled={openCards <= MIN_CARDS}
+            aria-label={t('mem.fewer')}
+          >
+            ➖
+          </button>
+          <span className="memory-open-count">
+            {openCards} {t('mem.cards')}
+          </span>
+          <button
+            className="pill memory-step"
+            onClick={() => changeCards(2)}
+            disabled={openCards >= maxCards}
+            aria-label={t('mem.more')}
+          >
+            ➕
+          </button>
+        </div>
+      )}
 
       <div
         className={`memory-grid ${cols >= 5 ? 'is-wide-board' : ''}`}
