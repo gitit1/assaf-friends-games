@@ -278,9 +278,15 @@ const INTRO_LIKE = {
   // batch 2 (friends 12–20 → new LIKES indices 15–23)
   11: 15, 12: 16, 13: 17, 14: 18, 15: 19, 16: 20, 17: 21, 18: 22, 19: 23,
 }
+// Per-friend intro override — when the templated "I enjoy X all day" doesn't fit
+// the activity, write a custom intro here (keeps name + number + an invite).
+const INTRO_TEXT = {
+  // 13 מומו — "I have a really good memory" instead of "I enjoy playing memory all day"
+  12: `וואו! מצאתם אותי! אני ${nameToken(12)}, ${HAMISPAR} ${numWord(13)}! יש לי זכרון ממש טוב! בואו נשחק זיכרון!`,
+}
 for (let i = 0; i < COUNT; i++) {
   const li = INTRO_LIKE[i] ?? i
-  const intro = TEMPLATES[i % TEMPLATES.length](nameToken(i), numWord(i + 1), LIKES[li % LIKES.length], genderOf(i), INVITE[li % INVITE.length])
+  const intro = INTRO_TEXT[i] ?? TEMPLATES[i % TEMPLATES.length](nameToken(i), numWord(i + 1), LIKES[li % LIKES.length], genderOf(i), INVITE[li % INVITE.length])
   lines.push({ id: `intro-${i}`, text: intro, voice: voiceFor(i) })
 }
 // per-friend "special" button lines, in the friend's own voice
