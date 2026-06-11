@@ -34,6 +34,7 @@ import ParrotGame from './ParrotGame'
 import IceCreamGame from './IceCreamGame'
 import BubblePopGame from './BubblePopGame'
 import SpellWord from './SpellWord'
+import FirstLetter from './FirstLetter'
 
 // Every game gets a callback to return to the home screen.
 export type GameProps = {
@@ -356,6 +357,14 @@ export const GAMES: GameDef[] = [
     color: 'linear-gradient(160deg, #0ea5e9, #4338ca)',
     category: 'english',
     Component: SpellWord,
+  },
+  {
+    id: 'firstletter',
+    title: 'באיזו אות?',
+    emoji: '🔡',
+    color: 'linear-gradient(160deg, #22d3ee, #6366f1)',
+    category: 'english',
+    Component: FirstLetter,
   },
 ]
 

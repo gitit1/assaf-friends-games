@@ -614,6 +614,20 @@ button {
 .spell-tile.is-wrong {
   animation: spell-shake 0.4s ease;
 }
+/* the correct letter chosen (First Letter game) — green glow + pop */
+.spell-tile.is-right {
+  background: linear-gradient(160deg, #34d399, #059669);
+  box-shadow: 0 4px 0 rgba(5, 150, 105, 0.5);
+  animation: spell-pop 0.3s ease;
+}
+/* First Letter — the question prompt above the choices (light, for the dark game bg) */
+.fl-q {
+  margin: 2px 0 -4px;
+  font-weight: 800;
+  font-size: 1.1rem;
+  color: rgba(255, 255, 255, 0.85);
+  text-align: center;
+}
 .spell-foot {
   display: flex;
   align-items: center;

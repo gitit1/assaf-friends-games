@@ -373,6 +373,8 @@ export const HE: Dict = {
   'game.spell': { text: 'בונים מילה' },
   'spell.hear': { text: 'לשמוע את המילה' },
   'spell.next': { text: 'מילה חדשה' },
+  'game.firstletter': { text: 'באיזו אות?' },
+  'fl.q': { text: 'באיזו אות מתחילה המילה?' },
 
   // count game
   'count.step': { text: 'קפיצות' },
