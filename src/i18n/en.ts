@@ -374,6 +374,7 @@ export const EN: Dict = {
   'spell.next': { text: 'New word' },
   'game.firstletter': { text: 'First Letter' },
   'fl.q': { text: 'Which letter does it start with?' },
+  'game.liveletters': { text: 'Living Letters' },
 
   // count game
   'count.step': { text: 'Skip' },

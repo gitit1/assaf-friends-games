@@ -35,6 +35,7 @@ import IceCreamGame from './IceCreamGame'
 import BubblePopGame from './BubblePopGame'
 import SpellWord from './SpellWord'
 import FirstLetter from './FirstLetter'
+import LivingLetters from './LivingLetters'
 
 // Every game gets a callback to return to the home screen.
 export type GameProps = {
@@ -365,6 +366,14 @@ export const GAMES: GameDef[] = [
     color: 'linear-gradient(160deg, #22d3ee, #6366f1)',
     category: 'english',
     Component: FirstLetter,
+  },
+  {
+    id: 'liveletters',
+    title: 'אותיות חיות',
+    emoji: '🆎',
+    color: 'linear-gradient(160deg, #f472b6, #4338ca)',
+    category: 'english',
+    Component: LivingLetters,
   },
 ]
 
