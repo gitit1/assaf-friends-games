@@ -9,6 +9,7 @@ import { useT } from './i18n'
 import { BackContext, type BackTarget } from './nav'
 import { useTouchLock } from './useTouchLock'
 import { SHOW_3D } from './devFlags'
+import { stopClip } from './voice'
 
 // 3D screen pulls in Three.js — load it only when opened, so it never weighs
 // down the first paint of the rest of the app.
@@ -60,9 +61,11 @@ export default function App() {
     return () => window.removeEventListener('hashchange', onChange)
   }, [])
 
-  // scroll to top when the screen changes
+  // scroll to top when the screen changes, and cut off any playing voice clip so
+  // a count/narration never bleeds across screens (friend→friend, into a game, …)
   useEffect(() => {
     window.scrollTo(0, 0)
+    stopClip()
   }, [route])
 
   const home = () => go('')

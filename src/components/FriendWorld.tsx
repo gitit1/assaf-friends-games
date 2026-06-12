@@ -98,12 +98,22 @@ export default function FriendWorld({
   const n = friendNumber(index)
   const total = rosterCount()
   // browse to the friend before / after this one, wrapping around the whole
-  // cast so there's never a dead-end (no disabled buttons to puzzle a child)
+  // cast so there's never a dead-end (no disabled buttons to puzzle a child).
+  // Cut off any running count/narration on the spot so it doesn't bleed into the
+  // next friend (the effect cleanup also does this, but stop it synchronously too).
+  const leave = () => {
+    clearTimers()
+    stopClip()
+    stopSpeech()
+    setLit(undefined)
+  }
   const goPrev = () => {
+    leave()
     playTap()
     onNavigate((index - 1 + total) % total)
   }
   const goNext = () => {
+    leave()
     playTap()
     onNavigate((index + 1) % total)
   }
