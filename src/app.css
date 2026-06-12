@@ -785,6 +785,32 @@ button {
   background: linear-gradient(160deg, #34d399, #4338ca);
 }
 
+/* ── Count in English ────────────────────────────────────────────────── */
+.ec-group {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px 10px;
+  max-width: min(420px, 100%);
+  min-height: 2.2em;
+}
+.ec-item {
+  font-size: clamp(1.8rem, 8vw, 2.6rem);
+  line-height: 1.1;
+  transition: transform 0.2s ease, filter 0.2s ease;
+  filter: saturate(0.6) opacity(0.6);
+}
+.ec-item.is-lit {
+  filter: none;
+  transform: scale(1.18);
+}
+.ec-count { font-size: 1rem; }
+.math-choice.is-right {
+  background: linear-gradient(160deg, #34d399, #059669);
+  color: #fff;
+  animation: spell-pop 0.3s ease;
+}
+
 .memory-grid {
   display: grid;
   grid-template-columns: repeat(var(--cols, 3), 1fr);

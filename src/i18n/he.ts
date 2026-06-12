@@ -382,6 +382,9 @@ export const HE: Dict = {
   'game.blend': { text: 'להרכיב צליל' },
   'blend.hint': { text: 'לחצו על כל אות לשמוע, ואז חברו!' },
   'blend.go': { text: 'חברו!' },
+  'game.encount': { text: 'ספירה באנגלית' },
+  'ec.q': { text: 'כמה? (How many?)' },
+  'ec.count': { text: 'לספור באנגלית' },
 
   // count game
   'count.step': { text: 'קפיצות' },

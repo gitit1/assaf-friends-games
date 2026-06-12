@@ -37,6 +37,7 @@ import SpellWord from './SpellWord'
 import FirstLetter from './FirstLetter'
 import RhymeMachine from './RhymeMachine'
 import BlendSounds from './BlendSounds'
+import EnglishCount from './EnglishCount'
 
 // Every game gets a callback to return to the home screen.
 export type GameProps = {
@@ -384,6 +385,14 @@ export const GAMES: GameDef[] = [
     color: 'linear-gradient(160deg, #34d399, #4338ca)',
     category: 'english',
     Component: BlendSounds,
+  },
+  {
+    id: 'encount',
+    title: 'ספירה באנגלית',
+    emoji: '🔢',
+    color: 'linear-gradient(160deg, #6366f1, #0891b2)',
+    category: 'english',
+    Component: EnglishCount,
   },
 ]
 

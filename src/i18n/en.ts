@@ -381,6 +381,9 @@ export const EN: Dict = {
   'game.blend': { text: 'Blend Sounds' },
   'blend.hint': { text: 'Tap each letter to hear it, then blend!' },
   'blend.go': { text: 'Blend!' },
+  'game.encount': { text: 'Count in English' },
+  'ec.q': { text: 'How many?' },
+  'ec.count': { text: 'count in English' },
 
   // count game
   'count.step': { text: 'Skip' },
