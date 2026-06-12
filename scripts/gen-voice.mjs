@@ -227,7 +227,7 @@ const JOKES = [
 // is [WORD, transliteration (so the Hebrew voice says the English word), Hebrew].
 // MUST stay in sync with FAMILIES in src/games/RhymeMachine.tsx.
 const RHYME_FAMILIES = [
-  { voice: 'Erez',   words: [['CAT', 'קאט', 'חתול'], ['HAT', 'האט', 'כובע'], ['BAT', 'בּאט', 'עטלף'], ['RAT', 'ראט', 'חוּלדָּה']] },
+  { voice: 'Erez',   words: [['CAT', 'קאט', 'חתול'], ['HAT', 'האט', 'כובע'], ['BAT', 'בּאט', 'עטלף'], ['RAT', 'ראט', 'עכברוש']] },
   { voice: 'Ayelet', words: [['DOG', 'דּוֹג', 'כלב'], ['LOG', 'לוֹג', 'בול עץ'], ['FOG', 'פוֹג', 'ערפל'], ['HOG', 'הוֹג', 'חזיר בר']] },
   { voice: 'Doron',  words: [['SUN', 'סאן', 'שמש'], ['BUN', 'בּאן', 'לחמנייה'], ['RUN', 'ראן', 'לרוץ']] },
   { voice: 'Tamar',  words: [['HEN', 'הֶן', 'תרנגולת'], ['PEN', 'פֶּן', 'עט'], ['TEN', 'טֶן', 'עשר']] },
