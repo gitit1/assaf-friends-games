@@ -6044,31 +6044,33 @@ button {
 
 .pet-meters {
   display: flex;
-  gap: 10px;
+  gap: 6px;
   justify-content: center;
-  max-width: 480px;
+  max-width: min(480px, 100%);
   margin: 0 auto 12px;
 }
 .pet-meter {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
   flex: 1;
+  min-width: 0; /* allow the bars to shrink so all 5 fit a phone row */
 }
 .pet-meter-emoji {
-  font-size: 1.3rem;
+  font-size: 1.05rem;
 }
 .pet-meter-num {
   font-family: 'Fredoka', 'Heebo', sans-serif;
   font-weight: 800;
-  font-size: 0.85rem;
+  font-size: 0.78rem;
   color: var(--text-soft);
-  min-width: 22px;
+  min-width: 16px;
   text-align: center;
 }
 .pet-bar {
   flex: 1;
-  height: 14px;
+  min-width: 0;
+  height: 13px;
   background: var(--panel);
   border-radius: 999px;
   overflow: hidden;
@@ -6217,21 +6219,21 @@ button {
 @keyframes pet-pose-happy { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
 
 .pet-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr)); /* 10 buttons → 2 tidy rows, always fits */
+  gap: 7px;
   justify-content: center;
-  max-width: 540px;
-  margin: 16px auto 0;
+  max-width: min(440px, 100%);
+  margin: 14px auto 0;
 }
 .pet-action {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 2px;
-  width: 84px;
-  padding: 10px 4px;
-  border-radius: 18px;
+  width: auto; /* grid column sizes it (5 per row) */
+  padding: 8px 2px;
+  border-radius: 16px;
   background: var(--panel-strong);
   box-shadow: var(--shadow);
   border: none;
@@ -6241,12 +6243,15 @@ button {
   transform: scale(0.94);
 }
 .pet-action-emoji {
-  font-size: 2rem;
+  font-size: clamp(1.5rem, 5.5vw, 1.9rem);
 }
 .pet-action-label {
   font-family: 'Fredoka', 'Heebo', sans-serif;
   font-weight: 700;
-  font-size: 0.95rem;
+  font-size: clamp(0.68rem, 2.5vw, 0.88rem);
+  line-height: 1.05;
+  text-align: center;
+  max-width: 100%;
 }
 .pet-action-new {
   background: var(--panel);
