@@ -1,19 +1,29 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import * as THREE from 'three'
 import GameShell from './GameShell'
 import { playFriend, playSuccess, unlockAudio } from '../audio'
 import { playClip } from '../voice'
+import { friendName, friendSay } from '../friends'
+import { friendCount } from '../level'
+import { buildFriend3D } from './buildFriend3D'
 
-// A first experiment in 3D: friend #1 (לולו) built from Three.js primitives — a
-// round red blob with a face, a bow, arms, hands and feet. It idles with a gentle
-// breathing bob (you can also drag to spin it), and the buttons play *real*
+// The 3D friend gallery. Every data-driven friend (11–100) is generated in 3D
+// from its own bump data by buildFriend3D — step through them with ◀ ▶. Each
+// idles with a gentle breathing bob (drag to spin), and the buttons play real
 // animations: a squash-and-stretch jump, a raised-hand high-five (כיף), and a
 // lean-in arms-wrap hug (חיבוק). No timer, calm motion, sound can be muted.
 type ActionName = 'idle' | 'jump' | 'five' | 'hug'
 
-export default function Friend3D({ onExit }: { onExit: () => void }) {
+// arm rest pose (hang down with a gentle outward splay) — shared by idle + gestures
+const REST = { lx: 0, lz: 0.16, rx: 0, rz: -0.16 }
+
+export default function Friend3D({ onExit, start }: { onExit: () => void; start?: number }) {
   const mountRef = useRef<HTMLDivElement>(null)
   const actionRef = useRef<{ name: ActionName; until: number }>({ name: 'idle', until: 0 })
+  // start at friend #11 (first data-driven one) unless a deep-link picks one
+  const [index, setIndex] = useState(() =>
+    Number.isInteger(start) && (start as number) >= 0 && (start as number) < friendCount() ? (start as number) : 10,
+  )
 
   useEffect(() => {
     const mount = mountRef.current
@@ -26,8 +36,8 @@ export default function Friend3D({ onExit }: { onExit: () => void }) {
     const scene = new THREE.Scene()
     scene.background = new THREE.Color('#eaf2fb')
     const camera = new THREE.PerspectiveCamera(45, W() / H(), 0.1, 100)
-    camera.position.set(0, 0.2, 5.4)
-    camera.lookAt(0, 0.05, 0)
+    camera.position.set(0, 0.1, 6.6)
+    camera.lookAt(0, 0, 0)
 
     const renderer = new THREE.WebGLRenderer({ antialias: true })
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
@@ -42,90 +52,19 @@ export default function Friend3D({ onExit }: { onExit: () => void }) {
     fill.position.set(-3, 1, 3)
     scene.add(fill)
 
-    const RED = 0xef4444
-    const mat = (c: number, roughness = 0.55) =>
-      new THREE.MeshStandardMaterial({ color: c, roughness, metalness: 0 })
+    // soft contact shadow on the ground
+    const shadow = new THREE.Mesh(
+      new THREE.CircleGeometry(1.5, 32),
+      new THREE.MeshBasicMaterial({ color: 0x0b1b3a, transparent: true, opacity: 0.14 }),
+    )
+    shadow.rotation.x = -Math.PI / 2
+    shadow.position.y = -1.95
+    scene.add(shadow)
 
-    const lulu = new THREE.Group()
-    scene.add(lulu)
-
-    // body
-    const body = new THREE.Mesh(new THREE.SphereGeometry(1.1, 48, 48), mat(RED))
-    body.scale.set(1, 0.92, 1)
-    lulu.add(body)
-
-    // eyes (white domes + pupils), poking out the front
-    const whiteMat = mat(0xffffff, 0.3)
-    const blackMat = mat(0x141414, 0.3)
-    const makeEye = (x: number) => {
-      const g = new THREE.Group()
-      const w = new THREE.Mesh(new THREE.SphereGeometry(0.2, 24, 24), whiteMat)
-      const p = new THREE.Mesh(new THREE.SphereGeometry(0.1, 18, 18), blackMat)
-      p.position.set(0, 0, 0.15)
-      g.add(w, p)
-      g.position.set(x, 0.2, 1.0)
-      return g
-    }
-    lulu.add(makeEye(-0.33), makeEye(0.33))
-
-    // smile (half torus, flipped to open upward)
-    const mouth = new THREE.Mesh(new THREE.TorusGeometry(0.3, 0.05, 12, 28, Math.PI), mat(0x7a1020, 0.5))
-    mouth.position.set(0, -0.2, 1.0)
-    mouth.rotation.z = Math.PI
-    lulu.add(mouth)
-
-    // cheeks
-    const cheekMat = new THREE.MeshStandardMaterial({ color: 0xfb7185, transparent: true, opacity: 0.55, roughness: 0.7 })
-    const makeCheek = (x: number) => {
-      const c = new THREE.Mesh(new THREE.SphereGeometry(0.13, 16, 16), cheekMat)
-      c.position.set(x, -0.05, 1.0)
-      c.scale.set(1, 0.7, 0.4)
-      return c
-    }
-    lulu.add(makeCheek(-0.6), makeCheek(0.6))
-
-    // bow on top (pink loops + knot)
-    const bow = new THREE.Group()
-    const bowMat = mat(0xfb7185, 0.45)
-    const loopGeo = new THREE.SphereGeometry(0.26, 20, 20)
-    const loopL = new THREE.Mesh(loopGeo, bowMat)
-    loopL.scale.set(1, 0.72, 0.42)
-    loopL.position.set(-0.27, 0, 0)
-    const loopR = loopL.clone()
-    loopR.position.set(0.27, 0, 0)
-    const knot = new THREE.Mesh(new THREE.SphereGeometry(0.14, 16, 16), mat(0xf43f5e, 0.45))
-    bow.add(loopL, loopR, knot)
-    bow.position.set(0, 1.06, 0.12)
-    lulu.add(bow)
-
-    // arms — a Group pivoting at the shoulder, the limb hanging down from it
-    const handMat = mat(RED)
-    const makeArm = (side: number) => {
-      const shoulder = new THREE.Group()
-      const limb = new THREE.Mesh(new THREE.CapsuleGeometry(0.16, 0.66, 8, 16), mat(RED))
-      limb.position.y = -0.45
-      const hand = new THREE.Mesh(new THREE.SphereGeometry(0.22, 20, 20), handMat)
-      hand.position.y = -0.86
-      shoulder.add(limb, hand)
-      shoulder.position.set(side * 0.95, 0.2, 0.12)
-      return shoulder
-    }
-    const armL = makeArm(-1)
-    const armR = makeArm(1)
-    lulu.add(armL, armR)
-
-    // feet
-    const footMat = mat(0xb91c1c)
-    const makeFoot = (x: number) => {
-      const f = new THREE.Mesh(new THREE.SphereGeometry(0.26, 20, 20), footMat)
-      f.scale.set(1, 0.6, 1.35)
-      f.position.set(x, -1.04, 0.28)
-      return f
-    }
-    lulu.add(makeFoot(-0.45), makeFoot(0.45))
-
-    // rest pose: arms hang slightly outward
-    const REST = { lx: 0, lz: 0.38, rx: 0, rz: -0.38 }
+    const rig = buildFriend3D(index)
+    scene.add(rig.group)
+    const { group, bumps, armL, armR } = rig
+    const baseScale = group.scale.x
     armL.rotation.set(REST.lx, 0, REST.lz)
     armR.rotation.set(REST.rx, 0, REST.rz)
 
@@ -164,15 +103,15 @@ export default function Friend3D({ onExit }: { onExit: () => void }) {
         actionRef.current = act
       }
 
-      // base idle: breathing bob + slow look-around sway (off if reduced motion)
       const sway = reduced ? 0 : Math.sin(t * 0.6) * 0.16
-      const bob = reduced ? 0 : Math.sin(t * 2) * 0.05
-      lulu.rotation.y = userRot.y + sway
-      lulu.rotation.x = 0
-      lulu.position.y = bob
-      lulu.scale.set(1, 1, 1)
-      const breathe = reduced ? 0 : Math.sin(t * 2) * 0.025
-      body.scale.set(1 + breathe, 0.92 + breathe, 1 + breathe)
+      const bob = reduced ? 0 : Math.sin(t * 2) * 0.06
+      group.rotation.y = userRot.y + sway
+      group.rotation.x = 0
+      group.position.y = bob
+      group.scale.setScalar(baseScale)
+      // breathing — puff each bump a touch in place
+      const breathe = reduced ? 0 : 1 + Math.sin(t * 2) * 0.03
+      for (const b of bumps) b.scale.setScalar(breathe)
 
       let tLx = REST.lx
       let tLz = REST.lz
@@ -180,26 +119,26 @@ export default function Friend3D({ onExit }: { onExit: () => void }) {
       let tRz = REST.rz
 
       if (act.name === 'hug') {
-        // both arms swing forward + inward, body leans in and squishes warmly
         tLx = -1.2
         tLz = -0.55
         tRx = -1.2
         tRz = 0.55
         const p = Math.min(1, Math.max(0, 1 - (act.until - now) / 1600))
         const squeeze = Math.sin(p * Math.PI)
-        lulu.rotation.x = 0.18 * squeeze
-        lulu.scale.set(1 + 0.06 * squeeze, 1 - 0.05 * squeeze, 1 + 0.06 * squeeze)
+        group.rotation.x = 0.18 * squeeze
+        group.scale.set(baseScale * (1 + 0.06 * squeeze), baseScale * (1 - 0.05 * squeeze), baseScale * (1 + 0.06 * squeeze))
       } else if (act.name === 'five') {
-        // raise the right hand high with a little eager bounce
+        // raise the RIGHT hand up-and-out on its own side (+z rotation), tilted a
+        // touch toward the viewer, with an eager little bounce
         const bounce = reduced ? 0 : Math.sin(t * 18) * 0.12
-        tRx = -0.55
-        tRz = -2.5 + bounce
+        tRx = -0.35
+        tRz = 2.62 + bounce
       } else if (act.name === 'jump') {
         const p = Math.min(1, Math.max(0, 1 - (act.until - now) / 800))
-        const h = Math.sin(p * Math.PI) // up-and-down arc
-        lulu.position.y = bob + h * 1.15
-        const s = 1 + h * 0.12
-        lulu.scale.set(1 - h * 0.08, s, 1 - h * 0.08)
+        const hh = Math.sin(p * Math.PI)
+        group.position.y = bob + hh * 0.9
+        const s = 1 + hh * 0.12
+        group.scale.set(baseScale * (1 - hh * 0.08), baseScale * s, baseScale * (1 - hh * 0.08))
         tLz = 0.95
         tRz = -0.95
       }
@@ -237,7 +176,7 @@ export default function Friend3D({ onExit }: { onExit: () => void }) {
       renderer.dispose()
       if (renderer.domElement.parentNode === mount) mount.removeChild(renderer.domElement)
     }
-  }, [])
+  }, [index])
 
   const run = (name: ActionName, dur: number) => {
     unlockAudio()
@@ -245,7 +184,7 @@ export default function Friend3D({ onExit }: { onExit: () => void }) {
   }
   const jump = () => {
     run('jump', 800)
-    playFriend(0)
+    playFriend(index)
   }
   const five = () => {
     run('five', 1200)
@@ -254,18 +193,33 @@ export default function Friend3D({ onExit }: { onExit: () => void }) {
   }
   const hug = () => {
     run('hug', 1600)
-    playFriend(0)
+    playFriend(index)
     playClip('fx-hug', 'חיבוק גדול!')
   }
   const hi = () => {
     unlockAudio()
-    playClip('intro-0', 'שלום! אני לולו, אני המספר אחת!')
+    playClip(`intro-${index}`, friendSay(index))
+  }
+  const step = (d: number) => {
+    const n = friendCount()
+    setIndex((i) => (i + d + n) % n)
   }
 
   return (
-    <GameShell title="לולו · תלת מימד" emoji="🧊" onExit={onExit}>
+    <GameShell title={`${friendName(index)} · תלת מימד`} emoji="🧊" onExit={onExit}>
       <div className="three-screen">
         <div className="three-canvas" ref={mountRef} />
+        <div className="three-stepper">
+          <button className="three-arrow" onClick={() => step(-1)} aria-label="הקודם">
+            ◀
+          </button>
+          <span className="three-name">
+            {friendName(index)} · {index + 1}
+          </span>
+          <button className="three-arrow" onClick={() => step(1)} aria-label="הבא">
+            ▶
+          </button>
+        </div>
         <div className="world-actions">
           <button className="world-btn" onClick={hi}>
             <span className="world-btn-emoji" aria-hidden="true">🔊</span>

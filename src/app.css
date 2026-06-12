@@ -8505,6 +8505,35 @@ button {
 .three-canvas canvas {
   display: block;
 }
+/* ◀ ▶ to step through the friends in 3D */
+.three-stepper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+}
+.three-arrow {
+  width: 52px;
+  height: 52px;
+  border: none;
+  border-radius: 50%;
+  background: var(--card, #fff);
+  color: #2563eb;
+  font-size: 1.5rem;
+  box-shadow: var(--shadow);
+  cursor: pointer;
+}
+.three-arrow:active {
+  transform: scale(0.92);
+}
+.three-name {
+  min-width: 9ch;
+  text-align: center;
+  font-family: 'Fredoka', 'Heebo', sans-serif;
+  font-weight: 700;
+  font-size: 1.15rem;
+  color: var(--text, #1f2937);
+}
 .three-loading {
   text-align: center;
   font-family: 'Fredoka', 'Heebo', sans-serif;

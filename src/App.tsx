@@ -25,7 +25,7 @@ const Friend3D = lazy(() => import('./components/Friend3D'))
 type Route =
   | { kind: 'home' }
   | { kind: 'meet' }
-  | { kind: 'gallery' }
+  | { kind: 'gallery'; id?: string }
   | { kind: 'friend'; id: string; quiet?: boolean }
   | { kind: 'cat'; id: string }
   | { kind: 'game'; id: string; from?: string }
@@ -37,6 +37,7 @@ function parse(hash: string): Route {
   if (h === 'gallery') return { kind: 'gallery' }
   const parts = h.split('/')
   const [seg, id] = parts
+  if (seg === 'gallery') return { kind: 'gallery', id } // gallery/<friendIndex>
   if (seg === 'cat' && id) return { kind: 'cat', id }
   // a game can carry where it was opened from: game/<id>/f/<friendIndex>
   if (seg === 'game' && id) return { kind: 'game', id, from: parts[2] === 'f' ? parts[3] : undefined }
@@ -98,7 +99,7 @@ export default function App() {
   } else if (route.kind === 'gallery' && SHOW_3D) {
     view = (
       <Suspense fallback={<p className="three-loading">טוען תלת מימד… 🧊</p>}>
-        <Friend3D onExit={home} />
+        <Friend3D onExit={home} start={Number(route.id)} />
       </Suspense>
     )
   } else if (route.kind === 'game') {
