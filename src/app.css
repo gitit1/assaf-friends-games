@@ -764,6 +764,27 @@ button {
   50% { transform: translateY(-3px); }
 }
 
+/* ── Blend Sounds (phonics blending) ─────────────────────────────────── */
+.blend-word {
+  gap: 14px;
+  transition: gap 0.55s ease;
+}
+.blend-word.is-blending {
+  gap: 0; /* the letters slide together as the sounds blend into the word */
+}
+.blend-letter {
+  width: clamp(46px, 14vw, 78px);
+  height: clamp(52px, 15.5vw, 88px);
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+.blend-letter:active .ll-guy { transform: translateY(2px); }
+.blend-go {
+  background: linear-gradient(160deg, #34d399, #4338ca);
+}
+
 .memory-grid {
   display: grid;
   grid-template-columns: repeat(var(--cols, 3), 1fr);

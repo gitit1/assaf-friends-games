@@ -379,6 +379,9 @@ export const HE: Dict = {
   'rm.q': { text: 'החליפו את האות הראשונה!' },
   'rm.newfam': { text: 'משפחה חדשה' },
   'rm.found': { text: 'מצאת {n} מתוך {total}' },
+  'game.blend': { text: 'להרכיב צליל' },
+  'blend.hint': { text: 'לחצו על כל אות לשמוע, ואז חברו!' },
+  'blend.go': { text: 'חברו!' },
 
   // count game
   'count.step': { text: 'קפיצות' },

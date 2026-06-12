@@ -36,6 +36,7 @@ import BubblePopGame from './BubblePopGame'
 import SpellWord from './SpellWord'
 import FirstLetter from './FirstLetter'
 import RhymeMachine from './RhymeMachine'
+import BlendSounds from './BlendSounds'
 
 // Every game gets a callback to return to the home screen.
 export type GameProps = {
@@ -375,6 +376,14 @@ export const GAMES: GameDef[] = [
     color: 'linear-gradient(160deg, #f59e0b, #db2777)',
     category: 'english',
     Component: RhymeMachine,
+  },
+  {
+    id: 'blend',
+    title: 'להרכיב צליל',
+    emoji: '🔊',
+    color: 'linear-gradient(160deg, #34d399, #4338ca)',
+    category: 'english',
+    Component: BlendSounds,
   },
 ]
 

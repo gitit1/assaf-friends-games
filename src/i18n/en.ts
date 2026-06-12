@@ -378,6 +378,9 @@ export const EN: Dict = {
   'rm.q': { text: 'Swap the first letter!' },
   'rm.newfam': { text: 'New family' },
   'rm.found': { text: 'found {n} of {total}' },
+  'game.blend': { text: 'Blend Sounds' },
+  'blend.hint': { text: 'Tap each letter to hear it, then blend!' },
+  'blend.go': { text: 'Blend!' },
 
   // count game
   'count.step': { text: 'Skip' },
