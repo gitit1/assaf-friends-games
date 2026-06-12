@@ -96,11 +96,11 @@ export const EN: Dict = {
   'world.like.15': { text: 'Sorting' },
   'world.like.16': { text: 'Memory' },
   'world.like.17': { text: 'Patterns' },
-  'world.like.18': { text: 'Pet care' },
+  'world.like.18': { text: 'Pets' },
   'world.like.19': { text: 'Dice' },
   'world.like.20': { text: 'Tag' },
   'world.like.21': { text: 'Basketball' },
-  'world.like.22': { text: 'Letters' },
+  'world.like.22': { text: 'Hebrew' },
   'world.like.23': { text: 'Color by number' },
 
   // place value game (tens & ones)

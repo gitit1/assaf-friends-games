@@ -101,7 +101,7 @@ export const HE: Dict = {
   'world.like.19': { text: 'קובייה' },
   'world.like.20': { text: 'תופסים' },
   'world.like.21': { text: 'כדורסל' },
-  'world.like.22': { text: 'אותיות' },
+  'world.like.22': { text: 'עברית' },
   'world.like.23': { text: 'צביעה לפי מספר' },
 
   // place value game (tens & ones)

@@ -42,10 +42,10 @@ const nameToken = (i) => (isEdge ? NAME[i] : NAME_IPA[i] || NAME[i])
 // indices 0–14 are batch 1; 15–23 are batch 2 (friends 12–20). Keep this order in
 // sync with the LIKES array in src/components/FriendWorld.tsx and the
 // world.like.<n> i18n keys, and with INVITE / INTRO_LIKE below.
-const LIKES = ['לקפוץ','לרקוד','לצחוק','להתחבק','לשיר','לספור','לשחק מחבואים','לאכול גלידה','לצייר','להפריח בועות','לשחק בכדור','לחלק נשיקות','לשחק כדורגל','לצבוע','לנגן על פסנתר','למיין','לשחק זיכרון','לשחק בתבניות','לטפל בחברים','לגלגל קובייה','לתפוס ולרוץ','לשחק כדורסל','לשחק באותיות','לצבוע לפי מספרים']
+const LIKES = ['לקפוץ','לרקוד','לצחוק','להתחבק','לשיר','לספור','לשחק מחבואים','לאכול גלידה','לצייר','להפריח בועות','לשחק בכדור','לחלק נשיקות','לשחק כדורגל','לצבוע','לנגן על פסנתר','למיין','לשחק זיכרון','לשחק בתבניות','חיות מחמד','לגלגל קובייה','לתפוס ולרוץ','לשחק כדורסל','את השפה העברית','לצבוע לפי מספרים']
 // Closing invitation per like (same order as LIKES). The hug one is a warm
 // "אשמח לחיבוק" rather than a plain "בואו נתחבק".
-const INVITE = ['בואו נקפוץ','בואו נרקוד','בואו נצחק','אשמח לחיבוק','בואו נשיר','בואו נספור','בואו נשחק מחבואים','בואו נאכל גלידה','בואו נצייר','בואו נפריח בועות','בואו נשחק בכדור','בואו נחלק נשיקות','בואו נשחק כדורגל','בואו נצבע','בואו ננגן','בואו נמיין','בואו נשחק זיכרון','בואו נשחק בתבניות','בואו נטפל בחבר','בואו נגלגל קובייה','בואו נתפוס חברים','בואו נשחק כדורסל','בואו נשחק באותיות','בואו נצבע לפי מספרים']
+const INVITE = ['בואו נקפוץ','בואו נרקוד','בואו נצחק','אשמח לחיבוק','בואו נשיר','בואו נספור','בואו נשחק מחבואים','בואו נאכל גלידה','בואו נצייר','בואו נפריח בועות','בואו נשחק בכדור','בואו נחלק נשיקות','בואו נשחק כדורגל','בואו נצבע','בואו ננגן','בואו נמיין','בואו נשחק זיכרון','בואו נשחק בתבניות','בואו נשחק עם חיית מחמד','בואו נגלגל קובייה','בואו נתפוס חברים','בואו נשחק כדורסל','בואו נלמד אותיות','בואו נצבע לפי מספרים']
 // short exclamation said when a friend's own "special" button is tapped (like-<n>);
 // order matches LIKES / FriendWorld.tsx
 const LIKE_FX = ['קפיצה!','ריקוד!','צחוק!','חיבוק!','שיר!','ספירה!','מחבואים!','גלידה!','ציור!','בועות!','כדור!','נשיקות!']
@@ -76,12 +76,12 @@ const SPECIAL = {
   11: ['אני אוהבת לסדר הכל לפי צבע!', 'בואו נמיין יחד! כל צבע במקום שלו!', 'אני הכי שְׂמֵחָה כשהכל מסודר!'],   // 12 לילי — מיון (שמחה = תואר, לא השם שִׂמְחָה)
   12: ['יש לי זיכרון ענק! בואו נשחק זיכרון!', 'אני זוכר איפה כל חבר מתחבא!', 'גלו אותי, ותזכרו איפה אני!'], // 13 מומו — זיכרון
   13: ['אני אוהב תבניות! מה בא עכשיו?', 'אדום, כחול, אדום, כחול, ועכשיו?', 'בואו נמשיך את הסדרה יחד!'],     // 14 ריקי — תבניות
-  14: ['אני אוהב לטפל בחברים!', 'בואו נאכיל ונרדים את החבר!', 'כל אחד צריך קצת אהבה!'],                    // 15 שושו — חיית מחמד
+  14: ['אני אוהבת חיות מחמד!', 'בואו נשחק עם החבר שלי!', 'כל אחד צריך קצת אהבה!'],                          // 15 שושו — חיית מחמד (בת)
   15: ['בואו נגלגל את הקובייה! איזה מִּסְפָּר יצא?', 'אני אוהב הפתעות של מזל!', 'גלגלו, ונספור כמה יצא!'],   // 16 גילי — קובייה
   16: ['אני הכי מהירה! נסו לתפוס אותי!', 'בואו נרוץ ונתפוס חברים!', 'אני זריזה כמו ברק!'],                 // 17 רוני — תופסים
   17: ['אני אוהב לזרוק לסל! קליעה!', 'בואו נשחק כדורסל יחד!', 'עוד סל ועוד סל! אני אלוף!'],                // 18 יויו — כדורסל
-  18: ['אני אוהבת אותיות! באיזו אות מתחיל השם שלי?', 'בואו נמצא את האות הנכונה!', 'אלף, בית, גימל! אני יודעת הכל!'], // 19 סופי — אותיות
-  19: ['אני אוהבת לצבוע לפי מִּסְפָּרִים!', 'כל מִּסְפָּר והצבע שלו! בואו נצבע!', 'נצבע יחד תמונה צבעונית!'], // 20 קיקי — צביעה לפי מספר
+  18: ['אני אוהבת את השפה העברית!', 'בואו נמצא את האות הנכונה!', 'אָלֶף, בֵּית, גִּימֶל! אני יודעת הכל!'], // 19 סופי — עברית (אָלֶף בניקוד)
+  19: ['אני אוהבת לצבוע לפי מִּסְפָּרִים!', 'כל מִּסְפָּר והצבע שלו! בואו נִצְבַּע!', 'נִצְבַּע יחד תמונה צבעונית!'], // 20 קיקי — "נִצְבַּע" בניקוד
 }
 
 // Per-friend number facts SPOKEN by the ✨ fact button, one per difficulty level
@@ -186,11 +186,11 @@ const FACTS = {
     'אני מִּסְפָּר זוגי. שמונה ועוד שמונה זה שש עשרה.',
     'ארבע כפול ארבע זה שש עשרה. אני מִּסְפָּר ריבוע!',
   ],
-  16: [ // 17 רוני
+  16: [ // 17 רוני (בת) — ניסוח בלי המילה "מספר" שלא נשמעה טוב
     'אני הַמִּסְפָּר שבע עשרה!',
     'שבע עשרה זה עשר ועוד שבע.',
-    'אני מִּסְפָּר אי-זוגי. אחריי בא שמונה עשרה.',
-    'שבע עשרה זה מִּסְפָּר ראשוני. מתחלק רק בעצמו ובאחד.',
+    'אני אִי-זוּגִית! אחריי בא שמונה עשרה.',
+    'שבע עשרה מתחלקת רק בעצמה ובאחד.',
   ],
   17: [ // 18 יויו
     'אני הַמִּסְפָּר שמונה עשרה!',
@@ -204,11 +204,11 @@ const FACTS = {
     'אני מִּסְפָּר אי-זוגי. אחריי בא עשרים.',
     'תשע עשרה זה מִּסְפָּר ראשוני. מתחלק רק בעצמו ובאחד.',
   ],
-  19: [ // 20 קיקי
+  19: [ // 20 קיקי — "עֶשֶׂר" בניקוד (נאמר לא טוב)
     'אני הַמִּסְפָּר עשרים!',
-    'עשרים זה שתי קבוצות של עשר.',
-    'אני מִּסְפָּר זוגי. עשר ועוד עשר זה עשרים.',
-    'ארבע כפול חמש זה עשרים. גם שתיים כפול עשר!',
+    'עשרים זה שתי קבוצות של עֶשֶׂר.',
+    'אני מִּסְפָּר זוגי. עֶשֶׂר ועוד עֶשֶׂר זה עשרים.',
+    'ארבע כפול חמש זה עשרים. גם שתיים כפול עֶשֶׂר!',
   ],
 }
 
@@ -249,7 +249,7 @@ const RHYME_FAMILIES = [
 // girls (1-based number in comment): 1 לולו, 4 גוגו, 6 נוני, 9 זוזו, 10 קוקו,
 // 12 לילי, 17 רוני, 19 סופי, 20 קיקי. Boys (13 מומו, 14 ריקי, 15 שושו, 16 גילי,
 // 18 יויו) default to male.
-const GENDER = { 0: 'f', 3: 'f', 5: 'f', 8: 'f', 9: 'f', 11: 'f', 16: 'f', 18: 'f', 19: 'f' }
+const GENDER = { 0: 'f', 3: 'f', 5: 'f', 8: 'f', 9: 'f', 11: 'f', 14: 'f', 16: 'f', 18: 'f', 19: 'f' }
 const genderOf = (i) => GENDER[i] || 'm'
 const vg = (g, m, f) => (g === 'f' ? f : m) // pick the gendered word form
 
@@ -258,9 +258,20 @@ const vg = (g, m, f) => (g === 'f' ? f : m) // pick the gendered word form
 // deterministically by friend index, so regenerating a clip keeps its voice.
 const FEMALE_VOICES = ['Ayelet', 'Tamar', 'Nurit'] // the voices she chose
 const MALE_VOICES = ['Erez', 'Doron']
+// EXPLICIT voice per friend (index → voice), PINNED so a later gender change (e.g.
+// Shusho 15 → girl) doesn't ripple voice assignments across other friends. These
+// match what's already recorded for 0–20 (so existing clips stay valid); only
+// Shusho (14) moved Erez → Tamar. Unset indices fall back to the rank rule below.
+// MUST mirror VOICE in src/friends.ts.
+const VOICE = {
+  0: 'Ayelet', 1: 'Erez', 2: 'Doron', 3: 'Tamar', 4: 'Erez', 5: 'Nurit', 6: 'Doron',
+  7: 'Erez', 8: 'Ayelet', 9: 'Tamar', 10: 'Doron', 11: 'Nurit', 12: 'Erez', 13: 'Doron',
+  14: 'Tamar', 15: 'Doron', 16: 'Ayelet', 17: 'Erez', 18: 'Tamar', 19: 'Nurit',
+}
 // pick a voice by the friend's RANK within its gender, so successive girls (and
 // boys) cycle through the pool instead of all landing on the same voice.
 const voiceFor = (i) => {
+  if (VOICE[i]) return VOICE[i]
   const g = genderOf(i)
   const pool = g === 'f' ? FEMALE_VOICES : MALE_VOICES
   let rank = 0
@@ -279,7 +290,8 @@ const TEMPLATES = [
 ]
 
 const ONES = ['', 'אחת', 'שתיים', 'שלוש', 'ארבע', 'חמש', 'שש', 'שבע', 'שמונה', 'תשע']
-const TEENS = ['עשר', 'אחת עשרה', 'שתים עשרה', 'שלוש עשרה', 'ארבע עשרה', 'חמש עשרה', 'שש עשרה', 'שבע עשרה', 'שמונה עשרה', 'תשע עשרה']
+// teens with niqqud so the voices say them cleanly (e.g. 12 "שְׁתֵּים", 16 "שֵׁשׁ")
+const TEENS = ['עֶשֶׂר', 'אַחַת עֶשְׂרֵה', 'שְׁתֵּים עֶשְׂרֵה', 'שְׁלוֹשׁ עֶשְׂרֵה', 'אַרְבַּע עֶשְׂרֵה', 'חֲמֵשׁ עֶשְׂרֵה', 'שֵׁשׁ עֶשְׂרֵה', 'שְׁבַע עֶשְׂרֵה', 'שְׁמוֹנֶה עֶשְׂרֵה', 'תְּשַׁע עֶשְׂרֵה']
 const TENS = { 20: 'עשרים', 30: 'שלושים', 40: 'ארבעים', 50: 'חמישים', 60: 'שישים', 70: 'שבעים', 80: 'שמונים', 90: 'תשעים', 100: 'מאה' }
 function numWord(n) {
   if (n <= 9) return ONES[n]
@@ -303,8 +315,10 @@ const INTRO_LIKE = {
 // Per-friend intro override — when the templated "I enjoy X all day" doesn't fit
 // the activity, write a custom intro here (keeps name + number + an invite).
 const INTRO_TEXT = {
-  // 13 מומו — "I have a really good memory" instead of "I enjoy playing memory all day"
-  12: `וואו! מצאתם אותי! אני ${nameToken(12)}, ${HAMISPAR} ${numWord(13)}! יש לי זכרון ממש טוב!`,
+  // 13 מומו — "I have a really good memory" (no "wow" — that read badly for him)
+  12: `מצאתם אותי! אני ${nameToken(12)}, ${HAMISPAR} ${numWord(13)}! יש לי זכרון ממש טוב!`,
+  // 14 ריקי — likes things tidy in a pattern (was a repetitive "play with patterns")
+  13: `שלום! אני ${nameToken(13)}, ${HAMISPAR} ${numWord(14)}! אני אוהב שהכל מסודר בתבנית!`,
 }
 for (let i = 0; i < COUNT; i++) {
   const li = INTRO_LIKE[i] ?? i
@@ -393,6 +407,15 @@ if (process.env.DRY_RUN) {
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
 const OUT = `public/voice/${LANG}`
 mkdirSync(OUT, { recursive: true })
+
+// MANIFEST=1 → write id→{text,voice} for ALL clips (no API calls) so the QA page
+// (public/voicetest.html) always shows the real recorded text. Then exit.
+if (process.env.MANIFEST) {
+  const man = lines.map((l) => ({ id: l.id, text: l.text, voice: l.voice || '' }))
+  writeFileSync(`${OUT}/manifest.json`, JSON.stringify(man))
+  console.log(`manifest: ${man.length} clips → ${OUT}/manifest.json`)
+  process.exit(0)
+}
 
 let synth
 if (PROVIDER === 'edge') {
