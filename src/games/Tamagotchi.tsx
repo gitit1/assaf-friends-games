@@ -5,7 +5,7 @@ import Friend from '../components/Friend'
 import Stepper from '../components/Stepper'
 import { friendMaxDim } from '../components/FriendArt'
 import type { GameProps } from './registry'
-import { playFriend, playMunch, playPop, playSuccess, playTap, unlockAudio } from '../audio'
+import { playFriend, playMunch, playNudge, playPop, playSuccess, playTap, unlockAudio } from '../audio'
 import { speak } from '../speech'
 import { friendName, friendSay } from '../friends'
 import { screenScale, useViewport } from '../useViewport'
@@ -48,6 +48,38 @@ const CRUMBS = [
   { x: '16px', y: '34px' },
 ]
 const HEARTS = ['❤️', '⭐', '😋']
+
+// reaction visual effects → little emoji bursts that float off the pet
+const EFFECT_EMOJI: Record<string, string[]> = {
+  hearts: ['❤️', '💖', '💗'],
+  sparkles: ['✨', '⭐', '🌟'],
+  bubbles: ['🫧', '🫧', '✨'],
+  sleepy_z: ['💤', '😴', '💤'],
+  crumbs: ['🍪', '✨', '🍪'],
+  water_droplets: ['💧', '💦', '💧'],
+  tiny_confetti: ['🎉', '🎊', '⭐'],
+  sad_cloud: ['☁️', '💧'],
+  dirt_smudge: ['💨', '🟤'],
+  glow: ['✨', '🌟'],
+}
+// current emotion → a face badge on the pet (only the "notable" feelings show)
+const EXPR_FACE: Record<string, string> = {
+  very_happy: '😄', happy: '😊', relieved: '😌', playful: '😜', surprised: '😮',
+  sad: '😢', soft_sad: '🥺', tired: '😪', sleepy: '😴', hungry: '😋', thirsty: '😛',
+  annoyed: '😒', shy: '☺️',
+}
+const QUIET_FACES = new Set(['happy', 'very_happy', 'neutral']) // don't badge when content
+// reaction sound key → an existing audio cue (kept gentle for the child)
+const SOUND_FN: Record<string, () => void> = {
+  happy_chime: playSuccess,
+  eat_crunch: playMunch,
+  drink_sip: playMunch,
+  bath_bubbles: playPop,
+  sleepy_yawn: playNudge,
+  sad_tiny: playNudge,
+  refuse_soft: playNudge,
+  success_pop: playPop,
+}
 
 // drinks in the fridge
 const DRINKS: { key: string; name: string; emoji: string }[] = [
@@ -271,6 +303,7 @@ export default function Tamagotchi({ onExit }: GameProps) {
   const [buddy, setBuddy] = useState(0)
   const [scene, setScene] = useState<'home' | 'walk'>('home')
   const [fx, setFx] = useState<{ emoji: string; id: number } | null>(null)
+  const [burst, setBurst] = useState<{ id: number; bits: { e: string; x: number; y: number; d: number }[] } | null>(null)
   const [bounce, setBounce] = useState(false)
   // ── reaction-engine driven UI state ──
   const [bubble, setBubble] = useState<{ text: string; id: number } | null>(null)
@@ -301,7 +334,7 @@ export default function Tamagotchi({ onExit }: GameProps) {
 
   // THE central dispatcher: ask the engine for a context-aware reaction, apply
   // its stat/mood/poop changes, record history, and drive bubble/posture/glow.
-  function react(action: PetAction, food?: string): PetReaction | null {
+  function react(action: PetAction, food?: string, opts?: { silent?: boolean }): PetReaction | null {
     if (!pet) return null
     const now = Date.now()
     const reaction = getPetReaction({
@@ -333,6 +366,8 @@ export default function Tamagotchi({ onExit }: GameProps) {
     })
     setPosture(reaction.posture ?? 'neutral')
     setExpression(reaction.expression ?? 'happy')
+    showBurst(reaction.visualEffects)
+    if (!opts?.silent && reaction.sound) SOUND_FN[reaction.sound]?.()
     showBubble(pickMessage(reaction.speechKey, getSettings().lang as 'he' | 'en'))
     suggest(reaction.highlightAction ?? reaction.followUpSuggestion ?? null)
     return reaction
@@ -385,6 +420,7 @@ export default function Tamagotchi({ onExit }: GameProps) {
       })
       setPosture(idle.posture)
       setExpression(idle.expression)
+      if (idle.visualEffects) showBurst(idle.visualEffects)
       if (idle.highlightAction) suggest(idle.highlightAction)
       if (idle.speechKey) showBubble(pickMessage(idle.speechKey, getSettings().lang as 'he' | 'en'))
     }, 6500)
@@ -395,6 +431,24 @@ export default function Tamagotchi({ onExit }: GameProps) {
   function showFx(emoji: string) {
     setFx({ emoji, id: (fx?.id ?? 0) + 1 })
     window.setTimeout(() => setFx((f) => (f && f.emoji === emoji ? null : f)), 900)
+  }
+
+  // little emoji burst floating off the pet, driven by a reaction's visualEffects
+  function showBurst(keys?: string[]) {
+    if (!keys || !keys.length) return
+    const bits: { e: string; x: number; y: number; d: number }[] = []
+    let i = 0
+    for (const k of keys) {
+      const set = EFFECT_EMOJI[k]
+      if (!set) continue
+      for (let j = 0; j < 3; j++) {
+        bits.push({ e: set[j % set.length], x: 18 + ((i * 23 + j * 13) % 64), y: 22 + ((i * 17 + j * 29) % 48), d: ((i + j) % 4) * 90 })
+        i++
+      }
+    }
+    if (!bits.length) return
+    setBurst((b) => ({ id: (b?.id ?? 0) + 1, bits }))
+    window.setTimeout(() => setBurst((b) => (b ? null : b)), 1150)
   }
 
   function choose(friend: number) {
@@ -419,8 +473,7 @@ export default function Tamagotchi({ onExit }: GameProps) {
     if (!pet) return
     unlockAudio()
     playTap()
-    const r = react(type)
-    if (type === 'clean' || type === 'hug') playSuccess()
+    const r = react(type) // the engine plays the right sound for the outcome
     showFx({ walk: '🌳', clean: '✨', sleep: '😴', hug: '🤗' }[type])
     if (type === 'walk' && r && r.outcome !== 'request' && r.outcome !== 'refusal') {
       setScene('walk')
@@ -451,7 +504,7 @@ export default function Tamagotchi({ onExit }: GameProps) {
     setFridge(false)
     setMode('eat')
     setPlaying(null)
-    speak(food.name)
+    speak(getSettings().lang === 'en' ? t(`pet.food.${food.key}`) : food.name)
     eatTimers.current.forEach((t) => window.clearTimeout(t))
     eatTimers.current = []
     setEatFood(food.emoji)
@@ -470,7 +523,7 @@ export default function Tamagotchi({ onExit }: GameProps) {
         setEatFood(null)
         setPoof(false)
         setBite(0)
-        react('feed', food.key)
+        react('feed', food.key, { silent: true })
       }, 350 + 3 * 600 + 500),
     )
   }
@@ -483,7 +536,7 @@ export default function Tamagotchi({ onExit }: GameProps) {
     setBar(false)
     setMode('drink')
     setPlaying(null)
-    speak(d.name)
+    speak(getSettings().lang === 'en' ? t(`pet.drink.${d.key}`) : d.name)
     eatTimers.current.forEach((t) => window.clearTimeout(t))
     eatTimers.current = []
     setEatFood(d.emoji)
@@ -498,7 +551,7 @@ export default function Tamagotchi({ onExit }: GameProps) {
         setEatFood(null)
         setPoof(false)
         setBite(0)
-        react('water', d.key)
+        react('water', d.key, { silent: true })
       }, 350 + 3 * 600 + 500),
     )
   }
@@ -578,7 +631,7 @@ export default function Tamagotchi({ onExit }: GameProps) {
   ]
 
   return (
-    <GameShell title="החבר שלי" emoji="🐣" onExit={onExit}>
+    <GameShell title={t('game.pet')} emoji="🐣" onExit={onExit}>
       <div className="pet-meters">
         {meters.map((m) => (
           <span className="pet-meter" key={m.key}>
@@ -649,14 +702,27 @@ export default function Tamagotchi({ onExit }: GameProps) {
             💩
           </span>
         )}
-        {!playing && sad && !pet.poop && (
-          <span className="pet-mood" aria-hidden="true">
-            😢
+        {!playing && !eatFood && (!QUIET_FACES.has(expression) || (sad && !pet.poop)) && (
+          <span className="pet-mood" key={expression} aria-hidden="true">
+            {!QUIET_FACES.has(expression) ? EXPR_FACE[expression] : '😢'}
           </span>
         )}
         {fx && (
           <span className="pet-fx" key={fx.id} aria-hidden="true">
             {fx.emoji}
+          </span>
+        )}
+        {burst && !playing && (
+          <span className="pet-burst" key={burst.id} aria-hidden="true">
+            {burst.bits.map((b, i) => (
+              <span
+                className="pet-burst-bit"
+                key={i}
+                style={{ left: `${b.x}%`, top: `${b.y}%`, animationDelay: `${b.d}ms` }}
+              >
+                {b.e}
+              </span>
+            ))}
           </span>
         )}
         {bubble && !playing && (

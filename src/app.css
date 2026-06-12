@@ -6139,6 +6139,47 @@ button {
 .pet-mood {
   top: 14px;
   right: 22%;
+  animation: pet-mood-pop 0.35s ease;
+}
+@keyframes pet-mood-pop {
+  0% {
+    transform: scale(0.4);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.18);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* reaction visual-effect burst — little emojis float up and off the pet */
+.pet-burst {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 4;
+}
+.pet-burst-bit {
+  position: absolute;
+  font-size: 1.55rem;
+  opacity: 0;
+  animation: pet-burst-rise 1.1s ease-out forwards;
+}
+@keyframes pet-burst-rise {
+  0% {
+    opacity: 0;
+    transform: translateY(10px) scale(0.5);
+  }
+  25% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-52px) scale(1.1);
+  }
 }
 .pet-fx {
   position: absolute;
