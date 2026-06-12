@@ -193,6 +193,8 @@ export const EN: Dict = {
   'pet.act.potty': { text: 'Potty' },
   'pet.act.clean': { text: 'Clean' },
   'pet.act.dress': { text: 'Dress up' },
+  'pet.act.sleep': { text: 'Sleep' },
+  'pet.act.hug': { text: 'Hug' },
   'pet.wardrobe': { text: 'Wardrobe' },
   'pet.fridgeTitle': { text: 'What to eat? 🍽️' },
   'pet.barTitle': { text: 'What to drink? 🧊' },

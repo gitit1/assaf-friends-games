@@ -194,6 +194,8 @@ export const HE: Dict = {
   'pet.act.potty': { text: 'שירותים' },
   'pet.act.clean': { text: 'ניקיון' },
   'pet.act.dress': { text: 'הלבשה' },
+  'pet.act.sleep': { text: 'שינה' },
+  'pet.act.hug': { text: 'חיבוק' },
   'pet.wardrobe': { text: 'הארון' },
   'pet.fridgeTitle': { text: 'מה בא לך לאכול? 🍽️' },
   'pet.barTitle': { text: 'מה בא לך לשתות? 🧊' },

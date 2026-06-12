@@ -8,9 +8,14 @@ import type { GameProps } from './registry'
 import { playFriend, playMunch, playPop, playSuccess, playTap, unlockAudio } from '../audio'
 import { speak } from '../speech'
 import { friendName, friendSay } from '../friends'
-import { numberWordNiqqud } from './util'
 import { screenScale, useViewport } from '../useViewport'
 import { useT } from '../i18n'
+import { getSettings } from '../settings'
+import { getPetReaction, getIdleReaction } from './pet/reactions/petReactionEngine'
+import { pickMessage } from './pet/reactions/reactionMessages'
+import { emptyHistory, recordAction } from './pet/reactions/reactionHistory'
+import { getPersonality } from './pet/reactions/personality'
+import type { PetAction, PetInteractionHistory, PetReaction } from './pet/reactions/reactionTypes'
 
 // foods in the fridge — tapping one says its (Hebrew) name and the friend eats it.
 // `key` drives the i18n label shown on screen; `name` is the spoken Hebrew.
@@ -82,8 +87,13 @@ type Pet = {
   thirst: number
   happy: number
   clean: number
+  energy: number // physical tiredness (0 = exhausted)
+  loneliness: number // emotional: rises when ignored
+  boredom: number // emotional: rises without play
+  trust: number // grows with consistent care
   poop: boolean
   outfit: Outfit
+  history: PetInteractionHistory
   ts: number
 }
 
@@ -97,22 +107,35 @@ const SLOTS: { key: Slot; label: string; items: string[] }[] = [
 const clamp = (v: number) => Math.max(0, Math.min(100, v))
 
 function freshPet(friend: number): Pet {
-  return { friend, hunger: 80, thirst: 80, happy: 85, clean: 100, poop: false, outfit: {}, ts: Date.now() }
+  return {
+    friend, hunger: 80, thirst: 80, happy: 85, clean: 100, energy: 80,
+    loneliness: 10, boredom: 15, trust: 50, poop: false, outfit: {}, history: emptyHistory(), ts: Date.now(),
+  }
 }
 
 function load(): Pet | null {
   try {
     const raw = localStorage.getItem(KEY)
     if (!raw) return null
-    const p = JSON.parse(raw) as Pet
-    // it got a little hungrier/messier while away (gently, capped)
-    const mins = Math.min(90, (Date.now() - p.ts) / 60000)
+    // older saves may lack the new fields → fill sensible defaults (migration)
+    const p = JSON.parse(raw) as Partial<Pet> & { friend: number; ts?: number }
+    const mins = Math.min(90, (Date.now() - (p.ts ?? Date.now())) / 60000)
     const d = Math.round(mins)
-    p.hunger = clamp(p.hunger - d)
-    p.thirst = clamp(p.thirst - d)
-    p.happy = clamp(p.happy - Math.round(d * 0.6))
-    p.clean = clamp(p.clean - Math.round(d * 0.6))
-    return p
+    return {
+      friend: p.friend,
+      hunger: clamp((p.hunger ?? 80) - d),
+      thirst: clamp((p.thirst ?? 80) - d),
+      happy: clamp((p.happy ?? 85) - Math.round(d * 0.6)),
+      clean: clamp((p.clean ?? 100) - Math.round(d * 0.6)),
+      energy: clamp((p.energy ?? 80) - Math.round(d * 0.5)),
+      loneliness: clamp((p.loneliness ?? 10) + d), // missed you while away
+      boredom: clamp((p.boredom ?? 15) + Math.round(d * 0.7)),
+      trust: clamp(p.trust ?? 50),
+      poop: p.poop ?? false,
+      outfit: p.outfit ?? {},
+      history: p.history ?? emptyHistory(),
+      ts: Date.now(),
+    }
   } catch {
     return null
   }
@@ -249,15 +272,78 @@ export default function Tamagotchi({ onExit }: GameProps) {
   const [scene, setScene] = useState<'home' | 'walk'>('home')
   const [fx, setFx] = useState<{ emoji: string; id: number } | null>(null)
   const [bounce, setBounce] = useState(false)
+  // ── reaction-engine driven UI state ──
+  const [bubble, setBubble] = useState<{ text: string; id: number } | null>(null)
+  const [posture, setPosture] = useState('neutral')
+  const [expression, setExpression] = useState('happy')
+  const [highlight, setHighlight] = useState<PetAction | null>(null)
   const eatTimers = useRef<number[]>([])
+  const bubbleTimer = useRef<number | undefined>(undefined)
+  const hiTimer = useRef<number | undefined>(undefined)
+  const lastBubbleAt = useRef(0)
   useEffect(() => () => eatTimers.current.forEach((t) => window.clearTimeout(t)), [])
+
+  // show a short speech bubble near the pet (and say it aloud); auto-hides
+  function showBubble(text: string, speakIt = true) {
+    if (!text) return
+    window.clearTimeout(bubbleTimer.current)
+    setBubble({ text, id: Date.now() })
+    lastBubbleAt.current = Date.now()
+    if (speakIt) speak(text)
+    bubbleTimer.current = window.setTimeout(() => setBubble(null), 3600)
+  }
+  // briefly glow a suggested next action button
+  function suggest(action: PetAction | null) {
+    window.clearTimeout(hiTimer.current)
+    setHighlight(action)
+    if (action) hiTimer.current = window.setTimeout(() => setHighlight(null), 5000)
+  }
+
+  // THE central dispatcher: ask the engine for a context-aware reaction, apply
+  // its stat/mood/poop changes, record history, and drive bubble/posture/glow.
+  function react(action: PetAction, food?: string): PetReaction | null {
+    if (!pet) return null
+    const now = Date.now()
+    const reaction = getPetReaction({
+      action,
+      stats: { hunger: pet.hunger, thirst: pet.thirst, happy: pet.happy, clean: pet.clean, energy: pet.energy },
+      mood: { happiness: pet.happy, loneliness: pet.loneliness, boredom: pet.boredom, excitement: 50, trust: pet.trust },
+      personality: getPersonality(pet.friend),
+      history: pet.history,
+      now,
+      poop: pet.poop,
+      food,
+    })
+    setPet((p) => {
+      if (!p) return p
+      const n = { ...p }
+      const s = reaction.statChanges ?? {}
+      if (s.hunger) n.hunger = clamp(p.hunger + s.hunger)
+      if (s.thirst) n.thirst = clamp(p.thirst + s.thirst)
+      if (s.happy) n.happy = clamp(p.happy + s.happy)
+      if (s.clean) n.clean = clamp(p.clean + s.clean)
+      if (s.energy) n.energy = clamp(p.energy + s.energy)
+      const m = reaction.moodChange ?? {} // happiness lives in `happy`; skip it here
+      if (m.loneliness) n.loneliness = clamp(p.loneliness + m.loneliness)
+      if (m.boredom) n.boredom = clamp(p.boredom + m.boredom)
+      if (m.trust) n.trust = clamp(p.trust + m.trust)
+      if (reaction.setPoop !== undefined) n.poop = reaction.setPoop
+      n.history = recordAction(p.history, action, reaction.outcome, now)
+      return n
+    })
+    setPosture(reaction.posture ?? 'neutral')
+    setExpression(reaction.expression ?? 'happy')
+    showBubble(pickMessage(reaction.speechKey, getSettings().lang as 'he' | 'en'))
+    suggest(reaction.highlightAction ?? reaction.followUpSuggestion ?? null)
+    return reaction
+  }
 
   // save whenever the pet changes
   useEffect(() => {
     if (pet) localStorage.setItem(KEY, JSON.stringify({ ...pet, ts: Date.now() }))
   }, [pet])
 
-  // gentle decay (never below 0; the friend never dies)
+  // gentle decay (never below 0; the friend never dies — it just needs you)
   useEffect(() => {
     const id = window.setInterval(() => {
       setPet((p) =>
@@ -268,12 +354,42 @@ export default function Tamagotchi({ onExit }: GameProps) {
               thirst: clamp(p.thirst - 2),
               happy: clamp(p.happy - (p.poop ? 4 : 1)),
               clean: clamp(p.clean - (p.poop ? 5 : 1)),
+              energy: clamp(p.energy - 1),
+              loneliness: clamp(p.loneliness + 2),
+              boredom: clamp(p.boredom + 2),
               poop: p.poop || Math.random() < 0.08,
             }
           : p,
       )
     }, 15000)
     return () => window.clearInterval(id)
+  }, [])
+
+  // ── idle behaviour: "alive even when you do nothing" ──
+  // refs so the single idle interval always sees the latest state without
+  // resetting itself on every change.
+  const petRef = useRef(pet)
+  petRef.current = pet
+  const busyRef = useRef(false)
+  busyRef.current = !!(playing || eatFood || fridge || bar || wardrobe || choosing)
+  useEffect(() => {
+    const id = window.setInterval(() => {
+      const p = petRef.current
+      if (!p || busyRef.current) return
+      const canSpeak = Date.now() - lastBubbleAt.current > 28000
+      const idle = getIdleReaction({
+        stats: { hunger: p.hunger, thirst: p.thirst, happy: p.happy, clean: p.clean, energy: p.energy },
+        mood: { happiness: p.happy, loneliness: p.loneliness, boredom: p.boredom, excitement: 50, trust: p.trust },
+        poop: p.poop,
+        canSpeak,
+      })
+      setPosture(idle.posture)
+      setExpression(idle.expression)
+      if (idle.highlightAction) suggest(idle.highlightAction)
+      if (idle.speechKey) showBubble(pickMessage(idle.speechKey, getSettings().lang as 'he' | 'en'))
+    }, 6500)
+    return () => window.clearInterval(id)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   function showFx(emoji: string) {
@@ -298,33 +414,27 @@ export default function Tamagotchi({ onExit }: GameProps) {
     window.setTimeout(() => setBounce(false), 550)
   }
 
-  function act(type: 'feed' | 'water' | 'play' | 'walk' | 'potty' | 'clean') {
+  // walk / clean / sleep / hug all go through the reaction engine
+  function act(type: 'walk' | 'clean' | 'sleep' | 'hug') {
     if (!pet) return
     unlockAudio()
     playTap()
-    setPet((p) => {
-      if (!p) return p
-      const n = { ...p }
-      if (type === 'feed') n.hunger = clamp(p.hunger + 34)
-      else if (type === 'water') n.thirst = clamp(p.thirst + 34)
-      else if (type === 'play') n.happy = clamp(p.happy + 28)
-      else if (type === 'walk') {
-        n.happy = clamp(p.happy + 20)
-        n.thirst = clamp(p.thirst - 6)
-      } else if (type === 'potty') n.poop = true
-      else if (type === 'clean') {
-        n.poop = false
-        n.clean = 100
-        n.happy = clamp(p.happy + 6)
-      }
-      return n
-    })
-    if (type === 'clean' || type === 'play') playSuccess()
-    showFx({ feed: '🍎', water: '💧', play: '❤️', walk: '🌳', potty: '🚽', clean: '✨' }[type])
-    if (type === 'walk') {
+    const r = react(type)
+    if (type === 'clean' || type === 'hug') playSuccess()
+    showFx({ walk: '🌳', clean: '✨', sleep: '😴', hug: '🤗' }[type])
+    if (type === 'walk' && r && r.outcome !== 'request' && r.outcome !== 'refusal') {
       setScene('walk')
       window.setTimeout(() => setScene('home'), 2600)
     }
+  }
+
+  // potty keeps its existing meaning (a little mess appears, then you clean it)
+  function potty() {
+    if (!pet) return
+    unlockAudio()
+    playTap()
+    setPet((p) => (p ? { ...p, poop: true } : p))
+    showFx('🚽')
   }
 
   function setItem(slot: Slot, item: string) {
@@ -335,14 +445,13 @@ export default function Tamagotchi({ onExit }: GameProps) {
 
   // pick a food from the fridge → say its name, then the friend hops 3× eating
   // it ("נם נם נם") while the food shrinks bite by bite
-  function eat(food: { name: string; emoji: string }) {
+  function eat(food: { key: string; name: string; emoji: string }) {
     unlockAudio()
     playTap()
     setFridge(false)
     setMode('eat')
     setPlaying(null)
     speak(food.name)
-    setPet((p) => (p ? { ...p, hunger: clamp(p.hunger + 34) } : p))
     eatTimers.current.forEach((t) => window.clearTimeout(t))
     eatTimers.current = []
     setEatFood(food.emoji)
@@ -355,28 +464,26 @@ export default function Tamagotchi({ onExit }: GameProps) {
     eatTimers.current.push(window.setTimeout(() => speak('נם נם נם'), 450))
     // after the last bite the little leftover disappears with a "poof"
     eatTimers.current.push(window.setTimeout(() => { setPoof(true); playPop() }, 350 + 3 * 600))
-    // then clear and a happy random line
+    // then clear and let the engine react (context-aware line + stat/mood change)
     eatTimers.current.push(
       window.setTimeout(() => {
         setEatFood(null)
         setPoof(false)
         setBite(0)
-        const lines = ['ים ים!', 'מ-מ-מ, טעים!', `אני אוהב ${food.name}!`]
-        speak(lines[Math.floor(Math.random() * lines.length)])
+        react('feed', food.key)
       }, 350 + 3 * 600 + 500),
     )
   }
 
   // pick a drink → say its name, then the friend gulps it (drops spill), then a
   // happy line ("אין על מים!" only for water)
-  function drink(d: { name: string; emoji: string }) {
+  function drink(d: { key: string; name: string; emoji: string }) {
     unlockAudio()
     playTap()
     setBar(false)
     setMode('drink')
     setPlaying(null)
     speak(d.name)
-    setPet((p) => (p ? { ...p, thirst: clamp(p.thirst + 34) } : p))
     eatTimers.current.forEach((t) => window.clearTimeout(t))
     eatTimers.current = []
     setEatFood(d.emoji)
@@ -391,9 +498,7 @@ export default function Tamagotchi({ onExit }: GameProps) {
         setEatFood(null)
         setPoof(false)
         setBite(0)
-        const lines = ['וואי, איך הייתי צמא!', 'זה היה טוֹב-ב-ב!', 'לרוויה!']
-        if (d.name === 'מים') lines.push('אין על מים!')
-        speak(lines[Math.floor(Math.random() * lines.length)])
+        react('water', d.key)
       }, 350 + 3 * 600 + 500),
     )
   }
@@ -414,15 +519,12 @@ export default function Tamagotchi({ onExit }: GameProps) {
       setBuddy(b)
     }
     setPlaying(a)
-    const newHappy = clamp(pet.happy + 30)
-    setPet((p) => (p ? { ...p, happy: newHappy } : p))
     playSuccess()
     speak(`${a.label}!`)
     eatTimers.current.push(
       window.setTimeout(() => {
         setPlaying(null)
-        // spoken recap: what we did + the new happiness number
-        speak(`${a.label} עם ${friendSay(pet.friend)} היה כיף! השמחה ${numberWordNiqqud(newHappy)}`)
+        react('play') // context-aware reaction (excited / tired / "thirsty now"…)
       }, 4000),
     )
   }
@@ -457,18 +559,22 @@ export default function Tamagotchi({ onExit }: GameProps) {
     { key: 'hunger', emoji: '🍎', label: 'רעב', value: pet.hunger },
     { key: 'thirst', emoji: '💧', label: 'צמא', value: pet.thirst },
     { key: 'happy', emoji: '😊', label: 'שמח', value: pet.happy },
+    { key: 'energy', emoji: '⚡', label: 'אנרגיה', value: pet.energy },
     { key: 'clean', emoji: '🧼', label: 'נקי', value: pet.clean },
   ]
   const sad = pet.poop || meters.some((m) => m.value < 25)
 
-  const actions: { type: 'feed' | 'water' | 'play' | 'walk' | 'potty' | 'clean' | 'dress'; emoji: string; label: string }[] = [
-    { type: 'feed', emoji: '🍎', label: 'אוכל' },
-    { type: 'water', emoji: '🍼', label: 'מים' },
-    { type: 'play', emoji: '🎾', label: 'משחק' },
-    { type: 'walk', emoji: '🚶', label: 'טיול' },
-    { type: 'potty', emoji: '🚽', label: 'שירותים' },
-    { type: 'clean', emoji: '🧽', label: 'ניקיון' },
-    { type: 'dress', emoji: '👕', label: 'הלבשה' },
+  type ActType = 'feed' | 'water' | 'play' | 'walk' | 'sleep' | 'hug' | 'potty' | 'clean' | 'dress'
+  const actions: { type: ActType; emoji: string }[] = [
+    { type: 'feed', emoji: '🍎' },
+    { type: 'water', emoji: '🍼' },
+    { type: 'play', emoji: '🎾' },
+    { type: 'walk', emoji: '🚶' },
+    { type: 'sleep', emoji: '😴' },
+    { type: 'hug', emoji: '🤗' },
+    { type: 'potty', emoji: '🚽' },
+    { type: 'clean', emoji: '🧽' },
+    { type: 'dress', emoji: '👕' },
   ]
 
   return (
@@ -490,7 +596,7 @@ export default function Tamagotchi({ onExit }: GameProps) {
         ))}
       </div>
 
-      <div className={`pet-room ${scene === 'walk' ? 'is-walk' : ''} ${sad ? 'is-sad' : ''}`}>
+      <div className={`pet-room pose-${posture} expr-${expression} ${scene === 'walk' ? 'is-walk' : ''} ${sad ? 'is-sad' : ''}`}>
         {playing ? (
           <PlayScene kind={playing.kind} friend={pet.friend} outfit={pet.outfit} buddy={buddy} />
         ) : (
@@ -553,13 +659,18 @@ export default function Tamagotchi({ onExit }: GameProps) {
             {fx.emoji}
           </span>
         )}
+        {bubble && !playing && (
+          <span className="pet-bubble" key={bubble.id} dir="auto">
+            {bubble.text}
+          </span>
+        )}
       </div>
 
       <div className="pet-actions">
         {actions.map((a) => (
           <button
             key={a.type}
-            className="pet-action"
+            className={`pet-action ${highlight === a.type ? 'is-suggested' : ''}`}
             onClick={() =>
               a.type === 'dress'
                 ? (unlockAudio(), playTap(), setWardrobe(true))
@@ -569,7 +680,9 @@ export default function Tamagotchi({ onExit }: GameProps) {
                     ? (unlockAudio(), playTap(), setBar(true))
                     : a.type === 'play'
                       ? play()
-                      : act(a.type)
+                      : a.type === 'potty'
+                        ? potty()
+                        : act(a.type as 'walk' | 'clean' | 'sleep' | 'hug')
             }
           >
             <span className="pet-action-emoji" aria-hidden="true">
