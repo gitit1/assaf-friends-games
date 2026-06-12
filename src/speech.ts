@@ -92,7 +92,11 @@ export function speakName(text: string, opts?: SpeakOptions) {
 export function speakEn(text: string, { rate = 0.85, pitch = 1.05 }: SpeakOptions = {}) {
   if (!enabled || !supported()) return
   window.speechSynthesis.cancel()
-  const utterance = new SpeechSynthesisUtterance(text)
+  // a lone UPPERCASE letter is read as "capital A" by many voices — lowercase any
+  // standalone single letter so it's just the letter name ("ay"). Whole words
+  // (CAT, "S is for snake") keep their meaning.
+  const spoken = text.replace(/\b[A-Z]\b/g, (c) => c.toLowerCase())
+  const utterance = new SpeechSynthesisUtterance(spoken)
   const en = window.speechSynthesis.getVoices().find((v) => v.lang.toLowerCase().startsWith('en'))
   if (en) utterance.voice = en
   utterance.lang = en?.lang || 'en-US'
