@@ -4,6 +4,7 @@ import Friend from './Friend'
 import IconButton from './IconButton'
 import { FRIEND_NATURAL, friendKindForIndex } from './FriendArt'
 import { friendGame, friendName, friendNumber, friendSay, friendSpecial, friendVoice } from '../friends'
+import { FACT_VIEWS } from '../facts'
 import { playCount, playFriend, playSuccess, playTap, playWin, unlockAudio } from '../audio'
 import { stopSpeech } from '../speech'
 import { numberWord, randInt } from '../games/util'
@@ -127,7 +128,9 @@ export default function FriendWorld({
   // distinct from the "Build a Number" GAME which composes (a + b → c).
   const [split, setSplit] = useState<{ a: number; b: number } | null>(null)
   // "what's special about me": cycles through visual number facts (index, or null)
-  const facts = factsFor(n)
+  // visual facts ALIGNED to the recorded audio lines (so the ✨ button shows and
+  // says the same fact); friends without recordings fall back to the generic set
+  const facts = FACT_VIEWS[index] ?? factsFor(n)
   const [fact, setFact] = useState<number | null>(null)
   // after the special button is tapped, a "go to the matching game" CTA appears
   const [gameLink, setGameLink] = useState(false)
@@ -331,12 +334,15 @@ export default function FriendWorld({
     setLit(undefined)
     setMotion(null)
     setGameLink(false)
-    setFact((f) => (f === null ? 0 : (f + 1) % facts.length))
+    // cycle through the levels up to the child's difficulty; the VISUAL fact shown
+    // and the SPOKEN clip are the SAME level, so they ALWAYS match (כפל shows × and
+    // says ×, etc.). קל hears only the simplest; אלוף cycles all four. Missing clip
+    // → silent fallback, so only recorded friends speak.
+    const maxL = Math.min(getSettings().difficulty, facts.length - 1)
+    const nextL = fact === null ? 0 : (fact + 1) % (maxL + 1)
+    setFact(nextL)
     playSuccess()
-    // SAY a fact in the friend's voice on EVERY tap — random among the levels UP
-    // TO the child's difficulty (קל hears only the simplest; אלוף hears any of the
-    // 4). Missing clip → silent fallback, so only recorded friends speak.
-    playClip(`fact-${index}-${randInt(0, getSettings().difficulty)}`, '')
+    playClip(`fact-${index}-${nextL}`, '')
   }
   // bridge to the "Build a Number" game. If the current split is buildable there
   // (both parts ≤ 10), pre-load it so "build me!" literally rebuilds this friend.
