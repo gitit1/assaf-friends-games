@@ -227,18 +227,18 @@ const JOKES = [
 // is [WORD, transliteration (so the Hebrew voice says the English word), Hebrew].
 // MUST stay in sync with FAMILIES in src/games/RhymeMachine.tsx.
 const RHYME_FAMILIES = [
-  { voice: 'Erez',   words: [['CAT', 'קאט', 'חתול'], ['HAT', 'האט', 'כובע'], ['BAT', 'בּאט', 'עטלף'], ['RAT', 'ראט', 'חולדה']] },
+  { voice: 'Erez',   words: [['CAT', 'קאט', 'חתול'], ['HAT', 'האט', 'כובע'], ['BAT', 'בּאט', 'עטלף'], ['RAT', 'ראט', 'חֻלְדָּה']] },
   { voice: 'Ayelet', words: [['DOG', 'דּוֹג', 'כלב'], ['LOG', 'לוֹג', 'בול עץ'], ['FOG', 'פוֹג', 'ערפל'], ['HOG', 'הוֹג', 'חזיר בר']] },
   { voice: 'Doron',  words: [['SUN', 'סאן', 'שמש'], ['BUN', 'בּאן', 'לחמנייה'], ['RUN', 'ראן', 'לרוץ']] },
   { voice: 'Tamar',  words: [['HEN', 'הֶן', 'תרנגולת'], ['PEN', 'פֶּן', 'עט'], ['TEN', 'טֶן', 'עשר']] },
-  { voice: 'Nurit',  words: [['CAP', 'קאפּ', 'כובע'], ['MAP', 'מאפּ', 'מפה'], ['NAP', 'נאפּ', 'תנומה']] },
-  { voice: 'Erez',   words: [['MAN', 'מאן', 'איש'], ['FAN', 'פאן', 'מאוורר'], ['PAN', 'פּאן', 'מחבת'], ['VAN', 'וואן', 'ואן']] },
+  { voice: 'Nurit',  words: [['CAP', 'קאפּ', 'כובע'], ['MAP', 'מאפּ', 'מַפָּה'], ['NAP', 'נאפּ', 'תנומה']] },
+  { voice: 'Erez',   words: [['MAN', 'מאן', 'איש'], ['FAN', 'פאן', 'מְאַוְרֵר'], ['PAN', 'פּאן', 'מחבת'], ['VAN', 'וואן', 'ואן']] },
   { voice: 'Ayelet', words: [['BUG', 'בּאג', 'חרק'], ['MUG', 'מאג', 'ספל'], ['HUG', 'האג', 'חיבוק']] },
-  { voice: 'Doron',  words: [['RICE', 'רייס', 'אורז'], ['DICE', 'דייס', 'קובייה'], ['MICE', 'מייס', 'עכברים']] },
+  { voice: 'Doron',  words: [['RICE', 'רייס', 'אורז'], ['DICE', 'דייס', 'קובייה'], ['MICE', 'מייס', 'עַכְבָּר']] },
   { voice: 'Tamar',  words: [['RING', 'רינג', 'טבעת'], ['KING', 'קינג', 'מלך'], ['WING', 'ווינג', 'כנף']] },
-  { voice: 'Nurit',  words: [['BOAT', 'בּוֹאט', 'סִירָה'], ['COAT', 'קוֹאט', 'מעיל'], ['GOAT', 'גוֹאט', 'עז']] },
+  { voice: 'Nurit',  words: [['BOAT', 'בּוֹאט', 'סִירָה'], ['COAT', 'קוֹאט', 'מעיל'], ['GOAT', 'גוֹאט', 'עֵז']] },
   { voice: 'Erez',   words: [['FOX', 'פוֹקס', 'שועל'], ['BOX', 'בּוֹקס', 'קופסה']] },
-  { voice: 'Ayelet', words: [['CAR', 'קאר', 'מכונית'], ['JAR', "ג'אר", 'צנצנת']] },
+  { voice: 'Ayelet', words: [['CAR', 'קאר', 'מכונית'], ['JAR', "ג'אר", 'צִנְצֶנֶת']] },
   { voice: 'Doron',  words: [['CAKE', 'קייק', 'עוגה'], ['LAKE', 'לייק', 'אגם']] },
   { voice: 'Tamar',  words: [['COW', 'קאו', 'פרה'], ['BOW', 'בּוֹ', 'פפיון']] },
   { voice: 'Nurit',  words: [['BALL', 'בּוֹל', 'כדור'], ['WALL', 'ווֹל', 'קיר']] },
@@ -352,8 +352,12 @@ JOKES.forEach((arr, j) => arr.forEach((text, n) => lines.push({ id: `joke-${j}-$
 // Rhyme Machine — name each word in both languages, in this family's voice. The
 // English word is written in ENGLISH (Latin) so the voice pronounces it properly
 // (the Hebrew transliteration read wrong, e.g. "bat"); the translation in Hebrew.
-for (const fam of RHYME_FAMILIES) for (const [word, , hebrew] of fam.words)
-  lines.push({ id: `rhyme-${word}`, text: `${word.toLowerCase()}, באנגלית. ${hebrew}, בעברית.`, voice: fam.voice })
+// A few short words read better via the Hebrew transliteration than as Latin.
+const RHYME_USE_TRANSLIT = new Set(['LOG', 'MAP'])
+for (const fam of RHYME_FAMILIES) for (const [word, translit, hebrew] of fam.words) {
+  const eng = RHYME_USE_TRANSLIT.has(word) ? translit : word.toLowerCase()
+  lines.push({ id: `rhyme-${word}`, text: `${eng}, באנגלית. ${hebrew}, בעברית.`, voice: fam.voice })
+}
 // shared buttons recorded in every chosen voice → fx-five-Ayelet, fx-hug-Erez, …
 const ALL_VOICES = [...FEMALE_VOICES, ...MALE_VOICES]
 for (const v of ALL_VOICES) for (const b of SHARED) lines.push({ id: `${b.id}-${v}`, text: b.text, voice: v })
@@ -393,6 +397,9 @@ const SAMPLE_VOICES = [...FEMALE_VOICES, ...MALE_VOICES]
 const selected = process.env.SAMPLE
   ? SAMPLE_VOICES.map((v) => ({ id: `sample-${v}`, text: `שלום! אני ${HAMISPAR} חמש! בואו לשחק יחד!`, voice: v }))
   : lines.filter((l) => {
+      // ONLY_VOICE=Ayelet → regenerate every clip in that voice (e.g. after a
+      // per-voice speed change), regardless of friend/kind.
+      if (process.env.ONLY_VOICE) return l.voice === process.env.ONLY_VOICE
       if (KINDS.length && !KINDS.includes(kindOf(l.id))) return false
       if (ONLY.length) return ONLY.includes(l.id)
       const f = friendOf(l.id)
@@ -462,6 +469,8 @@ if (PROVIDER === 'edge') {
   if (!KEY) throw new Error('צריך NARAKEET_API_KEY (מההגדרות של חשבון Narakeet)')
   const VOICE = process.env.NARAKEET_VOICE || (LANG === 'he' ? 'Ayelet' : 'Brian') // default / fallback
   const NSPEED = process.env.VOICE_SPEED || '1.0' // natural pace — livelier than a slow read
+  // per-voice speed tweaks — Ayelet read a bit slowly, so nudge her faster
+  const SPEED_BY_VOICE = { Ayelet: '1.12' }
   // Niqqud helps these voices say מִימִי / נִשְׂחַק / הַמִּסְפָּר correctly, so KEEP it
   // by default; strip only if a future test shows a voice prefers plain text.
   const stripNiq = (s) => s.replace(/[֑-ׇ]/g, '')
@@ -469,7 +478,8 @@ if (PROVIDER === 'edge') {
   console.log(`ספק: Narakeet · קולות לפי מגדר (ברירת מחדל ${VOICE}) · speed ${NSPEED} · ניקוד ${dropNiq ? 'מוסר' : 'נשמר'} · שפה ${LANG} · ${selected.length} קליפים`)
   synth = async (text, voiceName) => {
     const body = dropNiq ? stripNiq(text) : text
-    const url = `https://api.narakeet.com/text-to-speech/mp3?voice=${encodeURIComponent(voiceName || VOICE)}&voice-speed=${NSPEED}`
+    const spd = SPEED_BY_VOICE[voiceName || VOICE] || NSPEED
+    const url = `https://api.narakeet.com/text-to-speech/mp3?voice=${encodeURIComponent(voiceName || VOICE)}&voice-speed=${spd}`
     const res = await fetch(url, {
       method: 'POST',
       headers: { 'x-api-key': KEY, 'content-type': 'text/plain', accept: 'application/octet-stream' },
