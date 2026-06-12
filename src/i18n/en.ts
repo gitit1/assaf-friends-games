@@ -384,6 +384,9 @@ export const EN: Dict = {
   'game.encount': { text: 'Count in English' },
   'ec.q': { text: 'How many?' },
   'ec.count': { text: 'count in English' },
+  'game.trace': { text: 'Trace a Letter' },
+  'trace.hint': { text: 'Trace over the letter with your finger!' },
+  'trace.next': { text: 'New letter' },
 
   // count game
   'count.step': { text: 'Skip' },

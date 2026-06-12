@@ -38,6 +38,7 @@ import FirstLetter from './FirstLetter'
 import RhymeMachine from './RhymeMachine'
 import BlendSounds from './BlendSounds'
 import EnglishCount from './EnglishCount'
+import TraceLetter from './TraceLetter'
 
 // Every game gets a callback to return to the home screen.
 export type GameProps = {
@@ -393,6 +394,14 @@ export const GAMES: GameDef[] = [
     color: 'linear-gradient(160deg, #6366f1, #0891b2)',
     category: 'english',
     Component: EnglishCount,
+  },
+  {
+    id: 'trace',
+    title: 'לצייר אות חיה',
+    emoji: '✏️',
+    color: 'linear-gradient(160deg, #f472b6, #f59e0b)',
+    category: 'english',
+    Component: TraceLetter,
   },
 ]
 

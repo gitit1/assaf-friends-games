@@ -385,6 +385,9 @@ export const HE: Dict = {
   'game.encount': { text: 'ספירה באנגלית' },
   'ec.q': { text: 'כמה? (How many?)' },
   'ec.count': { text: 'לספור באנגלית' },
+  'game.trace': { text: 'לצייר אות חיה' },
+  'trace.hint': { text: 'עברו עם האצבע על האות!' },
+  'trace.next': { text: 'אות חדשה' },
 
   // count game
   'count.step': { text: 'קפיצות' },
