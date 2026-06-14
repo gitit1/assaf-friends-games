@@ -6044,13 +6044,20 @@ button {
 
 .pet-meters {
   display: flex;
-  gap: 6px;
+  gap: 8px;
   justify-content: center;
-  max-width: min(480px, 100%);
+  max-width: min(460px, 100%);
   margin: 0 auto 12px;
+  padding: 9px 11px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
+/* each stat is a little pill: icon in a circle, a rounded bar, the value */
 .pet-meter {
   display: flex;
+  flex-direction: column;
   align-items: center;
   gap: 4px;
   flex: 1;
@@ -6058,29 +6065,37 @@ button {
 }
 .pet-meter-emoji {
   font-size: 1.05rem;
+  width: 26px;
+  height: 26px;
+  display: grid;
+  place-items: center;
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 50%;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.18);
 }
 .pet-meter-num {
   font-family: 'Fredoka', 'Heebo', sans-serif;
   font-weight: 800;
-  font-size: 0.78rem;
+  font-size: 0.72rem;
   color: var(--text-soft);
-  min-width: 16px;
-  text-align: center;
+  line-height: 1;
 }
 .pet-bar {
-  flex: 1;
+  width: 100%;
   min-width: 0;
-  height: 13px;
+  height: 10px;
   background: var(--panel);
   border-radius: 999px;
   overflow: hidden;
   border: 1px solid var(--line);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.25);
 }
 .pet-bar-fill {
   display: block;
   height: 100%;
   border-radius: 999px;
   transition: width 0.3s ease, background 0.3s ease;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45);
 }
 
 .pet-room {
