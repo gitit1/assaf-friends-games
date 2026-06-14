@@ -3,45 +3,49 @@ import { BIG, BIG_KINDS, friendKindForIndex } from './FriendArt'
 
 // Build ANY data-driven friend (11–100) as a 3D model, straight from the same
 // `BIG` table the 2D art uses: each friend is a grid of round "bumps" whose count
-// is its number. We drop an overlapping sphere on every bump so they fuse into one
-// soft blob, then add a flat cartoon face, tapered arms, little feet and a floating
-// number — all in the friend's own colour. One builder → 90 friends, no modelling.
+// is its number. Overlapping spheres fuse into one soft blob; on top we add a flat
+// cartoon face, tapered arms with mitt hands, little feet, the friend's accessory,
+// and a floating number — all in its own colour, with a soft cel/toon shade.
 
 export type Friend3DRig = {
-  group: THREE.Group // outer: scaled + framed to a constant size
-  inner: THREE.Group // the model itself, centred at origin
-  bumps: THREE.Mesh[] // for the breathing animation
+  group: THREE.Group
+  inner: THREE.Group
+  bumps: THREE.Mesh[]
   armL: THREE.Group
   armR: THREE.Group
   bc: THREE.Color
 }
 
-// overlap factors mirror the 2D art (FriendArt H_OVER / V_OVER) so the number reads
 const STEP_H = 1 - 0.16
 const STEP_V = 1 - 0.26
-const R = 0.6 // bump radius (unit = one bump); >0.5 so neighbours fuse
+const R = 0.6
 
-const mat = (c: THREE.ColorRepresentation, roughness = 0.5) =>
-  new THREE.MeshStandardMaterial({ color: new THREE.Color(c), roughness, metalness: 0 })
+// a gentle 4-band gradient → soft cel/toon shading (cuter than shiny plastic)
+const GRAD = (() => {
+  const data = new Uint8Array([96, 158, 212, 255])
+  const t = new THREE.DataTexture(data, 4, 1, THREE.RedFormat)
+  t.magFilter = THREE.NearestFilter
+  t.minFilter = THREE.NearestFilter
+  t.needsUpdate = true
+  return t
+})()
+// toon (cel-shaded) material for the body and 3D parts
+const mat = (c: THREE.ColorRepresentation) => new THREE.MeshToonMaterial({ color: new THREE.Color(c), gradientMap: GRAD })
 // flat, UNLIT material — the trick for eyes that read as painted-on cartoon shapes
-// (a shaded 3D ball looks like a creepy googly eye; a flat one looks drawn-on).
 const flat = (c: THREE.ColorRepresentation) => new THREE.MeshBasicMaterial({ color: new THREE.Color(c) })
 
-// Friends 1–10 are bespoke 2D shapes (no `rows`). Until each gets its own 3D
-// model, build them the same data-driven way: a round cluster whose count equals
-// the number, in the friend's identity colour. Girls (gogo/nuni/koko) get lips.
-type Spec = { rows: number[]; bc: string; shoe: string; face: 'plain' | 'girl' }
+type Spec = { rows: number[]; bc: string; shoe: string; face: 'plain' | 'girl'; acc?: string }
 const SMALL: Spec[] = [
-  { rows: [1], bc: '#ef4444', shoe: '#b91c1c', face: 'plain' }, // 1 lulu
-  { rows: [2], bc: '#f97316', shoe: '#1e3a8a', face: 'plain' }, // 2 toki
+  { rows: [1], bc: '#ef4444', shoe: '#b91c1c', face: 'plain', acc: 'bow' }, // 1 lulu
+  { rows: [2], bc: '#f97316', shoe: '#1e3a8a', face: 'plain', acc: 'cap' }, // 2 toki
   { rows: [3], bc: '#f59e0b', shoe: '#1e3a8a', face: 'plain' }, // 3 bobby
   { rows: [2, 2], bc: '#22c55e', shoe: '#1e3a8a', face: 'girl' }, // 4 gogo
-  { rows: [3, 2], bc: '#14b8a6', shoe: '#1e3a8a', face: 'plain' }, // 5 moki
-  { rows: [3, 3], bc: '#06b6d4', shoe: '#db2777', face: 'girl' }, // 6 nuni
-  { rows: [3, 4], bc: '#3b82f6', shoe: '#1e3a8a', face: 'plain' }, // 7 piko
-  { rows: [4, 4], bc: '#6366f1', shoe: '#1e3a8a', face: 'plain' }, // 8 dudi
+  { rows: [3, 2], bc: '#14b8a6', shoe: '#1e3a8a', face: 'plain', acc: 'glasses' }, // 5 moki
+  { rows: [3, 3], bc: '#06b6d4', shoe: '#db2777', face: 'girl', acc: 'flower' }, // 6 nuni
+  { rows: [3, 4], bc: '#3b82f6', shoe: '#1e3a8a', face: 'plain', acc: 'crown' }, // 7 piko
+  { rows: [4, 4], bc: '#6366f1', shoe: '#1e3a8a', face: 'plain', acc: 'earmuffs' }, // 8 dudi
   { rows: [3, 3, 3], bc: '#8b5cf6', shoe: '#1e3a8a', face: 'plain' }, // 9 zuzu
-  { rows: [3, 4, 3], bc: '#ec4899', shoe: '#1e3a8a', face: 'girl' }, // 10 koko
+  { rows: [3, 4, 3], bc: '#ec4899', shoe: '#1e3a8a', face: 'girl', acc: 'tiara' }, // 10 koko
 ]
 
 function bumpCenters(rows: number[]) {
@@ -55,15 +59,14 @@ function bumpCenters(rows: number[]) {
     const cy = r * STEP_V + 0.5
     for (let j = 0; j < c; j++) {
       const cx = rowLeft + j * STEP_H + 0.5
-      centers.push({ x: cx - w / 2, y: h / 2 - cy }) // centre + flip Y (screen→world)
+      centers.push({ x: cx - w / 2, y: h / 2 - cy })
     }
   })
   return { centers, w, h, maxCols }
 }
 
-// A flat, friendly cartoon eye built from unlit layers facing forward: a dark
-// outline ring, a white, a BIG pupil (fills most of the eye — the cute look), and
-// two catch-lights. Thin in z so it hugs the face like a decal.
+// A flat, friendly cartoon eye (unlit layers): dark outline, white, a BIG pupil and
+// two catch-lights. Thin so it hugs the face like a decal, not a bulging ball.
 function makeEye(x: number, y: number, z: number) {
   const g = new THREE.Group()
   const outline = new THREE.Mesh(new THREE.CircleGeometry(0.25, 32), flat(0x232a36))
@@ -83,20 +86,207 @@ function makeEye(x: number, y: number, z: number) {
   return g
 }
 
-// a soft tapered arm: WIDE where it meets the body (so it grows out of the blob,
-// no "severed" gap) and narrowing to a rounded hand. Pivots at the shoulder.
+// a soft tapered arm with a real mitt hand (palm + thumb) so it reads as an arm,
+// not a noodle. Wide where it meets the body → grows out of the blob. Pivots at
+// the shoulder.
 function makeArm(side: number, color: THREE.Color, x: number, y: number) {
   const shoulder = new THREE.Group()
-  const limb = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.27, 0.62, 18), mat(color))
-  limb.position.y = -0.31 // top (wide) at the shoulder, narrow end down
-  const hand = new THREE.Mesh(new THREE.SphereGeometry(0.17, 20, 20), mat(color))
-  hand.position.y = -0.64
+  const limb = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.27, 0.56, 18), mat(color))
+  limb.position.y = -0.28
+  const hand = new THREE.Group()
+  const palm = new THREE.Mesh(new THREE.SphereGeometry(0.19, 18, 18), mat(color))
+  palm.scale.set(1.05, 1, 0.82)
+  const thumb = new THREE.Mesh(new THREE.SphereGeometry(0.085, 12, 12), mat(color))
+  thumb.position.set(-side * 0.16, 0.06, 0.05)
+  hand.add(palm, thumb)
+  hand.position.y = -0.62
   shoulder.add(limb, hand)
   shoulder.position.set(side * x, y, 0.14)
   return shoulder
 }
 
-// a crisp number badge that floats above the head (canvas texture → sprite)
+function starShape(outer: number, inner: number, spikes = 5) {
+  const s = new THREE.Shape()
+  for (let i = 0; i < spikes * 2; i++) {
+    const r = i % 2 === 0 ? outer : inner
+    const a = (i / (spikes * 2)) * Math.PI * 2 - Math.PI / 2
+    const x = Math.cos(a) * r
+    const y = Math.sin(a) * r
+    i === 0 ? s.moveTo(x, y) : s.lineTo(x, y)
+  }
+  s.closePath()
+  return s
+}
+
+// The friend's accessory, in 3D. Head-top pieces sit at the crown; glasses sit on
+// the face. Returns null for any we haven't modelled yet.
+function makeAccessory(acc: string | undefined, h: number, faceY: number, faceZ: number, halfW: number, limb: THREE.Color) {
+  if (!acc) return null
+  const g = new THREE.Group()
+  const topY = h / 2
+  switch (acc) {
+    case 'cone': {
+      const cone = new THREE.Mesh(new THREE.ConeGeometry(0.4, 0.8, 22), mat('#f43f5e'))
+      cone.position.y = 0.4
+      const pom = new THREE.Mesh(new THREE.SphereGeometry(0.1, 14, 14), mat('#fde047'))
+      pom.position.y = 0.82
+      g.add(cone, pom)
+      g.position.set(0, topY - 0.05, 0.06)
+      break
+    }
+    case 'cap': {
+      const dome = new THREE.Mesh(new THREE.SphereGeometry(0.44, 22, 16, 0, Math.PI * 2, 0, Math.PI / 2), mat('#2563eb'))
+      const brim = new THREE.Mesh(new THREE.SphereGeometry(0.3, 18, 18), mat('#1d4ed8'))
+      brim.scale.set(1, 0.16, 1)
+      brim.position.set(0, 0.0, 0.36)
+      g.add(dome, brim)
+      g.position.set(0, topY - 0.06, 0.05)
+      break
+    }
+    case 'sunglasses':
+    case 'glasses': {
+      const dark = acc === 'sunglasses'
+      const lensMat = dark ? flat(0x1f2530) : flat(0x9ec5ff)
+      for (const s of [-1, 1]) {
+        const lens = new THREE.Mesh(new THREE.CircleGeometry(0.18, 24), lensMat)
+        lens.scale.set(1, 0.86, 1)
+        lens.position.set(s * 0.27, 0, 0)
+        g.add(lens)
+        const rim = new THREE.Mesh(new THREE.TorusGeometry(0.18, 0.022, 8, 24), mat('#1f2937'))
+        rim.scale.set(1, 0.86, 1)
+        rim.position.set(s * 0.27, 0, 0.005)
+        g.add(rim)
+      }
+      const bridge = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.04, 0.04), mat('#1f2937'))
+      g.add(bridge)
+      g.position.set(0, faceY + 0.02, faceZ + 0.07)
+      return g
+    }
+    case 'bunnyears': {
+      for (const s of [-1, 1]) {
+        const ear = new THREE.Mesh(new THREE.SphereGeometry(0.16, 16, 16), mat('#fbcfe8'))
+        ear.scale.set(0.6, 1.8, 0.5)
+        ear.position.set(s * 0.2, 0.55, 0)
+        ear.rotation.z = s * 0.12
+        g.add(ear)
+      }
+      g.position.set(0, topY - 0.05, 0.05)
+      break
+    }
+    case 'catears': {
+      for (const s of [-1, 1]) {
+        const ear = new THREE.Mesh(new THREE.ConeGeometry(0.17, 0.3, 4), mat(limb))
+        ear.position.set(s * 0.32, 0.34, 0)
+        ear.rotation.z = s * -0.18
+        g.add(ear)
+      }
+      g.position.set(0, topY - 0.08, 0.05)
+      break
+    }
+    case 'star': {
+      const star = new THREE.Mesh(new THREE.ExtrudeGeometry(starShape(0.28, 0.13), { depth: 0.06, bevelEnabled: false }), mat('#fde047'))
+      star.position.set(0, topY + 0.34, 0.05)
+      g.add(star)
+      break
+    }
+    case 'earmuffs': {
+      const band = new THREE.Mesh(new THREE.TorusGeometry(0.42, 0.05, 10, 28, Math.PI), mat('#f43f5e'))
+      band.position.set(0, topY - 0.02, 0)
+      g.add(band)
+      for (const s of [-1, 1]) {
+        const puff = new THREE.Mesh(new THREE.SphereGeometry(0.16, 16, 16), mat('#fb7185'))
+        puff.position.set(s * (halfW + 0.12), faceY + 0.18, 0.1)
+        g.add(puff)
+      }
+      break
+    }
+    case 'propeller': {
+      const hub = new THREE.Mesh(new THREE.SphereGeometry(0.08, 12, 12), mat('#334155'))
+      hub.position.y = topY + 0.36
+      g.add(hub)
+      for (const a of [0, Math.PI / 2, Math.PI, (3 * Math.PI) / 2]) {
+        const blade = new THREE.Mesh(new THREE.BoxGeometry(0.34, 0.02, 0.12), mat('#22d3ee'))
+        blade.position.set(Math.cos(a) * 0.18, topY + 0.36, Math.sin(a) * 0.18)
+        blade.rotation.y = a
+        g.add(blade)
+      }
+      const stalk = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.16, 8), mat('#334155'))
+      stalk.position.y = topY + 0.26
+      g.add(stalk)
+      break
+    }
+    case 'beret': {
+      const disc = new THREE.Mesh(new THREE.SphereGeometry(0.42, 20, 20), mat('#dc2626'))
+      disc.scale.set(1, 0.34, 1)
+      disc.rotation.z = 0.18
+      const nub = new THREE.Mesh(new THREE.SphereGeometry(0.06, 12, 12), mat('#dc2626'))
+      nub.position.set(0.05, 0.18, 0)
+      g.add(disc, nub)
+      g.position.set(0, topY + 0.02, 0.05)
+      break
+    }
+    case 'feather': {
+      const band = new THREE.Mesh(new THREE.TorusGeometry(0.4, 0.045, 8, 24, Math.PI * 1.2), mat('#a16207'))
+      band.position.set(0, topY - 0.02, 0.04)
+      const feather = new THREE.Mesh(new THREE.SphereGeometry(0.1, 14, 14), mat('#10b981'))
+      feather.scale.set(0.42, 1.9, 0.3)
+      feather.position.set(0.26, topY + 0.42, 0.05)
+      feather.rotation.z = -0.4
+      g.add(band, feather)
+      break
+    }
+    case 'bow': {
+      for (const s of [-1, 1]) {
+        const loop = new THREE.Mesh(new THREE.SphereGeometry(0.2, 18, 18), mat('#fb7185'))
+        loop.scale.set(1, 0.72, 0.42)
+        loop.position.set(s * 0.2, 0, 0)
+        g.add(loop)
+      }
+      const knot = new THREE.Mesh(new THREE.SphereGeometry(0.11, 14, 14), mat('#f43f5e'))
+      g.add(knot)
+      g.position.set(0, topY + 0.12, 0.12)
+      break
+    }
+    case 'crown': {
+      const band = new THREE.Mesh(new THREE.CylinderGeometry(0.32, 0.32, 0.16, 22, 1, true), mat('#fbbf24'))
+      g.add(band)
+      for (const a of [-0.6, 0, 0.6]) {
+        const spike = new THREE.Mesh(new THREE.ConeGeometry(0.08, 0.2, 12), mat('#fbbf24'))
+        spike.position.set(Math.sin(a) * 0.32, 0.16, Math.cos(a) * 0.32 * 0 + 0.0)
+        spike.position.x = Math.sin(a) * 0.3
+        spike.position.z = 0.0
+        g.add(spike)
+      }
+      g.position.set(0, topY + 0.06, 0.05)
+      break
+    }
+    case 'tiara': {
+      const band = new THREE.Mesh(new THREE.TorusGeometry(0.3, 0.03, 8, 24, Math.PI), mat('#f9a8d4'))
+      band.position.y = 0.04
+      const gem = new THREE.Mesh(new THREE.SphereGeometry(0.07, 14, 14), flat(0xff77c8))
+      gem.position.set(0, 0.12, 0.02)
+      g.add(band, gem)
+      g.position.set(0, topY + 0.02, 0.06)
+      break
+    }
+    case 'flower': {
+      for (let i = 0; i < 5; i++) {
+        const a = (i / 5) * Math.PI * 2
+        const petal = new THREE.Mesh(new THREE.SphereGeometry(0.1, 12, 12), mat('#f472b6'))
+        petal.position.set(Math.cos(a) * 0.13, Math.sin(a) * 0.13, 0)
+        g.add(petal)
+      }
+      const center = new THREE.Mesh(new THREE.SphereGeometry(0.08, 12, 12), mat('#fde047'))
+      g.add(center)
+      g.position.set(0.22, faceY + 0.5, faceZ)
+      break
+    }
+    default:
+      return null
+  }
+  return g
+}
+
 function makeNumberSprite(n: number, color: string) {
   const size = 256
   const cv = document.createElement('canvas')
@@ -136,8 +326,6 @@ export function buildFriend3D(index: number): Friend3DRig {
     bumps.push(m)
   }
 
-  // face — flat cartoon eyes + smile on the front, upper-middle. Constant size, so
-  // after framing a small friend gets a big face and a big one a small face.
   const faceY = h / 2 - Math.min(1.15, h * 0.34)
   inner.add(makeEye(-0.27, faceY, faceZ + 0.03), makeEye(0.27, faceY, faceZ + 0.03))
   if (spec.face === 'girl') {
@@ -151,7 +339,6 @@ export function buildFriend3D(index: number): Friend3DRig {
     mouth.rotation.z = Math.PI
     inner.add(mouth)
   }
-  // cheeks (soft, semi-transparent)
   const cheekMat = new THREE.MeshBasicMaterial({ color: 0xfb7185, transparent: true, opacity: 0.4 })
   for (const x of [-0.58, 0.58]) {
     const c = new THREE.Mesh(new THREE.CircleGeometry(0.13, 20), cheekMat)
@@ -160,7 +347,6 @@ export function buildFriend3D(index: number): Friend3DRig {
     inner.add(c)
   }
 
-  // feet
   for (const x of [-0.42, 0.42]) {
     const f = new THREE.Mesh(new THREE.SphereGeometry(0.26, 20, 20), mat(spec.shoe))
     f.scale.set(1, 0.58, 1.35)
@@ -168,7 +354,6 @@ export function buildFriend3D(index: number): Friend3DRig {
     inner.add(f)
   }
 
-  // arms — the wide base overlaps the outermost bump so they look attached
   const bodyHalfCenters = ((maxCols - 1) * STEP_H) / 2
   const armX = bodyHalfCenters + 0.12
   const armY = Math.min(h * 0.14, h / 2 - 0.6)
@@ -176,13 +361,16 @@ export function buildFriend3D(index: number): Friend3DRig {
   const armR = makeArm(1, limbColor, armX, armY)
   inner.add(armL, armR)
 
-  // floating number badge
+  // accessory (hat / glasses / …)
+  const halfW = bodyHalfCenters + R
+  const acc = makeAccessory(spec.acc, h, faceY, faceZ, halfW, limbColor)
+  if (acc) inner.add(acc)
+
   const num = makeNumberSprite(index + 1, spec.bc)
   num.scale.set(1.1, 1.1, 1.1)
-  num.position.set(0, h / 2 + 0.85, 0.4)
+  num.position.set(0, h / 2 + 0.95, 0.4)
   inner.add(num)
 
-  // frame: scale the whole model so its largest dimension is constant, and recentre
   const group = new THREE.Group()
   group.add(inner)
   const box = new THREE.Box3().setFromObject(inner)
@@ -191,8 +379,8 @@ export function buildFriend3D(index: number): Friend3DRig {
   const centerV = new THREE.Vector3()
   box.getCenter(centerV)
   const maxDim = Math.max(sizeV.x, sizeV.y) || 1
-  const scale = 3.5 / maxDim
-  inner.position.sub(centerV) // centre the model at the origin
+  const scale = 3.4 / maxDim
+  inner.position.sub(centerV)
   group.scale.setScalar(scale)
 
   return { group, inner, bumps, armL, armR, bc }
