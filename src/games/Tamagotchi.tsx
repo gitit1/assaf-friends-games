@@ -752,7 +752,6 @@ export default function Tamagotchi({ onExit }: GameProps) {
             <span className="bsink" />
             <span className="bshower">
               <span className="head" />
-              <span className="rain" />
             </span>
           </span>
           {/* furniture BEHIND the pet: the fridge it walks to, and the cushion it sits on */}
@@ -842,6 +841,21 @@ export default function Tamagotchi({ onExit }: GameProps) {
         <span className="ps-dish" aria-hidden="true">
           <span className="bowl" />
           <span className="chop" />
+        </span>
+        {/* shower water — in FRONT of the pet so it pours over it */}
+        <span className="ps-rain" aria-hidden="true">
+          <i />
+          <i />
+          <i />
+          <i />
+          <i />
+          <i />
+          <i />
+          <i />
+          <i />
+          <i />
+          <i />
+          <i />
         </span>
         {!playing && !eatFood && (!QUIET_FACES.has(expression) || sad) && (
           <span className="pet-mood" key={expression} aria-hidden="true">
