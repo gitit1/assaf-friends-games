@@ -694,8 +694,10 @@ export default function Tamagotchi({ onExit }: GameProps) {
 
       <div
         className={`pet-room tod-${timeOfDay} pose-${posture} expr-${expression} ${scene === 'walk' ? 'is-walk' : ''} ${
-          kitchen ? 'is-kitchen' : ''
-        } ${fridgeOpen ? 'fridge-open' : ''} ${eatSetting ? `eat-${eatSetting}` : ''} ${sad ? 'is-sad' : ''}`}
+          kitchen || eatSetting ? 'kmode' : ''
+        } ${kitchen ? 'is-kitchen' : ''} ${fridgeOpen ? 'fridge-open' : ''} ${eatSetting ? `eat-${eatSetting}` : ''} ${
+          sad ? 'is-sad' : ''
+        }`}
       >
         {/* illustrated 2D room behind the pet */}
         <div className="pet-scene" aria-hidden="true">
@@ -713,6 +715,19 @@ export default function Tamagotchi({ onExit }: GameProps) {
           <span className="ps-rug" />
           <span className="ps-plant">🪴</span>
           <span className="ps-shadow" />
+          {/* the kitchen scenery — replaces the bedroom while feeding */}
+          <span className="ps-kitchen">
+            <span className="kupper" />
+            <span className="ktiles" />
+            <span className="kcounter" />
+            <span className="kcab" />
+            <span className="kstove">
+              <span className="pot" />
+            </span>
+            <span className="ksink">
+              <span className="faucet" />
+            </span>
+          </span>
           {/* furniture BEHIND the pet: the fridge it walks to, and the cushion it sits on */}
           <span className="ps-fridge">
             <span className="fbody" />
