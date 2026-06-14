@@ -6326,9 +6326,21 @@ button {
   right: 12%;
   top: -46%;
 }
-/* the pet breathes / bobs gently while it just stands in the room */
+/* the pet bobs gently while idle; smoothly walks/sits during the eating sequence */
 .pet-room .pet-tap {
+  transition: transform 0.8s ease;
+}
+.pet-room:not(.is-kitchen):not(.eat-table):not(.eat-cushion):not(.eat-standing) .pet-tap {
   animation: pet-idle-bob 3.4s ease-in-out infinite;
+}
+.pet-room.is-kitchen .pet-tap {
+  transform: translateX(48%); /* walk over and stand beside the fridge */
+}
+.pet-room.eat-cushion .pet-tap {
+  transform: translateY(15%) scale(1.06, 0.9); /* sit down on the cushion */
+}
+.pet-room.eat-table .pet-tap {
+  transform: translateY(3%);
 }
 @keyframes pet-idle-bob {
   0%,
@@ -6340,9 +6352,173 @@ button {
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .pet-room .pet-tap {
+  .pet-room:not(.is-kitchen):not(.eat-table):not(.eat-cushion):not(.eat-standing) .pet-tap {
     animation: none;
   }
+}
+
+/* ════ eating-sequence furniture (shown by the room's state classes) ════ */
+.ps-fridge,
+.ps-cushion,
+.ps-table,
+.ps-dish {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.45s ease, transform 0.45s ease;
+}
+.ps-table,
+.ps-dish {
+  position: absolute;
+  z-index: 3; /* in front of the pet */
+}
+/* fridge — slides in on the right; the pet walks to it, then it swings open */
+.ps-fridge {
+  position: absolute;
+  right: 7%;
+  bottom: 24%;
+  width: 17%;
+  height: 50%;
+  transform: translateX(16px);
+}
+.is-kitchen .ps-fridge {
+  opacity: 1;
+  transform: none;
+}
+.ps-fridge .fbody {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, #eef3f7, #d6dee7);
+  border-radius: 12px;
+  border: 2px solid #c2ccd6;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.18), inset 0 2px 0 rgba(255, 255, 255, 0.6);
+}
+.ps-fridge .fglow {
+  position: absolute;
+  inset: 7%;
+  border-radius: 8px;
+  background: linear-gradient(180deg, #d8f2ff, #a9def8);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+.fridge-open .ps-fridge .fglow {
+  opacity: 1;
+}
+.ps-fridge .fdoor {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, #f4f8fb, #dbe3eb);
+  border-radius: 12px;
+  border: 2px solid #c2ccd6;
+  transform-origin: right center;
+  transition: transform 0.5s ease;
+}
+.ps-fridge .fdoor::before {
+  content: '';
+  position: absolute;
+  left: 12%;
+  top: 34%;
+  width: 6px;
+  height: 32%;
+  background: #aab6c2;
+  border-radius: 3px;
+}
+.fridge-open .ps-fridge .fdoor {
+  transform: perspective(320px) rotateY(-78deg);
+}
+/* cushion pad (behind the pet) for Chinese food */
+.ps-cushion {
+  position: absolute;
+  bottom: 13%;
+  left: 50%;
+  width: 34%;
+  height: 8%;
+  transform: translateX(-50%);
+  background: radial-gradient(ellipse at 50% 32%, #ff9ec6, #e86fa6);
+  border-radius: 50%;
+  box-shadow: 0 5px 7px rgba(0, 0, 0, 0.2);
+}
+.eat-cushion .ps-cushion {
+  opacity: 1;
+}
+/* meal table (in front of the pet) */
+.ps-table {
+  bottom: 14%;
+  left: 50%;
+  width: 50%;
+  height: 22%;
+  transform: translateX(-50%) translateY(14px);
+}
+.eat-table .ps-table {
+  opacity: 1;
+  transform: translateX(-50%);
+}
+.ps-table .ttop {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 22%;
+  background: linear-gradient(180deg, #cc8d5e, #b3743f);
+  border-radius: 6px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+}
+.ps-table .tleg {
+  position: absolute;
+  bottom: 0;
+  width: 7%;
+  height: 80%;
+  background: #9c6034;
+  border-radius: 0 0 3px 3px;
+}
+.ps-table .tleg.a {
+  left: 12%;
+}
+.ps-table .tleg.b {
+  right: 12%;
+}
+.ps-table .tplate {
+  position: absolute;
+  top: -7%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 30%;
+  height: 13%;
+  background: #fff;
+  border-radius: 50%;
+  box-shadow: 0 2px 3px rgba(0, 0, 0, 0.16);
+}
+/* bowl + chopsticks (in front, for cushion eating) */
+.ps-dish {
+  bottom: 15%;
+  left: 50%;
+  width: 26%;
+  height: 12%;
+  transform: translateX(-50%) translateY(10px);
+}
+.eat-cushion .ps-dish {
+  opacity: 1;
+  transform: translateX(-50%);
+}
+.ps-dish .bowl {
+  position: absolute;
+  bottom: 0;
+  left: 30%;
+  width: 40%;
+  height: 70%;
+  background: linear-gradient(180deg, #fff, #e7edf2);
+  border: 2px solid #ccd5de;
+  border-radius: 6px 6px 50% 50% / 6px 6px 100% 100%;
+}
+.ps-dish .chop {
+  position: absolute;
+  bottom: 55%;
+  left: 40%;
+  width: 38%;
+  height: 3px;
+  background: #a0673a;
+  border-radius: 2px;
+  transform: rotate(-22deg);
+  box-shadow: 0 5px 0 #a0673a;
 }
 .pet-tap {
   position: relative;

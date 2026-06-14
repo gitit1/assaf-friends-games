@@ -38,6 +38,16 @@ const FOODS: { key: string; name: string; emoji: string }[] = [
   { key: 'chocolate', name: 'שוקולד', emoji: '🍫' },
 ]
 
+// where each food is eaten — like a real 2D pet game, the friend eats in a
+// fitting spot: a proper meal at the TABLE, a snack STANDING, and Chinese/rice on
+// a CUSHION with a bowl + chopsticks. (default = table)
+const FOOD_SETTING: Record<string, 'table' | 'cushion' | 'standing'> = {
+  rice: 'cushion',
+  banana: 'standing', apple: 'standing', cucumber: 'standing', tomato: 'standing',
+  carrot: 'standing', bamba: 'standing', chocolate: 'standing',
+}
+const settingFor = (key: string): 'table' | 'cushion' | 'standing' => FOOD_SETTING[key] ?? 'table'
+
 // crumb fly-out directions + little reaction emojis for the eating "movie"
 const CRUMBS = [
   { x: '-36px', y: '-24px' },
@@ -302,6 +312,9 @@ export default function Tamagotchi({ onExit }: GameProps) {
   const [pick, setPick] = useState(0)
   const [wardrobe, setWardrobe] = useState(false)
   const [fridge, setFridge] = useState(false)
+  const [kitchen, setKitchen] = useState(false) // walked to the kitchen, fridge in view
+  const [fridgeOpen, setFridgeOpen] = useState(false) // fridge doors swung open
+  const [eatSetting, setEatSetting] = useState<'table' | 'cushion' | 'standing' | null>(null)
   const [bar, setBar] = useState(false)
   const [eatFood, setEatFood] = useState<string | null>(null)
   const [mode, setMode] = useState<'eat' | 'drink'>('eat')
@@ -414,7 +427,7 @@ export default function Tamagotchi({ onExit }: GameProps) {
   const petRef = useRef(pet)
   petRef.current = pet
   const busyRef = useRef(false)
-  busyRef.current = !!(playing || eatFood || fridge || bar || wardrobe || choosing)
+  busyRef.current = !!(playing || eatFood || fridge || bar || wardrobe || choosing || kitchen || eatSetting)
   useEffect(() => {
     const id = window.setInterval(() => {
       const p = petRef.current
@@ -504,35 +517,54 @@ export default function Tamagotchi({ onExit }: GameProps) {
     setPet((p) => (p ? { ...p, outfit: { ...p.outfit, [slot]: p.outfit[slot] === item ? undefined : item } } : p))
   }
 
-  // pick a food from the fridge → say its name, then the friend hops 3× eating
-  // it ("נם נם נם") while the food shrinks bite by bite
+  // tapping "feed" → the friend WALKS to the kitchen, the fridge swings open, then
+  // the food pop-up appears (a real little sequence, not an instant menu)
+  function goFeed() {
+    if (!pet || kitchen) return
+    unlockAudio()
+    playTap()
+    eatTimers.current.forEach((t) => window.clearTimeout(t))
+    eatTimers.current = []
+    setKitchen(true) // pet walks over (CSS); fridge slides in
+    eatTimers.current.push(window.setTimeout(() => { setFridgeOpen(true); playPop() }, 1150))
+    eatTimers.current.push(window.setTimeout(() => setFridge(true), 1650))
+  }
+
+  // pick a food from the fridge → the friend walks to the right spot for that dish
+  // (table / standing / cushion), says its name, then hops 3× eating it ("נם נם נם")
   function eat(food: { key: string; name: string; emoji: string }) {
     unlockAudio()
     playTap()
     setFridge(false)
+    setFridgeOpen(false)
+    setKitchen(false)
+    setEatSetting(settingFor(food.key)) // table / standing / cushion
     setMode('eat')
     setPlaying(null)
     speak(getSettings().lang === 'en' ? t(`pet.food.${food.key}`) : food.name)
     eatTimers.current.forEach((t) => window.clearTimeout(t))
     eatTimers.current = []
-    setEatFood(food.emoji)
     setBite(0)
     setPoof(false)
+    // D = let the friend walk to its eating spot first, THEN start eating
+    const D = 650
+    eatTimers.current.push(window.setTimeout(() => setEatFood(food.emoji), D))
     // three bites: each hop munches and a chunk is cut out of the food
     for (let k = 0; k < 3; k++) {
-      eatTimers.current.push(window.setTimeout(() => { playMunch(); setBite(k + 1) }, 350 + k * 600))
+      eatTimers.current.push(window.setTimeout(() => { playMunch(); setBite(k + 1) }, D + 350 + k * 600))
     }
-    eatTimers.current.push(window.setTimeout(() => speak('נם נם נם'), 450))
+    eatTimers.current.push(window.setTimeout(() => speak('נם נם נם'), D + 450))
     // after the last bite the little leftover disappears with a "poof"
-    eatTimers.current.push(window.setTimeout(() => { setPoof(true); playPop() }, 350 + 3 * 600))
-    // then clear and let the engine react (context-aware line + stat/mood change)
+    eatTimers.current.push(window.setTimeout(() => { setPoof(true); playPop() }, D + 350 + 3 * 600))
+    // then clear, return to the room, and let the engine react
     eatTimers.current.push(
       window.setTimeout(() => {
         setEatFood(null)
         setPoof(false)
         setBite(0)
+        setEatSetting(null)
         react('feed', food.key, { silent: true })
-      }, 350 + 3 * 600 + 500),
+      }, D + 350 + 3 * 600 + 500),
     )
   }
 
@@ -660,7 +692,11 @@ export default function Tamagotchi({ onExit }: GameProps) {
         ))}
       </div>
 
-      <div className={`pet-room tod-${timeOfDay} pose-${posture} expr-${expression} ${scene === 'walk' ? 'is-walk' : ''} ${sad ? 'is-sad' : ''}`}>
+      <div
+        className={`pet-room tod-${timeOfDay} pose-${posture} expr-${expression} ${scene === 'walk' ? 'is-walk' : ''} ${
+          kitchen ? 'is-kitchen' : ''
+        } ${fridgeOpen ? 'fridge-open' : ''} ${eatSetting ? `eat-${eatSetting}` : ''} ${sad ? 'is-sad' : ''}`}
+      >
         {/* illustrated 2D room behind the pet */}
         <div className="pet-scene" aria-hidden="true">
           <span className="ps-window">
@@ -677,6 +713,13 @@ export default function Tamagotchi({ onExit }: GameProps) {
           <span className="ps-rug" />
           <span className="ps-plant">🪴</span>
           <span className="ps-shadow" />
+          {/* furniture BEHIND the pet: the fridge it walks to, and the cushion it sits on */}
+          <span className="ps-fridge">
+            <span className="fbody" />
+            <span className="fglow" />
+            <span className="fdoor" />
+          </span>
+          <span className="ps-cushion" />
         </div>
         {playing ? (
           <PlayScene kind={playing.kind} friend={pet.friend} outfit={pet.outfit} buddy={buddy} />
@@ -725,6 +768,17 @@ export default function Tamagotchi({ onExit }: GameProps) {
           )}
         </button>
         )}
+        {/* furniture IN FRONT of the pet: the meal table, and the bowl + chopsticks */}
+        <span className="ps-table" aria-hidden="true">
+          <span className="ttop" />
+          <span className="tleg a" />
+          <span className="tleg b" />
+          <span className="tplate" />
+        </span>
+        <span className="ps-dish" aria-hidden="true">
+          <span className="bowl" />
+          <span className="chop" />
+        </span>
         {!playing && pet.poop && (
           <span className="pet-poop" aria-hidden="true">
             💩
@@ -769,7 +823,7 @@ export default function Tamagotchi({ onExit }: GameProps) {
               a.type === 'dress'
                 ? (unlockAudio(), playTap(), setWardrobe(true))
                 : a.type === 'feed'
-                  ? (unlockAudio(), playTap(), setFridge(true))
+                  ? goFeed()
                   : a.type === 'water'
                     ? (unlockAudio(), playTap(), setBar(true))
                     : a.type === 'play'
