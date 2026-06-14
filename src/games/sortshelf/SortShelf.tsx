@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import GameShell from '../../components/GameShell'
 import { useT } from '../../i18n'
 import type { GameProps } from '../registry'
@@ -45,6 +45,11 @@ export default function SortShelf({ onExit }: GameProps) {
   const [sparkles, setSparkles] = useState<{ id: number; left: number; top: number }[]>([])
   const [bestStars, setBestStars] = useState<Record<number, number>>(() => loadStars())
   const [showLevels, setShowLevels] = useState(false)
+  // drag-to-move
+  const [drag, setDrag] = useState<{ icon: string; x: number; y: number } | null>(null)
+  const [dragOver, setDragOver] = useState<string | null>(null)
+  const pressRef = useRef<{ shelfId: string; itemId: string; icon: string; x: number; y: number } | null>(null)
+  const draggedRef = useRef(false)
   const level = LEVELS[levelIdx]
 
   // which shelves are legal targets for the currently-picked good (for highlights)
@@ -152,7 +157,7 @@ export default function SortShelf({ onExit }: GameProps) {
 
   // tapping the shelf itself (its empty area / plank) → a drop target
   function tapShelf(shelfId: string) {
-    if (state.status === 'won' || paused) return
+    if (state.status === 'won' || paused || draggedRef.current) return
     setHint(null)
     if (!state.selected) return
     if (state.selected.shelfId === shelfId) {
@@ -160,6 +165,49 @@ export default function SortShelf({ onExit }: GameProps) {
       return
     }
     moveTo(shelfId)
+  }
+
+  // ── drag a good with the finger/mouse (tap-tap still works too) ──
+  function onWinPointerMove(e: PointerEvent) {
+    const p = pressRef.current
+    if (!p) return
+    if (!draggedRef.current && Math.hypot(e.clientX - p.x, e.clientY - p.y) > 8) {
+      draggedRef.current = true // it's a drag, not a tap
+      unlockAudio()
+      setHint(null)
+      setHideId(p.itemId)
+      setState((s) => ({ ...s, selected: { shelfId: p.shelfId, itemId: p.itemId } }))
+    }
+    if (draggedRef.current) {
+      setDrag({ icon: p.icon, x: e.clientX, y: e.clientY })
+      const over = document.elementFromPoint(e.clientX, e.clientY)?.closest('[data-shelf]')
+      setDragOver(over?.getAttribute('data-shelf') ?? null)
+    }
+  }
+  function onWinPointerUp(e: PointerEvent) {
+    window.removeEventListener('pointermove', onWinPointerMove)
+    window.removeEventListener('pointerup', onWinPointerUp)
+    const p = pressRef.current
+    pressRef.current = null
+    if (!draggedRef.current || !p) return // a plain tap → handled by onClick
+    setDrag(null)
+    setDragOver(null)
+    setHideId(null)
+    const over = document.elementFromPoint(e.clientX, e.clientY)?.closest('[data-shelf]')
+    const targetId = over?.getAttribute('data-shelf')
+    if (targetId && targetId !== p.shelfId && isLegalMove(state.shelves, p.shelfId, targetId)) {
+      applyAndFeedback(p.shelfId, p.itemId, targetId)
+    } else {
+      setState((s) => ({ ...s, selected: null })) // dropped nowhere useful
+    }
+    window.setTimeout(() => (draggedRef.current = false), 60) // swallow the trailing click
+  }
+  function onGoodPointerDown(e: React.PointerEvent, shelfId: string, itemId: string, icon: string) {
+    if (state.status === 'won' || paused) return
+    pressRef.current = { shelfId, itemId, icon, x: e.clientX, y: e.clientY }
+    draggedRef.current = false
+    window.addEventListener('pointermove', onWinPointerMove)
+    window.addEventListener('pointerup', onWinPointerUp)
   }
 
   const doUndo = () => {
@@ -230,9 +278,12 @@ export default function SortShelf({ onExit }: GameProps) {
               key={shelf.id}
               role="button"
               tabIndex={0}
+              data-shelf={shelf.id}
               className={`ss-shelf ${isSource ? 'is-source' : ''} ${isTarget ? 'is-target' : ''} ${
                 isHintTarget ? 'is-hint' : ''
-              } ${shelf.locked ? 'is-locked' : ''} ${shakeId === shelf.id ? 'is-shake' : ''}`}
+              } ${dragOver === shelf.id ? 'is-dragover' : ''} ${shelf.locked ? 'is-locked' : ''} ${
+                shakeId === shelf.id ? 'is-shake' : ''
+              }`}
               onClick={() => tapShelf(shelf.id)}
             >
               <span className="ss-goods" data-goods={shelf.id}>
@@ -253,8 +304,10 @@ export default function SortShelf({ onExit }: GameProps) {
                       key={it.id}
                       data-good={it.id}
                       style={hideId === it.id ? { visibility: 'hidden' } : undefined}
+                      onPointerDown={(e) => onGoodPointerDown(e, shelf.id, it.id, it.icon)}
                       onClick={(e) => {
                         e.stopPropagation()
+                        if (draggedRef.current) return
                         tapGood(shelf.id, it.id)
                       }}
                     >
@@ -278,6 +331,11 @@ export default function SortShelf({ onExit }: GameProps) {
           style={{ left: flying.left, top: flying.top, '--dx': `${flying.dx}px`, '--dy': `${flying.dy}px` } as React.CSSProperties}
         >
           {flying.icon}
+        </span>
+      )}
+      {drag && (
+        <span className="ss-drag" style={{ left: drag.x, top: drag.y }} aria-hidden="true">
+          {drag.icon}
         </span>
       )}
       {sparkles.map((s) => (

@@ -12307,3 +12307,28 @@ button {
 .ss-level-btn b { font-size: 1.1rem; }
 .ss-level-btn.is-current { box-shadow: 0 0 0 2px #f59e0b; }
 .ss-level-stars { font-size: 0.62rem; letter-spacing: -1px; }
+
+/* drag-to-move: the goods are draggable, with a ghost following the finger */
+.ss-good { touch-action: none; }
+.ss-board { touch-action: none; }
+.ss-drag {
+  position: fixed;
+  transform: translate(-50%, -50%) scale(1.15);
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  font-size: 1.5rem;
+  line-height: 1;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 8px 14px rgba(0, 0, 0, 0.35);
+  z-index: 63;
+  pointer-events: none;
+}
+.ss-shelf.is-dragover {
+  transform: translateY(-2px) scale(1.02);
+}
+.ss-shelf.is-dragover .ss-plank {
+  box-shadow: 0 0 0 4px #22c55e, 0 6px 10px rgba(0, 0, 0, 0.25);
+}
