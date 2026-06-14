@@ -3,12 +3,12 @@ import GameShell from '../components/GameShell'
 import { friendCount, randFriendIndex } from '../level'
 import Friend from '../components/Friend'
 import Stepper from '../components/Stepper'
-import { friendMaxDim } from '../components/FriendArt'
+import { friendMaxDim, FRIEND_NATURAL, friendKindForIndex } from '../components/FriendArt'
 import type { GameProps } from './registry'
 import { playFriend, playMunch, playNudge, playPop, playSuccess, playTap, unlockAudio } from '../audio'
 import { speak } from '../speech'
 import { friendName, friendSay } from '../friends'
-import { screenScale, useViewport } from '../useViewport'
+import { useViewport } from '../useViewport'
 import { useT } from '../i18n'
 import { getSettings } from '../settings'
 import { getPetReaction, getIdleReaction } from './pet/reactions/petReactionEngine'
@@ -289,7 +289,13 @@ export default function Tamagotchi({ onExit }: GameProps) {
   const { t } = useT()
   const [pet, setPet] = useState<Pet | null>(load)
   const vp = useViewport()
-  const petPx = Math.round(150 * screenScale(vp.w)) // main pet grows on a desktop
+  // size the pet to FIT the room by BOTH width and height, so tall friends (1–10
+  // like piko/moki) aren't cut off and every friend sits at a proportional size
+  const roomH = Math.max(vp.h * 0.38, 240)
+  const fitPet = (i: number) => {
+    const nat = FRIEND_NATURAL[friendKindForIndex(i)]
+    return Math.min((Math.min(vp.w, 470) * 0.78) / nat.w, (roomH * 0.6) / nat.h, 2.6)
+  }
   const [choosing, setChoosing] = useState(() => pet === null)
   const [pick, setPick] = useState(0)
   const [wardrobe, setWardrobe] = useState(false)
@@ -590,7 +596,7 @@ export default function Tamagotchi({ onExit }: GameProps) {
         <Stepper
           label={
             <span className="pet-pick-figure">
-              <Friend index={pick} scale={petPx / friendMaxDim(pick)} showNumber={false} />
+              <Friend index={pick} scale={fitPet(pick)} showNumber={false} />
             </span>
           }
           onPrev={() => setPick((p) => (p + friendCount() - 1) % friendCount())}
@@ -674,7 +680,7 @@ export default function Tamagotchi({ onExit }: GameProps) {
           <PlayScene kind={playing.kind} friend={pet.friend} outfit={pet.outfit} buddy={buddy} />
         ) : (
         <button className="pet-tap" onClick={pokePet} aria-label={friendName(pet.friend)}>
-          <FriendDressed index={pet.friend} px={petPx} outfit={pet.outfit} bouncing={bounce} eating={!!eatFood} />
+          <FriendDressed index={pet.friend} px={Math.round(fitPet(pet.friend) * friendMaxDim(pet.friend))} outfit={pet.outfit} bouncing={bounce} eating={!!eatFood} />
           {eatFood && (
           <>
             <span
