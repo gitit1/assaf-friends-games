@@ -294,7 +294,9 @@ export default function Tamagotchi({ onExit }: GameProps) {
   const roomH = Math.max(vp.h * 0.38, 240)
   const fitPet = (i: number) => {
     const nat = FRIEND_NATURAL[friendKindForIndex(i)]
-    return Math.min((Math.min(vp.w, 470) * 0.78) / nat.w, (roomH * 0.6) / nat.h, 2.6)
+    // fit BOTH the room width and a safe slice of its height, so the pet is fully
+    // visible and centred (never spilling past the canvas) on any screen
+    return Math.min((Math.min(vp.w, 440) * 0.6) / nat.w, (roomH * 0.46) / nat.h, 2.1)
   }
   const [choosing, setChoosing] = useState(() => pet === null)
   const [pick, setPick] = useState(0)

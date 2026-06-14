@@ -6044,58 +6044,52 @@ button {
 
 .pet-meters {
   display: flex;
-  gap: 8px;
+  gap: 6px;
   justify-content: center;
   max-width: min(460px, 100%);
   margin: 0 auto 12px;
-  padding: 9px 11px;
+  padding: 7px 9px;
   background: rgba(255, 255, 255, 0.06);
   border: 1px solid var(--line);
-  border-radius: 18px;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  border-radius: 14px;
 }
-/* each stat is a little pill: icon in a circle, a rounded bar, the value */
+/* a compact stat pill: icon + rounded bar + value, in one row (all 5 fit a phone) */
 .pet-meter {
   display: flex;
-  flex-direction: column;
   align-items: center;
   gap: 4px;
   flex: 1;
   min-width: 0; /* allow the bars to shrink so all 5 fit a phone row */
 }
 .pet-meter-emoji {
-  font-size: 1.05rem;
-  width: 26px;
-  height: 26px;
-  display: grid;
-  place-items: center;
-  background: rgba(255, 255, 255, 0.12);
-  border-radius: 50%;
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.18);
+  font-size: 0.98rem;
+  flex-shrink: 0;
 }
 .pet-meter-num {
   font-family: 'Fredoka', 'Heebo', sans-serif;
   font-weight: 800;
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   color: var(--text-soft);
-  line-height: 1;
+  min-width: 15px;
+  text-align: center;
+  flex-shrink: 0;
 }
 .pet-bar {
-  width: 100%;
+  flex: 1;
   min-width: 0;
-  height: 10px;
+  height: 11px;
   background: var(--panel);
   border-radius: 999px;
   overflow: hidden;
   border: 1px solid var(--line);
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.25);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.22);
 }
 .pet-bar-fill {
   display: block;
   height: 100%;
   border-radius: 999px;
   transition: width 0.3s ease, background 0.3s ease;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4);
 }
 
 .pet-room {
@@ -6108,9 +6102,9 @@ button {
   border: 2px solid var(--line);
   background: linear-gradient(180deg, rgba(124, 196, 245, 0.12), rgba(255, 255, 255, 0.03));
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   justify-content: center;
-  padding-bottom: 10px;
+  padding: 6% 8px 9%;
   overflow: hidden;
   transition: background 0.4s ease, filter 0.4s ease;
 }
@@ -6356,6 +6350,22 @@ button {
   background: none;
   border: none;
   padding: 0;
+}
+/* a soft contact shadow that always sits right under the pet */
+.pet-room .pet-tap::after {
+  content: '';
+  position: absolute;
+  bottom: -7%;
+  left: 50%;
+  width: 76%;
+  height: 14px;
+  transform: translateX(-50%);
+  background: radial-gradient(ellipse, rgba(0, 0, 0, 0.3), transparent 70%);
+  border-radius: 50%;
+  z-index: -1;
+}
+.ps-shadow {
+  display: none;
 }
 .pet-figure {
   position: relative;
