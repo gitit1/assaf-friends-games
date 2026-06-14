@@ -59,6 +59,13 @@ const CRUMBS = [
 ]
 const HEARTS = ['❤️', '⭐', '😋']
 
+// dirt stains that show on the pet as it gets dirty (more of them the lower `clean`)
+const STAIN_SPOTS = [
+  { x: 42, y: 62, r: 22 },
+  { x: 63, y: 48, r: 16 },
+  { x: 31, y: 45, r: 14 },
+]
+
 // reaction visual effects → little emoji bursts that float off the pet
 const EFFECT_EMOJI: Record<string, string[]> = {
   hearts: ['❤️', '💖', '💗'],
@@ -306,7 +313,7 @@ export default function Tamagotchi({ onExit }: GameProps) {
     const nat = FRIEND_NATURAL[friendKindForIndex(i)]
     // fit BOTH the room width and a safe slice of its height, so the pet is fully
     // visible and centred (never spilling past the canvas) on any screen
-    return Math.min((Math.min(vp.w, 440) * 0.6) / nat.w, (roomH * 0.46) / nat.h, 2.1)
+    return Math.min((Math.min(vp.w, 440) * 0.46) / nat.w, (roomH * 0.38) / nat.h, 1.8)
   }
   const [choosing, setChoosing] = useState(() => pet === null)
   const [pick, setPick] = useState(0)
@@ -315,6 +322,7 @@ export default function Tamagotchi({ onExit }: GameProps) {
   const [kitchen, setKitchen] = useState(false) // walked to the kitchen, fridge in view
   const [fridgeOpen, setFridgeOpen] = useState(false) // fridge doors swung open
   const [eatSetting, setEatSetting] = useState<'table' | 'cushion' | 'standing' | null>(null)
+  const [bathroom, setBathroom] = useState<null | 'shower' | 'facewash' | 'toilet'>(null)
   const [bar, setBar] = useState(false)
   const [eatFood, setEatFood] = useState<string | null>(null)
   const [mode, setMode] = useState<'eat' | 'drink'>('eat')
@@ -408,12 +416,11 @@ export default function Tamagotchi({ onExit }: GameProps) {
               ...p,
               hunger: clamp(p.hunger - 2),
               thirst: clamp(p.thirst - 2),
-              happy: clamp(p.happy - (p.poop ? 4 : 1)),
-              clean: clamp(p.clean - (p.poop ? 5 : 1)),
+              happy: clamp(p.happy - 1),
+              clean: clamp(p.clean - 2), // gets dirty over time → a stain shows
               energy: clamp(p.energy - 1),
               loneliness: clamp(p.loneliness + 2),
               boredom: clamp(p.boredom + 2),
-              poop: p.poop || Math.random() < 0.08,
             }
           : p,
       )
@@ -427,7 +434,7 @@ export default function Tamagotchi({ onExit }: GameProps) {
   const petRef = useRef(pet)
   petRef.current = pet
   const busyRef = useRef(false)
-  busyRef.current = !!(playing || eatFood || fridge || bar || wardrobe || choosing || kitchen || eatSetting)
+  busyRef.current = !!(playing || eatFood || fridge || bar || wardrobe || choosing || kitchen || eatSetting || bathroom)
   useEffect(() => {
     const id = window.setInterval(() => {
       const p = petRef.current
@@ -494,6 +501,14 @@ export default function Tamagotchi({ onExit }: GameProps) {
     if (!pet) return
     unlockAudio()
     playTap()
+    // cleaning → the bathroom: a full SHOWER if really dirty, a soapy face-wash if
+    // it just needs a freshen-up. The water/soap runs, then it's clean.
+    if (type === 'clean') {
+      setBathroom(pet.clean < 40 ? 'shower' : 'facewash')
+      eatTimers.current.push(window.setTimeout(() => { react('clean'); playSuccess() }, 1500))
+      eatTimers.current.push(window.setTimeout(() => setBathroom(null), 2700))
+      return
+    }
     const r = react(type) // the engine plays the right sound for the outcome
     showFx({ walk: '🌳', clean: '✨', sleep: '😴', hug: '🤗' }[type])
     if (type === 'walk' && r && r.outcome !== 'request' && r.outcome !== 'refusal') {
@@ -502,13 +517,14 @@ export default function Tamagotchi({ onExit }: GameProps) {
     }
   }
 
-  // potty keeps its existing meaning (a little mess appears, then you clean it)
+  // שירותים → the bathroom: the friend goes and sits on the toilet for a moment
   function potty() {
     if (!pet) return
     unlockAudio()
     playTap()
-    setPet((p) => (p ? { ...p, poop: true } : p))
-    showFx('🚽')
+    setBathroom('toilet')
+    eatTimers.current.push(window.setTimeout(() => setBathroom(null), 2600))
+    setPet((p) => (p ? { ...p, happy: clamp(p.happy + 4) } : p))
   }
 
   function setItem(slot: Slot, item: string) {
@@ -655,7 +671,9 @@ export default function Tamagotchi({ onExit }: GameProps) {
     { key: 'energy', emoji: '⚡', label: 'אנרגיה', value: pet.energy },
     { key: 'clean', emoji: '🧼', label: 'נקי', value: pet.clean },
   ]
-  const sad = pet.poop || meters.some((m) => m.value < 25)
+  const sad = meters.some((m) => m.value < 25)
+  // dirtier → more stains on the body (replaces the old poop)
+  const stainCount = pet.clean < 22 ? 3 : pet.clean < 40 ? 2 : pet.clean < 58 ? 1 : 0
   // time of day → the room's window sky + wall mood (a modern-pet-game touch)
   const hour = new Date().getHours()
   const timeOfDay = hour >= 20 || hour < 6 ? 'night' : hour >= 17 ? 'sunset' : 'day'
@@ -696,8 +714,8 @@ export default function Tamagotchi({ onExit }: GameProps) {
         className={`pet-room tod-${timeOfDay} pose-${posture} expr-${expression} ${scene === 'walk' ? 'is-walk' : ''} ${
           kitchen || eatSetting ? 'kmode' : ''
         } ${kitchen ? 'is-kitchen' : ''} ${fridgeOpen ? 'fridge-open' : ''} ${eatSetting ? `eat-${eatSetting}` : ''} ${
-          sad ? 'is-sad' : ''
-        }`}
+          bathroom ? `bmode bath-${bathroom}` : ''
+        } ${sad ? 'is-sad' : ''}`}
       >
         {/* illustrated 2D room behind the pet */}
         <div className="pet-scene" aria-hidden="true">
@@ -728,6 +746,15 @@ export default function Tamagotchi({ onExit }: GameProps) {
               <span className="faucet" />
             </span>
           </span>
+          {/* the bathroom scenery — replaces the room while cleaning / on the toilet */}
+          <span className="ps-bathroom">
+            <span className="bmirror" />
+            <span className="bsink" />
+            <span className="bshower">
+              <span className="head" />
+              <span className="rain" />
+            </span>
+          </span>
           {/* furniture BEHIND the pet: the fridge it walks to, and the cushion it sits on */}
           <span className="ps-fridge">
             <span className="fbody" />
@@ -735,12 +762,34 @@ export default function Tamagotchi({ onExit }: GameProps) {
             <span className="fdoor" />
           </span>
           <span className="ps-cushion" />
+          <span className="ps-toilet">
+            <span className="tank" />
+            <span className="seat" />
+            <span className="base" />
+          </span>
         </div>
         {playing ? (
           <PlayScene kind={playing.kind} friend={pet.friend} outfit={pet.outfit} buddy={buddy} />
         ) : (
         <button className="pet-tap" onClick={pokePet} aria-label={friendName(pet.friend)}>
           <FriendDressed index={pet.friend} px={Math.round(fitPet(pet.friend) * friendMaxDim(pet.friend))} outfit={pet.outfit} bouncing={bounce} eating={!!eatFood} />
+          {stainCount > 0 && !bathroom && !eatFood &&
+            STAIN_SPOTS.slice(0, stainCount).map((s, i) => (
+              <span
+                className="pet-stain"
+                key={i}
+                style={{ left: `${s.x}%`, top: `${s.y}%`, width: `${s.r}%` }}
+                aria-hidden="true"
+              />
+            ))}
+          {bathroom === 'facewash' && (
+            <span className="pet-soap" aria-hidden="true">
+              <i />
+              <i />
+              <i />
+              <i />
+            </span>
+          )}
           {eatFood && (
           <>
             <span
@@ -794,12 +843,7 @@ export default function Tamagotchi({ onExit }: GameProps) {
           <span className="bowl" />
           <span className="chop" />
         </span>
-        {!playing && pet.poop && (
-          <span className="pet-poop" aria-hidden="true">
-            💩
-          </span>
-        )}
-        {!playing && !eatFood && (!QUIET_FACES.has(expression) || (sad && !pet.poop)) && (
+        {!playing && !eatFood && (!QUIET_FACES.has(expression) || sad) && (
           <span className="pet-mood" key={expression} aria-hidden="true">
             {!QUIET_FACES.has(expression) ? EXPR_FACE[expression] : '😢'}
           </span>

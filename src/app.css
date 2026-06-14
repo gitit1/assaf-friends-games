@@ -6330,8 +6330,16 @@ button {
 .pet-room .pet-tap {
   transition: transform 0.8s ease;
 }
-.pet-room:not(.is-kitchen):not(.eat-table):not(.eat-cushion):not(.eat-standing) .pet-tap {
+.pet-room:not(.kmode):not(.bmode) .pet-tap {
   animation: pet-idle-bob 3.4s ease-in-out infinite;
+}
+/* bathroom: stand under the shower / sit on the toilet */
+.pet-room.bath-shower .pet-tap,
+.pet-room.bath-facewash .pet-tap {
+  transform: translateY(2%);
+}
+.pet-room.bath-toilet .pet-tap {
+  transform: translateY(9%) scale(1.04, 0.93);
 }
 .pet-room.is-kitchen .pet-tap {
   transform: translateX(48%); /* walk over and stand beside the fridge */
@@ -6352,7 +6360,7 @@ button {
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .pet-room:not(.is-kitchen):not(.eat-table):not(.eat-cushion):not(.eat-standing) .pet-tap {
+  .pet-room:not(.kmode):not(.bmode) .pet-tap {
     animation: none;
   }
 }
@@ -6665,6 +6673,238 @@ button {
 .pet-room.kmode .ps-fridge {
   bottom: 22%;
   height: 56%;
+}
+
+/* ════════ bathroom scenery — for cleaning & the toilet ════════ */
+.pet-room.bmode:not(.is-walk).tod-day {
+  background: linear-gradient(180deg, #d8eff6 0%, #bce3ee 58%);
+}
+.pet-room.bmode:not(.is-walk).tod-sunset {
+  background: linear-gradient(180deg, #ffe1d0 0%, #f3c9bf 58%);
+}
+.pet-room.bmode:not(.is-walk).tod-night {
+  background: linear-gradient(180deg, #2f3a52 0%, #25303f 58%);
+}
+.bmode .ps-frame,
+.bmode .ps-shelf,
+.bmode .ps-plant,
+.bmode .ps-rug,
+.bmode .ps-window,
+.bmode .ps-kitchen {
+  opacity: 0;
+}
+.bmode .ps-floor {
+  background: repeating-linear-gradient(90deg, rgba(0, 0, 0, 0.05) 0 1px, transparent 1px 12%),
+    repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.05) 0 1px, transparent 1px 50%),
+    linear-gradient(180deg, #e7eef2, #d3dde3);
+  border-top-color: rgba(80, 110, 130, 0.3);
+}
+.ps-bathroom {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  pointer-events: none;
+}
+.bmode .ps-bathroom {
+  opacity: 1;
+}
+/* wall tiles */
+.ps-bathroom::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 78%;
+  background: repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.28) 0 1px, transparent 1px 11%),
+    repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.28) 0 1px, transparent 1px 18%);
+}
+/* mirror + sink (left) */
+.ps-bathroom .bmirror {
+  position: absolute;
+  top: 13%;
+  left: 9%;
+  width: 18%;
+  height: 22%;
+  background: linear-gradient(160deg, #e2f4fa, #bbdee9);
+  border: 4px solid #eef3f5;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.14);
+}
+.ps-bathroom .bsink {
+  position: absolute;
+  top: 40%;
+  left: 8%;
+  width: 20%;
+  height: 9%;
+  background: #eef3f6;
+  border-radius: 8px 8px 16px 16px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.16);
+}
+/* shower head (top centre) + falling water */
+.ps-bathroom .bshower {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 32%;
+  height: 62%;
+}
+.ps-bathroom .bshower .head {
+  position: absolute;
+  top: 5%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 42%;
+  height: 9%;
+  background: #cbd5e1;
+  border-radius: 0 0 50% 50% / 0 0 100% 100%;
+  box-shadow: 0 3px 4px rgba(0, 0, 0, 0.18);
+}
+.ps-bathroom .bshower .head::before {
+  content: '';
+  position: absolute;
+  top: -80%;
+  left: 46%;
+  width: 8%;
+  height: 90%;
+  background: #aab6c4;
+}
+.ps-bathroom .bshower .rain {
+  position: absolute;
+  top: 14%;
+  left: 16%;
+  right: 16%;
+  bottom: 0;
+  opacity: 0;
+  border-radius: 0 0 8px 8px;
+  background: repeating-linear-gradient(transparent 0 7px, rgba(150, 205, 235, 0.85) 7px 15px);
+  background-size: 6px 22px;
+  -webkit-mask: linear-gradient(90deg, transparent 0 6%, #000 6% 94%, transparent 94%);
+  mask: linear-gradient(90deg, transparent 0 6%, #000 6% 94%, transparent 94%);
+}
+.bath-shower .ps-bathroom .bshower .rain {
+  opacity: 1;
+  animation: shower-rain 0.5s linear infinite;
+}
+@keyframes shower-rain {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: 0 22px;
+  }
+}
+/* toilet (the pet sits on it) */
+.ps-toilet {
+  position: absolute;
+  bottom: 19%;
+  left: 50%;
+  width: 26%;
+  height: 27%;
+  transform: translateX(-50%) translateY(12px);
+  opacity: 0;
+  transition: opacity 0.4s ease, transform 0.4s ease;
+  pointer-events: none;
+}
+.bath-toilet .ps-toilet {
+  opacity: 1;
+  transform: translateX(-50%);
+}
+.ps-toilet .tank {
+  position: absolute;
+  top: 0;
+  left: 16%;
+  width: 68%;
+  height: 36%;
+  background: #eef3f6;
+  border-radius: 5px 5px 0 0;
+  box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.06);
+}
+.ps-toilet .seat {
+  position: absolute;
+  top: 30%;
+  left: 6%;
+  width: 88%;
+  height: 28%;
+  background: #f5f9fb;
+  border-radius: 50%;
+  box-shadow: 0 3px 4px rgba(0, 0, 0, 0.14);
+}
+.ps-toilet .base {
+  position: absolute;
+  bottom: 0;
+  left: 28%;
+  width: 44%;
+  height: 50%;
+  background: #e6edf1;
+  border-radius: 0 0 10px 10px;
+}
+/* dirt stains on the pet (replaces poop) */
+.pet-stain {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  aspect-ratio: 1;
+  background: radial-gradient(ellipse at 38% 32%, rgba(125, 90, 55, 0.62), rgba(95, 65, 38, 0.42) 58%, transparent 72%);
+  border-radius: 46% 54% 50% 50% / 56% 48% 52% 44%;
+  pointer-events: none;
+  z-index: 2;
+}
+/* soap bubbles during a face-wash */
+.pet-soap {
+  position: absolute;
+  top: 22%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 64%;
+  height: 44%;
+  pointer-events: none;
+  z-index: 3;
+}
+.pet-soap i {
+  position: absolute;
+  background: radial-gradient(circle at 35% 30%, #fff, rgba(255, 255, 255, 0.75) 58%, rgba(214, 234, 245, 0.55));
+  border-radius: 50%;
+  box-shadow: inset 0 0 4px rgba(180, 210, 230, 0.8);
+  animation: soap-bob 1.4s ease-in-out infinite;
+}
+.pet-soap i:nth-child(1) {
+  width: 30%;
+  aspect-ratio: 1;
+  left: 6%;
+  top: 30%;
+}
+.pet-soap i:nth-child(2) {
+  width: 24%;
+  aspect-ratio: 1;
+  left: 44%;
+  top: 10%;
+  animation-delay: 0.3s;
+}
+.pet-soap i:nth-child(3) {
+  width: 20%;
+  aspect-ratio: 1;
+  left: 66%;
+  top: 40%;
+  animation-delay: 0.6s;
+}
+.pet-soap i:nth-child(4) {
+  width: 18%;
+  aspect-ratio: 1;
+  left: 28%;
+  top: 60%;
+  animation-delay: 0.15s;
+}
+@keyframes soap-bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-3px);
+  }
 }
 .pet-tap {
   position: relative;
