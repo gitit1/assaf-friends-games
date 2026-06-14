@@ -5,11 +5,30 @@ import type { GameProps } from '../registry'
 import { playDice, playNudge, playPop, playSuccess, playTap, playWin, unlockAudio } from '../../audio'
 import { LEVELS } from './levels'
 import type { GameState } from './gameTypes'
-import { applyMove, getHint, initState, isLegalMove, shuffleBoard, undo } from './engine'
+import { applyMove, getHint, initState, isLegalMove, placeOnly, shuffleBoard, undo } from './engine'
 
 // ── "מכולת" — a calm shelf-sorting puzzle. NO timer, no countdown, no time loss.
 // Pick ANY good off a shelf, move it onto another shelf; 3 identical on one shelf
 // clear. Win = the whole board is tidied. Challenge is planning + space. ──
+
+// pre-baked confetti pieces for the win modal (no Math.random at render)
+const CONFETTI = Array.from({ length: 26 }, (_, i) => ({
+  x: (i * 37) % 100,
+  d: (i % 7) * 0.18,
+  c: ['#f59e0b', '#ef4444', '#22c55e', '#3b82f6', '#ec4899', '#fde047'][i % 6],
+  r: (i * 53) % 360,
+}))
+
+// best stars earned per level, saved across sessions
+const STARS_KEY = 'assaf-friends:sortshelf:stars:v1'
+const loadStars = (): Record<number, number> => {
+  try {
+    return JSON.parse(localStorage.getItem(STARS_KEY) || '{}')
+  } catch {
+    return {}
+  }
+}
+const starsFor = (score: number, total: number) => (score >= total * 110 ? 3 : score >= total * 70 ? 2 : 1)
 
 export default function SortShelf({ onExit }: GameProps) {
   const { t } = useT()
@@ -22,7 +41,10 @@ export default function SortShelf({ onExit }: GameProps) {
   // polish: a good that flies from shelf to shelf, + sparkle bursts where a triple clears
   const [flying, setFlying] = useState<{ icon: string; left: number; top: number; dx: number; dy: number; id: number } | null>(null)
   const [hideId, setHideId] = useState<string | null>(null)
+  const [landId, setLandId] = useState<string | null>(null) // the good that just landed (squash)
   const [sparkles, setSparkles] = useState<{ id: number; left: number; top: number }[]>([])
+  const [bestStars, setBestStars] = useState<Record<number, number>>(() => loadStars())
+  const [showLevels, setShowLevels] = useState(false)
   const level = LEVELS[levelIdx]
 
   // which shelves are legal targets for the currently-picked good (for highlights)
@@ -48,16 +70,32 @@ export default function SortShelf({ onExit }: GameProps) {
   function applyAndFeedback(sourceId: string, itemId: string, targetId: string) {
     const beforeCombo = state.combo
     const res = applyMove(state, sourceId, itemId, targetId)
-    setState(res.state)
+    setLandId(itemId) // the good that just dropped does a little squash
+    window.setTimeout(() => setLandId(null), 320)
     if (res.cleared > 0) {
-      playSuccess()
-      res.clearedShelfIds.forEach((sid) => burstAt(sid)) // sparkle where each triple cleared
-      if (res.state.combo > beforeCombo && res.state.combo >= 2) {
-        setComboPop(res.state.combo)
-        window.setTimeout(() => setComboPop(0), 900)
-      }
-      if (res.state.status === 'won') window.setTimeout(playWin, 250)
+      // show the 3 line up for a beat, THEN pop them
+      setState({ ...state, shelves: placeOnly(state.shelves, sourceId, itemId, targetId), selected: null })
+      playPop()
+      window.setTimeout(() => {
+        setState(res.state)
+        playSuccess()
+        res.clearedShelfIds.forEach((sid) => burstAt(sid)) // sparkle where each triple cleared
+        if (res.state.combo > beforeCombo && res.state.combo >= 2) {
+          setComboPop(res.state.combo)
+          window.setTimeout(() => setComboPop(0), 900)
+        }
+        if (res.state.status === 'won') {
+          window.setTimeout(playWin, 250)
+          const st = starsFor(res.state.score, res.state.total)
+          setBestStars((prev) => {
+            const next = { ...prev, [level.id]: Math.max(prev[level.id] || 0, st) }
+            localStorage.setItem(STARS_KEY, JSON.stringify(next))
+            return next
+          })
+        }
+      }, 360)
     } else {
+      setState(res.state)
       playPop()
     }
   }
@@ -151,15 +189,23 @@ export default function SortShelf({ onExit }: GameProps) {
     setLevelIdx(ni)
     setState(initState(LEVELS[ni]))
   }
+  const playLevel = (idx: number) => {
+    playTap()
+    setLevelIdx(idx)
+    setState(initState(LEVELS[idx]))
+    setShowLevels(false)
+  }
 
-  const stars = state.score >= state.total * 110 ? 3 : state.score >= state.total * 70 ? 2 : 1
+  const stars = starsFor(state.score, state.total)
   const progress = state.total ? Math.round((state.cleared / state.total) * 100) : 0
 
   return (
     <GameShell title={t('game.sortshelf')} emoji="🛒" onExit={onExit}>
       {/* ── top bar (no timer!) ── */}
       <div className="ss-top">
-        <span className="ss-chip">{t('ss.level')} {level.id}</span>
+        <button className="ss-chip ss-level-chip" onClick={() => setShowLevels(true)}>
+          🗂️ {t('ss.level')} {level.id}
+        </button>
         <span className="ss-chip ss-score">⭐ {state.score}</span>
         <span className="ss-chip">{t('ss.moves')} {state.moves}</span>
         <button className="ss-chip ss-pause" onClick={() => setPaused(true)} aria-label={t('ss.pause')}>
@@ -201,7 +247,9 @@ export default function SortShelf({ onExit }: GameProps) {
                   const isPicked = state.selected?.shelfId === shelf.id && state.selected?.itemId === it.id
                   return (
                     <button
-                      className={`ss-good ${isPicked ? 'is-picked' : ''} ${hint?.itemId === it.id ? 'is-hint-good' : ''}`}
+                      className={`ss-good ${isPicked ? 'is-picked' : ''} ${
+                        hint?.itemId === it.id ? 'is-hint-good' : ''
+                      } ${landId === it.id ? 'is-landing' : ''}`}
                       key={it.id}
                       data-good={it.id}
                       style={hideId === it.id ? { visibility: 'hidden' } : undefined}
@@ -272,6 +320,16 @@ export default function SortShelf({ onExit }: GameProps) {
       {/* ── win modal ── */}
       {state.status === 'won' && (
         <div className="ss-overlay">
+          <div className="ss-confetti" aria-hidden="true">
+            {CONFETTI.map((c, i) => (
+              <i
+                key={i}
+                style={
+                  { left: `${c.x}%`, background: c.c, animationDelay: `${c.d}s`, '--r': `${c.r}deg` } as React.CSSProperties
+                }
+              />
+            ))}
+          </div>
           <div className="ss-modal">
             <h3>{t('ss.win')}</h3>
             <div className="ss-stars">{'⭐'.repeat(stars)}{'☆'.repeat(3 - stars)}</div>
@@ -300,6 +358,30 @@ export default function SortShelf({ onExit }: GameProps) {
               <button className="ss-ghost-btn" onClick={() => { setPaused(false); restart() }}>
                 {t('ss.restart')} 🔄
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── level select ── */}
+      {showLevels && (
+        <div className="ss-overlay" onClick={() => setShowLevels(false)}>
+          <div className="ss-modal ss-levels-modal" onClick={(e) => e.stopPropagation()}>
+            <h3>{t('ss.levels')} 🗂️</h3>
+            <div className="ss-level-grid">
+              {LEVELS.map((lv, i) => (
+                <button
+                  key={lv.id}
+                  className={`ss-level-btn ${i === levelIdx ? 'is-current' : ''}`}
+                  onClick={() => playLevel(i)}
+                >
+                  <b>{lv.id}</b>
+                  <span className="ss-level-stars">
+                    {'⭐'.repeat(bestStars[lv.id] || 0)}
+                    {'☆'.repeat(3 - (bestStars[lv.id] || 0))}
+                  </span>
+                </button>
+              ))}
             </div>
           </div>
         </div>

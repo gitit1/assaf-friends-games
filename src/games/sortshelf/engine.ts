@@ -120,6 +120,20 @@ export function applyMove(state: GameState, sourceId: string, itemId: string, ta
   return { state: next, cleared: triples, clearedShelfIds }
 }
 
+// just place the chosen good on the target (move + reveal) WITHOUT resolving any
+// match — so the UI can show the 3 line up for a beat before they pop.
+export function placeOnly(shelves: ShelfSlot[], sourceId: string, itemId: string, targetId: string): ShelfSlot[] {
+  const next = cloneShelves(shelves)
+  const src = next.find((s) => s.id === sourceId)
+  const tgt = next.find((s) => s.id === targetId)
+  if (!src || !tgt) return next
+  const idx = src.items.findIndex((i) => i.id === itemId)
+  if (idx < 0) return next
+  tgt.items.push(src.items.splice(idx, 1)[0])
+  reveal(src)
+  return next
+}
+
 export function undo(state: GameState): GameState {
   if (!state.history.length) return state
   const history = state.history.slice()

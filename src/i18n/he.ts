@@ -241,6 +241,7 @@ export const HE: Dict = {
   'ss.again': { text: 'שוב' },
   'ss.pause': { text: 'הפסקה' },
   'ss.resume': { text: 'ממשיכים ▶️' },
+  'ss.levels': { text: 'שלבים' },
 
   // piano game
   'piano.free': { text: 'נגינה חופשית' },

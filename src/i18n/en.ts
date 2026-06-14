@@ -240,6 +240,7 @@ export const EN: Dict = {
   'ss.again': { text: 'Again' },
   'ss.pause': { text: 'Paused' },
   'ss.resume': { text: 'Resume ▶️' },
+  'ss.levels': { text: 'Levels' },
 
   // piano game
   'piano.free': { text: 'Free play' },

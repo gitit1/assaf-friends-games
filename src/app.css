@@ -12250,3 +12250,60 @@ button {
     opacity: 0;
   }
 }
+
+/* landing squash when a good drops onto a shelf */
+.ss-good.is-landing {
+  animation: ss-land 0.32s ease;
+}
+@keyframes ss-land {
+  0% { transform: translateY(-30%) scale(0.9, 1.1); }
+  55% { transform: translateY(0) scale(1.18, 0.82); }
+  100% { transform: translateY(0) scale(1, 1); }
+}
+/* win confetti (behind the modal) */
+.ss-modal { position: relative; z-index: 2; }
+.ss-confetti {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  overflow: hidden;
+}
+.ss-confetti i {
+  position: absolute;
+  top: -6%;
+  width: 9px;
+  height: 14px;
+  border-radius: 2px;
+  animation: ss-confetti 2.4s linear infinite;
+}
+@keyframes ss-confetti {
+  0% { transform: translateY(-12vh) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(108vh) rotate(var(--r, 360deg)); opacity: 0.9; }
+}
+
+/* level select */
+.ss-level-chip { cursor: pointer; }
+.ss-levels-modal { max-width: 340px; }
+.ss-level-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+  margin-top: 12px;
+}
+.ss-level-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 9px 2px;
+  cursor: pointer;
+  color: var(--text, #1f2937);
+  font-family: 'Fredoka', 'Heebo', sans-serif;
+}
+.ss-level-btn b { font-size: 1.1rem; }
+.ss-level-btn.is-current { box-shadow: 0 0 0 2px #f59e0b; }
+.ss-level-stars { font-size: 0.62rem; letter-spacing: -1px; }
