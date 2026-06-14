@@ -11,9 +11,9 @@ import { useTouchLock } from './useTouchLock'
 import { SHOW_3D } from './devFlags'
 import { stopClip } from './voice'
 
-// 3D screen pulls in Three.js — load it only when opened, so it never weighs
-// down the first paint of the rest of the app.
-const Friend3D = lazy(() => import('./components/Friend3D'))
+// the gallery now shows the "pop-up depth" view (the existing 2D friend on
+// parallax layers). The Three.js Friend3D experiment stays in the tree but unrouted.
+const FriendDepth = lazy(() => import('./components/FriendDepth'))
 
 // Tiny hash router so a refresh keeps you on the same screen and the browser
 // Back button works (handy for testing). Routes:
@@ -99,7 +99,7 @@ export default function App() {
   } else if (route.kind === 'gallery' && SHOW_3D) {
     view = (
       <Suspense fallback={<p className="three-loading">טוען תלת מימד… 🧊</p>}>
-        <Friend3D onExit={home} start={Number(route.id)} />
+        <FriendDepth onExit={home} start={Number(route.id)} />
       </Suspense>
     )
   } else if (route.kind === 'game') {

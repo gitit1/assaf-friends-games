@@ -57,43 +57,37 @@ function bumpCenters(rows: number[]) {
   return { centers, w, h, maxCols }
 }
 
-// A flat, friendly cartoon eye (unlit layers): dark outline, white, a BIG pupil and
-// two catch-lights. Thin so it hugs the face like a decal, not a bulging ball.
-function makeEye(x: number, y: number, z: number) {
+// A flat cartoon eye that matches the 2D friends: a white disc with a thin dark
+// rim, a MEDIUM centred pupil (~half the eye — not a huge one) and one small glint.
+// `r` is the eye radius, so it scales with the friend. Unlit → reads as drawn-on.
+function makeEye(x: number, y: number, z: number, r: number) {
   const g = new THREE.Group()
-  const outline = new THREE.Mesh(new THREE.CircleGeometry(0.25, 32), flat(0x232a36))
-  outline.scale.set(0.86, 1.16, 1)
-  const white = new THREE.Mesh(new THREE.CircleGeometry(0.225, 32), flat(0xffffff))
-  white.scale.set(0.82, 1.12, 1)
+  const rim = new THREE.Mesh(new THREE.CircleGeometry(r * 1.12, 32), flat(0x1a1a1a))
+  rim.scale.set(1, 1.14, 1)
+  const white = new THREE.Mesh(new THREE.CircleGeometry(r, 32), flat(0xffffff))
+  white.scale.set(1, 1.14, 1)
   white.position.z = 0.01
-  const pupil = new THREE.Mesh(new THREE.CircleGeometry(0.155, 28), flat(0x222630))
-  pupil.scale.set(1, 1.12, 1)
-  pupil.position.set(0, -0.03, 0.02)
-  const shineA = new THREE.Mesh(new THREE.CircleGeometry(0.06, 16), flat(0xffffff))
-  shineA.position.set(0.06, 0.07, 0.03)
-  const shineB = new THREE.Mesh(new THREE.CircleGeometry(0.03, 14), flat(0xffffff))
-  shineB.position.set(-0.045, -0.04, 0.03)
-  g.add(outline, white, pupil, shineA, shineB)
+  const pupil = new THREE.Mesh(new THREE.CircleGeometry(r * 0.5, 28), flat(0x1a1a1a))
+  pupil.scale.set(1, 1.1, 1)
+  pupil.position.z = 0.02
+  const glint = new THREE.Mesh(new THREE.CircleGeometry(r * 0.17, 12), flat(0xffffff))
+  glint.position.set(-r * 0.16, r * 0.22, 0.03)
+  g.add(rim, white, pupil, glint)
   g.position.set(x, y, z)
   return g
 }
 
-// a soft tapered arm with a real mitt hand (palm + thumb) so it reads as an arm,
-// not a noodle. Wide where it meets the body → grows out of the blob. Pivots at
-// the shoulder.
-function makeArm(side: number, color: THREE.Color, x: number, y: number) {
+// A short, stubby DARK arm (like the 2D friends' nub + round hand) — not a long
+// body-coloured limb. `len` scales it with the friend. Pivots at the shoulder.
+function makeArm(side: number, x: number, y: number, len: number) {
   const shoulder = new THREE.Group()
-  const limb = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.27, 0.56, 18), mat(color))
-  limb.position.y = -0.28
-  const hand = new THREE.Group()
-  const palm = new THREE.Mesh(new THREE.SphereGeometry(0.19, 18, 18), mat(color))
-  palm.scale.set(1.05, 1, 0.82)
-  const thumb = new THREE.Mesh(new THREE.SphereGeometry(0.085, 12, 12), mat(color))
-  thumb.position.set(-side * 0.16, 0.06, 0.05)
-  hand.add(palm, thumb)
-  hand.position.y = -0.62
-  shoulder.add(limb, hand)
-  shoulder.position.set(side * x, y, 0.14)
+  const dark = 0x34343f
+  const stub = new THREE.Mesh(new THREE.CapsuleGeometry(len * 0.42, len * 0.8, 6, 12), mat(dark))
+  stub.position.y = -len * 0.5
+  const hand = new THREE.Mesh(new THREE.SphereGeometry(len * 0.52, 16, 16), mat(dark))
+  hand.position.y = -len
+  shoulder.add(stub, hand)
+  shoulder.position.set(side * x, y, 0.12)
   return shoulder
 }
 
@@ -302,10 +296,14 @@ export function buildFriend3D(index: number): Friend3DRig {
   const kind = friendKindForIndex(index)
   const isBig = (BIG_KINDS as readonly string[]).includes(kind)
   const spec = isBig ? BIG[kind as keyof typeof BIG] : (SMALL[index] ?? SMALL[0])
-  const { centers, h, maxCols } = bumpCenters(spec.rows)
+  const { centers, maxCols } = bumpCenters(spec.rows)
   const bc = new THREE.Color(spec.bc)
   const limbColor = bc.clone().multiplyScalar(0.85)
   const faceZ = R - 0.02
+  // true visual extent of the blob (centres span + a bump radius each side)
+  const vW = (maxCols - 1) * STEP_H + 2 * R
+  const vH = (spec.rows.length - 1) * STEP_V + 2 * R
+  const bodyHalfCenters = ((maxCols - 1) * STEP_H) / 2
 
   const inner = new THREE.Group()
   const bumps: THREE.Mesh[] = []
@@ -318,51 +316,57 @@ export function buildFriend3D(index: number): Friend3DRig {
     bumps.push(m)
   }
 
-  const faceY = h / 2 - Math.min(1.15, h * 0.34)
-  inner.add(makeEye(-0.27, faceY, faceZ + 0.03), makeEye(0.27, faceY, faceZ + 0.03))
+  // face — eyes are 22% of the friend's width (like the 2D .gf-eye), set in the
+  // upper third, fairly close together. Everything scales with the friend so the
+  // small ones don't get giant features.
+  const eyeR = 0.11 * vW
+  const eyeX = 0.16 * vW
+  const eyeY = vH / 2 - 0.36 * vH
+  inner.add(makeEye(-eyeX, eyeY, faceZ + 0.03, eyeR), makeEye(eyeX, eyeY, faceZ + 0.03, eyeR))
+  const mouthR = 0.16 * vW
+  const mouthY = vH / 2 - 0.62 * vH
   if (spec.face === 'girl') {
-    const lips = new THREE.Mesh(new THREE.TorusGeometry(0.15, 0.05, 12, 24, Math.PI), flat(0xc81e54))
-    lips.position.set(0, faceY - 0.44, faceZ + 0.03)
+    const lips = new THREE.Mesh(new THREE.TorusGeometry(mouthR * 0.9, mouthR * 0.32, 12, 24, Math.PI), flat(0xc81e54))
+    lips.position.set(0, mouthY, faceZ + 0.03)
     lips.rotation.z = Math.PI
     inner.add(lips)
   } else {
-    const mouth = new THREE.Mesh(new THREE.TorusGeometry(0.24, 0.05, 12, 28, Math.PI), flat(0x4a0d16))
-    mouth.position.set(0, faceY - 0.42, faceZ + 0.03)
+    const mouth = new THREE.Mesh(new THREE.TorusGeometry(mouthR, mouthR * 0.22, 12, 28, Math.PI), flat(0x3a0a12))
+    mouth.position.set(0, mouthY, faceZ + 0.03)
     mouth.rotation.z = Math.PI
     inner.add(mouth)
   }
-  const cheekMat = new THREE.MeshBasicMaterial({ color: 0xfb7185, transparent: true, opacity: 0.4 })
-  for (const x of [-0.58, 0.58]) {
-    const c = new THREE.Mesh(new THREE.CircleGeometry(0.13, 20), cheekMat)
-    c.scale.set(1, 0.72, 1)
-    c.position.set(x, faceY - 0.2, faceZ + 0.02)
+  // rosy cheeks just below + outside the eyes
+  const cheekMat = new THREE.MeshBasicMaterial({ color: 0xfb7185, transparent: true, opacity: 0.42 })
+  for (const s of [-1, 1]) {
+    const c = new THREE.Mesh(new THREE.CircleGeometry(eyeR * 0.74, 20), cheekMat)
+    c.scale.set(1, 0.74, 1)
+    c.position.set(s * (eyeX + eyeR * 0.9), eyeY - eyeR * 1.15, faceZ + 0.02)
     inner.add(c)
   }
 
-  for (const x of [-0.42, 0.42]) {
-    const f = new THREE.Mesh(new THREE.SphereGeometry(0.26, 20, 20), mat(spec.shoe))
-    f.scale.set(1, 0.58, 1.35)
-    f.position.set(x, -h / 2 - 0.12, 0.3)
+  // feet — shoe-coloured, at the bottom, sized with the friend
+  const footR = 0.16 * vW
+  for (const s of [-1, 1]) {
+    const f = new THREE.Mesh(new THREE.SphereGeometry(footR, 20, 20), mat(spec.shoe))
+    f.scale.set(1, 0.56, 1.3)
+    f.position.set(s * 0.18 * vW, -vH / 2 + footR * 0.3, 0.28)
     inner.add(f)
   }
 
-  const bodyHalfCenters = ((maxCols - 1) * STEP_H) / 2
-  const armX = bodyHalfCenters + 0.12
-  const armY = Math.min(h * 0.14, h / 2 - 0.6)
-  const armL = makeArm(-1, limbColor, armX, armY)
-  const armR = makeArm(1, limbColor, armX, armY)
+  // arms — short dark stubs at mid-height, just outside the body sides
+  const armLen = 0.3 * vW
+  const armX = bodyHalfCenters + R * 0.55
+  const armY = vH * 0.06
+  const armL = makeArm(-1, armX, armY, armLen)
+  const armR = makeArm(1, armX, armY, armLen)
   inner.add(armL, armR)
 
   // accessory (hat / glasses / …)
-  const halfW = bodyHalfCenters + R
-  const acc = makeAccessory(spec.acc, h, faceY, faceZ, halfW, limbColor)
+  const acc = makeAccessory(spec.acc, vH, eyeY, faceZ, bodyHalfCenters + R, limbColor)
   if (acc) inner.add(acc)
 
-  const num = makeNumberSprite(index + 1, spec.bc)
-  num.scale.set(1.1, 1.1, 1.1)
-  num.position.set(0, h / 2 + 0.95, 0.4)
-  inner.add(num)
-
+  // frame to a constant size from the body+features (NOT the floating number)
   const group = new THREE.Group()
   group.add(inner)
   const box = new THREE.Box3().setFromObject(inner)
@@ -374,6 +378,12 @@ export function buildFriend3D(index: number): Friend3DRig {
   const scale = 3.4 / maxDim
   inner.position.sub(centerV)
   group.scale.setScalar(scale)
+
+  // floating number above the head (added after framing so it doesn't shrink it)
+  const num = makeNumberSprite(index + 1, spec.bc)
+  num.scale.set(0.9, 0.9, 0.9)
+  num.position.set(0, vH / 2 + 0.7, 0.4)
+  inner.add(num)
 
   return { group, inner, bumps, armL, armR, bc }
 }

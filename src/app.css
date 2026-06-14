@@ -8534,6 +8534,74 @@ button {
   font-size: 1.15rem;
   color: var(--text, #1f2937);
 }
+
+/* ── pop-up depth: the existing 2D friend, its layers floated apart in 3D and
+   gently swaying so you see real parallax (a pop-up-book feel). Scoped to the
+   stage so the rest of the app stays flat. ── */
+.depth-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+.depth-stage {
+  width: 100%;
+  min-height: 340px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 28px 0 36px;
+  perspective: 820px;
+  perspective-origin: 50% 44%;
+}
+.depth-stage .friend-holder,
+.depth-stage .friend-scale,
+.depth-stage .friend-art,
+.depth-stage .friend-art > div {
+  transform-style: preserve-3d;
+}
+.depth-stage .friend-art {
+  animation: depth-sway 7s ease-in-out infinite;
+}
+@keyframes depth-sway {
+  0%,
+  100% {
+    transform: rotateY(-17deg) rotateX(6deg);
+  }
+  50% {
+    transform: rotateY(17deg) rotateX(6deg);
+  }
+}
+/* the layers, back → front */
+.depth-stage .gal-foot {
+  transform: translateZ(14px);
+}
+.depth-stage .gal-arm.l {
+  transform: rotate(30deg) translateZ(24px);
+}
+.depth-stage .gal-arm.r {
+  transform: rotate(-30deg) translateZ(24px);
+}
+.depth-stage .gf-eye {
+  transform: translateZ(38px);
+}
+.depth-stage .gf-mouth {
+  transform: translateX(-50%) translateZ(38px);
+}
+.depth-stage .lips {
+  transform: translateZ(38px);
+}
+.depth-stage .gal-halo {
+  transform: translateX(-50%) translateZ(66px);
+}
+/* calm: no constant rotation if the child prefers reduced motion — hold a gentle
+   static tilt so the depth still reads */
+@media (prefers-reduced-motion: reduce) {
+  .depth-stage .friend-art {
+    animation: none;
+    transform: rotateY(-10deg) rotateX(5deg);
+  }
+}
 .three-loading {
   text-align: center;
   font-family: 'Fredoka', 'Heebo', sans-serif;

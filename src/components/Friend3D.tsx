@@ -14,8 +14,8 @@ import { buildFriend3D } from './buildFriend3D'
 // lean-in arms-wrap hug (חיבוק). No timer, calm motion, sound can be muted.
 type ActionName = 'idle' | 'jump' | 'five' | 'hug'
 
-// arm rest pose (hang down with a gentle outward splay) — shared by idle + gestures
-const REST = { lx: 0, lz: 0.16, rx: 0, rz: -0.16 }
+// arm rest pose — short stubs splayed outward (like the 2D friends' tilted arms)
+const REST = { lx: 0, lz: 0.5, rx: 0, rz: -0.5 }
 
 export default function Friend3D({ onExit, start }: { onExit: () => void; start?: number }) {
   const mountRef = useRef<HTMLDivElement>(null)
