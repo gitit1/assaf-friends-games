@@ -20,17 +20,9 @@ const STEP_H = 1 - 0.16
 const STEP_V = 1 - 0.26
 const R = 0.6
 
-// a gentle 4-band gradient → soft cel/toon shading (cuter than shiny plastic)
-const GRAD = (() => {
-  const data = new Uint8Array([96, 158, 212, 255])
-  const t = new THREE.DataTexture(data, 4, 1, THREE.RedFormat)
-  t.magFilter = THREE.NearestFilter
-  t.minFilter = THREE.NearestFilter
-  t.needsUpdate = true
-  return t
-})()
-// toon (cel-shaded) material for the body and 3D parts
-const mat = (c: THREE.ColorRepresentation) => new THREE.MeshToonMaterial({ color: new THREE.Color(c), gradientMap: GRAD })
+// smooth, soft shading (the toon/cel band looked menacing on the small smooth
+// bodies — a dark crescent across the face). Standard material reads cute.
+const mat = (c: THREE.ColorRepresentation) => new THREE.MeshStandardMaterial({ color: new THREE.Color(c), roughness: 0.5, metalness: 0 })
 // flat, UNLIT material — the trick for eyes that read as painted-on cartoon shapes
 const flat = (c: THREE.ColorRepresentation) => new THREE.MeshBasicMaterial({ color: new THREE.Color(c) })
 
