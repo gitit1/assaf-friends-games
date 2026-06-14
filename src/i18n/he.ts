@@ -225,6 +225,23 @@ export const HE: Dict = {
   'pet.drink.soda': { text: 'שתייה מוגזת' },
   'pet.drink.juice': { text: 'מיץ' },
 
+  // "מכולת" — shelf-sorting puzzle
+  'game.sortshelf': { text: 'מכולת' },
+  'ss.level': { text: 'שלב' },
+  'ss.moves': { text: 'צעדים' },
+  'ss.tutorial': { text: 'בחרו מצרך מהמדף והעבירו אותו. 3 זהים על מדף אחד — נעלמים! 🎉 בלי שעון, בלי לחץ.' },
+  'ss.combo': { text: 'קומבו' },
+  'ss.undo': { text: 'אחורה' },
+  'ss.hint': { text: 'רמז' },
+  'ss.shuffle': { text: 'ערבוב' },
+  'ss.restart': { text: 'מהתחלה' },
+  'ss.noMoves': { text: 'אין מהלך טוב כרגע — נסו ערבוב, אחורה, או מהתחלה 🙂' },
+  'ss.win': { text: 'סידרתם הכל! 🎉' },
+  'ss.next': { text: 'השלב הבא ➡️' },
+  'ss.again': { text: 'שוב' },
+  'ss.pause': { text: 'הפסקה' },
+  'ss.resume': { text: 'ממשיכים ▶️' },
+
   // piano game
   'piano.free': { text: 'נגינה חופשית' },
   'piano.hintSong': { text: 'געו במספר שמופיע כדי לנגן 🎵' },

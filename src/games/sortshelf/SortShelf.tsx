@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import GameShell from '../../components/GameShell'
+import { useT } from '../../i18n'
 import type { GameProps } from '../registry'
 import { playDice, playNudge, playPop, playSuccess, playTap, playWin, unlockAudio } from '../../audio'
 import { LEVELS } from './levels'
@@ -11,6 +12,7 @@ import { applyMove, getHint, initState, isLegalMove, shuffleBoard, undo } from '
 // clear. Win = the whole board is tidied. Challenge is planning + space. ──
 
 export default function SortShelf({ onExit }: GameProps) {
+  const { t } = useT()
   const [levelIdx, setLevelIdx] = useState(0)
   const [state, setState] = useState<GameState>(() => initState(LEVELS[0]))
   const [shakeId, setShakeId] = useState<string | null>(null)
@@ -154,24 +156,22 @@ export default function SortShelf({ onExit }: GameProps) {
   const progress = state.total ? Math.round((state.cleared / state.total) * 100) : 0
 
   return (
-    <GameShell title="מכולת" emoji="🛒" onExit={onExit}>
+    <GameShell title={t('game.sortshelf')} emoji="🛒" onExit={onExit}>
       {/* ── top bar (no timer!) ── */}
       <div className="ss-top">
-        <span className="ss-chip">שלב {level.id}</span>
+        <span className="ss-chip">{t('ss.level')} {level.id}</span>
         <span className="ss-chip ss-score">⭐ {state.score}</span>
-        <span className="ss-chip">צעדים {state.moves}</span>
-        <button className="ss-chip ss-pause" onClick={() => setPaused(true)} aria-label="הפסקה">
+        <span className="ss-chip">{t('ss.moves')} {state.moves}</span>
+        <button className="ss-chip ss-pause" onClick={() => setPaused(true)} aria-label={t('ss.pause')}>
           ⏸️
         </button>
       </div>
       <div className="ss-progress">
         <span className="ss-progress-fill" style={{ width: `${progress}%` }} />
       </div>
-      {comboPop >= 2 && <div className="ss-combo-pop">קומבו ×{comboPop}! 🔥</div>}
+      {comboPop >= 2 && <div className="ss-combo-pop">{t('ss.combo')} ×{comboPop}! 🔥</div>}
 
-      {level.tutorial && (
-        <p className="ss-tutorial">בחרו מצרך מהמדף והעבירו אותו. 3 זהים על מדף אחד — נעלמים! 🎉 בלי שעון, בלי לחץ.</p>
-      )}
+      {level.tutorial && <p className="ss-tutorial">{t('ss.tutorial')}</p>}
 
       {/* ── the shelves ── */}
       <div className="ss-board">
@@ -250,22 +250,22 @@ export default function SortShelf({ onExit }: GameProps) {
       {/* ── boosters ── */}
       <div className="ss-boosters">
         <button className="ss-booster" onClick={doUndo} disabled={!state.history.length}>
-          ↩️<span>אחורה</span>
+          ↩️<span>{t('ss.undo')}</span>
         </button>
         <button className="ss-booster" onClick={doHint}>
-          💡<span>רמז</span>
+          💡<span>{t('ss.hint')}</span>
         </button>
         <button className="ss-booster" onClick={doShuffle}>
-          🔀<span>ערבוב</span>
+          🔀<span>{t('ss.shuffle')}</span>
         </button>
         <button className="ss-booster" onClick={restart}>
-          🔄<span>מהתחלה</span>
+          🔄<span>{t('ss.restart')}</span>
         </button>
       </div>
 
       {state.status === 'no_moves' && (
         <div className="ss-banner">
-          <span>אין מהלך טוב כרגע — נסו ערבוב, אחורה, או מהתחלה 🙂</span>
+          <span>{t('ss.noMoves')}</span>
         </div>
       )}
 
@@ -273,15 +273,15 @@ export default function SortShelf({ onExit }: GameProps) {
       {state.status === 'won' && (
         <div className="ss-overlay">
           <div className="ss-modal">
-            <h3>סידרתם הכל! 🎉</h3>
+            <h3>{t('ss.win')}</h3>
             <div className="ss-stars">{'⭐'.repeat(stars)}{'☆'.repeat(3 - stars)}</div>
-            <p className="ss-modal-score">⭐ {state.score} · {state.moves} צעדים</p>
+            <p className="ss-modal-score">⭐ {state.score} · {state.moves} {t('ss.moves')}</p>
             <div className="ss-modal-btns">
               <button className="big-button" onClick={goNext}>
-                {levelIdx < LEVELS.length - 1 ? 'השלב הבא ➡️' : 'מהתחלה 🔄'}
+                {levelIdx < LEVELS.length - 1 ? t('ss.next') : `${t('ss.restart')} 🔄`}
               </button>
               <button className="ss-ghost-btn" onClick={restart}>
-                שוב
+                {t('ss.again')}
               </button>
             </div>
           </div>
@@ -292,13 +292,13 @@ export default function SortShelf({ onExit }: GameProps) {
       {paused && (
         <div className="ss-overlay" onClick={() => setPaused(false)}>
           <div className="ss-modal" onClick={(e) => e.stopPropagation()}>
-            <h3>הפסקה ⏸️</h3>
+            <h3>{t('ss.pause')} ⏸️</h3>
             <div className="ss-modal-btns">
               <button className="big-button" onClick={() => setPaused(false)}>
-                ממשיכים ▶️
+                {t('ss.resume')}
               </button>
               <button className="ss-ghost-btn" onClick={() => { setPaused(false); restart() }}>
-                מהתחלה 🔄
+                {t('ss.restart')} 🔄
               </button>
             </div>
           </div>

@@ -224,6 +224,23 @@ export const EN: Dict = {
   'pet.drink.soda': { text: 'Soda' },
   'pet.drink.juice': { text: 'Juice' },
 
+  // "Grocery" — shelf-sorting puzzle
+  'game.sortshelf': { text: 'Grocery' },
+  'ss.level': { text: 'Level' },
+  'ss.moves': { text: 'Moves' },
+  'ss.tutorial': { text: 'Pick a good off a shelf and move it. 3 of the same on one shelf clear! 🎉 No timer, no pressure.' },
+  'ss.combo': { text: 'Combo' },
+  'ss.undo': { text: 'Undo' },
+  'ss.hint': { text: 'Hint' },
+  'ss.shuffle': { text: 'Shuffle' },
+  'ss.restart': { text: 'Restart' },
+  'ss.noMoves': { text: 'No useful move right now — try shuffle, undo, or restart 🙂' },
+  'ss.win': { text: 'All sorted! 🎉' },
+  'ss.next': { text: 'Next level ➡️' },
+  'ss.again': { text: 'Again' },
+  'ss.pause': { text: 'Paused' },
+  'ss.resume': { text: 'Resume ▶️' },
+
   // piano game
   'piano.free': { text: 'Free play' },
   'piano.hintSong': { text: 'Tap the number that appears to play 🎵' },
