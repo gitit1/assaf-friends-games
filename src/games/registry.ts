@@ -39,6 +39,7 @@ import RhymeMachine from './RhymeMachine'
 import BlendSounds from './BlendSounds'
 import EnglishCount from './EnglishCount'
 import TraceLetter from './TraceLetter'
+import SortShelf from './sortshelf/SortShelf'
 
 // Every game gets a callback to return to the home screen.
 export type GameProps = {
@@ -82,6 +83,14 @@ export type GameDef = {
 
 // Add a new game by dropping a component here and tagging its category.
 export const GAMES: GameDef[] = [
+  {
+    id: 'sortshelf',
+    title: 'מכולת',
+    emoji: '🛒',
+    color: 'linear-gradient(160deg, #f59e0b, #b45309)',
+    category: 'thinking',
+    Component: SortShelf,
+  },
   {
     id: 'skipcount',
     title: 'קפיצות',
