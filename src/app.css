@@ -6330,8 +6330,21 @@ button {
 .pet-room .pet-tap {
   transition: transform 0.8s ease;
 }
-.pet-room:not(.kmode):not(.bmode) .pet-tap {
+.pet-room:not(.kmode):not(.bmode):not(.is-walk) .pet-tap {
   animation: pet-idle-bob 3.4s ease-in-out infinite;
+}
+/* walking outside: a bouncy walk-in-place while the scenery scrolls by */
+.pet-room.is-walk .pet-tap {
+  animation: pet-walk 0.5s ease-in-out infinite;
+}
+@keyframes pet-walk {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-2.5deg);
+  }
+  50% {
+    transform: translateY(-7%) rotate(2.5deg);
+  }
 }
 /* bathroom: the pet actually MOVES — scrubs under the shower / at the sink, and
    bobs while sitting on the toilet */
@@ -6379,8 +6392,8 @@ button {
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .pet-room:not(.kmode):not(.bmode) .pet-tap {
-    animation: none;
+  .pet-room .pet-tap {
+    animation: none !important;
   }
 }
 
@@ -6961,6 +6974,117 @@ button {
   100% {
     transform: translateY(-22px) scale(0.85);
     opacity: 0;
+  }
+}
+
+/* ════════ the outdoors — a real walk in the park ════════ */
+.pet-room.is-walk:not(.tod-night) {
+  background: linear-gradient(180deg, #aee3ff 0%, #d8f4ff 56%);
+}
+.pet-room.is-walk.tod-night {
+  background: linear-gradient(180deg, #243056 0%, #2e3c66 56%);
+}
+.is-walk .ps-floor {
+  background: linear-gradient(180deg, #88da6c 0%, #5cbf52 100%);
+  border-top: 3px solid #4aa845;
+}
+.ps-outdoor {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  pointer-events: none;
+}
+.is-walk .ps-outdoor {
+  opacity: 1;
+}
+.ps-outdoor .osun {
+  position: absolute;
+  top: 9%;
+  right: 12%;
+  width: 13%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: #ffe27a;
+  box-shadow: 0 0 18px 8px rgba(255, 226, 122, 0.55);
+}
+.ps-outdoor .ocloud {
+  position: absolute;
+  height: 9%;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 999px;
+}
+.ps-outdoor .ocloud::before,
+.ps-outdoor .ocloud::after {
+  content: '';
+  position: absolute;
+  background: inherit;
+  border-radius: 50%;
+}
+.ps-outdoor .ocloud::before {
+  width: 55%;
+  height: 170%;
+  left: 12%;
+  top: -75%;
+}
+.ps-outdoor .ocloud::after {
+  width: 45%;
+  height: 135%;
+  right: 14%;
+  top: -45%;
+}
+.ps-outdoor .ocloud.a {
+  top: 16%;
+  left: 8%;
+  width: 26%;
+  animation: cloud-drift 9s linear infinite;
+}
+.ps-outdoor .ocloud.b {
+  top: 30%;
+  left: 52%;
+  width: 20%;
+  animation: cloud-drift 13s linear infinite;
+}
+@keyframes cloud-drift {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-150%);
+  }
+}
+.ps-outdoor .ohills {
+  position: absolute;
+  left: -5%;
+  right: -5%;
+  bottom: 20%;
+  height: 17%;
+  background: radial-gradient(58% 130% at 20% 100%, #8fdc78 60%, transparent 61%),
+    radial-gradient(58% 120% at 58% 100%, #7fd169 60%, transparent 61%),
+    radial-gradient(58% 130% at 95% 100%, #8fdc78 60%, transparent 61%);
+}
+.ps-outdoor .otrees {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 21%;
+  height: 14%;
+  background: radial-gradient(circle at 14px 100%, #3f9b46 13px, transparent 14px),
+    radial-gradient(circle at 46px 100%, #4cae52 18px, transparent 19px),
+    radial-gradient(circle at 78px 100%, #3f9b46 12px, transparent 13px);
+  background-size: 94px 100%;
+  background-repeat: repeat-x;
+}
+.is-walk .ps-outdoor .otrees {
+  animation: scroll-trees 1.6s linear infinite;
+}
+@keyframes scroll-trees {
+  from {
+    background-position-x: 0;
+  }
+  to {
+    background-position-x: -94px;
   }
 }
 .pet-tap {

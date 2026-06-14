@@ -221,7 +221,7 @@ export const HE: Dict = {
   'pet.food.bamba': { text: 'במבה' },
   'pet.food.chocolate': { text: 'שוקולד' },
   'pet.drink.water': { text: 'מים' },
-  'pet.drink.wine': { text: 'יין' },
+  'pet.drink.choco': { text: 'שוקו' },
   'pet.drink.soda': { text: 'שתייה מוגזת' },
   'pet.drink.juice': { text: 'מיץ' },
 

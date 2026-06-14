@@ -220,7 +220,7 @@ export const EN: Dict = {
   'pet.food.bamba': { text: 'Peanut snack' },
   'pet.food.chocolate': { text: 'Chocolate' },
   'pet.drink.water': { text: 'Water' },
-  'pet.drink.wine': { text: 'Wine' },
+  'pet.drink.choco': { text: 'Chocolate milk' },
   'pet.drink.soda': { text: 'Soda' },
   'pet.drink.juice': { text: 'Juice' },
 

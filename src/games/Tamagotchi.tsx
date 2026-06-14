@@ -100,8 +100,8 @@ const SOUND_FN: Record<string, () => void> = {
 
 // drinks in the fridge
 const DRINKS: { key: string; name: string; emoji: string }[] = [
-  { key: 'water', name: 'מים', emoji: '💧' },
-  { key: 'wine', name: 'יין', emoji: '🍷' },
+  { key: 'water', name: 'מים', emoji: '🍼' }, // a water bottle, not a drop
+  { key: 'choco', name: 'שוקו', emoji: '🧋' },
   { key: 'soda', name: 'שתייה מוגזת', emoji: '🥤' },
   { key: 'juice', name: 'מיץ', emoji: '🧃' },
 ]
@@ -434,7 +434,7 @@ export default function Tamagotchi({ onExit }: GameProps) {
   const petRef = useRef(pet)
   petRef.current = pet
   const busyRef = useRef(false)
-  busyRef.current = !!(playing || eatFood || fridge || bar || wardrobe || choosing || kitchen || eatSetting || bathroom)
+  busyRef.current = !!(playing || eatFood || fridge || bar || wardrobe || choosing || kitchen || eatSetting || bathroom || scene === 'walk')
   useEffect(() => {
     const id = window.setInterval(() => {
       const p = petRef.current
@@ -513,7 +513,7 @@ export default function Tamagotchi({ onExit }: GameProps) {
     showFx({ walk: '🌳', clean: '✨', sleep: '😴', hug: '🤗' }[type])
     if (type === 'walk' && r && r.outcome !== 'request' && r.outcome !== 'refusal') {
       setScene('walk')
-      window.setTimeout(() => setScene('home'), 2600)
+      window.setTimeout(() => setScene('home'), 3800)
     }
   }
 
@@ -765,6 +765,14 @@ export default function Tamagotchi({ onExit }: GameProps) {
             <span className="tank" />
             <span className="seat" />
             <span className="base" />
+          </span>
+          {/* the outdoors — for a real walk (and outdoor play later) */}
+          <span className="ps-outdoor">
+            <span className="osun" />
+            <span className="ocloud a" />
+            <span className="ocloud b" />
+            <span className="ohills" />
+            <span className="otrees" />
           </span>
         </div>
         {playing ? (
