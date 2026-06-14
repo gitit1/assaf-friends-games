@@ -53,8 +53,9 @@ function reveal(s: ShelfSlot) {
 
 // clear every shelf that holds a full set of identical goods; cascade until stable.
 // returns how many triples were cleared this pass.
-function resolveMatches(shelves: ShelfSlot[]): number {
+function resolveMatches(shelves: ShelfSlot[]): { triples: number; clearedShelfIds: string[] } {
   let triples = 0
+  const clearedShelfIds: string[] = []
   let again = true
   while (again) {
     again = false
@@ -62,18 +63,19 @@ function resolveMatches(shelves: ShelfSlot[]): number {
       if (s.items.length === s.capacity && s.items.every((it) => it.type === s.items[0].type)) {
         s.items = []
         triples++
+        clearedShelfIds.push(s.id)
         again = true
         reveal(s) // hidden goods drop in to take the cleared spot
       }
     }
   }
-  return triples
+  return { triples, clearedShelfIds }
 }
 
-export type MoveResult = { state: GameState; cleared: number; illegal?: boolean }
+export type MoveResult = { state: GameState; cleared: number; clearedShelfIds: string[]; illegal?: boolean }
 
 export function applyMove(state: GameState, sourceId: string, itemId: string, targetId: string): MoveResult {
-  if (!isLegalMove(state.shelves, sourceId, targetId)) return { state, cleared: 0, illegal: true }
+  if (!isLegalMove(state.shelves, sourceId, targetId)) return { state, cleared: 0, clearedShelfIds: [], illegal: true }
 
   const snapshot = cloneShelves(state.shelves)
   const shelves = cloneShelves(state.shelves)
@@ -81,11 +83,11 @@ export function applyMove(state: GameState, sourceId: string, itemId: string, ta
   const tgt = shelves.find((s) => s.id === targetId)!
 
   const idx = src.items.findIndex((i) => i.id === itemId)
-  if (idx < 0) return { state, cleared: 0, illegal: true }
+  if (idx < 0) return { state, cleared: 0, clearedShelfIds: [], illegal: true }
   tgt.items.push(src.items.splice(idx, 1)[0]) // move the CHOSEN good across (any one)
   reveal(src) // a hidden good behind it (if any) comes forward
 
-  const triples = resolveMatches(shelves)
+  const { triples, clearedShelfIds } = resolveMatches(shelves)
 
   // emptied locked crates unlock (become normal shelves)
   for (const s of shelves) if (s.locked && s.items.length === 0 && !(s.hiddenItems?.length)) s.locked = false
@@ -115,7 +117,7 @@ export function applyMove(state: GameState, sourceId: string, itemId: string, ta
     history: [...state.history, snapshot],
     status: won ? 'won' : hasAnyLegalMove(shelves) ? 'playing' : 'no_moves',
   }
-  return { state: next, cleared: triples }
+  return { state: next, cleared: triples, clearedShelfIds }
 }
 
 export function undo(state: GameState): GameState {

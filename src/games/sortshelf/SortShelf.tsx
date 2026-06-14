@@ -17,6 +17,10 @@ export default function SortShelf({ onExit }: GameProps) {
   const [hint, setHint] = useState<{ sourceId: string; itemId: string; targetId: string } | null>(null)
   const [comboPop, setComboPop] = useState(0)
   const [paused, setPaused] = useState(false)
+  // polish: a good that flies from shelf to shelf, + sparkle bursts where a triple clears
+  const [flying, setFlying] = useState<{ icon: string; left: number; top: number; dx: number; dy: number; id: number } | null>(null)
+  const [hideId, setHideId] = useState<string | null>(null)
+  const [sparkles, setSparkles] = useState<{ id: number; left: number; top: number }[]>([])
   const level = LEVELS[levelIdx]
 
   // which shelves are legal targets for the currently-picked good (for highlights)
@@ -28,20 +32,24 @@ export default function SortShelf({ onExit }: GameProps) {
     return set
   }, [state.selected, state.shelves])
 
-  // move the picked good onto a target shelf (with all the feedback)
-  function moveTo(targetId: string) {
-    if (!state.selected) return
-    if (!isLegalMove(state.shelves, state.selected.shelfId, targetId)) {
-      playNudge() // illegal → a little shake, keep the good in hand
-      setShakeId(targetId)
-      window.setTimeout(() => setShakeId(null), 420)
-      return
-    }
+  // a sparkle burst centred on a shelf's goods area
+  function burstAt(shelfId: string) {
+    const el = document.querySelector(`[data-goods="${shelfId}"]`)
+    if (!el) return
+    const r = el.getBoundingClientRect()
+    const id = state.moves * 100 + Math.floor(r.left)
+    setSparkles((s) => [...s, { id, left: r.left + r.width / 2, top: r.top + r.height / 2 }])
+    window.setTimeout(() => setSparkles((s) => s.filter((x) => x.id !== id)), 700)
+  }
+
+  // apply the move to the board + all the feedback (sound, combo, sparkles, win)
+  function applyAndFeedback(sourceId: string, itemId: string, targetId: string) {
     const beforeCombo = state.combo
-    const res = applyMove(state, state.selected.shelfId, state.selected.itemId, targetId)
+    const res = applyMove(state, sourceId, itemId, targetId)
     setState(res.state)
     if (res.cleared > 0) {
       playSuccess()
+      res.clearedShelfIds.forEach((sid) => burstAt(sid)) // sparkle where each triple cleared
       if (res.state.combo > beforeCombo && res.state.combo >= 2) {
         setComboPop(res.state.combo)
         window.setTimeout(() => setComboPop(0), 900)
@@ -49,6 +57,34 @@ export default function SortShelf({ onExit }: GameProps) {
       if (res.state.status === 'won') window.setTimeout(playWin, 250)
     } else {
       playPop()
+    }
+  }
+
+  // move the picked good onto a target shelf — flies smoothly, then lands
+  function moveTo(targetId: string) {
+    const sel = state.selected
+    if (!sel) return
+    if (!isLegalMove(state.shelves, sel.shelfId, targetId)) {
+      playNudge() // illegal → a little shake, keep the good in hand
+      setShakeId(targetId)
+      window.setTimeout(() => setShakeId(null), 420)
+      return
+    }
+    const good = state.shelves.find((s) => s.id === sel.shelfId)?.items.find((i) => i.id === sel.itemId)
+    const srcEl = document.querySelector(`[data-good="${sel.itemId}"]`)
+    const tgtEl = document.querySelector(`[data-goods="${targetId}"]`)
+    if (good && srcEl && tgtEl) {
+      const f = (srcEl as HTMLElement).getBoundingClientRect()
+      const t = (tgtEl as HTMLElement).getBoundingClientRect()
+      setHideId(sel.itemId) // hide the real good while its ghost flies
+      setFlying({ icon: good.icon, left: f.left, top: f.top, dx: t.right - 42 - f.left, dy: t.bottom - 44 - f.top, id: Date.now() })
+      window.setTimeout(() => {
+        setFlying(null)
+        setHideId(null)
+        applyAndFeedback(sel.shelfId, sel.itemId, targetId)
+      }, 250)
+    } else {
+      applyAndFeedback(sel.shelfId, sel.itemId, targetId)
     }
   }
 
@@ -153,7 +189,7 @@ export default function SortShelf({ onExit }: GameProps) {
               } ${shelf.locked ? 'is-locked' : ''} ${shakeId === shelf.id ? 'is-shake' : ''}`}
               onClick={() => tapShelf(shelf.id)}
             >
-              <span className="ss-goods">
+              <span className="ss-goods" data-goods={shelf.id}>
                 {/* mystery goods queued behind the visible ones */}
                 {shelf.hiddenItems?.map((h) => (
                   <span className="ss-good is-hidden" key={h.id} aria-hidden="true">
@@ -167,6 +203,8 @@ export default function SortShelf({ onExit }: GameProps) {
                     <button
                       className={`ss-good ${isPicked ? 'is-picked' : ''} ${hint?.itemId === it.id ? 'is-hint-good' : ''}`}
                       key={it.id}
+                      data-good={it.id}
+                      style={hideId === it.id ? { visibility: 'hidden' } : undefined}
                       onClick={(e) => {
                         e.stopPropagation()
                         tapGood(shelf.id, it.id)
@@ -183,6 +221,31 @@ export default function SortShelf({ onExit }: GameProps) {
           )
         })}
       </div>
+
+      {/* flying good (smooth move) + sparkle bursts where triples clear */}
+      {flying && (
+        <span
+          className="ss-fly"
+          key={flying.id}
+          style={{ left: flying.left, top: flying.top, '--dx': `${flying.dx}px`, '--dy': `${flying.dy}px` } as React.CSSProperties}
+        >
+          {flying.icon}
+        </span>
+      )}
+      {sparkles.map((s) => (
+        <span className="ss-sparkle" key={s.id} style={{ left: s.left, top: s.top }} aria-hidden="true">
+          {[
+            ['-24px', '-18px'],
+            ['24px', '-18px'],
+            ['-28px', '8px'],
+            ['28px', '8px'],
+            ['0px', '-30px'],
+            ['0px', '22px'],
+          ].map(([sx, sy], i) => (
+            <i key={i} style={{ '--sx': sx, '--sy': sy } as React.CSSProperties} />
+          ))}
+        </span>
+      ))}
 
       {/* ── boosters ── */}
       <div className="ss-boosters">

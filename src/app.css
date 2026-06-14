@@ -12202,3 +12202,51 @@ button {
   color: var(--text, #1f2937);
   font-family: 'Fredoka', 'Heebo', sans-serif;
 }
+
+/* polish: a good flying smoothly between shelves, + sparkle bursts on a clear */
+.ss-fly {
+  position: fixed;
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  font-size: 1.5rem;
+  line-height: 1;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+  z-index: 61;
+  pointer-events: none;
+  animation: ss-fly 0.25s ease forwards;
+}
+@keyframes ss-fly {
+  to {
+    transform: translate(var(--dx), var(--dy)) scale(1.05);
+  }
+}
+.ss-sparkle {
+  position: fixed;
+  z-index: 62;
+  pointer-events: none;
+}
+.ss-sparkle i {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #fff, #fde047 60%, #fbbf24);
+  box-shadow: 0 0 7px rgba(251, 191, 36, 0.9);
+  animation: ss-spark 0.65s ease-out forwards;
+}
+@keyframes ss-spark {
+  0% {
+    transform: translate(0, 0) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(var(--sx), var(--sy)) scale(0.3);
+    opacity: 0;
+  }
+}
