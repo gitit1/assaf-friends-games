@@ -14,7 +14,6 @@ export function cloneShelves(shelves: ShelfSlot[]): ShelfSlot[] {
   }))
 }
 
-const front = (s: ShelfSlot) => (s.items.length ? s.items[s.items.length - 1] : null)
 const countItems = (s: ShelfSlot) => s.items.length + (s.hiddenItems?.length ?? 0)
 const totalItems = (shelves: ShelfSlot[]) => shelves.reduce((n, s) => n + countItems(s), 0)
 
@@ -73,7 +72,7 @@ function resolveMatches(shelves: ShelfSlot[]): number {
 
 export type MoveResult = { state: GameState; cleared: number; illegal?: boolean }
 
-export function applyMove(state: GameState, sourceId: string, targetId: string): MoveResult {
+export function applyMove(state: GameState, sourceId: string, itemId: string, targetId: string): MoveResult {
   if (!isLegalMove(state.shelves, sourceId, targetId)) return { state, cleared: 0, illegal: true }
 
   const snapshot = cloneShelves(state.shelves)
@@ -81,7 +80,9 @@ export function applyMove(state: GameState, sourceId: string, targetId: string):
   const src = shelves.find((s) => s.id === sourceId)!
   const tgt = shelves.find((s) => s.id === targetId)!
 
-  tgt.items.push(src.items.pop()!) // move the front good across
+  const idx = src.items.findIndex((i) => i.id === itemId)
+  if (idx < 0) return { state, cleared: 0, illegal: true }
+  tgt.items.push(src.items.splice(idx, 1)[0]) // move the CHOSEN good across (any one)
   reveal(src) // a hidden good behind it (if any) comes forward
 
   const triples = resolveMatches(shelves)
@@ -134,19 +135,22 @@ export function hasAnyLegalMove(shelves: ShelfSlot[]): boolean {
   return false
 }
 
+type Hint = { sourceId: string; itemId: string; targetId: string }
 // a helpful move: first one that completes a triple; else one that groups a pair.
-export function getHint(shelves: ShelfSlot[]): { sourceId: string; targetId: string } | null {
-  let group: { sourceId: string; targetId: string } | null = null
+// Any visible good may move (not just the front).
+export function getHint(shelves: ShelfSlot[]): Hint | null {
+  let group: Hint | null = null
   for (const src of shelves) {
-    const f = front(src)
-    if (!f) continue
-    for (const tgt of shelves) {
-      if (!isLegalMove(shelves, src.id, tgt.id)) continue
-      const sameInTgt = tgt.items.filter((it) => it.type === f.type).length
-      // moving f makes a full set of 3 identical → an immediate clear
-      if (tgt.items.length === 2 && sameInTgt === 2) return { sourceId: src.id, targetId: tgt.id }
-      // otherwise remember a move that puts it next to a matching good
-      if (!group && sameInTgt > 0 && tgt.items.length < tgt.capacity) group = { sourceId: src.id, targetId: tgt.id }
+    for (const it of src.items) {
+      for (const tgt of shelves) {
+        if (!isLegalMove(shelves, src.id, tgt.id)) continue
+        const sameInTgt = tgt.items.filter((x) => x.type === it.type).length
+        // moving `it` makes a full set of 3 identical → an immediate clear
+        if (tgt.items.length === 2 && sameInTgt === 2) return { sourceId: src.id, itemId: it.id, targetId: tgt.id }
+        // otherwise remember a move that puts it next to a matching good
+        if (!group && sameInTgt > 0 && tgt.items.length < tgt.capacity)
+          group = { sourceId: src.id, itemId: it.id, targetId: tgt.id }
+      }
     }
   }
   return group

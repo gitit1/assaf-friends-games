@@ -3,20 +3,18 @@ import GameShell from '../../components/GameShell'
 import type { GameProps } from '../registry'
 import { playDice, playNudge, playPop, playSuccess, playTap, playWin, unlockAudio } from '../../audio'
 import { LEVELS } from './levels'
-import type { GameState, ShelfSlot } from './gameTypes'
+import type { GameState } from './gameTypes'
 import { applyMove, getHint, initState, isLegalMove, shuffleBoard, undo } from './engine'
 
 // ── "מכולת" — a calm shelf-sorting puzzle. NO timer, no countdown, no time loss.
-// Pick the front good of a shelf, move it onto another shelf; 3 identical on one
-// shelf clear. Win = the whole board is tidied. Challenge is planning + space. ──
-
-const frontId = (s: ShelfSlot) => (s.items.length ? s.items[s.items.length - 1].id : null)
+// Pick ANY good off a shelf, move it onto another shelf; 3 identical on one shelf
+// clear. Win = the whole board is tidied. Challenge is planning + space. ──
 
 export default function SortShelf({ onExit }: GameProps) {
   const [levelIdx, setLevelIdx] = useState(0)
   const [state, setState] = useState<GameState>(() => initState(LEVELS[0]))
   const [shakeId, setShakeId] = useState<string | null>(null)
-  const [hint, setHint] = useState<{ sourceId: string; targetId: string } | null>(null)
+  const [hint, setHint] = useState<{ sourceId: string; itemId: string; targetId: string } | null>(null)
   const [comboPop, setComboPop] = useState(0)
   const [paused, setPaused] = useState(false)
   const level = LEVELS[levelIdx]
@@ -30,46 +28,62 @@ export default function SortShelf({ onExit }: GameProps) {
     return set
   }, [state.selected, state.shelves])
 
-  function tapShelf(shelfId: string) {
+  // move the picked good onto a target shelf (with all the feedback)
+  function moveTo(targetId: string) {
+    if (!state.selected) return
+    if (!isLegalMove(state.shelves, state.selected.shelfId, targetId)) {
+      playNudge() // illegal → a little shake, keep the good in hand
+      setShakeId(targetId)
+      window.setTimeout(() => setShakeId(null), 420)
+      return
+    }
+    const beforeCombo = state.combo
+    const res = applyMove(state, state.selected.shelfId, state.selected.itemId, targetId)
+    setState(res.state)
+    if (res.cleared > 0) {
+      playSuccess()
+      if (res.state.combo > beforeCombo && res.state.combo >= 2) {
+        setComboPop(res.state.combo)
+        window.setTimeout(() => setComboPop(0), 900)
+      }
+      if (res.state.status === 'won') window.setTimeout(playWin, 250)
+    } else {
+      playPop()
+    }
+  }
+
+  // tapping a specific good: pick it up / swap which one is held / or move onto it
+  function tapGood(shelfId: string, itemId: string) {
     if (state.status === 'won' || paused) return
     setHint(null)
-    const shelf = state.shelves.find((s) => s.id === shelfId)!
-    // nothing picked yet → pick this shelf's front good (if any)
     if (!state.selected) {
-      const fid = frontId(shelf)
-      if (fid) {
-        unlockAudio()
+      unlockAudio()
+      playTap()
+      setState({ ...state, selected: { shelfId, itemId } })
+      return
+    }
+    if (state.selected.shelfId === shelfId) {
+      // same shelf → switch to this good, or put it down if it's the same one
+      if (state.selected.itemId === itemId) setState({ ...state, selected: null })
+      else {
         playTap()
-        setState({ ...state, selected: { shelfId, itemId: fid } })
+        setState({ ...state, selected: { shelfId, itemId } })
       }
       return
     }
-    // tapping the same shelf again → put it back down
+    moveTo(shelfId) // good is on another shelf → drop the held good there
+  }
+
+  // tapping the shelf itself (its empty area / plank) → a drop target
+  function tapShelf(shelfId: string) {
+    if (state.status === 'won' || paused) return
+    setHint(null)
+    if (!state.selected) return
     if (state.selected.shelfId === shelfId) {
       setState({ ...state, selected: null })
       return
     }
-    // move it — if legal
-    if (isLegalMove(state.shelves, state.selected.shelfId, shelfId)) {
-      const beforeCombo = state.combo
-      const res = applyMove(state, state.selected.shelfId, shelfId)
-      setState(res.state)
-      if (res.cleared > 0) {
-        playSuccess()
-        if (res.state.combo > beforeCombo && res.state.combo >= 2) {
-          setComboPop(res.state.combo)
-          window.setTimeout(() => setComboPop(0), 900)
-        }
-        if (res.state.status === 'won') window.setTimeout(playWin, 250)
-      } else {
-        playPop()
-      }
-    } else {
-      // illegal → a little shake, keep the good in hand
-      playNudge()
-      setShakeId(shelfId)
-      window.setTimeout(() => setShakeId(null), 420)
-    }
+    moveTo(shelfId)
   }
 
   const doUndo = () => {
@@ -128,12 +142,14 @@ export default function SortShelf({ onExit }: GameProps) {
         {state.shelves.map((shelf) => {
           const isSource = state.selected?.shelfId === shelf.id
           const isTarget = !!state.selected && legalTargets.has(shelf.id)
-          const isHint = hint?.sourceId === shelf.id || hint?.targetId === shelf.id
+          const isHintTarget = hint?.targetId === shelf.id
           return (
-            <button
+            <div
               key={shelf.id}
+              role="button"
+              tabIndex={0}
               className={`ss-shelf ${isSource ? 'is-source' : ''} ${isTarget ? 'is-target' : ''} ${
-                isHint ? 'is-hint' : ''
+                isHintTarget ? 'is-hint' : ''
               } ${shelf.locked ? 'is-locked' : ''} ${shakeId === shelf.id ? 'is-shake' : ''}`}
               onClick={() => tapShelf(shelf.id)}
             >
@@ -144,23 +160,26 @@ export default function SortShelf({ onExit }: GameProps) {
                     📦
                   </span>
                 ))}
-                {shelf.items.map((it, idx) => {
-                  const isFront = idx === shelf.items.length - 1
+                {/* every visible good is tappable — pick ANY one */}
+                {shelf.items.map((it) => {
+                  const isPicked = state.selected?.shelfId === shelf.id && state.selected?.itemId === it.id
                   return (
-                    <span
-                      className={`ss-good ${isFront ? 'is-front' : ''} ${
-                        isSource && isFront ? 'is-picked' : ''
-                      }`}
+                    <button
+                      className={`ss-good ${isPicked ? 'is-picked' : ''} ${hint?.itemId === it.id ? 'is-hint-good' : ''}`}
                       key={it.id}
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        tapGood(shelf.id, it.id)
+                      }}
                     >
                       {it.icon}
-                    </span>
+                    </button>
                   )
                 })}
               </span>
               <span className="ss-plank" />
               {shelf.locked && <span className="ss-lock" aria-hidden="true">🔒</span>}
-            </button>
+            </div>
           )
         })}
       </div>

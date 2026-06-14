@@ -12079,11 +12079,19 @@ button {
   font-size: 1.5rem;
   line-height: 1;
   background: #fff;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  padding: 0;
   border-radius: 10px;
   box-shadow: 0 2px 3px rgba(0, 0, 0, 0.18);
-  transition: transform 0.15s ease;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
-.ss-good.is-front { transform: translateY(-3px); }
+.ss-good:active { transform: translateY(-2px) scale(1.04); }
+.ss-good.is-hint-good {
+  box-shadow: 0 0 0 3px #f59e0b, 0 4px 6px rgba(0, 0, 0, 0.2);
+  animation: ss-target 0.9s ease-in-out infinite;
+}
 .ss-good.is-picked {
   transform: translateY(-10px) scale(1.08);
   box-shadow: 0 0 0 3px #fbbf24, 0 6px 8px rgba(0, 0, 0, 0.25);
