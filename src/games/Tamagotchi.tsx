@@ -616,6 +616,9 @@ export default function Tamagotchi({ onExit }: GameProps) {
     { key: 'clean', emoji: '🧼', label: 'נקי', value: pet.clean },
   ]
   const sad = pet.poop || meters.some((m) => m.value < 25)
+  // time of day → the room's window sky + wall mood (a modern-pet-game touch)
+  const hour = new Date().getHours()
+  const timeOfDay = hour >= 20 || hour < 6 ? 'night' : hour >= 17 ? 'sunset' : 'day'
 
   type ActType = 'feed' | 'water' | 'play' | 'walk' | 'sleep' | 'hug' | 'potty' | 'clean' | 'dress'
   const actions: { type: ActType; emoji: string }[] = [
@@ -649,7 +652,24 @@ export default function Tamagotchi({ onExit }: GameProps) {
         ))}
       </div>
 
-      <div className={`pet-room pose-${posture} expr-${expression} ${scene === 'walk' ? 'is-walk' : ''} ${sad ? 'is-sad' : ''}`}>
+      <div className={`pet-room tod-${timeOfDay} pose-${posture} expr-${expression} ${scene === 'walk' ? 'is-walk' : ''} ${sad ? 'is-sad' : ''}`}>
+        {/* illustrated 2D room behind the pet */}
+        <div className="pet-scene" aria-hidden="true">
+          <span className="ps-window">
+            <span className="ps-celestial" />
+            <span className="ps-cloud a" />
+            <span className="ps-cloud b" />
+            <span className="ps-stars" />
+          </span>
+          <span className="ps-frame">
+            <span className="ps-pic">🌈</span>
+          </span>
+          <span className="ps-shelf" />
+          <span className="ps-floor" />
+          <span className="ps-rug" />
+          <span className="ps-plant">🪴</span>
+          <span className="ps-shadow" />
+        </div>
         {playing ? (
           <PlayScene kind={playing.kind} friend={pet.friend} outfit={pet.outfit} buddy={buddy} />
         ) : (

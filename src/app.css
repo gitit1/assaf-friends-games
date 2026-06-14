@@ -6105,6 +6105,236 @@ button {
 .pet-room.is-sad {
   filter: grayscale(0.3) brightness(0.95);
 }
+
+/* ════════ cozy illustrated room — the pet's 2D game scene ════════ */
+/* wall colour by time of day (walking shows the outdoor green instead) */
+.pet-room.tod-day:not(.is-walk) {
+  background: linear-gradient(180deg, #e2f4ff 0%, #c8e9fb 56%);
+}
+.pet-room.tod-sunset:not(.is-walk) {
+  background: linear-gradient(180deg, #ffe7d0 0%, #ffc9a6 56%);
+}
+.pet-room.tod-night:not(.is-walk) {
+  background: linear-gradient(180deg, #303c70 0%, #232d54 56%);
+}
+.pet-scene {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+/* floor */
+.ps-floor {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 22%;
+  background: linear-gradient(180deg, #f1c99c 0%, #e0a877 100%);
+  border-top: 3px solid rgba(120, 72, 30, 0.35);
+  box-shadow: inset 0 5px 0 rgba(255, 255, 255, 0.25);
+}
+.tod-sunset .ps-floor {
+  background: linear-gradient(180deg, #e9b78a, #d49a6a);
+}
+.tod-night .ps-floor {
+  background: linear-gradient(180deg, #5d4c3a, #493b2d);
+}
+.pet-room.is-walk .ps-floor {
+  background: linear-gradient(180deg, #9be88f, #5fcf6b);
+  border-top-color: rgba(20, 90, 30, 0.3);
+}
+/* soft rug + the pet's contact shadow */
+.ps-rug {
+  position: absolute;
+  bottom: 4.5%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 56%;
+  height: 13%;
+  background: radial-gradient(ellipse at center, #ffd3e2 0 56%, #ff9ec6 57% 78%, #fb84b6 79% 100%);
+  border-radius: 50%;
+  opacity: 0.9;
+}
+.ps-shadow {
+  position: absolute;
+  bottom: 8%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 30%;
+  height: 5%;
+  background: radial-gradient(ellipse, rgba(0, 0, 0, 0.3), transparent 70%);
+  border-radius: 50%;
+}
+.pet-room.is-walk .ps-rug {
+  display: none;
+}
+/* window with a sky that changes through the day */
+.ps-window {
+  position: absolute;
+  top: 12%;
+  left: 8%;
+  width: 30%;
+  height: 36%;
+  background: linear-gradient(180deg, #bfe9ff 0%, #8fd0f7 100%);
+  border: 6px solid #fff;
+  border-radius: 12px;
+  box-shadow: 0 5px 12px rgba(0, 0, 0, 0.14);
+  overflow: hidden;
+}
+.ps-window::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(#fff, #fff) 50% 0 / 5px 100% no-repeat,
+    linear-gradient(#fff, #fff) 0 50% / 100% 5px no-repeat;
+}
+.tod-sunset .ps-window {
+  background: linear-gradient(180deg, #ffd6a0 0%, #ff9d79 100%);
+}
+.tod-night .ps-window {
+  background: linear-gradient(180deg, #1b2649 0%, #0f1733 100%);
+}
+/* sun / moon */
+.ps-celestial {
+  position: absolute;
+  top: 16%;
+  right: 14%;
+  width: 26%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: #ffe27a;
+  box-shadow: 0 0 16px 6px rgba(255, 226, 122, 0.55);
+}
+.tod-sunset .ps-celestial {
+  top: 32%;
+  right: 18%;
+  background: #ff8f5e;
+  box-shadow: 0 0 16px 6px rgba(255, 143, 94, 0.55);
+}
+.tod-night .ps-celestial {
+  background: #eef1ff;
+  box-shadow: 0 0 12px 4px rgba(238, 241, 255, 0.45);
+}
+.ps-cloud {
+  position: absolute;
+  background: rgba(255, 255, 255, 0.92);
+  border-radius: 999px;
+  height: 12%;
+}
+.ps-cloud.a {
+  top: 54%;
+  left: 6%;
+  width: 42%;
+}
+.ps-cloud.b {
+  top: 72%;
+  left: 42%;
+  width: 34%;
+  height: 10%;
+}
+.tod-night .ps-cloud {
+  display: none;
+}
+.ps-stars {
+  position: absolute;
+  inset: 0;
+  display: none;
+}
+.tod-night .ps-stars {
+  display: block;
+  background: radial-gradient(1.5px 1.5px at 22% 24%, #fff, transparent),
+    radial-gradient(1.5px 1.5px at 58% 14%, #fff, transparent),
+    radial-gradient(1.5px 1.5px at 82% 38%, #fff, transparent),
+    radial-gradient(1.5px 1.5px at 38% 52%, #fff, transparent),
+    radial-gradient(1.5px 1.5px at 72% 62%, #fff, transparent);
+}
+/* framed picture + little shelf */
+.ps-frame {
+  position: absolute;
+  top: 15%;
+  right: 11%;
+  width: 16%;
+  height: 21%;
+  background: #fff;
+  border: 5px solid #c98a52;
+  border-radius: 6px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.16);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.ps-pic {
+  font-size: 1.5rem;
+  line-height: 1;
+}
+.ps-shelf {
+  position: absolute;
+  top: 40%;
+  right: 9%;
+  width: 20%;
+  height: 5px;
+  background: #c98a52;
+  border-radius: 3px;
+  box-shadow: 0 3px 5px rgba(0, 0, 0, 0.18);
+}
+/* potted plant on the floor */
+.ps-plant {
+  position: absolute;
+  bottom: 17%;
+  right: 9%;
+  font-size: 2.5rem;
+  line-height: 1;
+  filter: drop-shadow(0 4px 3px rgba(0, 0, 0, 0.22));
+}
+.pet-room.is-walk .ps-window,
+.pet-room.is-walk .ps-frame,
+.pet-room.is-walk .ps-shelf,
+.pet-room.is-walk .ps-plant {
+  opacity: 0;
+}
+.tod-night .ps-frame,
+.tod-night .ps-plant {
+  filter: brightness(0.72);
+}
+/* fluffier clouds (puffs on top) */
+.ps-cloud::before,
+.ps-cloud::after {
+  content: '';
+  position: absolute;
+  background: inherit;
+  border-radius: 50%;
+}
+.ps-cloud::before {
+  width: 58%;
+  height: 170%;
+  left: 10%;
+  top: -78%;
+}
+.ps-cloud::after {
+  width: 46%;
+  height: 140%;
+  right: 12%;
+  top: -46%;
+}
+/* the pet breathes / bobs gently while it just stands in the room */
+.pet-room .pet-tap {
+  animation: pet-idle-bob 3.4s ease-in-out infinite;
+}
+@keyframes pet-idle-bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pet-room .pet-tap {
+    animation: none;
+  }
+}
 .pet-tap {
   position: relative;
   display: inline-block;
