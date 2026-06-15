@@ -334,6 +334,7 @@ export default function Tamagotchi({ onExit }: GameProps) {
   const [playing, setPlaying] = useState<{ kind: string; label: string } | null>(null)
   const [buddy, setBuddy] = useState(0)
   const [scene, setScene] = useState<'home' | 'walk'>('home')
+  const [walking, setWalking] = useState(false) // legs march during any locomotion (to the fridge, back to the table, outside)
   const [fx, setFx] = useState<{ emoji: string; id: number } | null>(null)
   const [burst, setBurst] = useState<{ id: number; bits: { e: string; x: number; y: number; d: number }[] } | null>(null)
   const [bounce, setBounce] = useState(false)
@@ -544,7 +545,9 @@ export default function Tamagotchi({ onExit }: GameProps) {
     playTap()
     eatTimers.current.forEach((t) => window.clearTimeout(t))
     eatTimers.current = []
-    setKitchen(true) // pet walks over (CSS); fridge slides in
+    setKitchen(true) // pet walks over (CSS slides it right); legs march along the way
+    setWalking(true)
+    eatTimers.current.push(window.setTimeout(() => setWalking(false), 1000)) // arrived at the fridge
     eatTimers.current.push(window.setTimeout(() => { setFridgeOpen(true); playPop() }, 1150))
     eatTimers.current.push(window.setTimeout(() => setFridge(true), 1650))
   }
@@ -565,6 +568,8 @@ export default function Tamagotchi({ onExit }: GameProps) {
     eatTimers.current = []
     setBite(0)
     setPoof(false)
+    setWalking(true) // walk back from the fridge to the eating spot
+    eatTimers.current.push(window.setTimeout(() => setWalking(false), 800))
     // D = let the friend walk to its eating spot first, THEN start eating
     const D = 650
     eatTimers.current.push(window.setTimeout(() => setEatFood(food.emoji), D))
@@ -787,7 +792,7 @@ export default function Tamagotchi({ onExit }: GameProps) {
           <span className="pet-stage">
             <span className="pet-facing">
               <span className="pet-body">
-                <FriendDressed index={pet.friend} px={Math.round(fitPet(pet.friend) * friendMaxDim(pet.friend))} outfit={pet.outfit} bouncing={bounce} eating={!!eatFood} walking={scene === 'walk'} />
+                <FriendDressed index={pet.friend} px={Math.round(fitPet(pet.friend) * friendMaxDim(pet.friend))} outfit={pet.outfit} bouncing={bounce} eating={!!eatFood} walking={walking || scene === 'walk'} />
               </span>
             </span>
           </span>
