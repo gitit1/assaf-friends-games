@@ -6336,8 +6336,10 @@ button {
    Identity by default; the game drives --walk-x / --face / posture per scene. */
 .pet-stage {
   display: inline-block;
+  /* the game drives --walk-x (how far across the room) and --walk-ms (how long the
+     stroll takes); a gentle ease makes it set off and arrive softly, like a real walk */
   transform: translateX(var(--walk-x, 0px));
-  transition: transform 0.7s ease-in-out;
+  transition: transform var(--walk-ms, 700ms) cubic-bezier(0.45, 0.05, 0.4, 1);
 }
 .pet-facing {
   display: inline-block;
@@ -6345,8 +6347,25 @@ button {
   transform-origin: center bottom;
 }
 .pet-body {
+  position: relative;
   display: inline-block;
   transform-origin: center bottom;
+}
+/* food carried in the hands, out in front, while the friend strolls back from the
+   fridge — bobs along with the march so it feels really held */
+.pet-hold {
+  position: absolute;
+  left: 50%;
+  bottom: 16%;
+  z-index: 5;
+  line-height: 1;
+  pointer-events: none;
+  filter: drop-shadow(0 3px 4px rgba(0, 0, 0, 0.28));
+  animation: hold-carry 0.7s ease-in-out infinite;
+}
+@keyframes hold-carry {
+  0%, 100% { transform: translate(-50%, 0) rotate(-7deg); }
+  50% { transform: translate(-50%, -12%) rotate(4deg); }
 }
 .pet-room:not(.kmode):not(.bmode):not(.is-walk) .pet-tap {
   animation: pet-idle-bob 3.4s ease-in-out infinite;
@@ -6381,9 +6400,8 @@ button {
     transform: translateY(7%) scale(1.03, 0.94);
   }
 }
-.pet-room.is-kitchen .pet-tap {
-  transform: translateX(48%); /* walk over and stand beside the fridge */
-}
+/* the walk over to the fridge now travels via .pet-stage (--walk-x) so it can take
+   a few real seconds and cross the room with the legs marching — no instant teleport */
 .pet-room.eat-cushion .pet-tap {
   transform: translateY(15%) scale(1.06, 0.9); /* sit down on the cushion */
 }
@@ -6534,6 +6552,43 @@ button {
   background: #fff;
   border-radius: 50%;
   box-shadow: 0 2px 3px rgba(0, 0, 0, 0.16);
+}
+/* the meal that the friend put down on the plate; it shrinks bite by bite */
+.ps-meal {
+  position: absolute;
+  top: -4%;
+  left: 50%;
+  font-size: clamp(26px, 9vw, 52px);
+  line-height: 1;
+  transform-origin: center bottom;
+  transition: transform 0.32s ease;
+  filter: drop-shadow(0 3px 3px rgba(0, 0, 0, 0.25));
+  pointer-events: none;
+}
+.ps-meal-heart {
+  position: absolute;
+  top: -10%;
+  left: 50%;
+  font-size: clamp(18px, 6vw, 34px);
+  animation: meal-heart-rise 1.1s ease-out forwards;
+  pointer-events: none;
+}
+@keyframes meal-heart-rise {
+  0% { transform: translate(-50%, 0) scale(0.5); opacity: 0; }
+  20% { opacity: 1; }
+  100% { transform: translate(-50%, -220%) scale(1.1); opacity: 0; }
+}
+.ps-meal-poof {
+  position: absolute;
+  top: -14%;
+  left: 50%;
+  font-size: clamp(28px, 10vw, 56px);
+  animation: meal-poof 0.55s ease forwards;
+  pointer-events: none;
+}
+@keyframes meal-poof {
+  0% { transform: translate(-50%, 0) scale(0.5); opacity: 0.9; }
+  100% { transform: translate(-50%, -45%) scale(1.8); opacity: 0; }
 }
 /* bowl + chopsticks (in front, for cushion eating) */
 .ps-dish {
@@ -11396,12 +11451,23 @@ button {
   0%, 100% { transform: rotate(-6deg); }
   50% { transform: rotate(-52deg); }
 }
+/* eating: the near (right) arm keeps bringing food up to the mouth, so it really
+   looks like it's eating — works for all 100 friends (same arm) */
+.friend-art.is-eating .gal-arm.r {
+  transform-origin: left center;
+  animation: eat-reach 0.62s ease-in-out infinite;
+}
+@keyframes eat-reach {
+  0%, 100% { transform: rotate(-30deg); } /* down by the plate */
+  45% { transform: rotate(-88deg) translateX(-3px); } /* up to the mouth */
+}
 @media (prefers-reduced-motion: reduce) {
   .friend-art.is-walking,
   .friend-art.is-walking .gal-foot.l,
   .friend-art.is-walking .gal-foot.r,
   .friend-art.is-walking .gal-arm.l,
-  .friend-art.is-walking .gal-arm.r {
+  .friend-art.is-walking .gal-arm.r,
+  .friend-art.is-eating .gal-arm.r {
     animation: none !important;
   }
 }

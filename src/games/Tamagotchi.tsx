@@ -335,6 +335,9 @@ export default function Tamagotchi({ onExit }: GameProps) {
   const [buddy, setBuddy] = useState(0)
   const [scene, setScene] = useState<'home' | 'walk'>('home')
   const [walking, setWalking] = useState(false) // legs march during any locomotion (to the fridge, back to the table, outside)
+  const [petX, setPetX] = useState(0) // how far across the room the pet has strolled (px on .pet-stage)
+  const [walkMs, setWalkMs] = useState(700) // how long that stroll takes
+  const [held, setHeld] = useState<string | null>(null) // food carried in the hand on the walk back from the fridge
   const [fx, setFx] = useState<{ emoji: string; id: number } | null>(null)
   const [burst, setBurst] = useState<{ id: number; bits: { e: string; x: number; y: number; d: number }[] } | null>(null)
   const [bounce, setBounce] = useState(false)
@@ -545,11 +548,13 @@ export default function Tamagotchi({ onExit }: GameProps) {
     playTap()
     eatTimers.current.forEach((t) => window.clearTimeout(t))
     eatTimers.current = []
-    setKitchen(true) // pet walks over (CSS slides it right); legs march along the way
+    setKitchen(true) // kitchen scenery slides in
     setWalking(true)
-    eatTimers.current.push(window.setTimeout(() => setWalking(false), 1000)) // arrived at the fridge
-    eatTimers.current.push(window.setTimeout(() => { setFridgeOpen(true); playPop() }, 1150))
-    eatTimers.current.push(window.setTimeout(() => setFridge(true), 1650))
+    setWalkMs(2200)
+    setPetX(Math.round(Math.min(vp.w, 440) * 0.3)) // stroll right, across the room to the fridge (a few real seconds)
+    eatTimers.current.push(window.setTimeout(() => setWalking(false), 2200)) // arrived beside the fridge
+    eatTimers.current.push(window.setTimeout(() => { setFridgeOpen(true); playPop() }, 2350)) // reach up, doors swing open
+    eatTimers.current.push(window.setTimeout(() => setFridge(true), 2950)) // the food shelves appear
   }
 
   // pick a food from the fridge → the friend walks to the right spot for that dish
@@ -568,11 +573,15 @@ export default function Tamagotchi({ onExit }: GameProps) {
     eatTimers.current = []
     setBite(0)
     setPoof(false)
-    setWalking(true) // walk back from the fridge to the eating spot
-    eatTimers.current.push(window.setTimeout(() => setWalking(false), 800))
-    // D = let the friend walk to its eating spot first, THEN start eating
-    const D = 650
-    eatTimers.current.push(window.setTimeout(() => setEatFood(food.emoji), D))
+    setHeld(food.emoji) // takes the food OUT of the fridge — carries it in its hand
+    setWalking(true) // stroll back from the fridge to the eating spot, food in hand
+    setWalkMs(2000)
+    setPetX(0)
+    eatTimers.current.push(window.setTimeout(() => setWalking(false), 2000))
+    // D = let the friend walk all the way back to its eating spot first, THEN start eating
+    const D = 2100
+    // arrived: PUT the food down on the table (stop carrying) and start eating it
+    eatTimers.current.push(window.setTimeout(() => { setHeld(null); setEatFood(food.emoji) }, D))
     // three bites: each hop munches and a chunk is cut out of the food
     for (let k = 0; k < 3; k++) {
       eatTimers.current.push(window.setTimeout(() => { playMunch(); setBite(k + 1) }, D + 350 + k * 600))
@@ -789,10 +798,19 @@ export default function Tamagotchi({ onExit }: GameProps) {
         <button className="pet-tap" onClick={pokePet} aria-label={friendName(pet.friend)}>
           {/* transform-layer stack: each wrapper owns ONE transform (traversal X /
               facing mirror / posture) so they compose instead of overwriting */}
-          <span className="pet-stage">
+          <span className="pet-stage" style={{ ['--walk-x']: `${petX}px`, ['--walk-ms']: `${walkMs}ms` } as React.CSSProperties}>
             <span className="pet-facing">
               <span className="pet-body">
                 <FriendDressed index={pet.friend} px={Math.round(fitPet(pet.friend) * friendMaxDim(pet.friend))} outfit={pet.outfit} bouncing={bounce} eating={!!eatFood} walking={walking || scene === 'walk'} />
+                {held && (
+                  <span
+                    className="pet-hold"
+                    aria-hidden="true"
+                    style={{ fontSize: `${Math.round(fitPet(pet.friend) * friendMaxDim(pet.friend) * 0.42)}px` }}
+                  >
+                    {held}
+                  </span>
+                )}
               </span>
             </span>
           </span>
@@ -813,7 +831,9 @@ export default function Tamagotchi({ onExit }: GameProps) {
               <i />
             </span>
           )}
-          {eatFood && (
+          {/* food at the mouth for snacks (standing) / rice (cushion) / drinks; a
+              sit-down meal at the TABLE is shown on the table instead (below) */}
+          {eatFood && !(mode === 'eat' && eatSetting === 'table') && (
           <>
             <span
               key={poof ? 'poof' : `s-${bite}`}
@@ -861,6 +881,16 @@ export default function Tamagotchi({ onExit }: GameProps) {
           <span className="tleg a" />
           <span className="tleg b" />
           <span className="tplate" />
+          {/* the sit-down meal sits ON the plate and is eaten away bite by bite */}
+          {mode === 'eat' && eatSetting === 'table' && eatFood && !poof && (
+            <span className="ps-meal" style={{ transform: `translate(-50%, -100%) scale(${[1, 0.72, 0.42, 0.12][Math.min(bite, 3)]})` }}>
+              {eatFood}
+            </span>
+          )}
+          {mode === 'eat' && eatSetting === 'table' && eatFood && !poof && bite > 0 && (
+            <span className="ps-meal-heart" key={`th-${bite}`}>{HEARTS[(bite - 1) % HEARTS.length]}</span>
+          )}
+          {mode === 'eat' && eatSetting === 'table' && poof && <span className="ps-meal-poof">💨</span>}
         </span>
         <span className="ps-dish" aria-hidden="true">
           <span className="bowl" />
