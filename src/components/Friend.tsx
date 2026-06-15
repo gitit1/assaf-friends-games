@@ -25,6 +25,8 @@ type Props = {
   lively?: boolean
   /** A one-shot gesture: hug / high-five / kiss (arms + pseudo-3D lean). */
   action?: 'five' | 'hug' | 'kiss' | null
+  /** Looping march — legs step, arms pump, body bobs (for the pet walking). */
+  walking?: boolean
 }
 
 // The little moves a friend can do when tapped (besides jumping).
@@ -41,6 +43,7 @@ export default function Friend({
   outfit,
   lively = false,
   action = null,
+  walking = false,
 }: Props) {
   const [move, setMove] = useState<string | null>(null)
   const kind = FRIEND_KINDS[index % FRIEND_KINDS.length]
@@ -73,6 +76,7 @@ export default function Friend({
         outfit={outfit}
         lively={lively}
         action={action}
+        walking={walking}
       />
     </span>
   )

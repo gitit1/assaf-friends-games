@@ -6330,22 +6330,30 @@ button {
 .pet-room .pet-tap {
   transition: transform 0.8s ease;
 }
+/* ── pet transform stack ── each nested layer owns exactly ONE transform, so
+   traversal (move across the room), facing (mirror), and posture (sit/lean) all
+   compose at once instead of fighting over the single `transform` on .pet-tap.
+   Identity by default; the game drives --walk-x / --face / posture per scene. */
+.pet-stage {
+  display: inline-block;
+  transform: translateX(var(--walk-x, 0px));
+  transition: transform 0.7s ease-in-out;
+}
+.pet-facing {
+  display: inline-block;
+  transform: scaleX(var(--face, 1));
+  transform-origin: center bottom;
+}
+.pet-body {
+  display: inline-block;
+  transform-origin: center bottom;
+}
 .pet-room:not(.kmode):not(.bmode):not(.is-walk) .pet-tap {
   animation: pet-idle-bob 3.4s ease-in-out infinite;
 }
-/* walking outside: a bouncy walk-in-place while the scenery scrolls by */
-.pet-room.is-walk .pet-tap {
-  animation: pet-walk 0.5s ease-in-out infinite;
-}
-@keyframes pet-walk {
-  0%,
-  100% {
-    transform: translateY(0) rotate(-2.5deg);
-  }
-  50% {
-    transform: translateY(-7%) rotate(2.5deg);
-  }
-}
+/* walking outside: the friend marches in place (real legs + arms via the
+   .is-walking rig) while the scenery scrolls by — so .pet-tap itself no longer
+   bobs the whole body (that would double up with the march's own bob). */
 /* bathroom: the pet actually MOVES — scrubs under the shower / at the sink, and
    bobs while sitting on the toilet */
 .pet-room.bath-shower .pet-tap,
@@ -11326,6 +11334,76 @@ button {
 }
 .friend-art.act-kiss .lips-line {
   opacity: 0 !important;
+}
+
+/* ===================== friend walk cycle (a calm march in place) ===================== */
+/* The friends are front-facing mascots, so "walking" reads as a lively march:
+   each leg lifts + plants in alternation, the arms pump in opposition, and the
+   whole body bobs up on every step while swaying with the weight shift. Built
+   from the SAME separate limbs as the gestures, so one rig animates all 100
+   friends. Toggled by the `walking` prop → `.is-walking` on `.friend-art`. */
+.friend-art.is-walking {
+  animation: walk-bob 0.7s ease-in-out infinite;
+}
+/* legs: each foot steps half a cycle apart (left in the first half, right in the
+   second). Only `transform` is animated, so it composes on top of every friend's
+   own foot position (incl. the per-friend overrides for friends 1–10). */
+.friend-art.is-walking .gal-foot.l {
+  animation: walk-foot-l 0.7s ease-in-out infinite;
+}
+.friend-art.is-walking .gal-foot.r {
+  animation: walk-foot-r 0.7s ease-in-out infinite;
+}
+/* arms pump around the shoulder (body side), opposite to each other — same pivot
+   the gestures use, so the arm never detaches from the body */
+.friend-art.is-walking .gal-arm.l {
+  transform-origin: right center;
+  animation: walk-arm-l 0.7s ease-in-out infinite;
+}
+.friend-art.is-walking .gal-arm.r {
+  transform-origin: left center;
+  animation: walk-arm-r 0.7s ease-in-out infinite;
+}
+/* body lifts up onto the standing leg on each step (once per step), sways gently */
+@keyframes walk-bob {
+  0% { transform: translateY(0) rotate(-2.6deg); }
+  20% { transform: translateY(-9%) rotate(-0.6deg); }
+  50% { transform: translateY(0) rotate(2.6deg); }
+  70% { transform: translateY(-9%) rotate(0.6deg); }
+  100% { transform: translateY(0) rotate(-2.6deg); }
+}
+/* left knee lifts the foot high, tilts the toe, and plants — first half of cycle */
+@keyframes walk-foot-l {
+  0% { transform: translateY(0) rotate(0deg); }
+  20% { transform: translateY(-95%) rotate(-14deg); }
+  42% { transform: translateY(0) rotate(0deg); }
+  100% { transform: translateY(0) rotate(0deg); }
+}
+/* right foot steps in the second half */
+@keyframes walk-foot-r {
+  0% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(0) rotate(0deg); }
+  70% { transform: translateY(-95%) rotate(14deg); }
+  92% { transform: translateY(0) rotate(0deg); }
+  100% { transform: translateY(0) rotate(0deg); }
+}
+/* arms swing around their resting angle (.l rests +30°, .r rests −30°), opposed */
+@keyframes walk-arm-l {
+  0%, 100% { transform: rotate(52deg); }
+  50% { transform: rotate(6deg); }
+}
+@keyframes walk-arm-r {
+  0%, 100% { transform: rotate(-6deg); }
+  50% { transform: rotate(-52deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .friend-art.is-walking,
+  .friend-art.is-walking .gal-foot.l,
+  .friend-art.is-walking .gal-foot.r,
+  .friend-art.is-walking .gal-arm.l,
+  .friend-art.is-walking .gal-arm.r {
+    animation: none !important;
+  }
 }
 
 /* ===================== home screen — gentle staggered entrance ===================== */

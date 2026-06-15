@@ -196,12 +196,14 @@ function FriendDressed({
   outfit,
   bouncing,
   eating,
+  walking,
 }: {
   index: number
   px: number
   outfit: Outfit
   bouncing?: boolean
   eating?: boolean
+  walking?: boolean
 }) {
   return (
     <span className={`pet-figure ${eating ? 'is-eating' : ''}`} style={{ fontSize: `${px}px` }}>
@@ -212,6 +214,7 @@ function FriendDressed({
         bouncing={bouncing}
         eating={eating}
         outfit={outfit}
+        walking={walking}
       />
     </span>
   )
@@ -779,7 +782,15 @@ export default function Tamagotchi({ onExit }: GameProps) {
           <PlayScene kind={playing.kind} friend={pet.friend} outfit={pet.outfit} buddy={buddy} />
         ) : (
         <button className="pet-tap" onClick={pokePet} aria-label={friendName(pet.friend)}>
-          <FriendDressed index={pet.friend} px={Math.round(fitPet(pet.friend) * friendMaxDim(pet.friend))} outfit={pet.outfit} bouncing={bounce} eating={!!eatFood} />
+          {/* transform-layer stack: each wrapper owns ONE transform (traversal X /
+              facing mirror / posture) so they compose instead of overwriting */}
+          <span className="pet-stage">
+            <span className="pet-facing">
+              <span className="pet-body">
+                <FriendDressed index={pet.friend} px={Math.round(fitPet(pet.friend) * friendMaxDim(pet.friend))} outfit={pet.outfit} bouncing={bounce} eating={!!eatFood} walking={scene === 'walk'} />
+              </span>
+            </span>
+          </span>
           {stainCount > 0 && !bathroom && !eatFood &&
             STAIN_SPOTS.slice(0, stainCount).map((s, i) => (
               <span
