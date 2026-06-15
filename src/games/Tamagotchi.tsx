@@ -525,13 +525,20 @@ export default function Tamagotchi({ onExit }: GameProps) {
     setPetX(0)
   }
 
-  // open the drinks shelf (clearing any other scene first)
+  // drinks live in the fridge too — so the friend strolls to the kitchen, opens it,
+  // and the drinks shelf appears (same journey as food)
   function openBar() {
-    if (!pet) return
+    if (!pet || kitchen) return
     unlockAudio()
     playTap()
     resetScenes()
-    setBar(true)
+    setKitchen(true)
+    setWalking(true)
+    setWalkMs(2700)
+    setPetX(Math.round(Math.min(vp.w, 440) * 0.3))
+    eatTimers.current.push(window.setTimeout(() => setWalking(false), 2700))
+    eatTimers.current.push(window.setTimeout(() => { setFridgeOpen(true); playPop() }, 2900))
+    eatTimers.current.push(window.setTimeout(() => setBar(true), 3550))
   }
 
   // walk / clean / sleep / hug all go through the reaction engine
@@ -640,25 +647,35 @@ export default function Tamagotchi({ onExit }: GameProps) {
     unlockAudio()
     playTap()
     setBar(false)
+    setFridgeOpen(false)
+    setKitchen(false)
     setMode('drink')
     setPlaying(null)
     speak(getSettings().lang === 'en' ? t(`pet.drink.${d.key}`) : d.name)
     eatTimers.current.forEach((t) => window.clearTimeout(t))
     eatTimers.current = []
-    setEatFood(d.emoji)
     setBite(0)
     setPoof(false)
+    setHeld(d.emoji) // takes the bottle/cup/carton and carries it back
+    setWalking(true)
+    setWalkMs(2500)
+    setPetX(0)
+    eatTimers.current.push(window.setTimeout(() => setWalking(false), 2500))
+    const D = 2600
+    const GULP = 800
+    // arrived: raise the vessel to the mouth and drink from it (tilt + gulps)
+    eatTimers.current.push(window.setTimeout(() => { setHeld(null); setEatFood(d.emoji) }, D))
     for (let k = 0; k < 3; k++) {
-      eatTimers.current.push(window.setTimeout(() => { playMunch(); setBite(k + 1) }, 350 + k * 600))
+      eatTimers.current.push(window.setTimeout(() => { playMunch(); setBite(k + 1) }, D + 450 + k * GULP))
     }
-    eatTimers.current.push(window.setTimeout(() => { setPoof(true); playPop() }, 350 + 3 * 600))
+    eatTimers.current.push(window.setTimeout(() => { setPoof(true); playPop() }, D + 450 + 3 * GULP))
     eatTimers.current.push(
       window.setTimeout(() => {
         setEatFood(null)
         setPoof(false)
         setBite(0)
         react('water', d.key, { silent: true })
-      }, 350 + 3 * 600 + 500),
+      }, D + 450 + 3 * GULP + 500),
     )
   }
 
@@ -760,7 +777,7 @@ export default function Tamagotchi({ onExit }: GameProps) {
       <div
         className={`pet-room tod-${timeOfDay} pose-${posture} expr-${expression} ${scene === 'walk' ? 'is-walk' : ''} ${
           kitchen ? 'kmode' : ''
-        } ${kitchen ? 'is-kitchen' : ''} ${eatSetting ? 'emode' : ''} ${fridgeOpen ? 'fridge-open' : ''} ${eatSetting ? `eat-${eatSetting}` : ''} ${
+        } ${kitchen ? 'is-kitchen' : ''} ${eatSetting || eatFood ? 'emode' : ''} ${walking ? 'is-striding' : ''} ${fridgeOpen ? 'fridge-open' : ''} ${eatSetting ? `eat-${eatSetting}` : ''} ${
           bathroom ? `bmode bath-${bathroom}` : ''
         } ${sad ? 'is-sad' : ''}`}
       >
