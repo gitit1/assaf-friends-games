@@ -6367,7 +6367,7 @@ button {
   0%, 100% { transform: translate(-50%, 0) rotate(-7deg); }
   50% { transform: translate(-50%, -12%) rotate(4deg); }
 }
-.pet-room:not(.kmode):not(.bmode):not(.is-walk) .pet-tap {
+.pet-room:not(.kmode):not(.bmode):not(.is-walk):not(.emode) .pet-tap {
   animation: pet-idle-bob 3.4s ease-in-out infinite;
 }
 /* walking outside: the friend marches in place (real legs + arms via the
