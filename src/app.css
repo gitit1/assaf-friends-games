@@ -6694,8 +6694,45 @@ button {
   transition: transform 2.4s cubic-bezier(0.45, 0.05, 0.4, 1);
 }
 .pet-room.kmode .ps-living,
-.pet-room.bmode .ps-living {
+.pet-room.bmode .ps-living,
+.pet-room.is-sleep .ps-living {
   transform: translateX(-134%);
+}
+/* a simple bedroom backdrop (slides in from the right for sleep) — a soft night
+   wall with a round moon-window, so the bed is in a real bedroom (not the living
+   room) */
+.ps-bedroom {
+  position: absolute;
+  inset: 0;
+  transform: translateX(118%);
+  transition: transform 2.2s cubic-bezier(0.45, 0.05, 0.4, 1);
+  pointer-events: none;
+  z-index: 0;
+}
+.pet-room.is-sleep .ps-bedroom {
+  transform: translateX(0);
+}
+.ps-bedroom::before {
+  /* the wall */
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 22%;
+  background: linear-gradient(180deg, #5b6aa6, #46508a);
+}
+.ps-bedroom::after {
+  /* a round moon window */
+  content: '';
+  position: absolute;
+  right: 14%;
+  top: 16%;
+  width: 18%;
+  height: 32%;
+  border-radius: 50%;
+  background: radial-gradient(circle at 38% 34%, #fdf6d8, #e9dca0 60%, #d9c97e);
+  box-shadow: 0 0 0 5px rgba(255, 255, 255, 0.18), 0 0 22px rgba(255, 247, 200, 0.5);
 }
 /* tiled kitchen floor */
 .kmode .ps-floor {
@@ -12974,7 +13011,8 @@ button {
   transition: opacity 0.5s ease, transform 0.5s ease;
   z-index: 0;
 }
-.pet-room.is-sleep .ps-bed {
+/* the bed appears once the pet has crossed to the bedroom and ARRIVED */
+.pet-room.is-sleep:not(.is-striding) .ps-bed {
   opacity: 1;
   transform: translateX(-50%);
 }
@@ -13052,7 +13090,7 @@ button {
   transition: opacity 0.5s ease, transform 0.5s ease;
   z-index: 4;
 }
-.pet-room.is-sleep .ps-quilt {
+.pet-room.is-sleep:not(.is-striding) .ps-quilt {
   opacity: 1;
   transform: translateX(-50%);
 }

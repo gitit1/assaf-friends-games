@@ -613,12 +613,13 @@ export default function Tamagotchi({ onExit }: GameProps) {
     // sleep → the bedroom: the bed slides in, the friend walks over, LIES DOWN on it,
     // the lights go dim with floating Zzz, then it wakes up and gets back up
     if (type === 'sleep') {
-      setSleeping(true) // bedroom scenery slides in + lights dim
-      setWalking(true) // pads over to the bed (legs march while the bed slides in)
-      eatTimers.current.push(window.setTimeout(() => { setWalking(false); setLyingDown(true) }, 1100)) // climb in + lie down
-      eatTimers.current.push(window.setTimeout(() => react('sleep'), 1300))
-      eatTimers.current.push(window.setTimeout(() => setLyingDown(false), 5400)) // wakes up, sits up
-      eatTimers.current.push(window.setTimeout(() => setSleeping(false), 6000)) // gets out of bed
+      setSleeping(true) // the bedroom slides in + lights dim
+      setWalking(true) // crosses the house to the bedroom (legs march)
+      eatTimers.current.push(window.setTimeout(() => setWalking(false), 2000)) // arrived → the bed appears
+      eatTimers.current.push(window.setTimeout(() => setLyingDown(true), 2400)) // climbs in + lies down
+      eatTimers.current.push(window.setTimeout(() => react('sleep'), 2600))
+      eatTimers.current.push(window.setTimeout(() => setLyingDown(false), 6400)) // wakes up, sits up
+      eatTimers.current.push(window.setTimeout(() => setSleeping(false), 7000)) // gets out of bed
       return
     }
     const r = react(type) // the engine plays the right sound for the outcome
@@ -944,7 +945,8 @@ export default function Tamagotchi({ onExit }: GameProps) {
             <span className="seat" />
             <span className="base" />
           </span>
-          {/* the bed it walks to and lies down on at bedtime */}
+          {/* the bedroom it crosses to at bedtime, and the bed inside it */}
+          <span className="ps-bedroom" />
           <span className="ps-bed">
             <span className="bed-frame" />
             <span className="bed-mattress" />
