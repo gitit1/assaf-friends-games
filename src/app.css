@@ -6398,7 +6398,7 @@ button {
   0%, 100% { transform: translate(-50%, 0) rotate(-7deg); }
   50% { transform: translate(-50%, -12%) rotate(4deg); }
 }
-.pet-room:not(.kmode):not(.bmode):not(.is-walk):not(.emode):not(.is-striding) .pet-tap {
+.pet-room:not(.kmode):not(.bmode):not(.is-walk):not(.emode):not(.is-striding):not(.is-sleep) .pet-tap {
   animation: pet-idle-bob 3.4s ease-in-out infinite;
 }
 /* walking outside: the friend marches in place (real legs + arms via the
@@ -12930,4 +12930,141 @@ button {
 @keyframes an-eat-reach {
   0%, 100% { transform: rotate(-8deg); }
   45% { transform: translateY(-60%) rotate(-26deg); }
+}
+/* ===================== bedtime: bed + lying down + dim + Zzz ===================== */
+/* the bed slides in (behind the pet); it walks over and lies down on the mattress */
+.ps-bed {
+  position: absolute;
+  left: 50%;
+  bottom: 6%;
+  width: 76%;
+  height: 30%;
+  transform: translateX(-50%) translateY(14px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.5s ease, transform 0.5s ease;
+  z-index: 0;
+}
+.pet-room.is-sleep .ps-bed {
+  opacity: 1;
+  transform: translateX(-50%);
+}
+.ps-bed .bed-frame {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 48%;
+  background: linear-gradient(180deg, #8b5a2b, #6c4320);
+  border-radius: 8px;
+  box-shadow: 0 5px 9px rgba(0, 0, 0, 0.28);
+}
+.ps-bed .bed-mattress {
+  position: absolute;
+  left: 3%;
+  right: 3%;
+  bottom: 36%;
+  height: 34%;
+  background: linear-gradient(180deg, #fdeef4, #f4cfdd);
+  border-radius: 12px 12px 6px 6px;
+  box-shadow: inset 0 3px 5px rgba(255, 255, 255, 0.6);
+}
+.ps-bed .bed-pillow {
+  position: absolute;
+  left: 9%;
+  bottom: 46%;
+  width: 34%;
+  height: 30%;
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.14);
+  z-index: 1;
+}
+.ps-bed .bed-blanket {
+  display: none; /* replaced by the foreground quilt that tucks the pet in */
+  position: absolute;
+  right: 3%;
+  bottom: 36%;
+  width: 60%;
+  height: 32%;
+  background: linear-gradient(180deg, #7cc4f5, #4f9fe0);
+  border-radius: 10px 10px 6px 6px;
+  box-shadow: inset 0 3px 5px rgba(255, 255, 255, 0.32);
+  z-index: 2;
+}
+/* lights dim to a cosy night while sleeping */
+.pet-room.is-sleep::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(18, 22, 56, 0.42);
+  z-index: 6;
+  pointer-events: none;
+  animation: sleep-dim 0.6s ease forwards;
+}
+@keyframes sleep-dim {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+/* the quilt — in FRONT of the pet, tucking its lower body in so the bedtime look
+   is identical for every pet shape (only the head + chest show above it) */
+.ps-quilt {
+  position: absolute;
+  left: 50%;
+  bottom: 6%;
+  width: 64%;
+  height: 22%;
+  transform: translateX(-50%) translateY(14px);
+  background: linear-gradient(180deg, #86c8f6, #4f9fe0);
+  border-radius: 44% 44% 12% 12% / 74% 74% 26% 26%;
+  box-shadow: inset 0 5px 7px rgba(255, 255, 255, 0.34), 0 -2px 6px rgba(0, 0, 0, 0.16);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.5s ease, transform 0.5s ease;
+  z-index: 4;
+}
+.pet-room.is-sleep .ps-quilt {
+  opacity: 1;
+  transform: translateX(-50%);
+}
+/* the pet lies down in bed: it sinks low (lower body tucked under the quilt, so
+   the look is the same for every pet shape) and rests its head back on the pillow */
+.pet-room.pose-sleep .pet-body {
+  transform: translateY(24%) rotate(-13deg);
+  transform-origin: center bottom;
+  transition: transform 0.6s cubic-bezier(0.34, 1.2, 0.5, 1);
+}
+.pet-room.is-sleep .pet-tap {
+  z-index: 2; /* the pet lies ON the bed (in front of it) */
+}
+/* floating Zzz over the pet's head */
+.ps-zzz {
+  position: absolute;
+  top: 30%;
+  left: 38%;
+  opacity: 0;
+  z-index: 8;
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+}
+.pet-room.is-sleep .ps-zzz {
+  opacity: 1;
+}
+.ps-zzz i {
+  position: absolute;
+  font-family: 'Fredoka', 'Heebo', sans-serif;
+  font-weight: 800;
+  font-style: normal;
+  color: #d4e3ff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+  opacity: 0;
+  animation: zzz-rise 2.6s ease-in-out infinite;
+}
+.ps-zzz i:nth-child(1) { font-size: 15px; left: 0; animation-delay: 0s; }
+.ps-zzz i:nth-child(2) { font-size: 20px; left: 11px; animation-delay: 0.85s; }
+.ps-zzz i:nth-child(3) { font-size: 26px; left: 25px; animation-delay: 1.7s; }
+@keyframes zzz-rise {
+  0% { transform: translateY(0) scale(0.6); opacity: 0; }
+  20% { opacity: 1; }
+  100% { transform: translateY(-46px) scale(1.1); opacity: 0; }
 }

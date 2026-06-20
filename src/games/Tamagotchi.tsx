@@ -374,6 +374,8 @@ export default function Tamagotchi({ onExit }: GameProps) {
   const [petX, setPetX] = useState(0) // how far across the room the pet has strolled (px on .pet-stage)
   const [walkMs, setWalkMs] = useState(700) // how long that stroll takes
   const [held, setHeld] = useState<string | null>(null) // food carried in the hand on the walk back from the fridge
+  const [sleeping, setSleeping] = useState(false) // in the bedroom (bed + dim lights)
+  const [lyingDown, setLyingDown] = useState(false) // actually lying on the bed
   const [fx, setFx] = useState<{ emoji: string; id: number } | null>(null)
   const [burst, setBurst] = useState<{ id: number; bits: { e: string; x: number; y: number; d: number }[] } | null>(null)
   const [bounce, setBounce] = useState(false)
@@ -572,6 +574,8 @@ export default function Tamagotchi({ onExit }: GameProps) {
     setScene('home')
     setWalking(false)
     setPetX(0)
+    setSleeping(false)
+    setLyingDown(false)
   }
 
   // drinks live in the fridge too — so the friend strolls to the kitchen, opens it,
@@ -602,6 +606,17 @@ export default function Tamagotchi({ onExit }: GameProps) {
       setBathroom(pet.clean < 40 ? 'shower' : 'facewash')
       eatTimers.current.push(window.setTimeout(() => { react('clean'); playSuccess() }, 1500))
       eatTimers.current.push(window.setTimeout(() => setBathroom(null), 2700))
+      return
+    }
+    // sleep → the bedroom: the bed slides in, the friend walks over, LIES DOWN on it,
+    // the lights go dim with floating Zzz, then it wakes up and gets back up
+    if (type === 'sleep') {
+      setSleeping(true) // bedroom scenery slides in + lights dim
+      setWalking(true) // pads over to the bed (legs march while the bed slides in)
+      eatTimers.current.push(window.setTimeout(() => { setWalking(false); setLyingDown(true) }, 1100)) // climb in + lie down
+      eatTimers.current.push(window.setTimeout(() => react('sleep'), 1300))
+      eatTimers.current.push(window.setTimeout(() => setLyingDown(false), 5400)) // wakes up, sits up
+      eatTimers.current.push(window.setTimeout(() => setSleeping(false), 6000)) // gets out of bed
       return
     }
     const r = react(type) // the engine plays the right sound for the outcome
@@ -866,7 +881,7 @@ export default function Tamagotchi({ onExit }: GameProps) {
           kitchen ? 'kmode' : ''
         } ${kitchen ? 'is-kitchen' : ''} ${eatSetting || eatFood ? 'emode' : ''} ${walking ? 'is-striding' : ''} ${fridgeOpen ? 'fridge-open' : ''} ${eatSetting ? `eat-${eatSetting}` : ''} ${
           bathroom ? `bmode bath-${bathroom}` : ''
-        } ${sad ? 'is-sad' : ''}`}
+        } ${sleeping ? 'is-sleep' : ''} ${lyingDown ? 'pose-sleep' : ''} ${sad ? 'is-sad' : ''}`}
       >
         {/* illustrated 2D room behind the pet */}
         <div className="pet-scene" aria-hidden="true">
@@ -916,6 +931,13 @@ export default function Tamagotchi({ onExit }: GameProps) {
             <span className="tank" />
             <span className="seat" />
             <span className="base" />
+          </span>
+          {/* the bed it walks to and lies down on at bedtime */}
+          <span className="ps-bed">
+            <span className="bed-frame" />
+            <span className="bed-mattress" />
+            <span className="bed-pillow" />
+            <span className="bed-blanket" />
           </span>
           {/* the outdoors — for a real walk (and outdoor play later) */}
           <span className="ps-outdoor">
@@ -1048,6 +1070,14 @@ export default function Tamagotchi({ onExit }: GameProps) {
           <i />
           <i />
           <i />
+        </span>
+        {/* the quilt is in FRONT of the pet, tucking its lower body into bed */}
+        <span className="ps-quilt" aria-hidden="true" />
+        {/* floating Zzz over the sleeping pet */}
+        <span className="ps-zzz" aria-hidden="true">
+          <i>z</i>
+          <i>z</i>
+          <i>z</i>
         </span>
         {!playing && !eatFood && (!QUIET_FACES.has(expression) || sad) && (
           <span className="pet-mood" key={expression} aria-hidden="true">
