@@ -603,9 +603,11 @@ export default function Tamagotchi({ onExit }: GameProps) {
     // cleaning → the bathroom: a full SHOWER if really dirty, a soapy face-wash if
     // it just needs a freshen-up. The water/soap runs, then it's clean.
     if (type === 'clean') {
-      setBathroom(pet.clean < 40 ? 'shower' : 'facewash')
-      eatTimers.current.push(window.setTimeout(() => { react('clean'); playSuccess() }, 1500))
-      eatTimers.current.push(window.setTimeout(() => setBathroom(null), 2700))
+      setBathroom(pet.clean < 40 ? 'shower' : 'facewash') // the bathroom slides in
+      setWalking(true) // pads over to the bathroom (legs march while it slides in)
+      eatTimers.current.push(window.setTimeout(() => setWalking(false), 2200)) // arrived
+      eatTimers.current.push(window.setTimeout(() => { react('clean'); playSuccess() }, 2600))
+      eatTimers.current.push(window.setTimeout(() => setBathroom(null), 3800))
       return
     }
     // sleep → the bedroom: the bed slides in, the friend walks over, LIES DOWN on it,
@@ -633,8 +635,10 @@ export default function Tamagotchi({ onExit }: GameProps) {
     unlockAudio()
     playTap()
     resetScenes()
-    setBathroom('toilet')
-    eatTimers.current.push(window.setTimeout(() => setBathroom(null), 2600))
+    setBathroom('toilet') // the bathroom slides in
+    setWalking(true) // walk over to the bathroom
+    eatTimers.current.push(window.setTimeout(() => setWalking(false), 2200))
+    eatTimers.current.push(window.setTimeout(() => setBathroom(null), 3800))
     setPet((p) => (p ? { ...p, happy: clamp(p.happy + 4) } : p))
   }
 

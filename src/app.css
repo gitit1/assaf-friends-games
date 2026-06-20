@@ -6423,11 +6423,11 @@ button {
    bobs the whole body (that would double up with the march's own bob). */
 /* bathroom: the pet actually MOVES — scrubs under the shower / at the sink, and
    bobs while sitting on the toilet */
-.pet-room.bath-shower .pet-tap,
-.pet-room.bath-facewash .pet-tap {
+.pet-room.bath-shower:not(.is-striding) .pet-tap,
+.pet-room.bath-facewash:not(.is-striding) .pet-tap {
   animation: pet-scrub 0.5s ease-in-out infinite;
 }
-.pet-room.bath-toilet .pet-tap {
+.pet-room.bath-toilet:not(.is-striding) .pet-tap {
   animation: pet-sit 2.2s ease-in-out infinite;
 }
 @keyframes pet-scrub {
@@ -6851,12 +6851,12 @@ button {
   position: absolute;
   inset: 0;
   z-index: 0;
-  opacity: 0;
-  transition: opacity 0.4s ease;
+  transform: translateX(118%); /* waits off-screen right… */
+  transition: transform 2.2s cubic-bezier(0.45, 0.05, 0.4, 1);
   pointer-events: none;
 }
 .bmode .ps-bathroom {
-  opacity: 1;
+  transform: translateX(0); /* …slides in as the pet walks to the bathroom */
 }
 /* wall tiles */
 .ps-bathroom::before {
