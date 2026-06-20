@@ -671,7 +671,8 @@ export default function Tamagotchi({ onExit }: GameProps) {
     playTap()
     setFridge(false)
     setFridgeOpen(false)
-    setKitchen(false)
+    // stay IN the kitchen (kmode) — it eats at the kitchen/dining table, so the
+    // table never follows it back to the living room
     setEatSetting(settingFor(food.key)) // table / standing / cushion
     setMode('eat')
     setPlaying(null)
@@ -681,7 +682,7 @@ export default function Tamagotchi({ onExit }: GameProps) {
     setBite(0)
     setPoof(false)
     setHeld(food.emoji) // takes the food OUT of the fridge — carries it in its hand
-    setWalking(true) // stroll back to the DINING table (in the room, not the kitchen), food in hand
+    setWalking(true) // walks from the fridge over to the table (in the kitchen), food in hand
     setWalkMs(2500)
     setPetX(0)
     eatTimers.current.push(window.setTimeout(() => setWalking(false), 2500))
@@ -704,6 +705,7 @@ export default function Tamagotchi({ onExit }: GameProps) {
         setPoof(false)
         setBite(0)
         setEatSetting(null)
+        setKitchen(false) // done eating — leaves the kitchen, walks back to the living room
         react('feed', food.key, { silent: true })
       }, D + 450 + 3 * BITE + 600),
     )

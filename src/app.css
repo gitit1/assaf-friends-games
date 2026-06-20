@@ -6494,7 +6494,9 @@ button {
   height: 50%;
   transform: translateX(16px);
 }
-.is-kitchen .ps-fridge {
+/* the fridge appears once the pet has ARRIVED in the kitchen (not while walking
+   over) — it shows up in place, then its doors open */
+.is-kitchen:not(.is-striding) .ps-fridge {
   opacity: 1;
   transform: none;
 }
@@ -6932,7 +6934,9 @@ button {
   opacity: 0;
   pointer-events: none;
 }
-.bath-shower .ps-rain {
+/* the water only starts falling once the pet has ARRIVED under the shower
+   (not while it's still walking over) */
+.bath-shower:not(.is-striding) .ps-rain {
   opacity: 1;
 }
 .ps-rain i {
@@ -6945,7 +6949,7 @@ button {
   box-shadow: 0 0 6px rgba(110, 200, 240, 0.75);
   opacity: 0;
 }
-.bath-shower .ps-rain i {
+.bath-shower:not(.is-striding) .ps-rain i {
   animation: water-drop 0.8s linear infinite;
 }
 .ps-rain i:nth-child(1) { left: 3%; animation-delay: 0s; animation-duration: 0.74s; }
