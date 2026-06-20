@@ -90,6 +90,7 @@ export const HE: Dict = {
   'game.shop': { text: 'קופה' },
   'shop.pay': { text: 'מכור!' },
   'shop.coin': { text: 'מטבע' },
+  'game.train': { text: 'רכבת מספרים' },
   'game.bubbles': { text: 'בועות' },
   'ice.open': { text: 'חופשי' },
   'ice.closed': { text: 'הזמנות' },

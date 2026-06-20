@@ -36,6 +36,7 @@ import FeedAnimals from './FeedAnimals'
 import CakeMaker from './CakeMaker'
 import Garden from './Garden'
 import ShopGame from './ShopGame'
+import NumberTrain from './NumberTrain'
 import BubblePopGame from './BubblePopGame'
 import SpellWord from './SpellWord'
 import FirstLetter from './FirstLetter'
@@ -118,6 +119,14 @@ export const GAMES: GameDef[] = [
     color: 'linear-gradient(160deg, #818cf8, #4f46e5)',
     category: 'numbers',
     Component: ShopGame,
+  },
+  {
+    id: 'train',
+    title: 'רכבת מספרים',
+    emoji: '🚂',
+    color: 'linear-gradient(160deg, #38bdf8, #0369a1)',
+    category: 'numbers',
+    Component: NumberTrain,
   },
   {
     id: 'sortshelf',

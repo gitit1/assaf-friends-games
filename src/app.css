@@ -14215,3 +14215,121 @@ button {
 .shop-sell {
   background: linear-gradient(160deg, #818cf8, #4f46e5);
 }
+/* ===================== number train ===================== */
+.train-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  width: min(560px, calc(100vw - 32px));
+  margin: 0 auto;
+  padding-bottom: 16px;
+}
+.train-score {
+  align-self: flex-end;
+  font-weight: 800;
+  color: #fff;
+  font-size: 1.1rem;
+}
+.train-wrap {
+  position: relative;
+  width: 100%;
+  min-height: 24vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.train-track {
+  display: flex;
+  align-items: flex-end;
+  gap: 5px;
+  direction: ltr;
+  transition: transform 1.4s cubic-bezier(0.5, 0, 0.65, 1);
+}
+.train-track.go {
+  transform: translateX(130%);
+}
+.train-engine {
+  font-size: 3rem;
+  line-height: 1;
+}
+.train-car {
+  position: relative;
+  width: 50px;
+  height: 50px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  font-family: 'Fredoka', 'Heebo', sans-serif;
+  font-weight: 900;
+  font-size: 1.8rem;
+  color: #fff;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.25), inset 0 -4px 6px rgba(0, 0, 0, 0.18);
+  animation: train-hop 0.3s ease;
+}
+.train-car::after {
+  content: '';
+  position: absolute;
+  bottom: -7px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 9px;
+  height: 9px;
+  background: #334155;
+  border-radius: 50%;
+  box-shadow: -12px 0 0 #334155, 12px 0 0 #334155;
+}
+.train-slot {
+  width: 50px;
+  height: 50px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  font-family: 'Fredoka', 'Heebo', sans-serif;
+  font-weight: 900;
+  font-size: 1.6rem;
+  color: rgba(255, 255, 255, 0.55);
+  border: 3px dashed rgba(255, 255, 255, 0.4);
+  animation: train-slot-pulse 1.3s ease-in-out infinite;
+}
+@keyframes train-slot-pulse {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+.train-rail {
+  width: 96%;
+  height: 6px;
+  margin-top: 7px;
+  background: repeating-linear-gradient(90deg, #64748b 0 14px, #475569 14px 20px);
+  border-radius: 3px;
+}
+.train-choices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+  direction: ltr;
+}
+.train-num {
+  width: 60px;
+  height: 60px;
+  border: none;
+  border-radius: 14px;
+  color: #fff;
+  font-family: 'Fredoka', 'Heebo', sans-serif;
+  font-weight: 900;
+  font-size: 2rem;
+  cursor: pointer;
+  box-shadow: 0 5px 0 rgba(0, 0, 0, 0.28), 0 7px 12px rgba(0, 0, 0, 0.3);
+  transition: transform 0.1s, box-shadow 0.1s;
+}
+.train-num:active {
+  transform: translateY(3px);
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.28);
+}
+@keyframes train-hop {
+  0% { transform: translateY(-14px) scale(0.7); }
+  100% { transform: translateY(0) scale(1); }
+}

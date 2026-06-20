@@ -89,6 +89,7 @@ export const EN: Dict = {
   'game.shop': { text: 'Shop till' },
   'shop.pay': { text: 'Sold!' },
   'shop.coin': { text: 'Coin' },
+  'game.train': { text: 'Number train' },
   'game.bubbles': { text: 'Bubbles' },
   'ice.open': { text: 'Free' },
   'ice.closed': { text: 'Orders' },
