@@ -8,11 +8,12 @@ import { randFriendIndex, friendCount } from '../level'
 import { randInt } from './util'
 import { useT } from '../i18n'
 
-// Ice-cream stand: Assaf scoops "flavours" (which are really colours) onto a cone
-// and serves them to a friend. Two modes — OPEN (free play) and CLOSED, a real
-// little game: a QUEUE of friends comes to the stand, each ORDERS some scoops,
-// and Assaf builds the matching cone and serves. No harsh fail — a wrong cone
-// just gets a gentle nudge so he can fix it.
+// Ice-cream PARLOUR: Assaf scoops "flavours" (colours) onto a cone and decorates
+// it with toppings — chocolate sauce, whipped cream, sprinkles, a cherry. Two
+// modes:
+//   FREE  — build whatever you like; tap the friend to hand it over (no button)
+//   ORDER — a friend orders some scoops, build the matching cone and serve.
+// No harsh fail: a wrong order just gets a gentle nudge so he can fix it.
 const FLAVORS = [
   { key: 'vanilla', color: '#f3e4ba' },
   { key: 'choc', color: '#7a5234' },
@@ -21,6 +22,9 @@ const FLAVORS = [
   { key: 'blue', color: '#8fc2f0' },
   { key: 'lemon', color: '#f6df5e' },
 ]
+// toppings sit on top of the scoops (order = how they layer, top of cone down)
+const TOPPINGS = ['cherry', 'cream', 'choc', 'sprinkles'] as const
+type Topping = (typeof TOPPINGS)[number]
 const MAX_SCOOPS = 5
 
 function makeOrder() {
@@ -41,8 +45,9 @@ const scaleFor = (idx: number, h: number) => h / FRIEND_NATURAL[friendKindForInd
 
 export default function IceCreamGame({ onExit, friend }: GameProps) {
   const { t } = useT()
-  const [mode, setMode] = useState<'open' | 'closed'>('closed')
+  const [mode, setMode] = useState<'open' | 'closed'>('open')
   const [scoops, setScoops] = useState<number[]>([])
+  const [toppings, setToppings] = useState<Topping[]>([])
   const [customer, setCustomer] = useState(() => friend ?? randFriendIndex())
   const [order, setOrder] = useState<number[]>(() => makeOrder())
   const [queue, setQueue] = useState<number[]>([])
@@ -55,7 +60,6 @@ export default function IceCreamGame({ onExit, friend }: GameProps) {
     timers.current = []
   }
   useEffect(() => {
-    // initial waiting line
     const q: number[] = []
     let last = customer
     for (let i = 0; i < 3; i++) {
@@ -73,10 +77,17 @@ export default function IceCreamGame({ onExit, friend }: GameProps) {
     playPop()
     setScoops((s) => [...s, i])
   }
+  function toggleTopping(kind: Topping) {
+    if (happy || !scoops.length) return // need ice cream before toppings
+    unlockAudio()
+    playPop()
+    setToppings((tp) => (tp.includes(kind) ? tp.filter((k) => k !== kind) : [...tp, kind]))
+  }
   function undo() {
-    if (happy || !scoops.length) return
+    if (happy) return
     playTap()
-    setScoops((s) => s.slice(0, -1))
+    if (toppings.length) setToppings((tp) => tp.slice(0, -1))
+    else if (scoops.length) setScoops((s) => s.slice(0, -1))
   }
 
   function nextCustomer() {
@@ -90,10 +101,11 @@ export default function IceCreamGame({ onExit, friend }: GameProps) {
     })
   }
 
-  function serve() {
+  // hand the cone to the friend (free mode = tap the friend; order mode = serve)
+  function give(checkOrder: boolean) {
     if (happy || !scoops.length) return
     unlockAudio()
-    if (mode === 'closed' && !sameMulti(scoops, order)) {
+    if (checkOrder && !sameMulti(scoops, order)) {
       playNudge() // gentle — let him fix the cone
       return
     }
@@ -105,9 +117,10 @@ export default function IceCreamGame({ onExit, friend }: GameProps) {
       window.setTimeout(() => {
         setHappy(false)
         setScoops([])
+        setToppings([])
         if (mode === 'closed') nextCustomer()
         else setCustomer((c) => nextFriend(c))
-      }, 1500),
+      }, 1600),
     )
   }
 
@@ -117,13 +130,21 @@ export default function IceCreamGame({ onExit, friend }: GameProps) {
     clearTimers()
     setMode(m)
     setScoops([])
+    setToppings([])
     setHappy(false)
     if (m === 'closed') setOrder(makeOrder())
   }
 
+  const has = (k: Topping) => toppings.includes(k)
+
   return (
     <GameShell title={t('game.icecream')} emoji="🍦" onExit={onExit}>
       <div className="ice-screen">
+        {/* the parlour: striped awning + sign */}
+        <div className="ice-awning" aria-hidden="true">
+          <span className="ice-sign">🍨 {t('ice.parlor')} 🍦</span>
+        </div>
+
         {/* mode toggle */}
         <div className="ice-modes">
           <button className={`ice-mode-btn ${mode === 'open' ? 'on' : ''}`} onClick={() => switchMode('open')}>
@@ -149,9 +170,20 @@ export default function IceCreamGame({ onExit, friend }: GameProps) {
             </div>
           )}
           <div className="ice-counter-row">
-            <div className={`ice-customer ${happy ? 'happy' : ''}`}>
-              <Friend index={customer} scale={scaleFor(customer, 96)} lively bouncing={happy} />
-            </div>
+            {/* in FREE mode the friend itself is the "give" button — tap to hand it over */}
+            {mode === 'open' ? (
+              <button
+                className={`ice-customer as-btn ${happy ? 'happy' : ''}`}
+                onClick={() => give(false)}
+                aria-label={t('ice.give')}
+              >
+                <Friend index={customer} scale={scaleFor(customer, 96)} lively bouncing={happy} />
+              </button>
+            ) : (
+              <div className={`ice-customer ${happy ? 'happy' : ''}`}>
+                <Friend index={customer} scale={scaleFor(customer, 96)} lively bouncing={happy} />
+              </div>
+            )}
             <div className="ice-bubble">
               {happy ? (
                 <span className="ice-yum">😋</span>
@@ -162,15 +194,25 @@ export default function IceCreamGame({ onExit, friend }: GameProps) {
                   ))}
                 </span>
               ) : (
-                <span className="ice-free">{t('ice.free')}</span>
+                <span className="ice-free">{scoops.length ? t('ice.give') : t('ice.free')}</span>
               )}
             </div>
           </div>
         </div>
 
-        {/* the cone being built */}
+        {/* the cone being built: toppings on top, then the scoops, then the cone */}
         <div className="ice-cone">
           <div className="ice-scoops">
+            {has('cherry') && <span className="ice-top-cherry" aria-hidden="true">🍒</span>}
+            {has('cream') && <span className="ice-top-cream" aria-hidden="true" />}
+            {has('choc') && <span className="ice-top-choc" aria-hidden="true" />}
+            {has('sprinkles') && (
+              <span className="ice-top-sprinkles" aria-hidden="true">
+                {Array.from({ length: 11 }).map((_, i) => (
+                  <i key={i} style={{ background: FLAVORS[i % FLAVORS.length].color }} />
+                ))}
+              </span>
+            )}
             {scoops
               .map((f, i) => ({ f, i }))
               .reverse()
@@ -181,7 +223,7 @@ export default function IceCreamGame({ onExit, friend }: GameProps) {
           <span className="ice-cone-base" aria-hidden="true" />
         </div>
 
-        {/* the stand: tap a tub to scoop that flavour (colour) */}
+        {/* the flavour tubs — tap to scoop that flavour */}
         <div className="ice-stand">
           {FLAVORS.map((fl, i) => (
             <button key={fl.key} className="ice-tub" onClick={() => addScoop(i)} aria-label={fl.key}>
@@ -190,14 +232,36 @@ export default function IceCreamGame({ onExit, friend }: GameProps) {
           ))}
         </div>
 
+        {/* the toppings bar */}
+        <div className="ice-toppings-bar">
+          {TOPPINGS.map((k) => (
+            <button
+              key={k}
+              className={`ice-top-btn ${has(k) ? 'on' : ''}`}
+              onClick={() => toggleTopping(k)}
+              disabled={!scoops.length}
+              aria-label={t(`ice.top.${k}`)}
+            >
+              <span className={`ice-top-ic ic-${k}`} aria-hidden="true">
+                {k === 'cherry' ? '🍒' : ''}
+              </span>
+              <span className="ice-top-name">{t(`ice.top.${k}`)}</span>
+            </button>
+          ))}
+        </div>
+
         {/* actions */}
         <div className="ice-actions">
-          <button className="dance-ctrl" onClick={undo} disabled={happy || !scoops.length} aria-label={t('ice.undo')}>
+          <button className="dance-ctrl" onClick={undo} disabled={happy || (!scoops.length && !toppings.length)} aria-label={t('ice.undo')}>
             <span aria-hidden="true">↩️</span>
           </button>
-          <button className="big-button ice-serve" onClick={serve} disabled={happy || !scoops.length}>
-            {t('ice.serve')} 🍦
-          </button>
+          {mode === 'closed' ? (
+            <button className="big-button ice-serve" onClick={() => give(true)} disabled={happy || !scoops.length}>
+              {t('ice.serve')} 🍦
+            </button>
+          ) : (
+            <span className="ice-hint">{scoops.length ? `👆 ${t('ice.give')}` : t('ice.buildHint')}</span>
+          )}
         </div>
       </div>
     </GameShell>

@@ -78,6 +78,13 @@ export const HE: Dict = {
   'ice.free': { text: 'מה מכינים?' },
   'ice.serve': { text: 'מוכן!' },
   'ice.undo': { text: 'אחורה' },
+  'ice.parlor': { text: 'גלידריה' },
+  'ice.give': { text: 'תני לו!' },
+  'ice.buildHint': { text: 'בחרי טעמים' },
+  'ice.top.cherry': { text: 'דובדבן' },
+  'ice.top.cream': { text: 'קצפת' },
+  'ice.top.choc': { text: 'שוקולד' },
+  'ice.top.sprinkles': { text: 'סוכריות' },
   // the per-friend "special" button label (chosen by index % 12)
   'world.like.0': { text: 'קפיצה' },
   'world.like.1': { text: 'ריקוד' },

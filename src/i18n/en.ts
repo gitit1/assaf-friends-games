@@ -77,6 +77,13 @@ export const EN: Dict = {
   'ice.free': { text: 'Make ice cream!' },
   'ice.serve': { text: 'Ready!' },
   'ice.undo': { text: 'Undo' },
+  'ice.parlor': { text: 'Ice Cream' },
+  'ice.give': { text: 'Give it!' },
+  'ice.buildHint': { text: 'Pick flavours' },
+  'ice.top.cherry': { text: 'Cherry' },
+  'ice.top.cream': { text: 'Cream' },
+  'ice.top.choc': { text: 'Chocolate' },
+  'ice.top.sprinkles': { text: 'Sprinkles' },
   // the per-friend "special" button label (chosen by index % 12)
   'world.like.0': { text: 'Jump' },
   'world.like.1': { text: 'Dance' },
