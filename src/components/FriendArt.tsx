@@ -417,6 +417,22 @@ const DRESS: Record<string, DressAnchor> = {
   big: { hat: -6, eye: 40, body: 72, heldTop: 80, heldLeft: 84, hw: 54 },
 }
 
+// clothing emoji are drawn as a real CSS garment (a coloured top that drapes over
+// the body) instead of an emoji just laid on top — so it looks WORN. The value is
+// the garment colour. Non-clothing body items stay as their emoji.
+const GARMENT_COLOR: Record<string, string> = {
+  '👕': '#4f9fe0', // t-shirt
+  '👗': '#ec4899', // dress
+  '🦺': '#f59e0b', // vest
+  '🧥': '#8b5a2b', // coat
+  '👔': '#3b4a6b', // shirt + tie
+  '🎽': '#22c55e', // tank top
+  '🩱': '#a855f7', // swimsuit
+  '🥋': '#eef2f7', // gi
+  '🧣': '#e11d48', // scarf
+  '🧤': '#6366f1', // gloves (worn-ish)
+}
+
 // Pool of 100 UNIQUE personal items, one per friend from #51 onward (index 0 =
 // friend 51, index 49 = friend 100, with 50 more in reserve as the cast grows).
 // Keep every entry distinct so no two friends share an item. `slot` = where it
@@ -883,17 +899,30 @@ export default function FriendArt({
     <>
       {outfit.held && (
         <span
-          className="don"
-          style={{ top: `${A.heldTop}%`, left: `${A.heldLeft}%`, fontSize: `${Math.round(A.hw * 0.6)}px` }}
+          className="don don-held"
+          style={{ top: `${A.heldTop}%`, left: '50%', fontSize: `${Math.round(A.hw * 0.62)}px` }}
         >
           {outfit.held}
         </span>
       )}
-      {outfit.body && (
-        <span className="don" style={{ top: `${A.body}%`, left: '50%', fontSize: `${A.hw}px` }}>
-          {outfit.body}
-        </span>
-      )}
+      {outfit.body &&
+        (GARMENT_COLOR[outfit.body] ? (
+          // a real worn garment drawn in CSS (drapes over the body)
+          <span
+            className="don don-garment"
+            style={{
+              top: `${A.body + 6}%`,
+              left: '50%',
+              width: `${Math.round(A.hw * 1.5)}px`,
+              height: `${Math.round(A.hw * 1.05)}px`,
+              ['--gc']: GARMENT_COLOR[outfit.body],
+            } as React.CSSProperties}
+          />
+        ) : (
+          <span className="don" style={{ top: `${A.body}%`, left: '50%', fontSize: `${A.hw}px` }}>
+            {outfit.body}
+          </span>
+        ))}
       {outfit.face && (
         <span className="don" style={{ top: `${A.eye}%`, left: '50%', fontSize: `${Math.round(A.hw * 0.82)}px` }}>
           {outfit.face}
