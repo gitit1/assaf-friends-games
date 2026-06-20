@@ -885,20 +885,25 @@ export default function Tamagotchi({ onExit }: GameProps) {
       >
         {/* illustrated 2D room behind the pet */}
         <div className="pet-scene" aria-hidden="true">
-          <span className="ps-window">
-            <span className="ps-celestial" />
-            <span className="ps-cloud a" />
-            <span className="ps-cloud b" />
-            <span className="ps-stars" />
-          </span>
-          <span className="ps-frame">
-            <span className="ps-pic">🌈</span>
-          </span>
-          <span className="ps-shelf" />
+          {/* the floor is CONTINUOUS — it stays put while the rooms scroll past, so
+              walking to the kitchen/bathroom/bed reads as crossing the house */}
           <span className="ps-floor" />
-          <span className="ps-rug" />
-          <span className="ps-plant">🪴</span>
           <span className="ps-shadow" />
+          {/* the living room — slides OUT to the left when the pet heads to another room */}
+          <span className="ps-living">
+            <span className="ps-window">
+              <span className="ps-celestial" />
+              <span className="ps-cloud a" />
+              <span className="ps-cloud b" />
+              <span className="ps-stars" />
+            </span>
+            <span className="ps-frame">
+              <span className="ps-pic">🌈</span>
+            </span>
+            <span className="ps-shelf" />
+            <span className="ps-rug" />
+            <span className="ps-plant">🪴</span>
+          </span>
           {/* the kitchen scenery — replaces the bedroom while feeding */}
           <span className="ps-kitchen">
             <span className="kupper" />
@@ -974,26 +979,28 @@ export default function Tamagotchi({ onExit }: GameProps) {
                     {held}
                   </span>
                 )}
+                {/* dirt + soap live ON the body, inside the moving figure, so they
+                    travel with the pet (and don't get left behind on the screen) */}
+                {stainCount > 0 && !bathroom && !eatFood &&
+                  STAIN_SPOTS.slice(0, stainCount).map((s, i) => (
+                    <span
+                      className="pet-stain"
+                      key={i}
+                      style={{ left: `${s.x}%`, top: `${s.y}%`, width: `${s.r}%` }}
+                      aria-hidden="true"
+                    />
+                  ))}
+                {bathroom === 'facewash' && (
+                  <span className="pet-soap" aria-hidden="true">
+                    <i />
+                    <i />
+                    <i />
+                    <i />
+                  </span>
+                )}
               </span>
             </span>
           </span>
-          {stainCount > 0 && !bathroom && !eatFood &&
-            STAIN_SPOTS.slice(0, stainCount).map((s, i) => (
-              <span
-                className="pet-stain"
-                key={i}
-                style={{ left: `${s.x}%`, top: `${s.y}%`, width: `${s.r}%` }}
-                aria-hidden="true"
-              />
-            ))}
-          {bathroom === 'facewash' && (
-            <span className="pet-soap" aria-hidden="true">
-              <i />
-              <i />
-              <i />
-              <i />
-            </span>
-          )}
           {/* food at the mouth for snacks (standing) / rice (cushion) / drinks; a
               sit-down meal at the TABLE is shown on the table instead (below) */}
           {eatFood && !(mode === 'eat' && eatSetting === 'table') && (

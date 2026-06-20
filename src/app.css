@@ -6682,13 +6682,18 @@ button {
 .pet-room.kmode:not(.is-walk).tod-night {
   background: linear-gradient(180deg, #3a3552 0%, #2b2740 58%);
 }
-/* hide the bedroom decor while in the kitchen */
-.kmode .ps-frame,
-.kmode .ps-shelf,
-.kmode .ps-plant,
-.kmode .ps-rug,
-.kmode .ps-window {
-  opacity: 0;
+/* the living room is one unit that slides OFF to the left when the pet walks to
+   another room (kitchen / bathroom), so it reads as crossing the house. The floor
+   stays put underneath (continuous), and the destination room slides in from the
+   right — see .ps-kitchen / .ps-bathroom below. */
+.ps-living {
+  position: absolute;
+  inset: 0;
+  transition: transform 2.4s cubic-bezier(0.45, 0.05, 0.4, 1);
+}
+.pet-room.kmode .ps-living,
+.pet-room.bmode .ps-living {
+  transform: translateX(-134%);
 }
 /* tiled kitchen floor */
 .kmode .ps-floor {
@@ -6701,12 +6706,12 @@ button {
   position: absolute;
   inset: 0;
   z-index: 0;
-  opacity: 0;
-  transition: opacity 0.4s ease;
+  transform: translateX(118%); /* waits off-screen to the right… */
+  transition: transform 2.4s cubic-bezier(0.45, 0.05, 0.4, 1);
   pointer-events: none;
 }
 .kmode .ps-kitchen {
-  opacity: 1;
+  transform: translateX(0); /* …slides in as the pet walks over to it */
 }
 /* upper cabinets (left side) */
 .ps-kitchen .kupper {
