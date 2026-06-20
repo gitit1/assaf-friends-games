@@ -13912,3 +13912,155 @@ button {
   font-weight: 800;
   font-size: 1rem;
 }
+/* ===================== garden ===================== */
+.garden-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  width: min(560px, calc(100vw - 32px));
+  margin: 0 auto;
+  padding-bottom: 16px;
+}
+.garden-scene {
+  position: relative;
+  width: 100%;
+  height: 46vh;
+  min-height: 300px;
+  border-radius: 20px;
+  overflow: hidden;
+  border: 2px solid var(--line);
+  background: linear-gradient(180deg, #bfe9ff 0%, #e9f9ff 54%, #cde6a8 54%, #aadd80 100%);
+}
+.garden-sun {
+  position: absolute;
+  top: 7%;
+  inset-inline-end: 9%;
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 40% 35%, #fff3b0, #ffd23f 72%);
+  box-shadow: 0 0 24px rgba(255, 210, 63, 0.6);
+}
+.garden-cloud {
+  position: absolute;
+  height: 16px;
+  width: 46px;
+  background: #fff;
+  border-radius: 999px;
+  opacity: 0.92;
+  box-shadow: 15px 4px 0 -3px #fff, -13px 4px 0 -4px #fff;
+}
+.garden-cloud.a { top: 12%; left: 14%; animation: cloud-drift 17s linear infinite; }
+.garden-cloud.b { top: 26%; left: 52%; animation: cloud-drift 24s linear infinite; }
+.garden-count {
+  position: absolute;
+  top: 8px;
+  inset-inline-start: 12px;
+  font-family: 'Fredoka', 'Heebo', sans-serif;
+  font-weight: 900;
+  font-size: 1.3rem;
+  color: #166534;
+  background: rgba(255, 255, 255, 0.72);
+  padding: 2px 14px;
+  border-radius: 999px;
+  z-index: 3;
+}
+.garden-row {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 56%;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 1.5%;
+  padding: 0 3% 4%;
+}
+.garden-plot {
+  position: relative;
+  flex: 1;
+  max-width: 15%;
+  height: 100%;
+  border: none;
+  background: none;
+  cursor: pointer;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+.garden-soil {
+  width: 100%;
+  height: 24px;
+  background: radial-gradient(ellipse at 50% 0, #8b5a2b, #6b4423);
+  border-radius: 50% 50% 8px 8px / 80% 80% 8px 8px;
+  box-shadow: inset 0 3px 4px rgba(0, 0, 0, 0.25);
+}
+.garden-plant {
+  position: absolute;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 36px;
+  height: 60px;
+}
+.garden-stem {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 5px;
+  background: linear-gradient(90deg, #3f9d4a, #5fd06a);
+  border-radius: 3px;
+  transition: height 0.3s ease;
+}
+.s2 .garden-stem { height: 22px; }
+.s3 .garden-stem { height: 34px; }
+.s4 .garden-stem { height: 44px; }
+.garden-leaf {
+  position: absolute;
+  width: 14px;
+  height: 9px;
+  background: #5fd06a;
+  border-radius: 0 90% 0 90%;
+}
+.garden-leaf.l { bottom: 8px; right: 52%; transform: rotate(18deg); }
+.garden-leaf.r { bottom: 16px; left: 52%; transform: rotate(-18deg) scaleX(-1); }
+.garden-seed {
+  position: absolute;
+  bottom: -2px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 18px;
+  animation: ice-plop 0.25s ease;
+}
+.garden-bud {
+  position: absolute;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 14px;
+  height: 17px;
+  background: radial-gradient(circle at 40% 30%, #f9a8d4, #ec4899);
+  border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+}
+.garden-flower {
+  position: absolute;
+  bottom: 36px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 26px;
+  animation: ice-plop 0.3s ease;
+  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.2));
+}
+.garden-actions {
+  display: flex;
+  gap: 14px;
+}
+.garden-plant-btn {
+  background: linear-gradient(160deg, #4ade80, #16a34a);
+}
+.garden-water-btn {
+  background: linear-gradient(160deg, #60a5fa, #2563eb);
+}

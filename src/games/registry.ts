@@ -34,6 +34,7 @@ import ParrotGame from './ParrotGame'
 import IceCreamGame from './IceCreamGame'
 import FeedAnimals from './FeedAnimals'
 import CakeMaker from './CakeMaker'
+import Garden from './Garden'
 import BubblePopGame from './BubblePopGame'
 import SpellWord from './SpellWord'
 import FirstLetter from './FirstLetter'
@@ -100,6 +101,14 @@ export const GAMES: GameDef[] = [
     color: 'linear-gradient(160deg, #f472b6, #db2777)',
     category: 'create',
     Component: CakeMaker,
+  },
+  {
+    id: 'garden',
+    title: 'גינה',
+    emoji: '🌱',
+    color: 'linear-gradient(160deg, #4ade80, #16a34a)',
+    category: 'create',
+    Component: Garden,
   },
   {
     id: 'sortshelf',
