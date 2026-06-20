@@ -245,12 +245,17 @@ function FriendDressed({
 }
 
 // the little "play" scenes — each activity is its own set
-function PlayScene({ kind, friend, outfit, buddy }: { kind: string; friend: number; outfit: Outfit; buddy: number }) {
+// the pet figure inside a play scene — an animal if the pet is one, else the friend
+function PetSceneFig({ friend, species, outfit, px }: { friend: number; species?: AnimalKind; outfit: Outfit; px: number }) {
+  return species ? <AnimalDressed kind={species} px={px} /> : <FriendDressed index={friend} px={px} outfit={outfit} />
+}
+
+function PlayScene({ kind, friend, species, outfit, buddy }: { kind: string; friend: number; species?: AnimalKind; outfit: Outfit; buddy: number }) {
   if (kind === 'ball') {
     return (
       <div className="scene scene-ball">
         <span className="scene-fig">
-          <FriendDressed index={friend} px={88} outfit={outfit} />
+          <PetSceneFig friend={friend} species={species} outfit={outfit} px={88} />
         </span>
         <span className="play-ball" aria-hidden="true">
           ⚽
@@ -267,7 +272,7 @@ function PlayScene({ kind, friend, outfit, buddy }: { kind: string; friend: numb
         <span className="seat-side">
           <span className="couch" aria-hidden="true" />
           <span className="scene-fig seated">
-            <FriendDressed index={friend} px={68} outfit={outfit} />
+            <PetSceneFig friend={friend} species={species} outfit={outfit} px={68} />
           </span>
         </span>
         <span className="tv-set" aria-hidden="true">
@@ -285,7 +290,7 @@ function PlayScene({ kind, friend, outfit, buddy }: { kind: string; friend: numb
         <span className="seat-side">
           <span className="chair" aria-hidden="true" />
           <span className="scene-fig seated">
-            <FriendDressed index={friend} px={62} outfit={outfit} />
+            <PetSceneFig friend={friend} species={species} outfit={outfit} px={62} />
           </span>
         </span>
         <span className="deskset" aria-hidden="true">
@@ -303,7 +308,7 @@ function PlayScene({ kind, friend, outfit, buddy }: { kind: string; friend: numb
         <span className="seat-side wide">
           <span className="couch" aria-hidden="true" />
           <span className="scene-fig seated mid">
-            <FriendDressed index={friend} px={72} outfit={outfit} />
+            <PetSceneFig friend={friend} species={species} outfit={outfit} px={72} />
           </span>
           <span className="book" aria-hidden="true">
             📖
@@ -316,7 +321,7 @@ function PlayScene({ kind, friend, outfit, buddy }: { kind: string; friend: numb
   return (
     <div className="scene scene-lego">
       <span className="scene-fig">
-        <FriendDressed index={friend} px={80} outfit={outfit} />
+        <PetSceneFig friend={friend} species={species} outfit={outfit} px={80} />
       </span>
       <span className="tower" aria-hidden="true">
         <span className="brick b1" />
@@ -729,7 +734,8 @@ export default function Tamagotchi({ onExit }: GameProps) {
     unlockAudio()
     playTap()
     resetScenes()
-    const a = PLAYS[Math.floor(Math.random() * PLAYS.length)]
+    // an animal plays fetch with a friend (its natural game); friends do any activity
+    const a = pet.species ? PLAYS.find((p) => p.kind === 'ball')! : PLAYS[Math.floor(Math.random() * PLAYS.length)]
     if (a.kind === 'ball') {
       let b = randFriendIndex()
       if (b === pet.friend) b = (b + 1) % friendCount()
@@ -921,7 +927,7 @@ export default function Tamagotchi({ onExit }: GameProps) {
           </span>
         </div>
         {playing ? (
-          <PlayScene kind={playing.kind} friend={pet.friend} outfit={pet.outfit} buddy={buddy} />
+          <PlayScene kind={playing.kind} friend={pet.friend} species={pet.species} outfit={pet.outfit} buddy={buddy} />
         ) : (
         <button className="pet-tap" onClick={pokePet} aria-label={petLabel}>
           {/* transform-layer stack: each wrapper owns ONE transform (traversal X /
