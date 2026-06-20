@@ -6127,11 +6127,28 @@ button {
   border: 2px solid var(--line);
   background: linear-gradient(180deg, rgba(124, 196, 245, 0.12), rgba(255, 255, 255, 0.03));
   display: flex;
-  align-items: flex-end; /* the pet STANDS on the floor/rug, not floating centered */
+  align-items: center;
   justify-content: center;
-  padding: 6% 8px 13%;
+  padding: 6% 8px 9%;
   overflow: hidden;
   transition: background 0.4s ease, filter 0.4s ease;
+}
+/* the pet stands on a FIXED floor line — `bottom` is a % of the room HEIGHT, so
+   the feet land on the rug consistently on any screen width (padding %s are of
+   WIDTH, which drifted the pet up on wide screens). */
+.pet-floor {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 12%;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  z-index: 1;
+  pointer-events: none;
+}
+.pet-floor > * {
+  pointer-events: auto;
 }
 .pet-room.is-walk {
   background: linear-gradient(180deg, rgba(134, 239, 172, 0.28), rgba(56, 189, 248, 0.16));
@@ -7207,6 +7224,9 @@ button {
 .pet-figure {
   position: relative;
   display: inline-block;
+  vertical-align: bottom;
+  line-height: 0; /* kill the inline-block descender gap (font-size is large here),
+                     so the feet sit flush on the floor instead of floating above it */
 }
 /* a worn dress-up item — rendered inside the friend's design box and centred on
    its anchor point, so it sits ON the friend (and scales with it). */
@@ -12876,23 +12896,23 @@ button {
 /* tails */
 .friend-art.animal .an-tail { position: absolute; z-index: 1; }
 .friend-art.animal-dog .an-tail {
-  right: 4%;
-  bottom: 18%;
-  width: 16%;
-  height: 30%;
+  right: 18%;
+  bottom: 12%;
+  width: 15%;
+  height: 28%;
   background: var(--fur);
   border-radius: 50%;
-  transform: rotate(32deg);
+  transform: rotate(36deg);
   transform-origin: bottom left;
 }
 .friend-art.animal-cat .an-tail {
-  right: 0;
+  right: 14%;
   bottom: 12%;
   width: 12%;
-  height: 50%;
+  height: 46%;
   background: var(--fur);
   border-radius: 40% 40% 50% 50%;
-  transform: rotate(18deg);
+  transform: rotate(20deg);
   transform-origin: bottom center;
 }
 .friend-art.animal-rabbit .an-tail {

@@ -948,6 +948,9 @@ export default function Tamagotchi({ onExit }: GameProps) {
             <span className="otrees" />
           </span>
         </div>
+        {/* the pet stands on a FIXED room floor line (a % of the room HEIGHT, so it
+            never drifts up on wider screens) */}
+        <div className="pet-floor">
         {playing ? (
           <PlayScene kind={playing.kind} friend={pet.friend} species={pet.species} outfit={pet.outfit} buddy={buddy} />
         ) : (
@@ -1035,6 +1038,7 @@ export default function Tamagotchi({ onExit }: GameProps) {
           )}
         </button>
         )}
+        </div>
         {/* furniture IN FRONT of the pet: the meal table, and the bowl + chopsticks */}
         <span className="ps-table" aria-hidden="true">
           <span className="ttop" />
