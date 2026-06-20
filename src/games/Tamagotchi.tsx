@@ -854,7 +854,8 @@ export default function Tamagotchi({ onExit }: GameProps) {
     { type: 'hug', emoji: '🤗' },
     { type: 'potty', emoji: '🚽' },
     { type: 'clean', emoji: '🧽' },
-    { type: 'dress', emoji: '👕' },
+    // animals aren't dressed up — only the friends get the wardrobe
+    ...(isAnimal ? [] : [{ type: 'dress' as ActType, emoji: '👕' }]),
   ]
 
   return (
@@ -968,7 +969,8 @@ export default function Tamagotchi({ onExit }: GameProps) {
                 {isAnimal ? (
                   <AnimalDressed kind={pet.species as AnimalKind} px={petPx} walking={walking || scene === 'walk'} eating={!!eatFood} />
                 ) : (
-                  <FriendDressed index={pet.friend} px={petPx} outfit={pet.outfit} bouncing={bounce} eating={!!eatFood} walking={walking || scene === 'walk'} />
+                  // takes its clothes/accessories OFF for a bath or for bed
+                  <FriendDressed index={pet.friend} px={petPx} outfit={bathroom || sleeping ? {} : pet.outfit} bouncing={bounce} eating={!!eatFood} walking={walking || scene === 'walk'} />
                 )}
                 {held && (
                   <span
