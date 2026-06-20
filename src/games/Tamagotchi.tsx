@@ -39,15 +39,8 @@ const FOODS: { key: string; name: string; emoji: string }[] = [
   { key: 'chocolate', name: 'שוקולד', emoji: '🍫' },
 ]
 
-// where each food is eaten — like a real 2D pet game, the friend eats in a
-// fitting spot: a proper meal at the TABLE, a snack STANDING, and Chinese/rice on
-// a CUSHION with a bowl + chopsticks. (default = table)
-const FOOD_SETTING: Record<string, 'table' | 'cushion' | 'standing'> = {
-  rice: 'cushion',
-  banana: 'standing', apple: 'standing', cucumber: 'standing', tomato: 'standing',
-  carrot: 'standing', bamba: 'standing', chocolate: 'standing',
-}
-const settingFor = (key: string): 'table' | 'cushion' | 'standing' => FOOD_SETTING[key] ?? 'table'
+// every meal is now eaten at the dining-room table (the pet carries the food there
+// and sets it down), so there's no per-food spot anymore.
 
 // crumb fly-out directions + little reaction emojis for the eating "movie"
 const CRUMBS = [
@@ -378,6 +371,8 @@ export default function Tamagotchi({ onExit }: GameProps) {
   const [lyingDown, setLyingDown] = useState(false) // actually lying on the bed
   const [walkPhase, setWalkPhase] = useState(0) // which outdoor scene during a walk (0=park, 1=pond, 2=meadow)
   const [atDoor, setAtDoor] = useState(false) // walking out through the front door
+  const [dining, setDining] = useState(false) // crossed from the kitchen to the dining room to eat
+  const [placing, setPlacing] = useState(false) // setting the food down on the dining table
   const [fx, setFx] = useState<{ emoji: string; id: number } | null>(null)
   const [burst, setBurst] = useState<{ id: number; bits: { e: string; x: number; y: number; d: number }[] } | null>(null)
   const [bounce, setBounce] = useState(false)
@@ -580,6 +575,8 @@ export default function Tamagotchi({ onExit }: GameProps) {
     setLyingDown(false)
     setWalkPhase(0)
     setAtDoor(false)
+    setDining(false)
+    setPlacing(false)
   }
 
   // drinks live in the fridge too — so the friend strolls to the kitchen, opens it,
@@ -592,7 +589,6 @@ export default function Tamagotchi({ onExit }: GameProps) {
     setKitchen(true)
     setWalking(true)
     setWalkMs(2700)
-    setPetX(Math.round(Math.min(vp.w, 440) * 0.3))
     eatTimers.current.push(window.setTimeout(() => setWalking(false), 2700))
     eatTimers.current.push(window.setTimeout(() => { setFridgeOpen(true); playPop() }, 2900))
     eatTimers.current.push(window.setTimeout(() => setBar(true), 3550))
@@ -672,12 +668,11 @@ export default function Tamagotchi({ onExit }: GameProps) {
     unlockAudio()
     playTap()
     resetScenes()
-    setKitchen(true) // kitchen scenery slides in
+    setKitchen(true) // the kitchen scrolls in (the pet marches in place, the world moves)
     setWalking(true)
     setWalkMs(2700)
-    setPetX(Math.round(Math.min(vp.w, 440) * 0.3)) // stroll right, across the room to the fridge (a leisurely few seconds)
-    eatTimers.current.push(window.setTimeout(() => setWalking(false), 2700)) // arrived beside the fridge
-    eatTimers.current.push(window.setTimeout(() => { setFridgeOpen(true); playPop() }, 2900)) // reach up, doors swing open
+    eatTimers.current.push(window.setTimeout(() => setWalking(false), 2700)) // arrived in the kitchen
+    eatTimers.current.push(window.setTimeout(() => { setFridgeOpen(true); playPop() }, 2900)) // the fridge appears + opens
     eatTimers.current.push(window.setTimeout(() => setFridge(true), 3550)) // the food shelves appear
   }
 
@@ -688,9 +683,9 @@ export default function Tamagotchi({ onExit }: GameProps) {
     playTap()
     setFridge(false)
     setFridgeOpen(false)
-    // stay IN the kitchen (kmode) — it eats at the kitchen/dining table, so the
-    // table never follows it back to the living room
-    setEatSetting(settingFor(food.key)) // table / standing / cushion
+    setKitchen(false) // leave the kitchen…
+    setDining(true) // …and cross to the DINING ROOM (the world scrolls on to it)
+    setEatSetting('table')
     setMode('eat')
     setPlaying(null)
     speak(getSettings().lang === 'en' ? t(`pet.food.${food.key}`) : food.name)
@@ -699,32 +694,29 @@ export default function Tamagotchi({ onExit }: GameProps) {
     setBite(0)
     setPoof(false)
     setHeld(food.emoji) // takes the food OUT of the fridge — carries it in its hand
-    setWalking(true) // walks from the fridge over to the table (in the kitchen), food in hand
+    setWalking(true) // marches on to the dining room, food in hand
     setWalkMs(2500)
-    setPetX(0)
     eatTimers.current.push(window.setTimeout(() => setWalking(false), 2500))
-    // D = let the friend walk all the way back to the table first, THEN start eating
+    // D = arrived at the dining room
     const D = 2600
     const BITE = 800 // unhurried bites
-    // arrived: PUT the food down on the table (stop carrying) and start eating it
-    eatTimers.current.push(window.setTimeout(() => { setHeld(null); setEatFood(food.emoji) }, D))
-    // three bites: each one chews and a chunk is eaten away from the plate
+    // bend down and PUT the food on the table, then sit and eat
+    eatTimers.current.push(window.setTimeout(() => setPlacing(true), D))
+    eatTimers.current.push(window.setTimeout(() => { setHeld(null); setPlacing(false); setEatFood(food.emoji) }, D + 450))
     for (let k = 0; k < 3; k++) {
-      eatTimers.current.push(window.setTimeout(() => { playMunch(); setBite(k + 1) }, D + 450 + k * BITE))
+      eatTimers.current.push(window.setTimeout(() => { playMunch(); setBite(k + 1) }, D + 900 + k * BITE))
     }
-    eatTimers.current.push(window.setTimeout(() => speak('נם נם נם'), D + 550))
-    // after the last bite the empty plate clears with a "poof"
-    eatTimers.current.push(window.setTimeout(() => { setPoof(true); playPop() }, D + 450 + 3 * BITE))
-    // then clear, return to the room, and let the engine react
+    eatTimers.current.push(window.setTimeout(() => speak('נם נם נם'), D + 1000))
+    eatTimers.current.push(window.setTimeout(() => { setPoof(true); playPop() }, D + 900 + 3 * BITE))
     eatTimers.current.push(
       window.setTimeout(() => {
         setEatFood(null)
         setPoof(false)
         setBite(0)
         setEatSetting(null)
-        setKitchen(false) // done eating — leaves the kitchen, walks back to the living room
+        setDining(false) // done — leaves the dining room, walks back to the living room
         react('feed', food.key, { silent: true })
-      }, D + 450 + 3 * BITE + 600),
+      }, D + 900 + 3 * BITE + 600),
     )
   }
 
@@ -903,7 +895,7 @@ export default function Tamagotchi({ onExit }: GameProps) {
       <div
         className={`pet-room tod-${timeOfDay} pose-${posture} expr-${expression} ${scene === 'walk' ? `is-walk walk-${walkPhase}` : ''} ${atDoor ? 'at-door' : ''} ${
           kitchen ? 'kmode' : ''
-        } ${kitchen ? 'is-kitchen' : ''} ${eatSetting || eatFood ? 'emode' : ''} ${walking ? 'is-striding' : ''} ${fridgeOpen ? 'fridge-open' : ''} ${eatSetting ? `eat-${eatSetting}` : ''} ${
+        } ${kitchen ? 'is-kitchen' : ''} ${dining ? 'dining' : ''} ${placing ? 'is-placing' : ''} ${eatSetting || eatFood ? 'emode' : ''} ${walking ? 'is-striding' : ''} ${fridgeOpen ? 'fridge-open' : ''} ${eatSetting ? `eat-${eatSetting}` : ''} ${
           bathroom ? `bmode bath-${bathroom}` : ''
         } ${sleeping ? 'is-sleep' : ''} ${lyingDown ? 'pose-sleep' : ''} ${sad ? 'is-sad' : ''}`}
       >
@@ -932,17 +924,28 @@ export default function Tamagotchi({ onExit }: GameProps) {
               <span className="door-knob" />
             </span>
           </span>
-          {/* the kitchen scenery — replaces the bedroom while feeding */}
-          <span className="ps-kitchen">
-            <span className="kupper" />
-            <span className="ktiles" />
-            <span className="kcounter" />
-            <span className="kcab" />
-            <span className="kstove">
-              <span className="pot" />
+          {/* kitchen ↔ dining room — a horizontal strip the world scrolls along:
+              the pet crosses to the kitchen (gets food), then on to the dining room
+              (a permanent table) to sit and eat. */}
+          <span className="ps-kddining">
+            <span className="ps-kitchen">
+              <span className="kupper" />
+              <span className="ktiles" />
+              <span className="kcounter" />
+              <span className="kcab" />
+              <span className="kstove">
+                <span className="pot" />
+              </span>
+              <span className="ksink">
+                <span className="faucet" />
+              </span>
             </span>
-            <span className="ksink">
-              <span className="faucet" />
+            {/* the dining room — its own wall + window; the pet sits at the
+                foreground table (.ps-table) to eat, set down on arrival */}
+            <span className="ps-dining">
+              <span className="d-window" />
+              <span className="d-pic">🖼️</span>
+              <span className="d-rug" />
             </span>
           </span>
           {/* the bathroom scenery — replaces the room while cleaning / on the toilet */}
