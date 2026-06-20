@@ -32,6 +32,7 @@ import DanceGame from './DanceGame'
 import LaughGame from './LaughGame'
 import ParrotGame from './ParrotGame'
 import IceCreamGame from './IceCreamGame'
+import FeedAnimals from './FeedAnimals'
 import BubblePopGame from './BubblePopGame'
 import SpellWord from './SpellWord'
 import FirstLetter from './FirstLetter'
@@ -83,6 +84,14 @@ export type GameDef = {
 
 // Add a new game by dropping a component here and tagging its category.
 export const GAMES: GameDef[] = [
+  {
+    id: 'feedanimals',
+    title: 'מאכילים חיות',
+    emoji: '🐾',
+    color: 'linear-gradient(160deg, #34d399, #059669)',
+    category: 'numbers',
+    Component: FeedAnimals,
+  },
   {
     id: 'sortshelf',
     title: 'מכולת',

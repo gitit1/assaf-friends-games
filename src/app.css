@@ -13528,3 +13528,154 @@ button {
   font-weight: 800;
   font-size: 1rem;
 }
+/* ===================== feed-the-animals game ===================== */
+.feed-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  width: min(520px, calc(100vw - 32px));
+  margin: 0 auto;
+  padding-bottom: 16px;
+}
+.feed-score {
+  align-self: flex-end;
+  font-weight: 800;
+  color: #fff;
+  font-size: 1.1rem;
+}
+.feed-stage {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 23vh;
+  justify-content: center;
+}
+.feed-animal {
+  transition: transform 0.2s;
+}
+.feed-animal.happy {
+  transform: scale(1.08);
+}
+.feed-fig {
+  display: inline-block;
+}
+.feed-bubble {
+  position: relative;
+  background: #fff;
+  color: #222;
+  border-radius: 18px;
+  padding: 10px 16px;
+  min-width: 64px;
+  min-height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+.feed-bubble::after {
+  content: '';
+  position: absolute;
+  inset-inline-start: -9px;
+  top: 50%;
+  transform: translateY(-50%);
+  border: 9px solid transparent;
+  border-inline-end-color: #fff;
+}
+.feed-want {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+}
+.feed-num {
+  font-family: 'Fredoka', 'Heebo', sans-serif;
+  font-size: 2.1rem;
+  color: #059669;
+  line-height: 1;
+}
+.feed-wantfood {
+  display: flex;
+  gap: 2px;
+  font-size: 1rem;
+}
+.feed-yum {
+  font-size: 2rem;
+}
+.feed-bowlwrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.feed-bowl {
+  min-width: 190px;
+  min-height: 62px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 18px;
+  padding: 10px 14px;
+  border-bottom: 5px solid rgba(0, 0, 0, 0.22);
+}
+.feed-item {
+  font-size: 1.5rem;
+  animation: ice-plop 0.25s ease;
+}
+.feed-bowl-empty {
+  font-size: 2rem;
+  opacity: 0.5;
+}
+.feed-count {
+  font-family: 'Fredoka', 'Heebo', sans-serif;
+  font-weight: 900;
+  font-size: 2.4rem;
+  color: #fff;
+  min-width: 44px;
+  text-align: center;
+}
+.feed-add {
+  position: relative;
+  width: 92px;
+  height: 92px;
+  border: none;
+  border-radius: 24px;
+  background: linear-gradient(160deg, #34d399, #059669);
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  box-shadow: 0 6px 0 #047857, 0 8px 14px rgba(0, 0, 0, 0.3);
+  transition: transform 0.1s, box-shadow 0.1s;
+}
+.feed-add:active {
+  transform: translateY(4px);
+  box-shadow: 0 2px 0 #047857, 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+.feed-add-food {
+  font-size: 2.6rem;
+}
+.feed-add-plus {
+  position: absolute;
+  top: -6px;
+  inset-inline-end: -6px;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: #fff;
+  color: #059669;
+  font-weight: 900;
+  font-size: 1.3rem;
+  display: grid;
+  place-items: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.25);
+}
+.feed-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.feed-go {
+  background: linear-gradient(160deg, #34d399, #059669);
+}

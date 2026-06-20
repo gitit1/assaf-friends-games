@@ -72,6 +72,9 @@ export const HE: Dict = {
   'parrot.denied': { text: 'צריך לאשר את המיקרופון כדי לשחק 🎤' },
   // ice-cream game
   'game.icecream': { text: 'גלידה' },
+  'game.feedanimals': { text: 'מאכילים חיות' },
+  'feed.add': { text: 'עוד אחד' },
+  'feed.give': { text: 'בתיאבון!' },
   'game.bubbles': { text: 'בועות' },
   'ice.open': { text: 'חופשי' },
   'ice.closed': { text: 'הזמנות' },
