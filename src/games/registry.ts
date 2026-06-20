@@ -33,6 +33,7 @@ import LaughGame from './LaughGame'
 import ParrotGame from './ParrotGame'
 import IceCreamGame from './IceCreamGame'
 import FeedAnimals from './FeedAnimals'
+import CakeMaker from './CakeMaker'
 import BubblePopGame from './BubblePopGame'
 import SpellWord from './SpellWord'
 import FirstLetter from './FirstLetter'
@@ -91,6 +92,14 @@ export const GAMES: GameDef[] = [
     color: 'linear-gradient(160deg, #34d399, #059669)',
     category: 'numbers',
     Component: FeedAnimals,
+  },
+  {
+    id: 'cake',
+    title: 'מכינים עוגה',
+    emoji: '🎂',
+    color: 'linear-gradient(160deg, #f472b6, #db2777)',
+    category: 'create',
+    Component: CakeMaker,
   },
   {
     id: 'sortshelf',

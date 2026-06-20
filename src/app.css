@@ -13679,3 +13679,236 @@ button {
 .feed-go {
   background: linear-gradient(160deg, #34d399, #059669);
 }
+/* ===================== cake maker ===================== */
+.cake-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  width: min(520px, calc(100vw - 32px));
+  margin: 0 auto;
+  padding-bottom: 16px;
+}
+.cake-score {
+  align-self: flex-end;
+  font-weight: 800;
+  color: #fff;
+  font-size: 1.1rem;
+}
+.cake-stage {
+  display: flex;
+  align-items: flex-end;
+  gap: 18px;
+  min-height: 26vh;
+  justify-content: center;
+}
+.cake-friend {
+  border: none;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+.cake-friend.happy {
+  transform: scale(1.08);
+}
+.cake {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  min-width: 120px;
+}
+.cake-party {
+  position: absolute;
+  top: -14px;
+  font-size: 2rem;
+  animation: ice-plop 0.3s ease;
+}
+.cake-decor {
+  display: flex;
+  gap: 6px;
+  align-items: flex-end;
+  justify-content: center;
+  min-height: 2px;
+  z-index: 6;
+  margin-bottom: -2px;
+}
+.cake-d {
+  font-size: 20px;
+  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.25));
+}
+.cake-candles {
+  display: flex;
+  gap: 7px;
+}
+.cake-candles i {
+  width: 4px;
+  height: 18px;
+  background: linear-gradient(180deg, #f9a8d4, #ec4899);
+  border-radius: 2px;
+  position: relative;
+}
+.cake-candles i::after {
+  content: '';
+  position: absolute;
+  top: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 5px;
+  height: 9px;
+  background: radial-gradient(circle at 50% 70%, #ffd166, #f97316);
+  border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+}
+.cake-frost {
+  position: relative;
+  width: 94px;
+  height: 18px;
+  background: #fff;
+  border-radius: 40% 40% 50% 50% / 90% 90% 30% 30%;
+  box-shadow: inset 0 -3px 4px rgba(0, 0, 0, 0.06);
+  margin-bottom: -8px;
+  z-index: 5;
+}
+.cake-frost::after {
+  content: '';
+  position: absolute;
+  bottom: -6px;
+  left: 14%;
+  width: 10px;
+  height: 12px;
+  background: #fff;
+  border-radius: 50%;
+  box-shadow: 28px 1px 0 #fff, 56px -1px 0 #fff;
+}
+.cake-sprinkles {
+  position: relative;
+  display: block;
+  width: 90px;
+  height: 14px;
+  margin-bottom: -8px;
+  z-index: 5;
+}
+.cake-sprinkles i {
+  position: absolute;
+  width: 8px;
+  height: 3px;
+  border-radius: 2px;
+}
+.cake-sprinkles i:nth-child(1) { left: 4%; top: 40%; transform: rotate(28deg); }
+.cake-sprinkles i:nth-child(2) { left: 16%; top: 12%; transform: rotate(-40deg); }
+.cake-sprinkles i:nth-child(3) { left: 28%; top: 56%; transform: rotate(64deg); }
+.cake-sprinkles i:nth-child(4) { left: 38%; top: 20%; transform: rotate(-18deg); }
+.cake-sprinkles i:nth-child(5) { left: 50%; top: 48%; transform: rotate(80deg); }
+.cake-sprinkles i:nth-child(6) { left: 60%; top: 8%; transform: rotate(36deg); }
+.cake-sprinkles i:nth-child(7) { left: 70%; top: 52%; transform: rotate(-52deg); }
+.cake-sprinkles i:nth-child(8) { left: 80%; top: 22%; transform: rotate(14deg); }
+.cake-sprinkles i:nth-child(9) { left: 90%; top: 44%; transform: rotate(-30deg); }
+.cake-sprinkles i:nth-child(10) { left: 46%; top: 6%; transform: rotate(50deg); }
+.cake-sprinkles i:nth-child(11) { left: 24%; top: 30%; transform: rotate(-66deg); }
+.cake-layers {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.cake-layer {
+  width: 96px;
+  height: 28px;
+  border-radius: 8px;
+  margin-bottom: -4px;
+  box-shadow: inset 0 -5px 7px rgba(0, 0, 0, 0.16), 0 2px 4px rgba(0, 0, 0, 0.2);
+  animation: ice-plop 0.25s ease;
+}
+.cake-empty {
+  font-size: 2rem;
+  opacity: 0.5;
+}
+.cake-plate {
+  width: 122px;
+  height: 12px;
+  background: linear-gradient(180deg, #e2e8f0, #cbd5e1);
+  border-radius: 50%;
+  margin-top: 3px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+}
+.cake-row {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+.cake-tub {
+  width: 60px;
+  height: 50px;
+  border: none;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.14);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.cake-tub:active {
+  transform: scale(0.92);
+}
+.cake-tub-layer {
+  width: 42px;
+  height: 22px;
+  border-radius: 6px;
+  box-shadow: inset 0 -4px 6px rgba(0, 0, 0, 0.16);
+}
+.cake-decor-bar {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.cake-decor-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 7px 10px;
+  border: none;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  font-weight: 800;
+  font-size: 0.76rem;
+  cursor: pointer;
+  transition: transform 0.12s ease, background 0.2s ease;
+}
+.cake-decor-btn.on {
+  background: linear-gradient(160deg, #f9a8d4, #db2777);
+  color: #fff;
+  transform: translateY(-1px) scale(1.04);
+}
+.cake-decor-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.cake-decor-ic {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 18px;
+  box-shadow: inset 0 -3px 4px rgba(0, 0, 0, 0.12);
+}
+.ic-frosting { background: radial-gradient(circle at 40% 28%, #fff, #ececec); }
+.cake-decor-btn .ic-sprinkles { background: conic-gradient(#ef5a78, #f6df5e, #9ee8b6, #8fc2f0, #c084fc, #ef5a78); }
+.cake-decor-btn .ic-cherry,
+.cake-decor-btn .ic-candle,
+.cake-decor-btn .ic-strawberry { background: none; box-shadow: none; }
+.cake-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.cake-hint {
+  align-self: center;
+  color: #fff;
+  font-weight: 800;
+  font-size: 1rem;
+}
