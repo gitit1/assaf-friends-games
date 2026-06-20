@@ -376,6 +376,8 @@ export default function Tamagotchi({ onExit }: GameProps) {
   const [held, setHeld] = useState<string | null>(null) // food carried in the hand on the walk back from the fridge
   const [sleeping, setSleeping] = useState(false) // in the bedroom (bed + dim lights)
   const [lyingDown, setLyingDown] = useState(false) // actually lying on the bed
+  const [walkPhase, setWalkPhase] = useState(0) // which outdoor scene during a walk (0=park, 1=pond, 2=meadow)
+  const [atDoor, setAtDoor] = useState(false) // walking out through the front door
   const [fx, setFx] = useState<{ emoji: string; id: number } | null>(null)
   const [burst, setBurst] = useState<{ id: number; bits: { e: string; x: number; y: number; d: number }[] } | null>(null)
   const [bounce, setBounce] = useState(false)
@@ -576,6 +578,8 @@ export default function Tamagotchi({ onExit }: GameProps) {
     setPetX(0)
     setSleeping(false)
     setLyingDown(false)
+    setWalkPhase(0)
+    setAtDoor(false)
   }
 
   // drinks live in the fridge too — so the friend strolls to the kitchen, opens it,
@@ -622,12 +626,24 @@ export default function Tamagotchi({ onExit }: GameProps) {
       eatTimers.current.push(window.setTimeout(() => setSleeping(false), 7000)) // gets out of bed
       return
     }
-    const r = react(type) // the engine plays the right sound for the outcome
-    showFx({ walk: '🌳', clean: '✨', sleep: '😴', hug: '🤗' }[type])
-    if (type === 'walk' && r && r.outcome !== 'request' && r.outcome !== 'refusal') {
-      setScene('walk')
-      window.setTimeout(() => setScene('home'), 3800)
+    if (type === 'walk') {
+      const r = react('walk')
+      if (r && (r.outcome === 'request' || r.outcome === 'refusal')) return // didn't feel like it
+      // 1) walk to the front door and step out
+      setAtDoor(true)
+      setWalking(true)
+      setWalkMs(1700)
+      setPetX(Math.round(Math.min(vp.w, 440) * 0.34))
+      eatTimers.current.push(window.setTimeout(() => { setAtDoor(false); setPetX(0); setScene('walk'); setWalkPhase(0); showFx('🌳') }, 1700)) // out!
+      // 2) several different walk scenes go by (park → pond → meadow)
+      eatTimers.current.push(window.setTimeout(() => setWalkPhase(1), 4400))
+      eatTimers.current.push(window.setTimeout(() => setWalkPhase(2), 7100))
+      // 3) head back home
+      eatTimers.current.push(window.setTimeout(() => { setScene('home'); setWalking(false); setWalkPhase(0) }, 9800))
+      return
     }
+    react(type) // hug → the engine plays the right sound + reaction
+    showFx({ walk: '🌳', clean: '✨', sleep: '😴', hug: '🤗' }[type])
   }
 
   // שירותים → the bathroom: the friend goes and sits on the toilet for a moment
@@ -885,7 +901,7 @@ export default function Tamagotchi({ onExit }: GameProps) {
       </div>
 
       <div
-        className={`pet-room tod-${timeOfDay} pose-${posture} expr-${expression} ${scene === 'walk' ? 'is-walk' : ''} ${
+        className={`pet-room tod-${timeOfDay} pose-${posture} expr-${expression} ${scene === 'walk' ? `is-walk walk-${walkPhase}` : ''} ${atDoor ? 'at-door' : ''} ${
           kitchen ? 'kmode' : ''
         } ${kitchen ? 'is-kitchen' : ''} ${eatSetting || eatFood ? 'emode' : ''} ${walking ? 'is-striding' : ''} ${fridgeOpen ? 'fridge-open' : ''} ${eatSetting ? `eat-${eatSetting}` : ''} ${
           bathroom ? `bmode bath-${bathroom}` : ''
@@ -911,6 +927,10 @@ export default function Tamagotchi({ onExit }: GameProps) {
             <span className="ps-shelf" />
             <span className="ps-rug" />
             <span className="ps-plant">🪴</span>
+            {/* the front door — the pet walks to it and steps out for a walk */}
+            <span className="ps-door">
+              <span className="door-knob" />
+            </span>
           </span>
           {/* the kitchen scenery — replaces the bedroom while feeding */}
           <span className="ps-kitchen">
@@ -953,13 +973,17 @@ export default function Tamagotchi({ onExit }: GameProps) {
             <span className="bed-pillow" />
             <span className="bed-blanket" />
           </span>
-          {/* the outdoors — for a real walk (and outdoor play later) */}
+          {/* the outdoors — a few different scenes go by during a walk */}
           <span className="ps-outdoor">
             <span className="osun" />
             <span className="ocloud a" />
             <span className="ocloud b" />
             <span className="ohills" />
             <span className="otrees" />
+            <span className="opond" />
+            <span className="oflowers" />
+            <span className="obird">🐦</span>
+            <span className="obutterfly">🦋</span>
           </span>
         </div>
         {/* the pet stands on a FIXED room floor line (a % of the room HEIGHT, so it
