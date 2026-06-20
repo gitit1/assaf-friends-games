@@ -35,6 +35,7 @@ import IceCreamGame from './IceCreamGame'
 import FeedAnimals from './FeedAnimals'
 import CakeMaker from './CakeMaker'
 import Garden from './Garden'
+import ShopGame from './ShopGame'
 import BubblePopGame from './BubblePopGame'
 import SpellWord from './SpellWord'
 import FirstLetter from './FirstLetter'
@@ -109,6 +110,14 @@ export const GAMES: GameDef[] = [
     color: 'linear-gradient(160deg, #4ade80, #16a34a)',
     category: 'create',
     Component: Garden,
+  },
+  {
+    id: 'shop',
+    title: 'קופה',
+    emoji: '🏪',
+    color: 'linear-gradient(160deg, #818cf8, #4f46e5)',
+    category: 'numbers',
+    Component: ShopGame,
   },
   {
     id: 'sortshelf',
