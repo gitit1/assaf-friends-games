@@ -6014,7 +6014,32 @@ button {
   font-family: 'Fredoka', 'Heebo', sans-serif;
   font-weight: 800;
   font-size: 1.5rem;
-  margin: 10px 0 18px;
+  margin: 10px 0 14px;
+}
+/* friend / animal toggle on the pick screen */
+.pet-pick-tabs {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin: 0 0 14px;
+}
+.pet-pick-tab {
+  font-family: 'Fredoka', 'Heebo', sans-serif;
+  font-weight: 800;
+  font-size: 1.05rem;
+  padding: 8px 20px;
+  border: none;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-soft);
+  cursor: pointer;
+  transition: transform 0.12s ease, background 0.2s ease, color 0.2s ease;
+}
+.pet-pick-tab.is-on {
+  background: linear-gradient(160deg, #f59e0b, #d97706);
+  color: #fff;
+  transform: translateY(-1px) scale(1.04);
+  box-shadow: 0 4px 10px rgba(217, 119, 6, 0.4);
 }
 .pet-picker {
   display: flex;
@@ -12475,4 +12500,359 @@ button {
 }
 .ss-shelf.is-dragover .ss-plank {
   box-shadow: 0 0 0 4px #22c55e, 0 6px 10px rgba(0, 0, 0, 0.25);
+}
+
+/* ===================== animal pets (dog / cat / rabbit / hamster) ===================== */
+/* Front-facing chibi animals drawn on the friends' skeleton, so the walk / eat
+   rigs animate the same `.gal-arm` (paws) + `.gal-foot` (feet). Per-kind colour
+   via CSS vars; per-kind ears / snout / tail below. */
+.friend-art.animal {
+  position: relative;
+  width: 150px;
+  height: 150px;
+  --fur: #d9a268;
+  --fur-d: #b9813f;
+  --fur-l: #f0d3a6;
+  --ear: #a8702f;
+  --nose: #3a2a22;
+}
+.friend-art.animal-cat {
+  --fur: #a7adb6;
+  --fur-d: #878e98;
+  --fur-l: #d9dde2;
+  --ear: #878e98;
+  --nose: #e9899f;
+}
+.friend-art.animal-rabbit {
+  width: 140px;
+  height: 176px;
+  --fur: #efe9ec;
+  --fur-d: #d6cdd2;
+  --fur-l: #ffffff;
+  --ear: #e7dee3;
+  --nose: #e9899f;
+}
+.friend-art.animal-hamster {
+  width: 152px;
+  height: 140px;
+  --fur: #e7b15c;
+  --fur-d: #cf9438;
+  --fur-l: #f7dda2;
+  --ear: #cf9438;
+  --nose: #7a4a2a;
+}
+/* the round body+head */
+.friend-art.animal .an-body {
+  position: absolute;
+  left: 50%;
+  bottom: 6%;
+  transform: translateX(-50%);
+  width: 72%;
+  height: 80%;
+  background: radial-gradient(circle at 50% 28%, var(--fur-l), var(--fur) 62%);
+  border-radius: 50% 50% 46% 46% / 56% 56% 44% 44%;
+  box-shadow: inset 0 -10px 16px rgba(0, 0, 0, 0.12), inset 0 7px 11px rgba(255, 255, 255, 0.32);
+  z-index: 2;
+}
+/* lighter belly/chest patch */
+.friend-art.animal .an-body::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: 5%;
+  transform: translateX(-50%);
+  width: 54%;
+  height: 52%;
+  background: var(--fur-l);
+  opacity: 0.75;
+  border-radius: 50%;
+}
+/* eyes (self-contained so they don't inherit the friends' positions) */
+.friend-art.animal .gf-eye {
+  position: absolute;
+  top: 35%;
+  width: 17%;
+  height: 20%;
+  background: #fff;
+  border: 2px solid #2a2433;
+  border-radius: 50%;
+  z-index: 4;
+  overflow: visible;
+}
+.friend-art.animal .gf-eye.l {
+  left: 28%;
+  right: auto;
+}
+.friend-art.animal .gf-eye.r {
+  right: 28%;
+  left: auto;
+}
+.friend-art.animal .gf-eye::after {
+  content: '';
+  position: absolute;
+  left: 24%;
+  top: 22%;
+  width: 54%;
+  height: 58%;
+  background: #2a2433;
+  border-radius: 50%;
+}
+.friend-art.animal .gf-eye::before {
+  content: '';
+  position: absolute;
+  left: 30%;
+  top: 26%;
+  width: 22%;
+  height: 22%;
+  background: #fff;
+  border-radius: 50%;
+  z-index: 1;
+}
+/* snout/muzzle (dog + cat get a pale muzzle; others just a nose) */
+.friend-art.animal .an-snout {
+  position: absolute;
+  left: 50%;
+  top: 53%;
+  transform: translateX(-50%);
+  width: 42%;
+  height: 30%;
+  z-index: 4;
+}
+.friend-art.animal-dog .an-snout,
+.friend-art.animal-cat .an-snout {
+  background: var(--fur-l);
+  border-radius: 50%;
+  box-shadow: inset 0 -3px 5px rgba(0, 0, 0, 0.1);
+}
+.friend-art.animal .an-nose {
+  position: absolute;
+  left: 50%;
+  top: 4%;
+  transform: translateX(-50%);
+  width: 28%;
+  height: 22%;
+  background: var(--nose);
+  border-radius: 50% 50% 50% 50% / 62% 62% 44% 44%;
+  z-index: 5;
+}
+.friend-art.animal .an-mouth {
+  position: absolute;
+  left: 50%;
+  top: 30%;
+  transform: translateX(-50%);
+  width: 44%;
+  height: 40%;
+  border: 2.5px solid var(--nose);
+  border-top: none;
+  border-radius: 0 0 60% 60%;
+  z-index: 5;
+}
+/* cheeks — only the hamster's chubby cheeks (others hidden) */
+.friend-art.animal .an-cheek {
+  display: none;
+}
+.friend-art.animal-hamster .an-cheek {
+  display: block;
+  position: absolute;
+  top: 50%;
+  width: 28%;
+  height: 26%;
+  background: var(--fur-l);
+  border-radius: 50%;
+  z-index: 3;
+}
+.friend-art.animal-hamster .an-cheek.l {
+  left: 7%;
+}
+.friend-art.animal-hamster .an-cheek.r {
+  right: 7%;
+}
+/* paws (= the friend "arms") low on the body */
+.friend-art.animal .gal-arm {
+  top: auto;
+  bottom: 15%;
+  width: 21px;
+  height: 19px;
+  background: var(--fur-d);
+  border-radius: 50% 50% 45% 45%;
+  box-shadow: inset 0 -2px 3px rgba(0, 0, 0, 0.2);
+  z-index: 3;
+}
+.friend-art.animal .gal-arm.l {
+  left: 13%;
+  right: auto;
+  transform: rotate(6deg);
+  transform-origin: top center;
+}
+.friend-art.animal .gal-arm.r {
+  right: 13%;
+  left: auto;
+  transform: rotate(-6deg);
+  transform-origin: top center;
+}
+.friend-art.animal .gal-arm .hand {
+  display: none;
+}
+/* feet (= the friend "feet") at the bottom — the walk rig lifts these in turn */
+.friend-art.animal .gal-foot {
+  bottom: 0;
+  width: 28px;
+  height: 16px;
+  background: var(--fur-d);
+  border-radius: 50% 50% 42% 42%;
+  box-shadow: inset 0 -3px 3px rgba(0, 0, 0, 0.22);
+  z-index: 3;
+}
+.friend-art.animal .gal-foot.l {
+  left: 26%;
+}
+.friend-art.animal .gal-foot.r {
+  right: 26%;
+}
+/* gentler paw motion for animals (overrides the friends' big arm swing) */
+.friend-art.animal.is-walking .gal-arm.l {
+  transform-origin: top center;
+  animation: an-paw-l 0.7s ease-in-out infinite;
+}
+.friend-art.animal.is-walking .gal-arm.r {
+  transform-origin: top center;
+  animation: an-paw-r 0.7s ease-in-out infinite;
+}
+@keyframes an-paw-l {
+  0%, 100% { transform: rotate(8deg); }
+  50% { transform: rotate(-10deg); }
+}
+@keyframes an-paw-r {
+  0%, 100% { transform: rotate(-10deg); }
+  50% { transform: rotate(8deg); }
+}
+.friend-art.animal.is-eating .gal-arm.r {
+  transform-origin: top center;
+  animation: an-eat-reach 0.62s ease-in-out infinite;
+}
+@keyframes an-eat-reach {
+  0%, 100% { transform: rotate(-6deg); }
+  45% { transform: translateY(-65%) rotate(-26deg); }
+}
+/* ── ears ── */
+.friend-art.animal-dog .an-ear {
+  position: absolute;
+  top: 17%;
+  width: 25%;
+  height: 44%;
+  background: var(--ear);
+  border-radius: 50% 50% 50% 50% / 38% 38% 62% 62%;
+  z-index: 1;
+}
+.friend-art.animal-dog .an-ear.l {
+  left: 3%;
+  transform: rotate(9deg);
+}
+.friend-art.animal-dog .an-ear.r {
+  right: 3%;
+  transform: rotate(-9deg);
+}
+.friend-art.animal-cat .an-ear {
+  position: absolute;
+  top: 2%;
+  width: 0;
+  height: 0;
+  border-left: 17px solid transparent;
+  border-right: 17px solid transparent;
+  border-bottom: 30px solid var(--fur);
+  z-index: 1;
+}
+.friend-art.animal-cat .an-ear.l {
+  left: 17%;
+  transform: rotate(-14deg);
+}
+.friend-art.animal-cat .an-ear.r {
+  right: 17%;
+  transform: rotate(14deg);
+}
+.friend-art.animal-cat .an-ear::after {
+  content: '';
+  position: absolute;
+  left: -8px;
+  top: 12px;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-bottom: 15px solid var(--nose);
+}
+.friend-art.animal-rabbit .an-ear {
+  position: absolute;
+  top: -28%;
+  width: 19%;
+  height: 56%;
+  background: var(--fur);
+  border-radius: 50%;
+  z-index: 1;
+}
+.friend-art.animal-rabbit .an-ear::after {
+  content: '';
+  position: absolute;
+  inset: 16% 28%;
+  background: var(--nose);
+  opacity: 0.45;
+  border-radius: 50%;
+}
+.friend-art.animal-rabbit .an-ear.l {
+  left: 25%;
+  transform: rotate(-9deg);
+}
+.friend-art.animal-rabbit .an-ear.r {
+  right: 25%;
+  transform: rotate(9deg);
+}
+.friend-art.animal-hamster .an-ear {
+  position: absolute;
+  top: 7%;
+  width: 21%;
+  height: 21%;
+  background: var(--ear);
+  border-radius: 50%;
+  z-index: 1;
+}
+.friend-art.animal-hamster .an-ear.l {
+  left: 13%;
+}
+.friend-art.animal-hamster .an-ear.r {
+  right: 13%;
+}
+/* ── tails ── */
+.friend-art.animal .an-tail {
+  position: absolute;
+  z-index: 1;
+}
+.friend-art.animal-dog .an-tail {
+  right: 5%;
+  bottom: 22%;
+  width: 15%;
+  height: 30%;
+  background: var(--fur);
+  border-radius: 50%;
+  transform: rotate(30deg);
+  transform-origin: bottom left;
+}
+.friend-art.animal-cat .an-tail {
+  right: 1%;
+  bottom: 16%;
+  width: 11%;
+  height: 50%;
+  background: var(--fur);
+  border-radius: 40% 40% 50% 50%;
+  transform: rotate(18deg);
+  transform-origin: bottom center;
+}
+.friend-art.animal-rabbit .an-tail {
+  right: 8%;
+  bottom: 12%;
+  width: 20%;
+  height: 18%;
+  background: var(--fur-l);
+  border-radius: 50%;
+  box-shadow: inset 0 -3px 4px rgba(0, 0, 0, 0.1);
+}
+.friend-art.animal-hamster .an-tail {
+  display: none;
 }

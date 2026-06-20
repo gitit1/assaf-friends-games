@@ -4,6 +4,7 @@ import { friendCount, randFriendIndex } from '../level'
 import Friend from '../components/Friend'
 import Stepper from '../components/Stepper'
 import { friendMaxDim, FRIEND_NATURAL, friendKindForIndex } from '../components/FriendArt'
+import AnimalArt, { ANIMAL_KINDS, ANIMAL_NAMES, ANIMAL_NATURAL, animalMaxDim, type AnimalKind } from '../components/AnimalArt'
 import type { GameProps } from './registry'
 import { playFriend, playMunch, playNudge, playPop, playSuccess, playTap, unlockAudio } from '../audio'
 import { speak } from '../speech'
@@ -132,6 +133,8 @@ type Slot = 'hat' | 'face' | 'body' | 'held'
 type Outfit = Partial<Record<Slot, string>>
 type Pet = {
   friend: number
+  /** when set, the pet is a real ANIMAL (not one of the 100 friends) */
+  species?: AnimalKind
   hunger: number
   thirst: number
   happy: number
@@ -155,9 +158,9 @@ const SLOTS: { key: Slot; label: string; items: string[] }[] = [
 
 const clamp = (v: number) => Math.max(0, Math.min(100, v))
 
-function freshPet(friend: number): Pet {
+function freshPet(friend: number, species?: AnimalKind): Pet {
   return {
-    friend, hunger: 80, thirst: 80, happy: 85, clean: 100, energy: 80,
+    friend, species, hunger: 80, thirst: 80, happy: 85, clean: 100, energy: 80,
     loneliness: 10, boredom: 15, trust: 50, poop: false, outfit: {}, history: emptyHistory(), ts: Date.now(),
   }
 }
@@ -172,6 +175,7 @@ function load(): Pet | null {
     const d = Math.round(mins)
     return {
       friend: p.friend,
+      species: p.species,
       hunger: clamp((p.hunger ?? 80) - d),
       thirst: clamp((p.thirst ?? 80) - d),
       happy: clamp((p.happy ?? 85) - Math.round(d * 0.6)),
@@ -188,6 +192,26 @@ function load(): Pet | null {
   } catch {
     return null
   }
+}
+
+// the animal pets reuse the friends' holder/scale wrappers + walk/eat rigs
+function AnimalFigure({ kind, scale, walking, eating }: { kind: AnimalKind; scale: number; walking?: boolean; eating?: boolean }) {
+  const nat = ANIMAL_NATURAL[kind]
+  return (
+    <span className="friend-holder" style={{ width: nat.w * scale, height: nat.h * scale }}>
+      <span className="friend-scale" style={{ width: nat.w, transform: `scale(${scale})`, transformOrigin: 'top left' }}>
+        <AnimalArt kind={kind} walking={walking} eating={eating} />
+      </span>
+    </span>
+  )
+}
+
+function AnimalDressed({ kind, px, walking, eating }: { kind: AnimalKind; px: number; walking?: boolean; eating?: boolean }) {
+  return (
+    <span className={`pet-figure ${eating ? 'is-eating' : ''}`} style={{ fontSize: `${px}px` }}>
+      <AnimalFigure kind={kind} scale={px / animalMaxDim(kind)} walking={walking} eating={eating} />
+    </span>
+  )
 }
 
 function FriendDressed({
@@ -318,8 +342,15 @@ export default function Tamagotchi({ onExit }: GameProps) {
     // visible and centred (never spilling past the canvas) on any screen
     return Math.min((Math.min(vp.w, 440) * 0.46) / nat.w, (roomH * 0.38) / nat.h, 1.8)
   }
+  // same fit, for an animal pet (its own natural box)
+  const fitAnimal = (kind: AnimalKind) => {
+    const nat = ANIMAL_NATURAL[kind]
+    return Math.min((Math.min(vp.w, 440) * 0.46) / nat.w, (roomH * 0.38) / nat.h, 1.8)
+  }
   const [choosing, setChoosing] = useState(() => pet === null)
   const [pick, setPick] = useState(0)
+  const [pickMode, setPickMode] = useState<'friend' | 'animal'>('friend')
+  const [pickAnimal, setPickAnimal] = useState(0) // index into ANIMAL_KINDS
   const [wardrobe, setWardrobe] = useState(false)
   const [fridge, setFridge] = useState(false)
   const [kitchen, setKitchen] = useState(false) // walked to the kitchen, fridge in view
@@ -494,11 +525,24 @@ export default function Tamagotchi({ onExit }: GameProps) {
     speak(`${friendSay(friend)}! החבר שלי`)
   }
 
+  function chooseAnimal(kind: AnimalKind) {
+    unlockAudio()
+    playSuccess()
+    setPet(freshPet(0, kind))
+    setChoosing(false)
+    speak(`${ANIMAL_NAMES[kind]}! החיה שלי`)
+  }
+
   function pokePet() {
     if (!pet) return
     unlockAudio()
-    playFriend(pet.friend)
-    speak(friendSay(pet.friend))
+    if (pet.species) {
+      playTap()
+      speak(ANIMAL_NAMES[pet.species])
+    } else {
+      playFriend(pet.friend)
+      speak(friendSay(pet.friend))
+    }
     setBounce(true)
     window.setTimeout(() => setBounce(false), 550)
   }
@@ -702,28 +746,59 @@ export default function Tamagotchi({ onExit }: GameProps) {
     )
   }
 
-  // ---- pick-a-friend screen ----
+  // ---- pick-a-pet screen: a friend, or a real animal ----
   if (choosing || !pet) {
+    const aKind = ANIMAL_KINDS[pickAnimal]
     return (
       <GameShell title={t('game.pet')} emoji="🐣" onExit={onExit}>
         <p className="pet-pick-title">{t('pet.pickTitle')}</p>
-        <Stepper
-          label={
-            <span className="pet-pick-figure">
-              <Friend index={pick} scale={fitPet(pick)} showNumber={false} />
-            </span>
-          }
-          onPrev={() => setPick((p) => (p + friendCount() - 1) % friendCount())}
-          onNext={() => setPick((p) => (p + 1) % friendCount())}
-        />
-        <p className="pet-pick-name">
-          {friendName(pick)} · {pick + 1}
-        </p>
-        <div className="counting-next">
-          <button className="big-button" onClick={() => choose(pick)}>
-            🎉 {t('pet.pickBtn')}
+        <div className="pet-pick-tabs">
+          <button className={`pet-pick-tab ${pickMode === 'friend' ? 'is-on' : ''}`} onClick={() => setPickMode('friend')}>
+            🙂 {t('pet.pickFriend')}
+          </button>
+          <button className={`pet-pick-tab ${pickMode === 'animal' ? 'is-on' : ''}`} onClick={() => setPickMode('animal')}>
+            🐶 {t('pet.pickAnimal')}
           </button>
         </div>
+        {pickMode === 'friend' ? (
+          <>
+            <Stepper
+              label={
+                <span className="pet-pick-figure">
+                  <Friend index={pick} scale={fitPet(pick)} showNumber={false} />
+                </span>
+              }
+              onPrev={() => setPick((p) => (p + friendCount() - 1) % friendCount())}
+              onNext={() => setPick((p) => (p + 1) % friendCount())}
+            />
+            <p className="pet-pick-name">
+              {friendName(pick)} · {pick + 1}
+            </p>
+            <div className="counting-next">
+              <button className="big-button" onClick={() => choose(pick)}>
+                🎉 {t('pet.pickBtn')}
+              </button>
+            </div>
+          </>
+        ) : (
+          <>
+            <Stepper
+              label={
+                <span className="pet-pick-figure">
+                  <AnimalFigure kind={aKind} scale={fitAnimal(aKind)} />
+                </span>
+              }
+              onPrev={() => setPickAnimal((p) => (p + ANIMAL_KINDS.length - 1) % ANIMAL_KINDS.length)}
+              onNext={() => setPickAnimal((p) => (p + 1) % ANIMAL_KINDS.length)}
+            />
+            <p className="pet-pick-name">{ANIMAL_NAMES[aKind]}</p>
+            <div className="counting-next">
+              <button className="big-button" onClick={() => chooseAnimal(aKind)}>
+                🎉 {t('pet.pickBtn')}
+              </button>
+            </div>
+          </>
+        )}
       </GameShell>
     )
   }
@@ -736,6 +811,12 @@ export default function Tamagotchi({ onExit }: GameProps) {
     { key: 'clean', emoji: '🧼', label: 'נקי', value: pet.clean },
   ]
   const sad = meters.some((m) => m.value < 25)
+  // the pet is either an animal or one of the 100 friends — its size + name + render differ
+  const isAnimal = !!pet.species
+  const petPx = isAnimal
+    ? Math.round(fitAnimal(pet.species as AnimalKind) * animalMaxDim(pet.species as AnimalKind))
+    : Math.round(fitPet(pet.friend) * friendMaxDim(pet.friend))
+  const petLabel = isAnimal ? ANIMAL_NAMES[pet.species as AnimalKind] : friendName(pet.friend)
   // dirtier → more stains on the body (replaces the old poop)
   const stainCount = pet.clean < 22 ? 3 : pet.clean < 40 ? 2 : pet.clean < 58 ? 1 : 0
   // time of day → the room's window sky + wall mood (a modern-pet-game touch)
@@ -842,18 +923,22 @@ export default function Tamagotchi({ onExit }: GameProps) {
         {playing ? (
           <PlayScene kind={playing.kind} friend={pet.friend} outfit={pet.outfit} buddy={buddy} />
         ) : (
-        <button className="pet-tap" onClick={pokePet} aria-label={friendName(pet.friend)}>
+        <button className="pet-tap" onClick={pokePet} aria-label={petLabel}>
           {/* transform-layer stack: each wrapper owns ONE transform (traversal X /
               facing mirror / posture) so they compose instead of overwriting */}
           <span className="pet-stage" style={{ ['--walk-x']: `${petX}px`, ['--walk-ms']: `${walkMs}ms` } as React.CSSProperties}>
             <span className="pet-facing">
               <span className="pet-body">
-                <FriendDressed index={pet.friend} px={Math.round(fitPet(pet.friend) * friendMaxDim(pet.friend))} outfit={pet.outfit} bouncing={bounce} eating={!!eatFood} walking={walking || scene === 'walk'} />
+                {isAnimal ? (
+                  <AnimalDressed kind={pet.species as AnimalKind} px={petPx} walking={walking || scene === 'walk'} eating={!!eatFood} />
+                ) : (
+                  <FriendDressed index={pet.friend} px={petPx} outfit={pet.outfit} bouncing={bounce} eating={!!eatFood} walking={walking || scene === 'walk'} />
+                )}
                 {held && (
                   <span
                     className="pet-hold"
                     aria-hidden="true"
-                    style={{ fontSize: `${Math.round(fitPet(pet.friend) * friendMaxDim(pet.friend) * 0.42)}px` }}
+                    style={{ fontSize: `${Math.round(petPx * 0.42)}px` }}
                   >
                     {held}
                   </span>

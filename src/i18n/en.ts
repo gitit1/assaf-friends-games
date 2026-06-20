@@ -183,8 +183,10 @@ export const EN: Dict = {
   'dice.roll': { text: 'Roll' },
 
   // my-friend (virtual pet) game
-  'pet.pickTitle': { text: 'Which friend to raise?' },
-  'pet.pickBtn': { text: 'This is my friend!' },
+  'pet.pickTitle': { text: 'Who would you like to raise?' },
+  'pet.pickBtn': { text: 'This one is mine!' },
+  'pet.pickFriend': { text: 'Friend' },
+  'pet.pickAnimal': { text: 'Animal' },
   'pet.newFriend': { text: 'New friend' },
   'pet.act.feed': { text: 'Food' },
   'pet.act.water': { text: 'Water' },

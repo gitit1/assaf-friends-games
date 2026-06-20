@@ -184,8 +184,10 @@ export const HE: Dict = {
   'dice.roll': { text: 'גלגלו' },
 
   // my-friend (virtual pet) game
-  'pet.pickTitle': { text: 'איזה חבר תרצו לגדל?' },
-  'pet.pickBtn': { text: 'זה החבר שלי!' },
+  'pet.pickTitle': { text: 'מי תרצו לגדל?' },
+  'pet.pickBtn': { text: 'זה שלי!' },
+  'pet.pickFriend': { text: 'חבר' },
+  'pet.pickAnimal': { text: 'חיה' },
   'pet.newFriend': { text: 'חבר חדש' },
   'pet.act.feed': { text: 'אוכל' },
   'pet.act.water': { text: 'מים' },
