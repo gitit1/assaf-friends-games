@@ -1,8 +1,9 @@
 // Real-animal pets for the "My Friend" (Tamagotchi) game — an alternative to the
-// 100 abstract friends. They are front-facing chibi animals built on the SAME
-// skeleton as the friends (two paw-arms `.gal-arm`, two feet `.gal-foot`, eyes
-// `.gf-eye`), so the existing walk / carry / eat / drink rigs animate them for
-// free. Each animal adds its own ears / snout / tail via `.animal-<kind>` CSS.
+// 100 abstract friends. Front-facing chibi animals (a big head + a smaller body)
+// built on the SAME skeleton as the friends (two paw-arms `.gal-arm`, two feet
+// `.gal-foot`, eyes `.gf-eye`), so the existing walk / carry / eat / drink rigs
+// animate them for free. Each animal gets its own ears / snout / tail / extras
+// via `.animal-<kind>` CSS, with strong defining features so it's unmistakable.
 
 export type AnimalKind = 'dog' | 'cat' | 'rabbit' | 'hamster'
 
@@ -15,7 +16,6 @@ export const ANIMAL_NAMES: Record<AnimalKind, string> = {
   hamster: 'אוגר',
 }
 
-// the emoji shown on the picker chip + spoken-name fallback
 export const ANIMAL_EMOJI: Record<AnimalKind, string> = {
   dog: '🐶',
   cat: '🐱',
@@ -23,12 +23,13 @@ export const ANIMAL_EMOJI: Record<AnimalKind, string> = {
   hamster: '🐹',
 }
 
-// natural box each animal is drawn in (px), used to scale it to fit the room
+// natural box each animal is drawn in (px). The animal's FEET sit at the very
+// bottom of this box, so it stands on the floor like the friends.
 export const ANIMAL_NATURAL: Record<AnimalKind, { w: number; h: number }> = {
-  dog: { w: 150, h: 150 },
-  cat: { w: 150, h: 150 },
-  rabbit: { w: 140, h: 176 },
-  hamster: { w: 152, h: 140 },
+  dog: { w: 156, h: 168 },
+  cat: { w: 156, h: 172 },
+  rabbit: { w: 150, h: 196 },
+  hamster: { w: 160, h: 156 },
 }
 
 export const animalMaxDim = (k: AnimalKind) => Math.max(ANIMAL_NATURAL[k].w, ANIMAL_NATURAL[k].h)
@@ -44,29 +45,35 @@ type Props = {
 export default function AnimalArt({ kind, walking = false, eating = false }: Props) {
   return (
     <div className={`friend-art animal animal-${kind} ${walking ? 'is-walking' : ''} ${eating ? 'is-eating' : ''}`}>
-      {/* behind the body */}
+      {/* behind everything */}
       <span className="an-tail" />
-      {/* paws double as the friend "arms" so the walk/eat rigs grab them */}
+      {/* lower rounded body, with the feet + paws */}
+      <span className="an-body" />
+      <span className="gal-foot l" />
+      <span className="gal-foot r" />
       <span className="gal-arm l">
         <span className="hand" />
       </span>
       <span className="gal-arm r">
         <span className="hand" />
       </span>
-      <span className="an-ear l" />
-      <span className="an-ear r" />
-      <span className="an-body" />
-      <span className="an-cheek l" />
-      <span className="an-cheek r" />
-      <span className="gf-eye l" />
-      <span className="gf-eye r" />
-      <span className="an-snout">
-        <span className="an-nose" />
-        <span className="an-mouth" />
+      {/* big head carries the face + ears */}
+      <span className="an-head">
+        <span className="an-ear l" />
+        <span className="an-ear r" />
+        <span className="an-cheek l" />
+        <span className="an-cheek r" />
+        <span className="an-whisker l" />
+        <span className="an-whisker r" />
+        <span className="gf-eye l" />
+        <span className="gf-eye r" />
+        <span className="an-snout">
+          <span className="an-nose" />
+          <span className="an-mouth" />
+          <span className="an-tongue" />
+          <span className="an-teeth" />
+        </span>
       </span>
-      {/* feet double as the friend "feet" — the walk rig lifts them in turn */}
-      <span className="gal-foot l" />
-      <span className="gal-foot r" />
     </div>
   )
 }
