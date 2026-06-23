@@ -571,6 +571,8 @@ type Props = {
   /** Looping locomotion — the friend marches in place: legs step, arms pump,
    *  body bobs + sways. Game-controlled state (not a one-shot like `action`). */
   walking?: boolean
+  /** Baby look — a freshly-hatched little one: bigger head + big baby eyes. */
+  baby?: boolean
 }
 
 export type PaintProps = { colors: (string | null)[]; onPick: (i: number) => void }
@@ -870,6 +872,7 @@ export default function FriendArt({
   lively = false,
   action = null,
   walking = false,
+  baby = false,
 }: Props) {
   const order = PART_ORDER[kind]
   const lit = litUnits ?? order.length
@@ -1228,7 +1231,7 @@ export default function FriendArt({
   const liveStyle = lively ? ({ '--blink-delay': `${((number ?? 1) % 5) * 0.8}s` } as React.CSSProperties) : undefined
   return (
     <div
-      className={`friend-art ${eating ? 'is-eating' : ''} ${lively ? 'is-lively' : ''} ${action ? `act-${action}` : ''} ${walking ? 'is-walking' : ''}`}
+      className={`friend-art ${eating ? 'is-eating' : ''} ${lively ? 'is-lively' : ''} ${action ? `act-${action}` : ''} ${walking ? 'is-walking' : ''} ${baby ? 'is-baby' : ''}`}
       style={liveStyle}
     >
       {design}

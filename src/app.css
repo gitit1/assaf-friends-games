@@ -2249,6 +2249,30 @@ button {
 .gal-big .gf-cheek.r {
   right: calc(50% - 54px);
 }
+/* ── baby / cub look — a freshly-hatched little one: big innocent eyes (works for
+   both the friends and the animals, which share the .gf-eye element). Pairs with
+   the smaller overall size from STAGE_SCALE to read clearly as a baby. ── */
+.friend-art.is-baby .gf-eye {
+  transform: scale(1.45);
+}
+.friend-art.is-baby .gf-cheek {
+  transform: scale(1.2);
+}
+/* ── life-stage proportions for the animal pets ── cub: huge head + big eyes +
+   tiny body (a real baby animal); teen: in-between; adult (default): full grown.
+   Set as variables so the head/body/eyes/snout scale together per stage. ── */
+.friend-art.animal.stage-cub {
+  --head-scale: 1.26;
+  --body-scale: 0.56;
+  --eye-scale: 1.32;
+  --snout-scale: 0.74;
+}
+.friend-art.animal.stage-teen {
+  --head-scale: 1.1;
+  --body-scale: 0.82;
+  --eye-scale: 1.13;
+  --snout-scale: 0.9;
+}
 .gf-mouth {
   position: absolute;
   left: 50%;
@@ -2276,13 +2300,18 @@ button {
 .gal-koko .bump,
 .gal-big .bump {
   background-color: var(--bc, #ef4444);
-  background-image: radial-gradient(rgba(255, 255, 255, 0.13) 0.5px, transparent 0.8px),
-    radial-gradient(circle at 38% 24%, rgba(255, 255, 255, 0.34), transparent 48%),
-    radial-gradient(circle at 54% 120%, rgba(0, 0, 0, 0.42), transparent 60%);
-  background-size: 5px 5px, 100% 100%, 100% 100%;
+  /* a real SPHERE: crisp specular highlight (top-left) → broad light → deep core
+     shadow (lower-right). The inset shadows below add the reflected/bounce light at
+     the very bottom edge that makes a circle read ROUND instead of flat. */
+  background-image: radial-gradient(rgba(255, 255, 255, 0.12) 0.5px, transparent 0.8px),
+    radial-gradient(circle at 32% 21%, rgba(255, 255, 255, 0.78), rgba(255, 255, 255, 0) 24%),
+    radial-gradient(circle at 43% 31%, rgba(255, 255, 255, 0.32), transparent 52%),
+    radial-gradient(circle at 64% 118%, rgba(0, 0, 0, 0.52), transparent 60%);
+  background-size: 5px 5px, 100% 100%, 100% 100%, 100% 100%;
   border: none;
-  box-shadow: inset 0 -16px 20px rgba(0, 0, 0, 0.3), inset 0 11px 14px rgba(255, 255, 255, 0.26),
-    inset 0 0 0 3px rgba(0, 0, 0, 0.06), 0 13px 18px rgba(0, 0, 0, 0.3);
+  box-shadow: inset 0 -15px 19px rgba(0, 0, 0, 0.38), inset 0 -4px 7px rgba(255, 255, 255, 0.26),
+    inset 0 11px 15px rgba(255, 255, 255, 0.34), inset 0 0 0 3px rgba(0, 0, 0, 0.05),
+    0 4px 6px rgba(0, 0, 0, 0.26), 0 13px 18px rgba(0, 0, 0, 0.3);
 }
 
 /* a not-yet-lit part — a faint outline (used while counting / building) */
@@ -6067,6 +6096,173 @@ button {
   margin: 10px 0 18px;
 }
 
+/* ── egg hatching + naming (the first-bond onboarding) ── */
+.egg-stage {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  min-height: 210px;
+  margin: 6px 0 4px;
+}
+.egg-nest {
+  position: absolute;
+  bottom: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 156px;
+  height: 34px;
+  background: radial-gradient(ellipse at 50% 28%, #b9854f, #8a5f33 70%);
+  border-radius: 50%;
+  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
+}
+.egg {
+  position: relative;
+  width: 120px;
+  height: 152px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  padding: 0;
+  margin-bottom: 18px;
+  transform-origin: 50% 92%;
+  animation: egg-wiggle 0.45s ease;
+}
+.egg-shell {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 30% 24%, #fff 0 6px, transparent 7px),
+    radial-gradient(circle at 64% 40%, #ffe0ec 0 7px, transparent 8px),
+    radial-gradient(circle at 40% 62%, #d7f0ff 0 7px, transparent 8px),
+    radial-gradient(circle at 70% 72%, #fff0c2 0 6px, transparent 7px),
+    linear-gradient(180deg, #fff7ef, #f3e0cf);
+  border-radius: 50% 50% 48% 48% / 60% 60% 40% 40%;
+  box-shadow: inset 0 -10px 16px rgba(0, 0, 0, 0.08), 0 8px 14px rgba(0, 0, 0, 0.16);
+}
+.egg-crack {
+  position: absolute;
+  top: 12%;
+  left: 44%;
+  width: 14%;
+  height: 60%;
+  background: rgba(70, 48, 28, 0.6);
+  clip-path: polygon(50% 0, 36% 18%, 62% 34%, 40% 50%, 60% 66%, 44% 84%, 52% 100%, 58% 100%, 66% 64%, 46% 48%, 64% 32%, 44% 16%, 56% 0);
+  opacity: 0;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+.egg.crack-3 .egg-crack,
+.egg.crack-4 .egg-crack {
+  opacity: 0.5;
+}
+.egg.crack-5 .egg-crack {
+  opacity: 0.9;
+  transform: scale(1.18);
+}
+.egg-heart {
+  position: absolute;
+  top: -6%;
+  left: 50%;
+  font-size: 1.5rem;
+  opacity: 0;
+  animation: egg-heart 0.7s ease;
+}
+.egg.is-hatching {
+  animation: egg-hatch 1s ease forwards;
+}
+@keyframes egg-wiggle {
+  0%, 100% { transform: rotate(0); }
+  28% { transform: rotate(-7deg); }
+  70% { transform: rotate(6deg); }
+}
+@keyframes egg-heart {
+  0% { opacity: 0; transform: translate(-50%, 0) scale(0.4); }
+  30% { opacity: 1; }
+  100% { opacity: 0; transform: translate(-50%, -42px) scale(1.1); }
+}
+@keyframes egg-hatch {
+  0% { transform: rotate(0) scale(1); }
+  12% { transform: rotate(-12deg); }
+  24% { transform: rotate(12deg); }
+  36% { transform: rotate(-13deg); }
+  48% { transform: rotate(13deg); }
+  60% { transform: rotate(-8deg) scale(1.05); }
+  100% { transform: scale(1.22); opacity: 0; }
+}
+.egg-hint {
+  text-align: center;
+  color: var(--text-soft);
+  font-size: 0.95rem;
+  margin: 2px 0 12px;
+}
+.egg-bar {
+  width: min(260px, 80%);
+  height: 12px;
+  margin: 0 auto;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.egg-bar > span {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, #fbbf24, #fb7185);
+  border-radius: 999px;
+  transition: width 0.3s ease;
+}
+.pet-name-input {
+  display: block;
+  margin: 12px auto;
+  width: min(280px, 84%);
+  padding: 12px 16px;
+  font-family: 'Fredoka', 'Heebo', sans-serif;
+  font-size: 1.3rem;
+  font-weight: 700;
+  text-align: center;
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.08);
+  border: 2px solid var(--line);
+  border-radius: 14px;
+}
+.pet-name-input:focus {
+  outline: none;
+  border-color: #fbbf24;
+}
+.hatch-baby {
+  display: flex;
+  width: 100%;
+  justify-content: center;
+  align-items: flex-end;
+  min-height: 160px;
+  animation: hatch-pop 0.6s cubic-bezier(0.34, 1.4, 0.5, 1);
+}
+@keyframes hatch-pop {
+  0% { transform: scale(0.3); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* the pet's name + life-stage badge, above the meters */
+.pet-name-line {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  flex-wrap: wrap;
+  margin: 0 0 8px;
+  font-family: 'Fredoka', 'Heebo', sans-serif;
+  font-weight: 800;
+  font-size: 1.25rem;
+  color: var(--text);
+}
+.pet-stage-badge {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text-soft);
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid var(--line);
+}
 .pet-meters {
   display: flex;
   gap: 6px;
@@ -6077,6 +6273,33 @@ button {
   background: rgba(255, 255, 255, 0.06);
   border: 1px solid var(--line);
   border-radius: 14px;
+}
+/* friendly counters — numbers that only ever go UP (days together, times cared
+   for). Numbers as play for a number-loving child; never a score, never drops. */
+.pet-counters {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin: -4px auto 12px;
+  flex-wrap: wrap;
+}
+.pet-count {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 5px;
+  padding: 3px 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--line);
+  font-size: 0.72rem;
+  color: var(--text-soft);
+  font-weight: 600;
+}
+.pet-count-num {
+  font-family: 'Fredoka', 'Heebo', sans-serif;
+  font-weight: 800;
+  font-size: 1.05rem;
+  color: #fbbf24;
 }
 /* a compact stat pill: icon + rounded bar + value, in one row (all 5 fit a phone) */
 .pet-meter {
@@ -6300,11 +6523,12 @@ button {
     radial-gradient(1.5px 1.5px at 38% 52%, #fff, transparent),
     radial-gradient(1.5px 1.5px at 72% 62%, #fff, transparent);
 }
-/* framed picture + little shelf */
+/* framed picture + little shelf — on the wall LEFT of the front door (the door
+   lives on the far right, so they must not overlap it) */
 .ps-frame {
   position: absolute;
-  top: 15%;
-  right: 11%;
+  top: 14%;
+  right: 26%;
   width: 16%;
   height: 21%;
   background: #fff;
@@ -6321,19 +6545,19 @@ button {
 }
 .ps-shelf {
   position: absolute;
-  top: 40%;
-  right: 9%;
+  top: 39%;
+  right: 24%;
   width: 20%;
   height: 5px;
   background: #c98a52;
   border-radius: 3px;
   box-shadow: 0 3px 5px rgba(0, 0, 0, 0.18);
 }
-/* potted plant on the floor */
+/* potted plant on the floor — bottom-left corner (under the window), clear of the door */
 .ps-plant {
   position: absolute;
   bottom: 17%;
-  right: 9%;
+  left: 8%;
   font-size: 2.5rem;
   line-height: 1;
   filter: drop-shadow(0 4px 3px rgba(0, 0, 0, 0.22));
@@ -6472,9 +6696,7 @@ button {
 }
 
 /* ════ eating-sequence furniture (shown by the room's state classes) ════ */
-.ps-fridge,
 .ps-cushion,
-.ps-table,
 .ps-dish {
   opacity: 0;
   pointer-events: none;
@@ -6485,20 +6707,18 @@ button {
   position: absolute;
   z-index: 3; /* in front of the pet */
 }
-/* fridge — slides in on the right; the pet walks to it, then it swings open */
-.ps-fridge {
+/* fridge — a permanent FIXTURE inside the kitchen, so it scrolls in WITH the
+   kitchen as one piece (already there when the room arrives). Only the door
+   opening is an after-arrival effect (.fridge-open). */
+.ps-kitchen .ps-fridge {
   position: absolute;
   right: 7%;
-  bottom: 24%;
+  bottom: 22%;
   width: 17%;
-  height: 50%;
-  transform: translateX(16px);
-}
-/* the fridge appears once the pet has ARRIVED in the kitchen (not while walking
-   over) — it shows up in place, then its doors open */
-.is-kitchen:not(.is-striding) .ps-fridge {
+  height: 52%;
   opacity: 1;
-  transform: none;
+  z-index: 1;
+  pointer-events: none;
 }
 .ps-fridge .fbody {
   position: absolute;
@@ -6556,16 +6776,21 @@ button {
 .eat-cushion .ps-cushion {
   opacity: 1;
 }
-/* meal table (in front of the pet) */
+/* meal table — a FIXTURE of the dining room: it waits off to the right and slides
+   to centre in lockstep with the dining room (same 2.4s curve as the world strip).
+   It does NOT travel from the kitchen with the pet — it's already part of the room
+   the pet walks into. */
 .ps-table {
   bottom: 14%;
   left: 50%;
   width: 50%;
   height: 22%;
-  transform: translateX(-50%) translateY(14px);
-}
-.eat-table .ps-table {
   opacity: 1;
+  pointer-events: none;
+  transform: translateX(150%);
+  transition: transform 2.4s cubic-bezier(0.45, 0.05, 0.4, 1);
+}
+.pet-room.dining .ps-table {
   transform: translateX(-50%);
 }
 .ps-table .ttop {
@@ -6691,14 +6916,18 @@ button {
 .ps-living {
   position: absolute;
   inset: 0;
-  transition: transform 2.4s cubic-bezier(0.45, 0.05, 0.4, 1);
+  transition: transform 2.4s cubic-bezier(0.45, 0.05, 0.4, 1), opacity 0.5s ease;
 }
 .pet-room.kmode .ps-living,
 .pet-room.dining .ps-living,
 .pet-room.bmode .ps-living,
-.pet-room.is-sleep .ps-living,
-.pet-room.is-walk .ps-living {
+.pet-room.is-sleep .ps-living {
   transform: translateX(-134%);
+}
+/* going OUTSIDE is a non-adjacent jump → CROSS-FADE (not a slide), so the door
+   never slides away with the pet — we cut from the house interior to outdoors */
+.pet-room.is-walk .ps-living {
+  opacity: 0;
 }
 /* a simple bedroom backdrop (slides in from the right for sleep) — a soft night
    wall with a round moon-window, so the bed is in a real bedroom (not the living
@@ -7213,21 +7442,84 @@ button {
     transform: translateX(-150%);
   }
 }
-.ps-outdoor .ohills {
+/* the pet's house, on the left — the home it steps out of. As the pet walks away
+   the house RECEDES off-screen (it doesn't follow); on the way back it slides in. */
+.ps-outdoor .ohouse {
   position: absolute;
-  left: -5%;
-  right: -5%;
-  bottom: 20%;
-  height: 17%;
-  background: radial-gradient(58% 130% at 20% 100%, #8fdc78 60%, transparent 61%),
-    radial-gradient(58% 120% at 58% 100%, #7fd169 60%, transparent 61%),
-    radial-gradient(58% 130% at 95% 100%, #8fdc78 60%, transparent 61%);
+  left: 3%;
+  bottom: 19%;
+  width: 37%;
+  height: 46%;
+  z-index: 2;
+  transition: transform 1.6s cubic-bezier(0.45, 0.05, 0.4, 1);
 }
-.ps-outdoor .otrees {
+.pet-room.away-house .ohouse {
+  transform: translateX(-185%); /* walked away → home is behind us, off-screen */
+}
+.ohouse .oh-wall {
+  position: absolute;
+  left: 10%;
+  right: 10%;
+  bottom: 0;
+  height: 62%;
+  background: linear-gradient(180deg, #ffe1b4, #f3c489);
+  border-radius: 3px 3px 0 0;
+  box-shadow: inset 0 0 0 2px rgba(0, 0, 0, 0.06);
+}
+.ohouse .oh-roof {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 42%;
+  background: #de6a4f;
+  clip-path: polygon(50% 0, 100% 100%, 0 100%);
+}
+.ohouse .oh-door {
+  position: absolute;
+  left: 40%;
+  bottom: 0;
+  width: 22%;
+  height: 38%;
+  background: #8a5a2e;
+  border-radius: 4px 4px 0 0;
+  box-shadow: inset 0 0 0 2px rgba(0, 0, 0, 0.12);
+}
+.ohouse .oh-win {
+  position: absolute;
+  right: 16%;
+  bottom: 34%;
+  width: 17%;
+  height: 17%;
+  background: #bfe9ff;
+  border: 2px solid #fff;
+  border-radius: 3px;
+}
+/* ── PARALLAX layers — far scrolls slow, near scrolls fast (depth illusion) ── */
+/* FAR: soft rolling hills, slowest (≈33 px/s) */
+.ps-outdoor .ohills {
   position: absolute;
   left: 0;
   right: 0;
   bottom: 21%;
+  height: 16%;
+  background: radial-gradient(62% 100% at 50% 100%, #8fdc78 70%, transparent 72%);
+  background-size: 180px 100%;
+  background-repeat: repeat-x;
+}
+.is-walk .ps-outdoor .ohills {
+  animation: scroll-hills 5.4s linear infinite;
+}
+@keyframes scroll-hills {
+  from { background-position-x: 0; }
+  to { background-position-x: -180px; }
+}
+/* MID: a tree line, medium speed (≈59 px/s) */
+.ps-outdoor .otrees {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 20%;
   height: 14%;
   background: radial-gradient(circle at 14px 100%, #3f9b46 13px, transparent 14px),
     radial-gradient(circle at 46px 100%, #4cae52 18px, transparent 19px),
@@ -7239,12 +7531,28 @@ button {
   animation: scroll-trees 1.6s linear infinite;
 }
 @keyframes scroll-trees {
-  from {
-    background-position-x: 0;
-  }
-  to {
-    background-position-x: -94px;
-  }
+  from { background-position-x: 0; }
+  to { background-position-x: -94px; }
+}
+/* NEAR: chunky bushes at the ground line, fastest (≈120 px/s) → strong depth */
+.ps-outdoor .obushes {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 17%;
+  height: 11%;
+  background: radial-gradient(circle at 22px 100%, #2f8f3e 21px, transparent 22px),
+    radial-gradient(circle at 64px 100%, #38a849 26px, transparent 27px),
+    radial-gradient(circle at 104px 100%, #2f8f3e 19px, transparent 20px);
+  background-size: 124px 100%;
+  background-repeat: repeat-x;
+}
+.is-walk .ps-outdoor .obushes {
+  animation: scroll-bushes 1.04s linear infinite;
+}
+@keyframes scroll-bushes {
+  from { background-position-x: 0; }
+  to { background-position-x: -124px; }
 }
 .pet-tap {
   position: relative;
@@ -7620,6 +7928,17 @@ button {
 }
 
 /* ----- play scenes ----- */
+/* play mini-scenes get a CLEAN backdrop — hide the living-room clutter (window,
+   door, picture, plant, rug) so only the play furniture + figure show. The room's
+   own wall gradient + the floor stay, so each game reads as its own tidy nook. */
+.pet-room.is-playing .ps-window,
+.pet-room.is-playing .ps-frame,
+.pet-room.is-playing .ps-shelf,
+.pet-room.is-playing .ps-plant,
+.pet-room.is-playing .ps-door,
+.pet-room.is-playing .ps-rug {
+  opacity: 0;
+}
 .scene {
   position: absolute;
   inset: 0;
@@ -7676,13 +7995,13 @@ button {
 .seat-side {
   position: relative;
   width: 150px;
-  height: 110px;
+  height: 140px;
   display: flex;
   align-items: flex-end;
   justify-content: center;
 }
 .seat-side.wide {
-  width: 168px;
+  width: 172px;
 }
 /* couch (side view) — sized so the friend roughly fills it */
 .couch {
@@ -12630,6 +12949,161 @@ button {
   --head-top: 6%;
   --head-h: 60%;
   --head-w: 66%;
+  /* a soft grounding shadow that follows the whole silhouette → reads as a volume */
+  filter: drop-shadow(0 4px 3px rgba(40, 20, 5, 0.18));
+}
+/* the dog is drawn as a clean kawaii SVG that simply fills the animal box */
+.friend-art.animal.an-svg-wrap {
+  overflow: visible;
+}
+.an-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  overflow: visible;
+}
+
+/* ===================== style lab (#/lab) ===================== */
+.lab-page {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 16px 14px 60px;
+}
+.lab-top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+.lab-home {
+  font-size: 1.3rem;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  width: 44px;
+  height: 44px;
+  cursor: pointer;
+}
+.lab-title {
+  font-family: 'Fredoka', 'Heebo', sans-serif;
+  font-weight: 800;
+  font-size: 1.4rem;
+}
+.lab-row-title {
+  margin: 18px 0 8px;
+  font-weight: 800;
+  font-size: 1.1rem;
+}
+.lab-row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.lab-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  /* light "paper" background so DARK kawaii outlines actually show (like the refs) */
+  background: #f7f2ea;
+  border: 1px solid #ddd2c0;
+  border-radius: 18px;
+  padding: 12px;
+  width: 158px;
+}
+.lab-fig {
+  width: 134px;
+  height: 150px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+.lab-svg {
+  width: 134px;
+  height: 150px;
+  display: block;
+  overflow: visible;
+}
+.lab-anim {
+  display: inline-flex;
+  align-items: flex-end;
+  transform: scale(0.82);
+  transform-origin: bottom center;
+}
+.lab-label {
+  font-size: 0.8rem;
+  color: #6a5e4c;
+  font-weight: 700;
+  text-align: center;
+}
+.lab-cur {
+  display: inline-flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+/* KAWAII on the real 50-bump friend: a bold outline traced around the whole
+   silhouette (8 stacked drop-shadows) + bigger eyes — keeps the bumps, adds the
+   clean kawaii pop */
+.lab-kawaii {
+  filter:
+    drop-shadow(2.6px 0 0 #3a2a40) drop-shadow(-2.6px 0 0 #3a2a40)
+    drop-shadow(0 2.6px 0 #3a2a40) drop-shadow(0 -2.6px 0 #3a2a40)
+    drop-shadow(1.9px 1.9px 0 #3a2a40) drop-shadow(-1.9px 1.9px 0 #3a2a40)
+    drop-shadow(1.9px -1.9px 0 #3a2a40) drop-shadow(-1.9px -1.9px 0 #3a2a40);
+}
+.lab-kawaii .gf-eye {
+  transform: scale(1.34);
+}
+/* 3D / plush on the real friend: a soft grounding shadow for extra volume */
+.lab-fluffy {
+  filter: drop-shadow(0 8px 8px rgba(30, 10, 40, 0.34));
+}
+
+/* ── test hub + voice test ── */
+.test-links {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 420px;
+  margin: 18px auto;
+}
+.test-link {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 18px 20px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  font-family: 'Fredoka', 'Heebo', sans-serif;
+  font-weight: 700;
+  font-size: 1.15rem;
+  color: var(--text);
+  cursor: pointer;
+  text-align: start;
+}
+.test-emoji {
+  font-size: 1.6rem;
+}
+.test-voice-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  max-width: 460px;
+  margin: 0 auto 12px;
+  justify-content: center;
+}
+.test-voice-btn {
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid var(--line);
+  font-family: 'Fredoka', 'Heebo', sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--text);
+  cursor: pointer;
 }
 .friend-art.animal-cat {
   width: 156px;
@@ -12655,17 +13129,9 @@ button {
   --head-h: 50%;
   --head-w: 64%;
 }
-.friend-art.animal-hamster {
-  width: 162px;
-  height: 156px;
-  --fur: #e7b15c;
-  --fur-d: #cb9036;
-  --fur-l: #f8e0a6;
-  --ear: #cb9036;
-  --nose: #6f4326;
-  --head-top: 5%;
-  --head-h: 68%;
-  --head-w: 74%;
+.friend-art.animal-parrot {
+  width: 150px;
+  height: 178px;
 }
 
 /* lower body (smaller than the head) */
@@ -12673,12 +13139,15 @@ button {
   position: absolute;
   left: 50%;
   bottom: 5%;
-  transform: translateX(-50%);
+  transform: translateX(-50%) scale(var(--body-scale, 1));
+  transform-origin: 50% 100%;
   width: 54%;
   height: 46%;
-  background: radial-gradient(circle at 50% 24%, var(--fur-l), var(--fur) 66%);
+  background: radial-gradient(circle at 40% 24%, var(--fur-l) 0%, var(--fur) 58%, var(--fur-d) 100%);
   border-radius: 46% 46% 44% 44% / 56% 56% 44% 44%;
-  box-shadow: inset 0 -8px 12px rgba(0, 0, 0, 0.12), inset 0 5px 9px rgba(255, 255, 255, 0.3);
+  box-shadow:
+    inset -10px -12px 18px rgba(60, 30, 10, 0.2),
+    inset 8px 8px 14px rgba(255, 255, 255, 0.36);
   z-index: 2;
 }
 .friend-art.animal .an-body::after {
@@ -12699,17 +13168,23 @@ button {
   height: 36%;
 }
 
-/* the big head */
+/* the big head — its size scales with the life stage (cub = huge head) */
 .friend-art.animal .an-head {
   position: absolute;
   left: 50%;
   top: var(--head-top);
-  transform: translateX(-50%);
+  transform: translateX(-50%) scale(var(--head-scale, 1));
+  transform-origin: 50% 96%;
   width: var(--head-w);
   height: var(--head-h);
-  background: radial-gradient(circle at 50% 32%, var(--fur-l), var(--fur) 64%);
+  /* SPHERE shading: light from top-left → core shadow lower-right, soft fill
+     upper-left, and a drop shadow onto the body so the head reads as a real volume */
+  background: radial-gradient(circle at 37% 27%, var(--fur-l) 0%, var(--fur) 54%, var(--fur-d) 100%);
   border-radius: 50% 50% 48% 48% / 52% 52% 48% 48%;
-  box-shadow: inset 0 -8px 14px rgba(0, 0, 0, 0.1), inset 0 6px 10px rgba(255, 255, 255, 0.34);
+  box-shadow:
+    inset -12px -15px 22px rgba(60, 30, 10, 0.18),
+    inset 11px 11px 16px rgba(255, 255, 255, 0.45),
+    0 7px 9px rgba(40, 20, 5, 0.16);
   z-index: 4;
 }
 
@@ -12751,40 +13226,44 @@ button {
 }
 .friend-art.animal .gal-arm .hand { display: none; }
 
-/* eyes (self-contained, positioned inside the head) */
+/* eyes — big, round, GLOSSY dark eyes (the #1 cuteness lever). A dark iris sphere
+   with a big catchlight top-left + a small secondary sparkle. Bigger for cubs. */
 .friend-art.animal .gf-eye {
   position: absolute;
-  top: 32%;
-  width: 16%;
-  height: 20%;
-  background: #fff;
-  border: 2px solid #2a2433;
-  border-radius: 50%;
+  top: 33%;
+  width: 18%;
+  height: 24%;
+  background: radial-gradient(circle at 50% 64%, #4b3527 0%, #1d130c 72%);
+  border: 1.5px solid rgba(20, 10, 5, 0.35);
+  border-radius: 52% 52% 50% 50%;
   z-index: 6;
   overflow: visible;
+  transform: scale(var(--eye-scale, 1));
+  box-shadow: inset 0 -3px 4px rgba(0, 0, 0, 0.4);
 }
-.friend-art.animal .gf-eye.l { left: 24%; right: auto; }
-.friend-art.animal .gf-eye.r { right: 24%; left: auto; }
+.friend-art.animal .gf-eye.l { left: 23%; right: auto; }
+.friend-art.animal .gf-eye.r { right: 23%; left: auto; }
 .friend-art.animal .gf-eye::after {
   content: '';
   position: absolute;
-  left: 22%;
-  top: 20%;
-  width: 56%;
-  height: 60%;
-  background: #2a2433;
+  left: 15%;
+  top: 10%;
+  width: 42%;
+  height: 40%;
+  background: #fff;
   border-radius: 50%;
+  z-index: 2;
 }
 .friend-art.animal .gf-eye::before {
   content: '';
   position: absolute;
-  left: 28%;
-  top: 24%;
-  width: 24%;
-  height: 24%;
-  background: #fff;
+  right: 17%;
+  bottom: 16%;
+  width: 20%;
+  height: 20%;
+  background: rgba(255, 255, 255, 0.82);
   border-radius: 50%;
-  z-index: 1;
+  z-index: 2;
 }
 
 /* snout/muzzle (dog + cat + hamster get a pale muzzle) */
@@ -12792,7 +13271,8 @@ button {
   position: absolute;
   left: 50%;
   top: 56%;
-  transform: translateX(-50%);
+  transform: translateX(-50%) scale(var(--snout-scale, 1));
+  transform-origin: 50% 0;
   width: 48%;
   height: 38%;
   z-index: 5;
@@ -12800,9 +13280,14 @@ button {
 .friend-art.animal-dog .an-snout,
 .friend-art.animal-cat .an-snout,
 .friend-art.animal-hamster .an-snout {
-  background: var(--fur-l);
-  border-radius: 50%;
-  box-shadow: inset 0 -3px 5px rgba(0, 0, 0, 0.08);
+  /* a raised, rounded muzzle: bright top (catches the light), soft underside,
+     and a contact shadow ABOVE it where it sits on the face (fuses it in) */
+  background: radial-gradient(circle at 50% 30%, #ffffff 0%, var(--fur-l) 72%);
+  border-radius: 50% 50% 50% 50% / 46% 46% 56% 56%;
+  box-shadow:
+    inset 0 4px 6px rgba(255, 255, 255, 0.55),
+    inset 0 -5px 7px rgba(60, 30, 10, 0.12),
+    0 -5px 8px rgba(40, 20, 5, 0.13);
 }
 .friend-art.animal .an-nose {
   position: absolute;
@@ -12811,8 +13296,10 @@ button {
   transform: translateX(-50%);
   width: 30%;
   height: 26%;
-  background: var(--nose);
+  /* glossy button nose — a bright specular highlight on a dark, rounded nose */
+  background: radial-gradient(circle at 36% 26%, #8a6f64 0%, var(--nose) 52%);
   border-radius: 50% 50% 50% 50% / 58% 58% 46% 46%;
+  box-shadow: inset 2px 2px 3px rgba(255, 255, 255, 0.5), 0 2px 3px rgba(0, 0, 0, 0.3);
   z-index: 7;
 }
 .friend-art.animal .an-mouth {
@@ -12905,18 +13392,32 @@ button {
 .friend-art.animal-hamster .an-cheek.l { left: -5%; }
 .friend-art.animal-hamster .an-cheek.r { right: -5%; }
 
-/* ears */
+/* ears — floppy, with rounded volume (lit top edge, shaded underside) */
 .friend-art.animal-dog .an-ear {
   position: absolute;
   top: 6%;
   width: 32%;
   height: 64%;
-  background: linear-gradient(180deg, var(--ear), var(--fur-d));
+  background: linear-gradient(155deg, var(--fur) 0%, var(--ear) 58%, var(--fur-d) 100%);
   border-radius: 50% 50% 50% 50% / 26% 26% 74% 74%;
+  box-shadow: inset 3px 5px 7px rgba(255, 255, 255, 0.2), inset -3px -4px 6px rgba(40, 20, 5, 0.2);
   z-index: 0;
 }
 .friend-art.animal-dog .an-ear.l { left: -16%; transform: rotate(12deg); }
 .friend-art.animal-dog .an-ear.r { right: -16%; transform: rotate(-12deg); }
+/* rosy cheek blush on EVERY animal — both cheeks via one overlay on the head, so
+   it never clashes with the hamster's cheek pouches. High-impact cuteness. */
+.friend-art.animal .an-head::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 5;
+  background:
+    radial-gradient(circle at 21% 63%, rgba(255, 125, 150, 0.5) 0%, transparent 20%),
+    radial-gradient(circle at 79% 63%, rgba(255, 125, 150, 0.5) 0%, transparent 20%);
+}
 .friend-art.animal-cat .an-ear {
   position: absolute;
   top: -26%;
@@ -13037,22 +13538,18 @@ button {
 }
 /* ===================== bedtime: bed + lying down + dim + Zzz ===================== */
 /* the bed slides in (behind the pet); it walks over and lies down on the mattress */
+/* the bed is a FIXTURE of the bedroom (a child of .ps-bedroom), so it scrolls in
+   WITH the room as one piece — already there when the pet arrives, never popping in */
 .ps-bed {
   position: absolute;
   left: 50%;
   bottom: 6%;
   width: 76%;
   height: 30%;
-  transform: translateX(-50%) translateY(14px);
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.5s ease, transform 0.5s ease;
-  z-index: 0;
-}
-/* the bed appears once the pet has crossed to the bedroom and ARRIVED */
-.pet-room.is-sleep:not(.is-striding) .ps-bed {
-  opacity: 1;
   transform: translateX(-50%);
+  opacity: 1;
+  pointer-events: none;
+  z-index: 0;
 }
 .ps-bed .bed-frame {
   position: absolute;
@@ -13145,8 +13642,8 @@ button {
 /* floating Zzz over the pet's head */
 .ps-zzz {
   position: absolute;
-  top: 30%;
-  left: 38%;
+  top: 24%;
+  left: 43%;
   opacity: 0;
   z-index: 8;
   pointer-events: none;
@@ -13160,18 +13657,18 @@ button {
   font-family: 'Fredoka', 'Heebo', sans-serif;
   font-weight: 800;
   font-style: normal;
-  color: #d4e3ff;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+  color: #ffffff;
+  text-shadow: 0 2px 5px rgba(0, 0, 0, 0.6), 0 0 3px rgba(90, 130, 210, 0.95);
   opacity: 0;
   animation: zzz-rise 2.6s ease-in-out infinite;
 }
-.ps-zzz i:nth-child(1) { font-size: 15px; left: 0; animation-delay: 0s; }
-.ps-zzz i:nth-child(2) { font-size: 20px; left: 11px; animation-delay: 0.85s; }
-.ps-zzz i:nth-child(3) { font-size: 26px; left: 25px; animation-delay: 1.7s; }
+.ps-zzz i:nth-child(1) { font-size: 21px; left: 0; animation-delay: 0s; }
+.ps-zzz i:nth-child(2) { font-size: 28px; left: 15px; animation-delay: 0.85s; }
+.ps-zzz i:nth-child(3) { font-size: 36px; left: 34px; animation-delay: 1.7s; }
 @keyframes zzz-rise {
   0% { transform: translateY(0) scale(0.6); opacity: 0; }
   20% { opacity: 1; }
-  100% { transform: translateY(-46px) scale(1.1); opacity: 0; }
+  100% { transform: translateY(-52px) scale(1.1); opacity: 0; }
 }
 /* ===================== the front door + outdoor walk scenes ===================== */
 /* the front door in the living room — the pet walks to it and steps out */
@@ -13181,11 +13678,31 @@ button {
   bottom: 22%;
   width: 15%;
   height: 52%;
+  border-radius: 7px 7px 0 0;
+  z-index: 1;
+}
+/* what you SEE through the open doorway — the outdoors (sky over grass), so opening
+   the door reveals OUTSIDE, never the blue wall */
+.ps-door .door-out {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, #aee3ff 0%, #cdeffd 50%, #7bd06a 52%, #57c14f 100%);
+  border-radius: 7px 7px 0 0;
+  box-shadow: inset 0 0 0 2px rgba(0, 0, 0, 0.12);
+}
+/* the door panel that swings open on its hinge as the pet reaches it */
+.ps-door .door-panel {
+  position: absolute;
+  inset: 0;
   background: linear-gradient(180deg, #a06c3e, #7d5430);
   border: 3px solid #6a4523;
   border-radius: 7px 7px 0 0;
   box-shadow: inset 0 0 0 3px rgba(255, 255, 255, 0.08);
-  z-index: 1;
+  transform-origin: left center;
+  transition: transform 0.55s cubic-bezier(0.45, 0.05, 0.4, 1);
+}
+.pet-room.at-door .ps-door .door-panel {
+  transform: perspective(620px) rotateY(-78deg);
 }
 .ps-door .door-knob {
   position: absolute;
@@ -13195,6 +13712,16 @@ button {
   height: 8%;
   background: #f4d35e;
   border-radius: 50%;
+}
+/* the pet walks up to the open doorway and steps THROUGH it (fades out) on the way
+   OUT only, then reappears outside (centre) for the walk. On the way back in it
+   does NOT fade — it walks in. */
+.pet-room.stepping-out .pet-stage {
+  animation: pet-stepout 1.7s ease forwards;
+}
+@keyframes pet-stepout {
+  0%, 64% { opacity: 1; }
+  100% { opacity: 0; }
 }
 
 /* a few outdoor scenes go by during a walk: park (0) → pond (1) → meadow (2) */
@@ -13348,11 +13875,6 @@ button {
   background: radial-gradient(ellipse, #f6d8aa 0 58%, #e2b578 59% 100%);
   border-radius: 50%;
   opacity: 0.85;
-}
-
-/* the fridge sits beside the centred pet now (it no longer walks across) */
-.ps-fridge {
-  right: 23%;
 }
 
 /* the pet bends down for a beat as it sets the food on the table */

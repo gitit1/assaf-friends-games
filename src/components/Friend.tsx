@@ -27,6 +27,8 @@ type Props = {
   action?: 'five' | 'hug' | 'kiss' | null
   /** Looping march — legs step, arms pump, body bobs (for the pet walking). */
   walking?: boolean
+  /** Baby look — a freshly-hatched little one (bigger head + big eyes). */
+  baby?: boolean
 }
 
 // The little moves a friend can do when tapped (besides jumping).
@@ -44,6 +46,7 @@ export default function Friend({
   lively = false,
   action = null,
   walking = false,
+  baby = false,
 }: Props) {
   const [move, setMove] = useState<string | null>(null)
   const kind = FRIEND_KINDS[index % FRIEND_KINDS.length]
@@ -77,6 +80,7 @@ export default function Friend({
         lively={lively}
         action={action}
         walking={walking}
+        baby={baby}
       />
     </span>
   )

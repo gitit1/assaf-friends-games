@@ -14,6 +14,9 @@ import { stopClip } from './voice'
 // the gallery now shows the "pop-up depth" view (the existing 2D friend on
 // parallax layers). The Three.js Friend3D experiment stays in the tree but unrouted.
 const FriendDepth = lazy(() => import('./components/FriendDepth'))
+const StyleLab = lazy(() => import('./components/StyleLab'))
+const TestHub = lazy(() => import('./components/TestHub'))
+const VoiceTest = lazy(() => import('./components/VoiceTest'))
 
 // Tiny hash router so a refresh keeps you on the same screen and the browser
 // Back button works (handy for testing). Routes:
@@ -26,6 +29,9 @@ type Route =
   | { kind: 'home' }
   | { kind: 'meet' }
   | { kind: 'gallery'; id?: string }
+  | { kind: 'lab' }
+  | { kind: 'test' }
+  | { kind: 'voicetest' }
   | { kind: 'friend'; id: string; quiet?: boolean }
   | { kind: 'cat'; id: string }
   | { kind: 'game'; id: string; from?: string }
@@ -34,6 +40,9 @@ function parse(hash: string): Route {
   const h = hash.replace(/^#\/?/, '')
   if (h === '') return { kind: 'home' }
   if (h === 'meet') return { kind: 'meet' }
+  if (h === 'lab') return { kind: 'lab' }
+  if (h === 'test') return { kind: 'test' }
+  if (h === 'voicetest') return { kind: 'voicetest' }
   if (h === 'gallery') return { kind: 'gallery' }
   const parts = h.split('/')
   const [seg, id] = parts
@@ -96,6 +105,24 @@ export default function App() {
         />
       )
     }
+  } else if (route.kind === 'lab') {
+    view = (
+      <Suspense fallback={<p className="three-loading">טוען… 🎨</p>}>
+        <StyleLab onExit={() => go('test')} />
+      </Suspense>
+    )
+  } else if (route.kind === 'test') {
+    view = (
+      <Suspense fallback={<p className="three-loading">טוען… 🧪</p>}>
+        <TestHub onExit={home} go={go} />
+      </Suspense>
+    )
+  } else if (route.kind === 'voicetest') {
+    view = (
+      <Suspense fallback={<p className="three-loading">טוען… 🔊</p>}>
+        <VoiceTest onExit={() => go('test')} />
+      </Suspense>
+    )
   } else if (route.kind === 'gallery' && SHOW_3D) {
     view = (
       <Suspense fallback={<p className="three-loading">טוען תלת מימד… 🧊</p>}>

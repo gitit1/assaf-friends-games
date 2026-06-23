@@ -68,8 +68,8 @@ export default function HomeScreen({ onOpen, onOpenCategory }: HomeScreenProps) 
       <header className="home-header">
         <div className="home-controls">
           {SHOW_3D && (
-            <button className="gallery-button" aria-label={t('home.gallery')} onClick={() => open('gallery')}>
-              🧊
+            <button className="gallery-button" aria-label="אזור בדיקות" onClick={() => open('test')}>
+              🧪
             </button>
           )}
           <MuteButton className="fullscreen-button" />

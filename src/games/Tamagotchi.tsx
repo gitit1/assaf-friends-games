@@ -11,7 +11,7 @@ import { speak } from '../speech'
 import { friendName, friendSay } from '../friends'
 import { useViewport } from '../useViewport'
 import { useT } from '../i18n'
-import { getSettings } from '../settings'
+import { getSettings, useSettings } from '../settings'
 import { getPetReaction, getIdleReaction } from './pet/reactions/petReactionEngine'
 import { pickMessage } from './pet/reactions/reactionMessages'
 import { emptyHistory, recordAction } from './pet/reactions/reactionHistory'
@@ -140,6 +140,23 @@ type Pet = {
   outfit: Outfit
   history: PetInteractionHistory
   ts: number
+  /** when you first met this friend — drives the "days together" counter */
+  born?: number
+  /** the pet's given name (defaults to the friend / animal name) */
+  name?: string
+  /** life stage: 0 = baby, 1 = child, 2 = grown. Only ever goes UP (no pressure). */
+  stage?: number
+  /** progress toward the next stage (counts care actions) */
+  growth?: number
+  /** false while it's still an egg waiting to hatch */
+  hatched?: boolean
+}
+
+// how many cares it takes to grow from baby→child, then child→grown
+const GROW_STEPS = [8, 14]
+const STAGE_SCALE = [0.62, 0.8, 1] // baby is small, grows to full size
+function defaultName(friend: number, species?: AnimalKind) {
+  return species ? ANIMAL_NAMES[species] : friendName(friend)
 }
 
 const SLOTS: { key: Slot; label: string; items: string[] }[] = [
@@ -154,7 +171,8 @@ const clamp = (v: number) => Math.max(0, Math.min(100, v))
 function freshPet(friend: number, species?: AnimalKind): Pet {
   return {
     friend, species, hunger: 80, thirst: 80, happy: 85, clean: 100, energy: 80,
-    loneliness: 10, boredom: 15, trust: 50, poop: false, outfit: {}, history: emptyHistory(), ts: Date.now(),
+    loneliness: 10, boredom: 15, trust: 50, poop: false, outfit: {}, history: emptyHistory(), ts: Date.now(), born: Date.now(),
+    name: defaultName(friend, species), stage: 0, growth: 0, hatched: false, // starts as an egg → hatches → baby → grows
   }
 }
 
@@ -165,7 +183,8 @@ function load(): Pet | null {
     // older saves may lack the new fields → fill sensible defaults (migration)
     const p = JSON.parse(raw) as Partial<Pet> & { friend: number; ts?: number }
     const mins = Math.min(90, (Date.now() - (p.ts ?? Date.now())) / 60000)
-    const d = Math.round(mins)
+    // gentle care = the friend is always fine: no "you were away" decay at all
+    const d = getSettings().petCareMode === 'gentle' ? 0 : Math.round(mins)
     return {
       friend: p.friend,
       species: p.species,
@@ -181,6 +200,12 @@ function load(): Pet | null {
       outfit: p.outfit ?? {},
       history: p.history ?? emptyHistory(),
       ts: Date.now(),
+      born: p.born ?? p.ts ?? Date.now(),
+      // existing saved pets are already hatched + grown (migration)
+      name: p.name ?? defaultName(p.friend, p.species),
+      stage: p.stage ?? 2,
+      growth: p.growth ?? 0,
+      hatched: p.hatched ?? true,
     }
   } catch {
     return null
@@ -188,21 +213,21 @@ function load(): Pet | null {
 }
 
 // the animal pets reuse the friends' holder/scale wrappers + walk/eat rigs
-function AnimalFigure({ kind, scale, walking, eating }: { kind: AnimalKind; scale: number; walking?: boolean; eating?: boolean }) {
+function AnimalFigure({ kind, scale, walking, eating, stage }: { kind: AnimalKind; scale: number; walking?: boolean; eating?: boolean; stage?: number }) {
   const nat = ANIMAL_NATURAL[kind]
   return (
     <span className="friend-holder" style={{ width: nat.w * scale, height: nat.h * scale }}>
       <span className="friend-scale" style={{ width: nat.w, transform: `scale(${scale})`, transformOrigin: 'top left' }}>
-        <AnimalArt kind={kind} walking={walking} eating={eating} />
+        <AnimalArt kind={kind} walking={walking} eating={eating} stage={stage} />
       </span>
     </span>
   )
 }
 
-function AnimalDressed({ kind, px, walking, eating }: { kind: AnimalKind; px: number; walking?: boolean; eating?: boolean }) {
+function AnimalDressed({ kind, px, walking, eating, stage }: { kind: AnimalKind; px: number; walking?: boolean; eating?: boolean; stage?: number }) {
   return (
     <span className={`pet-figure ${eating ? 'is-eating' : ''}`} style={{ fontSize: `${px}px` }}>
-      <AnimalFigure kind={kind} scale={px / animalMaxDim(kind)} walking={walking} eating={eating} />
+      <AnimalFigure kind={kind} scale={px / animalMaxDim(kind)} walking={walking} eating={eating} stage={stage} />
     </span>
   )
 }
@@ -214,6 +239,8 @@ function FriendDressed({
   bouncing,
   eating,
   walking,
+  action,
+  baby,
 }: {
   index: number
   px: number
@@ -221,6 +248,8 @@ function FriendDressed({
   bouncing?: boolean
   eating?: boolean
   walking?: boolean
+  action?: 'five' | 'hug' | 'kiss' | null
+  baby?: boolean
 }) {
   return (
     <span className={`pet-figure ${eating ? 'is-eating' : ''}`} style={{ fontSize: `${px}px` }}>
@@ -232,6 +261,8 @@ function FriendDressed({
         eating={eating}
         outfit={outfit}
         walking={walking}
+        action={action}
+        baby={baby}
       />
     </span>
   )
@@ -265,7 +296,7 @@ function PlayScene({ kind, friend, species, outfit, buddy }: { kind: string; fri
         <span className="seat-side">
           <span className="couch" aria-hidden="true" />
           <span className="scene-fig seated">
-            <PetSceneFig friend={friend} species={species} outfit={outfit} px={68} />
+            <PetSceneFig friend={friend} species={species} outfit={outfit} px={92} />
           </span>
         </span>
         <span className="tv-set" aria-hidden="true">
@@ -283,7 +314,7 @@ function PlayScene({ kind, friend, species, outfit, buddy }: { kind: string; fri
         <span className="seat-side">
           <span className="chair" aria-hidden="true" />
           <span className="scene-fig seated">
-            <PetSceneFig friend={friend} species={species} outfit={outfit} px={62} />
+            <PetSceneFig friend={friend} species={species} outfit={outfit} px={86} />
           </span>
         </span>
         <span className="deskset" aria-hidden="true">
@@ -301,7 +332,7 @@ function PlayScene({ kind, friend, species, outfit, buddy }: { kind: string; fri
         <span className="seat-side wide">
           <span className="couch" aria-hidden="true" />
           <span className="scene-fig seated mid">
-            <PetSceneFig friend={friend} species={species} outfit={outfit} px={72} />
+            <PetSceneFig friend={friend} species={species} outfit={outfit} px={92} />
           </span>
           <span className="book" aria-hidden="true">
             📖
@@ -314,7 +345,7 @@ function PlayScene({ kind, friend, species, outfit, buddy }: { kind: string; fri
   return (
     <div className="scene scene-lego">
       <span className="scene-fig">
-        <PetSceneFig friend={friend} species={species} outfit={outfit} px={80} />
+        <PetSceneFig friend={friend} species={species} outfit={outfit} px={100} />
       </span>
       <span className="tower" aria-hidden="true">
         <span className="brick b1" />
@@ -349,6 +380,9 @@ export default function Tamagotchi({ onExit }: GameProps) {
   const [pick, setPick] = useState(0)
   const [pickMode, setPickMode] = useState<'friend' | 'animal'>('friend')
   const [pickAnimal, setPickAnimal] = useState(0) // index into ANIMAL_KINDS
+  const [warmth, setWarmth] = useState(0) // taps to hatch the egg
+  const [naming, setNaming] = useState(false) // the naming step right after hatching
+  const [nameInput, setNameInput] = useState('')
   const [wardrobe, setWardrobe] = useState(false)
   const [fridge, setFridge] = useState(false)
   const [kitchen, setKitchen] = useState(false) // walked to the kitchen, fridge in view
@@ -371,11 +405,15 @@ export default function Tamagotchi({ onExit }: GameProps) {
   const [lyingDown, setLyingDown] = useState(false) // actually lying on the bed
   const [walkPhase, setWalkPhase] = useState(0) // which outdoor scene during a walk (0=park, 1=pond, 2=meadow)
   const [atDoor, setAtDoor] = useState(false) // walking out through the front door
+  const [steppingOut, setSteppingOut] = useState(false) // fading through the doorway (exit only, not re-entry)
+  const [awayFromHouse, setAwayFromHouse] = useState(false) // on a walk, away from home → the house recedes off-screen
   const [dining, setDining] = useState(false) // crossed from the kitchen to the dining room to eat
   const [placing, setPlacing] = useState(false) // setting the food down on the dining table
   const [fx, setFx] = useState<{ emoji: string; id: number } | null>(null)
   const [burst, setBurst] = useState<{ id: number; bits: { e: string; x: number; y: number; d: number }[] } | null>(null)
   const [bounce, setBounce] = useState(false)
+  const [gesture, setGesture] = useState<'five' | 'hug' | 'kiss' | null>(null) // a one-shot hug/high-five the friend actually performs
+  const liveSettings = useSettings() // so a care-mode change updates the look live
   // ── reaction-engine driven UI state ──
   const [bubble, setBubble] = useState<{ text: string; id: number } | null>(null)
   const [posture, setPosture] = useState('neutral')
@@ -433,8 +471,28 @@ export default function Tamagotchi({ onExit }: GameProps) {
       if (m.trust) n.trust = clamp(p.trust + m.trust)
       if (reaction.setPoop !== undefined) n.poop = reaction.setPoop
       n.history = recordAction(p.history, action, reaction.outcome, now)
+      // growing up: each care nudges the friend toward its next life stage (never down)
+      const st = p.stage ?? 2
+      if (st < 2) {
+        const g = (p.growth ?? 0) + 1
+        if (g >= GROW_STEPS[st]) {
+          n.stage = st + 1
+          n.growth = 0
+        } else {
+          n.growth = g
+        }
+      }
       return n
     })
+    // celebrate a growth spurt (predicted from the current value — growth +1 per care)
+    const curStage = pet.stage ?? 2
+    if (curStage < 2 && (pet.growth ?? 0) + 1 >= GROW_STEPS[curStage]) {
+      window.setTimeout(() => {
+        playSuccess()
+        showFx('🎉')
+        showBubble(t('pet.grew'))
+      }, 750)
+    }
     setPosture(reaction.posture ?? 'neutral')
     setExpression(reaction.expression ?? 'happy')
     showBurst(reaction.visualEffects)
@@ -449,9 +507,12 @@ export default function Tamagotchi({ onExit }: GameProps) {
     if (pet) localStorage.setItem(KEY, JSON.stringify({ ...pet, ts: Date.now() }))
   }, [pet])
 
-  // gentle decay (never below 0; the friend never dies — it just needs you)
+  // gentle decay (never below 0; the friend never dies — it just needs you).
+  // In the "gentle" care mode the needs never decay at all — the friend is always
+  // fine (calm + autism-friendly); only "regular" mode lets them drop over time.
   useEffect(() => {
     const id = window.setInterval(() => {
+      if (getSettings().petCareMode === 'gentle') return
       setPet((p) =>
         p
           ? {
@@ -476,7 +537,7 @@ export default function Tamagotchi({ onExit }: GameProps) {
   const petRef = useRef(pet)
   petRef.current = pet
   const busyRef = useRef(false)
-  busyRef.current = !!(playing || eatFood || fridge || bar || wardrobe || choosing || kitchen || eatSetting || bathroom || scene === 'walk')
+  busyRef.current = !!(playing || eatFood || fridge || bar || wardrobe || choosing || kitchen || eatSetting || bathroom || sleeping || dining || placing || scene === 'walk')
   useEffect(() => {
     const id = window.setInterval(() => {
       const p = petRef.current
@@ -537,16 +598,46 @@ export default function Tamagotchi({ onExit }: GameProps) {
     speak(`${ANIMAL_NAMES[kind]}! החיה שלי`)
   }
 
+  const HATCH_TAPS = 6
+  // warm/pet the egg — every tap warms it a bit; on the last one it hatches
+  function warmEgg() {
+    unlockAudio()
+    playTap()
+    setWarmth((w) => {
+      const n = w + 1
+      if (n >= HATCH_TAPS) {
+        playSuccess()
+        speak('🐣')
+        window.setTimeout(() => setNaming(true), 1000) // shows the baby, then we name it
+      } else {
+        playNudge()
+      }
+      return n
+    })
+  }
+  // confirm the chosen name → the egg is officially hatched, the game begins
+  function confirmName() {
+    if (!pet) return
+    const nm = nameInput.trim() || defaultName(pet.friend, pet.species)
+    unlockAudio()
+    playSuccess()
+    setPet((p) => (p ? { ...p, hatched: true, name: nm, stage: 0, growth: 0 } : p))
+    setNaming(false)
+    setWarmth(0)
+    setNameInput('')
+    speak(nm)
+  }
+
   function pokePet() {
     if (!pet) return
+    if (busyRef.current) return // mid-action: a tap shouldn't interrupt the scene
     unlockAudio()
     if (pet.species) {
       playTap()
-      speak(ANIMAL_NAMES[pet.species])
     } else {
       playFriend(pet.friend)
-      speak(friendSay(pet.friend))
     }
+    speak(pet.name || defaultName(pet.friend, pet.species)) // says its given name
     setBounce(true)
     window.setTimeout(() => setBounce(false), 550)
   }
@@ -575,8 +666,11 @@ export default function Tamagotchi({ onExit }: GameProps) {
     setLyingDown(false)
     setWalkPhase(0)
     setAtDoor(false)
+    setSteppingOut(false)
+    setAwayFromHouse(false)
     setDining(false)
     setPlacing(false)
+    setGesture(null)
   }
 
   // drinks live in the fridge too — so the friend strolls to the kitchen, opens it,
@@ -600,14 +694,16 @@ export default function Tamagotchi({ onExit }: GameProps) {
     unlockAudio()
     playTap()
     resetScenes()
-    // cleaning → the bathroom: a full SHOWER if really dirty, a soapy face-wash if
-    // it just needs a freshen-up. The water/soap runs, then it's clean.
+    // cleaning → the bathroom: the pet walks UNDER the showerhead (already there),
+    // and only THEN does the water turn on — and it keeps pouring for a clear few
+    // seconds, never a quick flicker that's gone before the pet arrives.
     if (type === 'clean') {
-      setBathroom(pet.clean < 40 ? 'shower' : 'facewash') // the bathroom slides in
+      setBathroom('shower') // always a real shower — the running water is the satisfying part
       setWalking(true) // pads over to the bathroom (legs march while it slides in)
-      eatTimers.current.push(window.setTimeout(() => setWalking(false), 2200)) // arrived
-      eatTimers.current.push(window.setTimeout(() => { react('clean'); playSuccess() }, 2600))
-      eatTimers.current.push(window.setTimeout(() => setBathroom(null), 3800))
+      eatTimers.current.push(window.setTimeout(() => setWalking(false), 2400)) // arrived under the showerhead → water starts
+      eatTimers.current.push(window.setTimeout(() => { react('clean'); playSuccess() }, 2900))
+      eatTimers.current.push(window.setTimeout(() => { setBathroom(null); setWalking(true) }, 5400)) // water off → WALKS back to the living room
+      eatTimers.current.push(window.setTimeout(() => setWalking(false), 7700)) // arrived back home
       return
     }
     // sleep → the bedroom: the bed slides in, the friend walks over, LIES DOWN on it,
@@ -619,26 +715,39 @@ export default function Tamagotchi({ onExit }: GameProps) {
       eatTimers.current.push(window.setTimeout(() => setLyingDown(true), 2400)) // climbs in + lies down
       eatTimers.current.push(window.setTimeout(() => react('sleep'), 2600))
       eatTimers.current.push(window.setTimeout(() => setLyingDown(false), 6400)) // wakes up, sits up
-      eatTimers.current.push(window.setTimeout(() => setSleeping(false), 7000)) // gets out of bed
+      eatTimers.current.push(window.setTimeout(() => { setSleeping(false); setWalking(true) }, 7000)) // out of bed → WALKS back to the living room
+      eatTimers.current.push(window.setTimeout(() => setWalking(false), 9300)) // arrived back home
       return
     }
     if (type === 'walk') {
       const r = react('walk')
       if (r && (r.outcome === 'request' || r.outcome === 'refusal')) return // didn't feel like it
-      // 1) walk to the front door and step out
+      const phase = Math.floor(Math.random() * 3) // ONE random outing: park / pond / meadow
+      const dx = Math.round(Math.min(vp.w, 440) * 0.38)
+      // 1) walk to the front door (it stays PUT); the panel swings open and you see
+      //    the OUTDOORS through it, then the pet steps through
       setAtDoor(true)
+      setSteppingOut(true) // fades through the doorway on the way OUT only
       setWalking(true)
       setWalkMs(1700)
-      setPetX(Math.round(Math.min(vp.w, 440) * 0.34))
-      eatTimers.current.push(window.setTimeout(() => { setAtDoor(false); setPetX(0); setScene('walk'); setWalkPhase(0); showFx('🌳') }, 1700)) // out!
-      // 2) several different walk scenes go by (park → pond → meadow)
-      eatTimers.current.push(window.setTimeout(() => setWalkPhase(1), 4400))
-      eatTimers.current.push(window.setTimeout(() => setWalkPhase(2), 7100))
-      // 3) head back home
-      eatTimers.current.push(window.setTimeout(() => { setScene('home'); setWalking(false); setWalkPhase(0) }, 9800))
+      setPetX(dx) // strolls right, up to the door
+      // 2) cut to OUTSIDE: it's standing right in front of its own house
+      eatTimers.current.push(window.setTimeout(() => { setAtDoor(false); setSteppingOut(false); setPetX(0); setScene('walk'); setWalkPhase(phase); showFx('🌳') }, 1700))
+      // 3) walks AWAY from home → the house recedes off-screen; now in the park
+      eatTimers.current.push(window.setTimeout(() => setAwayFromHouse(true), 2600))
+      // 4) turns back → the house slides back into view
+      eatTimers.current.push(window.setTimeout(() => setAwayFromHouse(false), 4700))
+      // 5) reaches home → cut to the interior, the door opens and it walks back IN
+      eatTimers.current.push(window.setTimeout(() => { setScene('home'); setAwayFromHouse(false); setAtDoor(true) }, 6500))
+      eatTimers.current.push(window.setTimeout(() => { setAtDoor(false); setWalking(false); setWalkPhase(0) }, 8000)) // inside, door closes, stops
       return
     }
-    react(type) // hug → the engine plays the right sound + reaction
+    if (type === 'hug') {
+      // the friend actually performs the hug (arms wrap + lean) — not just a floating emoji
+      setGesture('hug')
+      eatTimers.current.push(window.setTimeout(() => setGesture(null), 1500))
+    }
+    react(type) // the engine plays the right sound + reaction
     showFx({ walk: '🌳', clean: '✨', sleep: '😴', hug: '🤗' }[type])
   }
 
@@ -651,7 +760,8 @@ export default function Tamagotchi({ onExit }: GameProps) {
     setBathroom('toilet') // the bathroom slides in
     setWalking(true) // walk over to the bathroom
     eatTimers.current.push(window.setTimeout(() => setWalking(false), 2200))
-    eatTimers.current.push(window.setTimeout(() => setBathroom(null), 3800))
+    eatTimers.current.push(window.setTimeout(() => { setBathroom(null); setWalking(true) }, 3800)) // WALKS back to the living room
+    eatTimers.current.push(window.setTimeout(() => setWalking(false), 6100)) // arrived back home
     setPet((p) => (p ? { ...p, happy: clamp(p.happy + 4) } : p))
   }
 
@@ -714,10 +824,12 @@ export default function Tamagotchi({ onExit }: GameProps) {
         setPoof(false)
         setBite(0)
         setEatSetting(null)
-        setDining(false) // done — leaves the dining room, walks back to the living room
+        setDining(false) // done — leaves the dining room
+        setWalking(true) // …and WALKS back to the living room
         react('feed', food.key, { silent: true })
       }, D + 900 + 3 * BITE + 600),
     )
+    eatTimers.current.push(window.setTimeout(() => setWalking(false), D + 900 + 3 * BITE + 600 + 2300)) // arrived back home
   }
 
   // pick a drink → say its name, then the friend gulps it (drops spill), then a
@@ -728,6 +840,7 @@ export default function Tamagotchi({ onExit }: GameProps) {
     setBar(false)
     setFridgeOpen(false)
     setKitchen(false)
+    setDining(true) // drink in the dining room too — same place as eating, so it's consistent
     setMode('drink')
     setPlaying(null)
     speak(getSettings().lang === 'en' ? t(`pet.drink.${d.key}`) : d.name)
@@ -753,9 +866,12 @@ export default function Tamagotchi({ onExit }: GameProps) {
         setEatFood(null)
         setPoof(false)
         setBite(0)
+        setDining(false) // leaves the dining room…
+        setWalking(true) // …and WALKS back to the living room
         react('water', d.key, { silent: true })
       }, D + 450 + 3 * GULP + 500),
     )
+    eatTimers.current.push(window.setTimeout(() => setWalking(false), D + 450 + 3 * GULP + 500 + 2300)) // arrived back home
   }
 
   // play = a random one of 5 little activities (ball / computer / book / TV / lego)
@@ -839,6 +955,61 @@ export default function Tamagotchi({ onExit }: GameProps) {
     )
   }
 
+  // freshly chosen → it arrives as an EGG you warm until it hatches, then you name it
+  if (pet && !pet.hatched) {
+    const isAnimal = !!pet.species
+    if (naming) {
+      const babyScale = (isAnimal ? fitAnimal(pet.species as AnimalKind) : fitPet(pet.friend)) * STAGE_SCALE[0]
+      return (
+        <GameShell title={t('game.pet')} emoji="🐣" onExit={onExit}>
+          <p className="pet-pick-title">{t('pet.name.title')}</p>
+          <div className="pet-pick-figure hatch-baby">
+            {isAnimal ? (
+              <AnimalFigure kind={pet.species as AnimalKind} scale={babyScale} stage={0} />
+            ) : (
+              <Friend index={pet.friend} scale={babyScale} showNumber={false} baby />
+            )}
+          </div>
+          <input
+            className="pet-name-input"
+            value={nameInput}
+            onChange={(e) => setNameInput(e.target.value)}
+            placeholder={defaultName(pet.friend, pet.species)}
+            maxLength={12}
+            aria-label={t('pet.name.title')}
+          />
+          <div className="counting-next">
+            <button className="big-button" onClick={confirmName}>
+              🎉 {t('pet.name.btn')}
+            </button>
+          </div>
+        </GameShell>
+      )
+    }
+    return (
+      <GameShell title={t('game.pet')} emoji="🥚" onExit={onExit}>
+        <p className="pet-pick-title">{t('pet.egg.warm')}</p>
+        <div className="egg-stage">
+          <span className="egg-nest" aria-hidden="true" />
+          <button
+            key={warmth}
+            className={`egg crack-${Math.min(warmth, HATCH_TAPS)} ${warmth >= HATCH_TAPS ? 'is-hatching' : ''}`}
+            onClick={warmEgg}
+            aria-label={t('pet.egg.warm')}
+          >
+            <span className="egg-shell" />
+            <span className="egg-crack" aria-hidden="true" />
+            <span className="egg-heart" aria-hidden="true">💗</span>
+          </button>
+        </div>
+        <p className="egg-hint">{t('pet.egg.hint')}</p>
+        <div className="egg-bar" aria-hidden="true">
+          <span style={{ width: `${(Math.min(warmth, HATCH_TAPS) / HATCH_TAPS) * 100}%` }} />
+        </div>
+      </GameShell>
+    )
+  }
+
   const meters = [
     { key: 'hunger', emoji: '🍎', label: 'רעב', value: pet.hunger },
     { key: 'thirst', emoji: '💧', label: 'צמא', value: pet.thirst },
@@ -846,12 +1017,19 @@ export default function Tamagotchi({ onExit }: GameProps) {
     { key: 'energy', emoji: '⚡', label: 'אנרגיה', value: pet.energy },
     { key: 'clean', emoji: '🧼', label: 'נקי', value: pet.clean },
   ]
-  const sad = meters.some((m) => m.value < 25)
+  // in gentle care mode the friend never looks sad (no grey/sad-face neglect state)
+  const sad = liveSettings.petCareMode === 'regular' && meters.some((m) => m.value < 25)
+  // friendly counters that only ever go UP (numbers are play, never a score)
+  const daysTogether = Math.floor((Date.now() - (pet.born ?? pet.ts)) / 86400000) + 1
+  const careCount = pet.history?.totalCareCount ?? 0
   // the pet is either an animal or one of the 100 friends — its size + name + render differ
   const isAnimal = !!pet.species
-  const petPx = isAnimal
-    ? Math.round(fitAnimal(pet.species as AnimalKind) * animalMaxDim(pet.species as AnimalKind))
-    : Math.round(fitPet(pet.friend) * friendMaxDim(pet.friend))
+  const stage = pet.stage ?? 2 // 0 baby · 1 child · 2 grown — scales the size up as it grows
+  const petPx = Math.round(
+    (isAnimal
+      ? fitAnimal(pet.species as AnimalKind) * animalMaxDim(pet.species as AnimalKind)
+      : fitPet(pet.friend) * friendMaxDim(pet.friend)) * STAGE_SCALE[stage],
+  )
   const petLabel = isAnimal ? ANIMAL_NAMES[pet.species as AnimalKind] : friendName(pet.friend)
   // dirtier → more stains on the body (replaces the old poop)
   const stainCount = pet.clean < 22 ? 3 : pet.clean < 40 ? 2 : pet.clean < 58 ? 1 : 0
@@ -873,8 +1051,16 @@ export default function Tamagotchi({ onExit }: GameProps) {
     ...(isAnimal ? [] : [{ type: 'dress' as ActType, emoji: '👕' }]),
   ]
 
+  const STAGE_EMOJI = ['🐣', '🌟', '👑']
   return (
     <GameShell title={t('game.pet')} emoji="🐣" onExit={onExit}>
+      {/* the pet's NAME + life stage */}
+      <p className="pet-name-line">
+        {pet.name || defaultName(pet.friend, pet.species)}
+        <span className="pet-stage-badge">
+          {STAGE_EMOJI[stage]} {t(`pet.stage.${stage}`)}
+        </span>
+      </p>
       <div className="pet-meters">
         {meters.map((m) => (
           <span className="pet-meter" key={m.key}>
@@ -892,12 +1078,27 @@ export default function Tamagotchi({ onExit }: GameProps) {
         ))}
       </div>
 
+      {/* friendly counters — numbers that only go UP (days together, times cared for) */}
+      <div className="pet-counters">
+        <span className="pet-count">
+          <span className="pet-count-num">{daysTogether}</span> {t('pet.count.days')}
+        </span>
+        <span className="pet-count">
+          <span className="pet-count-num">{careCount}</span> {t('pet.count.care')}
+        </span>
+        {stage < 2 && (
+          <span className="pet-count">
+            <span className="pet-count-num">{(pet.growth ?? 0)}</span>/{GROW_STEPS[stage]} {t('pet.count.grow')}
+          </span>
+        )}
+      </div>
+
       <div
-        className={`pet-room tod-${timeOfDay} pose-${posture} expr-${expression} ${scene === 'walk' ? `is-walk walk-${walkPhase}` : ''} ${atDoor ? 'at-door' : ''} ${
+        className={`pet-room tod-${timeOfDay} pose-${posture} expr-${expression} ${scene === 'walk' ? `is-walk walk-${walkPhase}` : ''} ${atDoor ? 'at-door' : ''} ${steppingOut ? 'stepping-out' : ''} ${awayFromHouse ? 'away-house' : ''} ${
           kitchen ? 'kmode' : ''
         } ${kitchen ? 'is-kitchen' : ''} ${dining ? 'dining' : ''} ${placing ? 'is-placing' : ''} ${eatSetting || eatFood ? 'emode' : ''} ${walking ? 'is-striding' : ''} ${fridgeOpen ? 'fridge-open' : ''} ${eatSetting ? `eat-${eatSetting}` : ''} ${
           bathroom ? `bmode bath-${bathroom}` : ''
-        } ${sleeping ? 'is-sleep' : ''} ${lyingDown ? 'pose-sleep' : ''} ${sad ? 'is-sad' : ''}`}
+        } ${sleeping ? 'is-sleep' : ''} ${lyingDown ? 'pose-sleep' : ''} ${playing ? 'is-playing' : ''} ${sad ? 'is-sad' : ''}`}
       >
         {/* illustrated 2D room behind the pet */}
         <div className="pet-scene" aria-hidden="true">
@@ -919,9 +1120,13 @@ export default function Tamagotchi({ onExit }: GameProps) {
             <span className="ps-shelf" />
             <span className="ps-rug" />
             <span className="ps-plant">🪴</span>
-            {/* the front door — the pet walks to it and steps out for a walk */}
+            {/* the front door — the pet walks to it; the panel swings open and you
+                see the OUTDOORS through the doorway, then it steps out */}
             <span className="ps-door">
-              <span className="door-knob" />
+              <span className="door-out" />
+              <span className="door-panel">
+                <span className="door-knob" />
+              </span>
             </span>
           </span>
           {/* kitchen ↔ dining room — a horizontal strip the world scrolls along:
@@ -939,6 +1144,13 @@ export default function Tamagotchi({ onExit }: GameProps) {
               <span className="ksink">
                 <span className="faucet" />
               </span>
+              {/* the fridge is a FIXTURE of the kitchen — it scrolls in WITH the
+                  room (already there on arrival); only its door is an effect */}
+              <span className="ps-fridge">
+                <span className="fbody" />
+                <span className="fglow" />
+                <span className="fdoor" />
+              </span>
             </span>
             {/* the dining room — its own wall + window; the pet sits at the
                 foreground table (.ps-table) to eat, set down on arrival */}
@@ -955,34 +1167,44 @@ export default function Tamagotchi({ onExit }: GameProps) {
             <span className="bshower">
               <span className="head" />
             </span>
+            {/* the toilet is a FIXTURE of the bathroom — it scrolls in WITH the
+                room (shown only for the potty action, not the shower) */}
+            <span className="ps-toilet">
+              <span className="tank" />
+              <span className="seat" />
+              <span className="base" />
+            </span>
           </span>
-          {/* furniture BEHIND the pet: the fridge it walks to, and the cushion it sits on */}
-          <span className="ps-fridge">
-            <span className="fbody" />
-            <span className="fglow" />
-            <span className="fdoor" />
-          </span>
+          {/* cushion the pet can sit on (the fridge now lives inside the kitchen) */}
           <span className="ps-cushion" />
-          <span className="ps-toilet">
-            <span className="tank" />
-            <span className="seat" />
-            <span className="base" />
+          {/* the bedroom it crosses to at bedtime — the bed is a FIXTURE inside it,
+              so it scrolls in WITH the room (already there on arrival) */}
+          <span className="ps-bedroom">
+            <span className="ps-bed">
+              <span className="bed-frame" />
+              <span className="bed-mattress" />
+              <span className="bed-pillow" />
+              <span className="bed-blanket" />
+            </span>
           </span>
-          {/* the bedroom it crosses to at bedtime, and the bed inside it */}
-          <span className="ps-bedroom" />
-          <span className="ps-bed">
-            <span className="bed-frame" />
-            <span className="bed-mattress" />
-            <span className="bed-pillow" />
-            <span className="bed-blanket" />
-          </span>
-          {/* the outdoors — a few different scenes go by during a walk */}
+          {/* the outdoors — layered PARALLAX (far hills slow · trees mid · near
+              bushes fast) so the walk feels like real travel, plus scenes that
+              go by: park → pond → meadow */}
           <span className="ps-outdoor">
             <span className="osun" />
             <span className="ocloud a" />
             <span className="ocloud b" />
+            {/* the pet's own HOUSE — so when it steps out, you see the home it
+                came from (and walks back into it) */}
+            <span className="ohouse">
+              <span className="oh-roof" />
+              <span className="oh-wall" />
+              <span className="oh-win" />
+              <span className="oh-door" />
+            </span>
             <span className="ohills" />
             <span className="otrees" />
+            <span className="obushes" />
             <span className="opond" />
             <span className="oflowers" />
             <span className="obird">🐦</span>
@@ -1002,10 +1224,10 @@ export default function Tamagotchi({ onExit }: GameProps) {
             <span className="pet-facing">
               <span className="pet-body">
                 {isAnimal ? (
-                  <AnimalDressed kind={pet.species as AnimalKind} px={petPx} walking={walking || scene === 'walk'} eating={!!eatFood} />
+                  <AnimalDressed kind={pet.species as AnimalKind} px={petPx} walking={walking || scene === 'walk'} eating={!!eatFood} stage={stage} />
                 ) : (
                   // takes its clothes/accessories OFF for a bath or for bed
-                  <FriendDressed index={pet.friend} px={petPx} outfit={bathroom || sleeping ? {} : pet.outfit} bouncing={bounce} eating={!!eatFood} walking={walking || scene === 'walk'} />
+                  <FriendDressed index={pet.friend} px={petPx} outfit={bathroom || sleeping ? {} : pet.outfit} bouncing={bounce} eating={!!eatFood} walking={walking || scene === 'walk'} action={gesture} baby={stage === 0} />
                 )}
                 {held && (
                   <span

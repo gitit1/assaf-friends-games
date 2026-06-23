@@ -29,6 +29,10 @@ export type Settings = {
   /** Calmer motion: dampens idle/celebration animations (also auto-on if the
    *  device asks for reduced motion). For sensory comfort. */
   reduceMotion: boolean
+  /** Pet care model. 'gentle' (default) = the friend is ALWAYS fine: its needs
+   *  never decay on their own or while away, and it never looks sad — calm and
+   *  autism-friendly. 'regular' = classic care, needs drop over time. */
+  petCareMode: 'gentle' | 'regular'
 }
 
 const STORAGE_KEY = 'assaf-games:settings'
@@ -45,6 +49,7 @@ const DEFAULTS: Settings = {
   limitRoster: false,
   lang: 'he',
   reduceMotion: false,
+  petCareMode: 'gentle',
 }
 
 function load(): Settings {

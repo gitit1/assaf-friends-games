@@ -213,6 +213,28 @@ export default function SettingsPanel() {
               onChange={(next) => updateSettings({ reduceMotion: next })}
             />
 
+            {/* pet care model: gentle (always fine) vs regular (needs decay) */}
+            <div className="settings-row settings-row-static settings-row-stack">
+              <span className="settings-row-text">
+                <span className="settings-row-label">🐾 {t('settings.petcare')}</span>
+                <span className="settings-row-hint">{t('settings.petcare.hint')}</span>
+              </span>
+              <span className="settings-choice settings-choice-wide">
+                {(['gentle', 'regular'] as const).map((m) => (
+                  <button
+                    key={m}
+                    className={`pill pill-small ${settings.petCareMode === m ? 'pill-active' : ''}`}
+                    onClick={() => {
+                      playTap()
+                      updateSettings({ petCareMode: m })
+                    }}
+                  >
+                    {t(`settings.petcare.${m}`)}
+                  </button>
+                ))}
+              </span>
+            </div>
+
             <div className="settings-row settings-row-static settings-row-stack">
               <span className="settings-row-text">
                 <span className="settings-row-label">{t('settings.difficulty')}</span>

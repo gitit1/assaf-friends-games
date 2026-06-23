@@ -10,7 +10,7 @@ import { useT } from '../i18n'
 // taps to drop that many into the bowl, then feeds it. A running count is shown
 // the whole time (numbers practice). No timer, no fail — a wrong count just gets a
 // gentle nudge so he can fix it.
-const FOOD: Record<AnimalKind, string> = { dog: '🦴', cat: '🐟', rabbit: '🥕', hamster: '🌰' }
+const FOOD: Record<AnimalKind, string> = { dog: '🦴', cat: '🐟', rabbit: '🥕', parrot: '🌻' }
 
 function AnimalFig({ kind, eating, px }: { kind: AnimalKind; eating?: boolean; px: number }) {
   const nat = ANIMAL_NATURAL[kind]
