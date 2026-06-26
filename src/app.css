@@ -14855,3 +14855,658 @@ button {
   0% { transform: translateY(-14px) scale(0.7); }
   100% { transform: translateY(0) scale(1); }
 }
+
+/* ---------- potty training (גמילה מטיטול) ---------- */
+.potty-pick {
+  display: flex;
+  gap: 14px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 12px;
+}
+.potty-pick-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 14px 14px;
+  border-radius: 22px;
+  background: #fff;
+  border: 3px solid #cdeee8;
+  box-shadow: 0 6px 16px rgba(13, 148, 136, 0.18);
+  font-family: 'Fredoka', 'Heebo', sans-serif;
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: #0f766e;
+  cursor: pointer;
+}
+.potty-pick-btn:active { transform: scale(0.96); }
+.potty-pick-fig {
+  width: 92px;
+  height: 116px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+.potty-pick-fig .kid-svg { width: 80px; height: auto; }
+.potty-pick-friend { transform: scale(0.92); transform-origin: bottom center; }
+
+.potty-stars {
+  text-align: center;
+  font-size: 1.3rem;
+  letter-spacing: 2px;
+  min-height: 1.7rem;
+  margin: 2px 0 8px;
+}
+.potty-star-num {
+  font-family: 'Fredoka', 'Heebo', sans-serif;
+  font-weight: 700;
+  color: #0d9488;
+  margin-inline-start: 8px;
+  font-size: 1.2rem;
+  letter-spacing: 0;
+}
+
+/* the bathroom — a fixed "set": tiled wall + floor, toilet + sink always there */
+.potty-room {
+  position: relative;
+  width: 100%;
+  max-width: 460px;
+  height: 348px;
+  margin: 0 auto;
+  border-radius: 26px;
+  overflow: hidden;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.14);
+  background: linear-gradient(#d7f0ff, #eaf8ff);
+}
+.potty-room::before { /* wall tiles */
+  content: '';
+  position: absolute;
+  inset: 0 0 38% 0;
+  background:
+    repeating-linear-gradient(0deg, transparent 0 39px, rgba(255, 255, 255, 0.55) 39px 41px),
+    repeating-linear-gradient(90deg, transparent 0 39px, rgba(255, 255, 255, 0.55) 39px 41px),
+    linear-gradient(#cdeeff, #e6f7ff);
+}
+.potty-room::after { /* floor */
+  content: '';
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 38%;
+  background: linear-gradient(#efe0c8, #e2cfae);
+  border-top: 3px solid #cdb795;
+}
+
+/* toilet — a BIG, clearly-readable fixture (bigger than the sink), always there.
+   No z-index on the wrapper on purpose: a z-index would trap .pt-seat/.pt-bowl in
+   the toilet's own stacking context and hide a child sitting "inside" it. Without
+   it, tank(z1) < sitting child(z2) < seat(z4) < bowl(z5) all compete globally, so
+   the child's body tucks behind the seat while the head shows above it. */
+.potty-toilet {
+  position: absolute;
+  left: 54%;
+  bottom: 4%;
+  width: 152px;
+  height: 186px;
+}
+.pt-tank { /* cistern at the back-top */
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 104px;
+  height: 54px;
+  background: linear-gradient(#ffffff, #e6edf2);
+  border: 2px solid #cdd8e0;
+  border-radius: 14px 14px 8px 8px;
+  z-index: 1;
+}
+.pt-flush { /* flush button on the tank */
+  position: absolute;
+  top: 13px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 26px;
+  height: 13px;
+  background: #aebfc9;
+  border-radius: 7px;
+  box-shadow: inset 0 -2px 2px rgba(0, 0, 0, 0.14);
+  z-index: 2;
+}
+.pt-lid { /* raised lid behind the seat — makes it read instantly as a toilet */
+  position: absolute;
+  top: 42px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 118px;
+  height: 64px;
+  background: linear-gradient(#f4f8fb, #dbe6ee);
+  border: 2px solid #cdd8e0;
+  border-radius: 50% 50% 16px 16px;
+  z-index: 2;
+}
+.pt-base { /* pedestal from the seat down to the floor */
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 82px;
+  height: 92px;
+  background: linear-gradient(#ffffff, #dde6ec);
+  border: 2px solid #cdd8e0;
+  border-radius: 16px 16px 24px 24px;
+  z-index: 1;
+}
+.pt-seat { /* the white seat ring you sit on */
+  position: absolute;
+  top: 94px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 142px;
+  height: 58px;
+  background: linear-gradient(#ffffff, #eef3f6);
+  border: 3px solid #cdd8e0;
+  border-radius: 50%;
+  box-shadow: 0 6px 9px rgba(0, 0, 0, 0.16);
+  z-index: 4;
+}
+.pt-bowl { /* the water/opening inside the seat */
+  position: absolute;
+  top: 104px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 104px;
+  height: 36px;
+  background: radial-gradient(ellipse at 50% 40%, #dff3fc, #a9d8ef);
+  border-radius: 50%;
+  z-index: 5;
+}
+.pt-result { /* poop sitting in the bowl */
+  position: absolute;
+  top: 102px;
+  left: 50%;
+  transform: translateX(-50%) scale(0.5);
+  font-size: 1.8rem;
+  opacity: 0;
+  z-index: 6;
+  transition: opacity 0.2s, transform 0.25s;
+}
+.pt-pee { /* a clearly-YELLOW pee puddle in the bowl (so it reads as pee) */
+  position: absolute;
+  top: 110px;
+  left: 50%;
+  transform: translateX(-50%) scale(0.4);
+  width: 70px;
+  height: 24px;
+  background: radial-gradient(ellipse at 50% 40%, #ffe14d, #ffc400);
+  border-radius: 50%;
+  box-shadow: 0 0 10px rgba(255, 196, 0, 0.75);
+  opacity: 0;
+  z-index: 6;
+  transition: opacity 0.2s, transform 0.25s;
+}
+.step-went .pt-result,
+.step-flush .pt-result { opacity: 1; transform: translateX(-50%) scale(1); }
+/* the yellow puddle is for SITTING (no visible stream); the boy has the arc+splash */
+.step-went:not(.is-aiming) .pt-pee,
+.step-flush:not(.is-aiming) .pt-pee { opacity: 1; transform: translateX(-50%) scale(1); }
+/* the boy's aimed pee — a real FLOWING arc from his front into the bowl:
+   a streaming dashed line + droplets travelling the arc + a splash in the bowl */
+.pt-stream {
+  position: absolute;
+  top: 52px;
+  left: -14px;
+  width: 118px;
+  height: 86px;
+  opacity: 0;
+  z-index: 7;
+  transition: opacity 0.15s;
+}
+.need-pee.is-aiming.step-went .pt-stream,
+.need-pee.is-aiming.step-flush .pt-stream { opacity: 1; }
+.pee-arc { width: 100%; height: 100%; overflow: visible; }
+.pee-flow {
+  fill: none;
+  stroke: #ffd23f;
+  stroke-width: 5;
+  stroke-linecap: round;
+  stroke-dasharray: 11 5;
+  filter: drop-shadow(0 0 2px rgba(255, 196, 0, 0.85));
+  animation: peeFlow 0.32s linear infinite;
+}
+@keyframes peeFlow { to { stroke-dashoffset: -16; } }
+.pee-drop {
+  fill: #ffd23f;
+  offset-path: path('M6 46 Q 48 30 86 64');
+  filter: drop-shadow(0 0 2px rgba(255, 196, 0, 0.7));
+}
+.pee-d1 { animation: peeDrop 0.55s linear infinite; }
+.pee-d2 { animation: peeDrop 0.55s linear infinite 0.18s; }
+.pee-d3 { animation: peeDrop 0.55s linear infinite 0.36s; }
+@keyframes peeDrop {
+  0% { offset-distance: 0%; opacity: 0; }
+  18% { opacity: 1; }
+  82% { opacity: 1; }
+  100% { offset-distance: 100%; opacity: 0.4; }
+}
+.pee-splash {
+  fill: #ffd23f;
+  transform-box: fill-box;
+  transform-origin: center;
+  filter: drop-shadow(0 0 3px rgba(255, 196, 0, 0.7));
+  animation: peeSplash 0.45s ease-in-out infinite;
+}
+@keyframes peeSplash {
+  0%, 100% { transform: scale(0.65); opacity: 0.65; }
+  50% { transform: scale(1.2); opacity: 1; }
+}
+.step-wash .pt-bowl { animation: pottyFlush 0.7s ease; }
+@keyframes pottyFlush {
+  0% { background: radial-gradient(ellipse at 50% 40%, #dff3fc, #a9d8ef); }
+  50% { background: radial-gradient(ellipse at 50% 40%, #8fcdec, #5fb3e0); }
+  100% { background: radial-gradient(ellipse at 50% 40%, #dff3fc, #a9d8ef); }
+}
+
+/* sink — deliberately small, clearly smaller than the toilet */
+.potty-sink {
+  position: absolute;
+  left: 6%;
+  bottom: 15%;
+  width: 52px;
+  height: 44px;
+  z-index: 2;
+}
+.ps-basin {
+  position: absolute;
+  bottom: 0;
+  width: 52px;
+  height: 22px;
+  background: linear-gradient(#ffffff, #e6eef2);
+  border: 2px solid #cdd8e0;
+  border-radius: 7px 7px 20px 20px / 7px 7px 24px 24px;
+}
+.ps-basin::before { /* faucet */
+  content: '';
+  position: absolute;
+  top: -15px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 8px;
+  height: 15px;
+  background: #9fb6c2;
+  border-radius: 4px 4px 0 0;
+}
+.ps-water {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 5px;
+  height: 20px;
+  background: linear-gradient(#bfe0f2, #7fc3e8);
+  border-radius: 3px;
+  animation: pottyTap 0.45s linear infinite;
+}
+@keyframes pottyTap { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
+
+/* the character — moves around the room per step */
+.potty-char {
+  position: absolute;
+  bottom: 4%;
+  left: 16%;
+  width: 100px;
+  height: 160px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  z-index: 4;
+  transition: left 1.4s ease-in-out, bottom 0.45s ease, transform 0.45s ease;
+}
+.potty-char .kid-svg { width: 100px; height: auto; }
+.step-walk .potty-char,
+.step-atToilet .potty-char,
+.step-go .potty-char,
+.step-went .potty-char,
+.step-flush .potty-char { left: 40%; }
+.is-sitting .potty-char { left: 60%; bottom: 13%; z-index: 2; }   /* centered on the seat, body tucked behind it */
+/* a friend is a round, legless character — it perches visibly ON the seat */
+.is-sitting .potty-char.is-friend { left: 61%; bottom: 21%; z-index: 6; }
+.is-aiming .potty-char { left: 44%; bottom: 4%; z-index: 5; }     /* right up to the bowl, facing it */
+.step-wash .potty-char { left: 8%; }
+.step-cheer .potty-char { left: 30%; animation: pottyCheer 0.6s ease infinite; }
+
+/* close-up while a garment comes off — scale the child up big, dim the rest */
+.potty-room.is-zoom .potty-toilet,
+.potty-room.is-zoom .potty-sink { filter: brightness(0.82) saturate(0.85); }
+.potty-room.is-zoom::before,
+.potty-room.is-zoom::after { filter: brightness(0.9); }
+.potty-room.is-zoom .potty-char {
+  left: 50%;
+  bottom: 0;
+  transform: translateX(-50%) scale(1.7);
+  transform-origin: bottom center;
+  z-index: 30;
+}
+
+/* garments slide down and off, leg by leg, so a child sees it really happen */
+.kid-pants, .kid-diaper { transform-box: fill-box; transform-origin: center; }
+.kid-pants.removing,
+.kid-diaper.removing { animation: kidGarmentOff 1.7s ease forwards; }
+@keyframes kidGarmentOff {
+  0%   { transform: translateY(0); }
+  28%  { transform: translateY(32px); }            /* slide down to the ankles */
+  52%  { transform: translateY(35px) rotate(-7deg); } /* lift one leg out */
+  76%  { transform: translateY(37px) rotate(7deg); }  /* lift the other leg out */
+  100% { transform: translateY(58px) rotate(0deg) scale(0.9); opacity: 0; } /* off */
+}
+.is-zoom .potty-char .kid-svg { animation: kidStepOut 1.7s ease; }
+@keyframes kidStepOut {
+  0%, 100% { transform: rotate(0); }
+  52% { transform: rotate(-2.5deg); }
+  76% { transform: rotate(2.5deg); }
+}
+@keyframes pottyCheer { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
+.potty-char.is-walking .kid-svg { animation: pottyWaddle 0.4s ease-in-out infinite; transform-origin: bottom center; }
+@keyframes pottyWaddle {
+  0%, 100% { transform: rotate(-4deg) translateY(0); }
+  50% { transform: rotate(4deg) translateY(-4px); }
+}
+
+.potty-bubble {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-bottom: 8px;
+  background: #fff;
+  color: #0f3d39;
+  font-family: 'Fredoka', 'Heebo', sans-serif;
+  font-weight: 700;
+  font-size: 1.05rem;
+  padding: 8px 14px;
+  border-radius: 16px;
+  white-space: nowrap;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
+  animation: pottyPop 0.3s ease;
+  z-index: 8;
+}
+.potty-bubble::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 8px solid transparent;
+  border-top-color: #fff;
+}
+@keyframes pottyPop {
+  from { transform: translateX(-50%) scale(0.6); opacity: 0; }
+  to { transform: translateX(-50%) scale(1); opacity: 1; }
+}
+.potty-puddle {
+  position: absolute;
+  bottom: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 1.6rem;
+  z-index: 1;
+  animation: pottyPop 0.3s ease;
+}
+
+.potty-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  margin-top: 16px;
+}
+.potty-oops {
+  font-family: 'Fredoka', 'Heebo', sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  padding: 8px 18px;
+  border-radius: 16px;
+  background: #fde4e1;
+  color: #b4453a;
+  border: 2px solid #f6c6c0;
+  cursor: pointer;
+}
+.potty-oops:active { transform: scale(0.96); }
+.potty-hint {
+  font-family: 'Fredoka', 'Heebo', sans-serif;
+  font-weight: 700;
+  color: #0d9488;
+  font-size: 1.15rem;
+  text-align: center;
+}
+
+/* ---------- מטבעות חברים (coin sort + merge) ---------- */
+.cs-top {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin: 6px 0 14px;
+}
+.cs-best-label {
+  font-family: 'Fredoka', 'Heebo', sans-serif;
+  font-weight: 700;
+  font-size: 1.15rem;
+  color: #b45309;
+}
+.cs-best-coin .cs-coin { width: 52px; height: 52px; }
+
+.cs-board {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 12px 14px;
+  padding: 6px 4px 4px;
+  max-width: 520px;
+  margin: 0 auto;
+}
+
+/* a transparent tube — even when empty it shows as a clear "cell" */
+.cs-tube {
+  display: flex;
+  flex-direction: column-reverse;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 3px;
+  width: 56px;
+  min-height: 198px;
+  padding: 7px 4px 8px;
+  border: 2px solid rgba(120, 140, 170, 0.35);
+  border-top: none;
+  border-radius: 10px 10px 26px 26px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.16), rgba(180, 205, 235, 0.26));
+  box-shadow: inset 0 -6px 12px rgba(120, 150, 190, 0.18), inset 0 2px 4px rgba(255, 255, 255, 0.5);
+  cursor: pointer;
+  transition: transform 0.12s, box-shadow 0.15s, border-color 0.15s;
+}
+.cs-tube:active { transform: scale(0.97); }
+.cs-tube.is-sel {
+  border-color: #f59e0b;
+  box-shadow: inset 0 -6px 12px rgba(120, 150, 190, 0.18), 0 0 0 3px rgba(245, 158, 11, 0.45);
+}
+.cs-tube.is-pop { animation: csPop 0.5s ease; }
+@keyframes csPop {
+  0%, 100% { transform: scale(1); }
+  40% { transform: scale(1.12); }
+}
+
+.cs-slot {
+  display: block;
+  line-height: 0;
+  transition: transform 0.16s ease;
+}
+.cs-slot.lifted { transform: translateY(-12px); }
+
+/* a friend-coin: round disc in the friend's colour, the small friend, a big number */
+.cs-coin {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 35% 28%, rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0) 42%),
+    radial-gradient(circle at 50% 60%, var(--c), color-mix(in srgb, var(--c) 62%, #000) 100%);
+  border: 2px solid rgba(0, 0, 0, 0.18);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.25), inset 0 -3px 5px rgba(0, 0, 0, 0.18);
+  overflow: hidden;
+}
+.cs-coin-face {
+  position: absolute;
+  top: 1px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  opacity: 0.5;
+  pointer-events: none;
+}
+.cs-coin-face .friend-holder { pointer-events: none; }
+.cs-coin-num {
+  position: relative;
+  z-index: 2;
+  font-family: 'Fredoka', 'Heebo', sans-serif;
+  font-weight: 800;
+  font-size: 1.25rem;
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.55), 0 0 3px rgba(0, 0, 0, 0.5);
+  -webkit-text-stroke: 0.6px rgba(0, 0, 0, 0.35);
+}
+
+.cs-controls {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 18px;
+}
+.cs-btn {
+  font-family: 'Fredoka', 'Heebo', sans-serif;
+  font-weight: 700;
+  font-size: 1.05rem;
+  padding: 11px 18px;
+  border-radius: 18px;
+  color: #fff;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.18);
+  cursor: pointer;
+  transition: transform 0.1s, filter 0.1s;
+}
+.cs-btn:active { transform: scale(0.95); }
+.cs-btn:disabled { opacity: 0.4; cursor: default; }
+.cs-draw { background: linear-gradient(160deg, #fbbf24, #d97706); color: #3a2406; }
+.cs-sort { background: linear-gradient(160deg, #c084fc, #7c3aed); }
+.cs-add { background: linear-gradient(160deg, #4ade80, #16a34a); }
+.cs-undo { background: linear-gradient(160deg, #cbd5e1, #94a3b8); color: #1f2937; }
+.cs-restart { background: linear-gradient(160deg, #7cc4f5, #4f74d6); }
+
+/* ---- coin sort: STYLE TOGGLE (stacks vs tubes) ---- */
+.cs-style-toggle {
+  display: inline-flex;
+  gap: 4px;
+  background: #fde9c8;
+  border-radius: 14px;
+  padding: 3px;
+  margin-inline-start: 6px;
+}
+.cs-style-toggle button {
+  font-family: 'Fredoka', 'Heebo', sans-serif;
+  font-weight: 700;
+  font-size: 0.9rem;
+  padding: 5px 11px;
+  border-radius: 11px;
+  color: #92400e;
+  cursor: pointer;
+}
+.cs-style-toggle button.on {
+  background: #f59e0b;
+  color: #fff;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.22);
+}
+
+/* ---- coin sort: WOODEN STACK board (the real Pocket-Sort look) ---- */
+.cs-board.style-stack {
+  background: linear-gradient(180deg, #8a5a2c, #6b421d);
+  border: 6px solid #5e3717;
+  border-radius: 18px;
+  padding: 16px 12px 14px;
+  gap: 9px;
+  box-shadow: inset 0 2px 6px rgba(255, 220, 170, 0.25), 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+/* recessed wooden lane */
+.style-stack .cs-tube {
+  position: relative;
+  flex-direction: column;
+  justify-content: flex-end;
+  width: 50px;
+  min-height: 170px;
+  padding: 24px 3px 10px;
+  gap: 0;
+  background: linear-gradient(180deg, #3f2611, #5a3417);
+  border: 2px solid #34200e;
+  border-radius: 9px 9px 11px 11px;
+  box-shadow: inset 0 5px 9px rgba(0, 0, 0, 0.45), inset 0 -2px 3px rgba(255, 210, 160, 0.12);
+}
+.style-stack .cs-tube.is-sel {
+  border-color: #ffd24a;
+  box-shadow: inset 0 5px 9px rgba(0, 0, 0, 0.45), 0 0 0 3px rgba(255, 210, 74, 0.6);
+}
+.style-stack .cs-tube.is-pop { animation: csPop 0.5s ease; }
+/* the clear number badge floating above each pile */
+.cs-lane-num {
+  position: absolute;
+  top: 3px;
+  left: 50%;
+  transform: translateX(-50%);
+  min-width: 24px;
+  padding: 1px 6px;
+  border-radius: 10px;
+  background: var(--c);
+  color: #fff;
+  font-family: 'Fredoka', 'Heebo', sans-serif;
+  font-weight: 800;
+  font-size: 0.95rem;
+  text-align: center;
+  border: 1.5px solid rgba(0, 0, 0, 0.28);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.45);
+  z-index: 20;
+}
+/* a stacked flat coin (chip) */
+.cs-pile { position: relative; width: 100%; }
+.cs-chip {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 42px;
+  height: 24px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at 50% 30%, color-mix(in srgb, var(--c) 28%, #fff), var(--c) 60%, color-mix(in srgb, var(--c) 55%, #000) 100%);
+  border: 1.5px solid color-mix(in srgb, var(--c) 48%, #000);
+  box-shadow: 0 3px 2px rgba(0, 0, 0, 0.35);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  transition: transform 0.16s ease;
+}
+.cs-chip.top { height: 27px; align-items: center; }
+.cs-chip.lifted { transform: translateX(-50%) translateY(-16px); }
+.cs-chip-num {
+  font-family: 'Fredoka', 'Heebo', sans-serif;
+  font-weight: 800;
+  font-size: 0.6rem;
+  color: #fff;
+  margin-top: 1px;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.55);
+}
+.cs-chip.top .cs-chip-num { font-size: 0.95rem; margin-top: 0; }

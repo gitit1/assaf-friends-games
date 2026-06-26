@@ -45,6 +45,8 @@ import BlendSounds from './BlendSounds'
 import EnglishCount from './EnglishCount'
 import TraceLetter from './TraceLetter'
 import SortShelf from './sortshelf/SortShelf'
+import PottyTraining from './PottyTraining'
+import CoinSort from './CoinSort'
 
 // Every game gets a callback to return to the home screen.
 export type GameProps = {
@@ -56,7 +58,7 @@ export type GameProps = {
 
 // Home-screen sections. Games are grouped so the home screen stays tidy as the
 // roster of games grows. Empty categories are simply not shown.
-export type CategoryId = 'numbers' | 'thinking' | 'fun' | 'create' | 'letters' | 'sports' | 'english'
+export type CategoryId = 'numbers' | 'thinking' | 'fun' | 'create' | 'letters' | 'sports' | 'english' | 'growup'
 
 export type Category = {
   id: CategoryId
@@ -74,6 +76,7 @@ export const CATEGORIES: Category[] = [
   { id: 'letters', title: 'אותיות', emoji: '🔤', color: 'linear-gradient(160deg, #a855f7, #7c3aed)' },
   { id: 'sports', title: 'ספורט', emoji: '🏀', color: 'linear-gradient(160deg, #fb923c, #ea580c)' },
   { id: 'english', title: 'אנגלית', emoji: '🔠', color: 'linear-gradient(160deg, #0ea5e9, #4338ca)' },
+  { id: 'growup', title: 'גדלים', emoji: '🌟', color: 'linear-gradient(160deg, #5eead4, #0d9488)' },
 ]
 
 export type GameDef = {
@@ -84,10 +87,33 @@ export type GameDef = {
   color: string
   category: CategoryId
   Component: ComponentType<GameProps>
+  // When true, the game is kept registered (so its #/game/<id> route still works
+  // for testing) but hidden from the home/category screens — used while a game is
+  // still being built and shouldn't be shown to the child yet.
+  hidden?: boolean
 }
 
 // Add a new game by dropping a component here and tagging its category.
 export const GAMES: GameDef[] = [
+  {
+    id: 'potty',
+    title: 'גמילה מטיטול',
+    emoji: '🚽',
+    color: 'linear-gradient(160deg, #5eead4, #0d9488)',
+    category: 'growup',
+    Component: PottyTraining,
+    // Hidden from the child's home/category screens until the animation is fixed
+    // (the pee must come out from the penis). The #/game/potty route still works.
+    hidden: true,
+  },
+  {
+    id: 'coinsort',
+    title: 'מטבעות חברים',
+    emoji: '🪙',
+    color: 'linear-gradient(160deg, #fbbf24, #d97706)',
+    category: 'numbers',
+    Component: CoinSort,
+  },
   {
     id: 'feedanimals',
     title: 'מאכילים חיות',
@@ -460,5 +486,5 @@ export const GAMES: GameDef[] = [
 ]
 
 export function gamesInCategory(category: CategoryId) {
-  return GAMES.filter((game) => game.category === category)
+  return GAMES.filter((game) => game.category === category && !game.hidden)
 }
