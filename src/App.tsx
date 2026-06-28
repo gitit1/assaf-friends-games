@@ -137,7 +137,11 @@ export default function App() {
         // opened from a friend's world → "back" returns to that friend, not the category
         back = { emoji: '⭐', label: friendName(fromFriend) }
         backIsHome = false
-        view = <game.Component onExit={() => go(`friend/${fromFriend}/q`)} friend={fromFriend} />
+        view = (
+          <Suspense fallback={<p className="three-loading">טוען… 🕳️</p>}>
+            <game.Component onExit={() => go(`friend/${fromFriend}/q`)} friend={fromFriend} />
+          </Suspense>
+        )
       } else {
         const cat = CATEGORIES.find((c) => c.id === game.category)
         // back to the category this game lives in, so picking another game is one tap
@@ -145,7 +149,11 @@ export default function App() {
           back = { emoji: cat.emoji, label: t(`cat.${cat.id}`) }
           backIsHome = false
         }
-        view = <game.Component onExit={() => go(`cat/${game.category}`)} />
+        view = (
+          <Suspense fallback={<p className="three-loading">טוען… 🕳️</p>}>
+            <game.Component onExit={() => go(`cat/${game.category}`)} />
+          </Suspense>
+        )
       }
     }
   } else if (route.kind === 'cat') {

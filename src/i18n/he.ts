@@ -309,6 +309,18 @@ export const HE: Dict = {
   'cs.undo': { text: 'אחורה' },
   'cs.restart': { text: 'מהתחלה' },
 
+  // בולעים הכול — Hole.io-style swallow game
+  'game.hole': { text: 'בולעים הכול' },
+  'hole.pick': { text: 'מי בולע היום?' },
+  'hole.sw.hole': { text: 'חור' },
+  'hole.sw.monster': { text: 'מפלצת' },
+  'hole.sw.frog': { text: 'צפרדע' },
+  'hole.sw.cat': { text: 'חתול' },
+  'hole.level': { text: 'שלב' },
+  'hole.done': { text: 'בלעת הכול! כל הכבוד!' },
+  'hole.next': { text: 'השלב הבא' },
+  'hole.hint': { text: 'הזיזו עם האצבע ובלעו! גדלים ואז בולעים דברים גדולים יותר' },
+
   // "מכולת" — shelf-sorting puzzle
   'game.sortshelf': { text: 'מכולת' },
   'ss.level': { text: 'שלב' },

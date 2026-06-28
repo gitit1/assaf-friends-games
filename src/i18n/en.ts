@@ -308,6 +308,18 @@ export const EN: Dict = {
   'cs.undo': { text: 'Undo' },
   'cs.restart': { text: 'Restart' },
 
+  // Swallow everything — Hole.io-style game
+  'game.hole': { text: 'Swallow It All' },
+  'hole.pick': { text: 'Who swallows today?' },
+  'hole.sw.hole': { text: 'Hole' },
+  'hole.sw.monster': { text: 'Monster' },
+  'hole.sw.frog': { text: 'Frog' },
+  'hole.sw.cat': { text: 'Cat' },
+  'hole.level': { text: 'Level' },
+  'hole.done': { text: 'You ate it all! Well done!' },
+  'hole.next': { text: 'Next level' },
+  'hole.hint': { text: 'Move with your finger and swallow! Grow, then eat bigger things' },
+
   // "Grocery" — shelf-sorting puzzle
   'game.sortshelf': { text: 'Grocery' },
   'ss.level': { text: 'Level' },

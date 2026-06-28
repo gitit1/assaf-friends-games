@@ -1,4 +1,4 @@
-import type { ComponentType } from 'react'
+import { lazy, type ComponentType } from 'react'
 import MemoryGame from './MemoryGame'
 import SkipCount from './SkipCount'
 import PlaceValue from './PlaceValue'
@@ -47,6 +47,9 @@ import TraceLetter from './TraceLetter'
 import SortShelf from './sortshelf/SortShelf'
 import PottyTraining from './PottyTraining'
 import CoinSort from './CoinSort'
+// The hole game is real 3D (three.js) — lazy-loaded so three.js stays out of the
+// main bundle and only loads when this game is opened.
+const HoleGame = lazy(() => import('./HoleGame3D')) as unknown as ComponentType<GameProps>
 
 // Every game gets a callback to return to the home screen.
 export type GameProps = {
@@ -273,6 +276,14 @@ export const GAMES: GameDef[] = [
     color: 'linear-gradient(160deg, #34d399, #0d9488)',
     category: 'thinking',
     Component: SortByColor,
+  },
+  {
+    id: 'hole',
+    title: 'בולעים הכול',
+    emoji: '🕳️',
+    color: 'linear-gradient(160deg, #6366f1, #1e293b)',
+    category: 'fun',
+    Component: HoleGame,
   },
   {
     id: 'catch',
