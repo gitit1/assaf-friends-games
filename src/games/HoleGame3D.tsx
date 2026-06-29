@@ -2,17 +2,21 @@ import { useEffect, useRef, useState } from 'react'
 import * as THREE from 'three'
 import GameShell from '../components/GameShell'
 import Confetti from '../components/Confetti'
-import { playMunch, playPop, playWin, unlockAudio } from '../audio'
+import { playMunch, playPop, playWin, playSuccess, unlockAudio } from '../audio'
 import { speakNumber } from '../voice'
 import { useT } from '../i18n'
 import { useSettings } from '../settings'
+import { buildLayout, friendNpc, TIER_SIZE, TIER_SCALE, LANDMARK_SIZE, LANDMARK_SCALE, BOSS_SIZE, BOSS_SCALE, type Target } from './hole/world'
+import { markFriendMet } from '../friendsMet'
+import { reachLevel } from '../holeProgress'
+import HoleMap from './hole/HoleMap'
 import type { GameProps } from './registry'
 
-// "בולעים הכול" in REAL 3D (three.js, same raw pipeline as Friend3D): a tilted
-// camera that follows a flat dark hole across a big low-poly world; objects with
-// real height arranged in STACKS topple and fall in as you pass under; the hole
-// grows and the camera zooms out; collect the marked TARGETS to finish the level.
-// No timer, no fail — faked, predictable capture physics.
+// "בולעים הכול" in REAL 3D (three.js). Drag a swallower across a DESIGNED, bounded
+// themed world (Candy City → City) laid out along a winding breadcrumb path with
+// stacks, zone clusters, a landmark, and the friends as 3D NPCs / billboards.
+// Things tip and fall into the hole; it grows (a progress bar + a "גדלת!" pop tell
+// you when), the camera zooms out. Collect the marked targets. No timer, no fail.
 
 type SwId = 'hole' | 'frog' | 'monster' | 'cat'
 const SWALLOWERS: { id: SwId; color: string }[] = [
@@ -21,198 +25,126 @@ const SWALLOWERS: { id: SwId; color: string }[] = [
   { id: 'monster', color: '#8b5cf6' },
   { id: 'cat', color: '#fb923c' },
 ]
-
-// each theme: sky, ground, and a 4-colour palette (one per size tier)
-type Theme3D = { id: string; sky: string; ground: string; pal: string[]; icons: string[] }
-const THEMES: Theme3D[] = [
-  { id: 'park', sky: '#bfe9ff', ground: '#83cf86', pal: ['#ff6b8a', '#ffd23f', '#6ab0ff', '#7a5cff'], icons: ['🍎', '🎁', '🌳', '🏠'] },
-  { id: 'city', sky: '#cfe0ee', ground: '#9aa7b6', pal: ['#4cc4d6', '#ffb14a', '#ff6f6f', '#9b8cff'], icons: ['🔵', '📦', '🚗', '🏢'] },
-  { id: 'beach', sky: '#a9e7ff', ground: '#f1dca0', pal: ['#ff8fab', '#ffd23f', '#4cd0c0', '#5aa9ff'], icons: ['🐚', '🏐', '🐢', '⛵'] },
-  { id: 'candy', sky: '#ffe1f0', ground: '#f6b8d8', pal: ['#ff7eb6', '#ffd23f', '#8ad6ff', '#b388ff'], icons: ['🍬', '🍪', '🍰', '🎂'] },
-  { id: 'space', sky: '#241d3f', ground: '#33285c', pal: ['#ffe14d', '#5fd0ff', '#ff7ad1', '#9b8cff'], icons: ['⭐', '🛰️', '🚀', '🛸'] },
-]
-
-type Target = { tier: number; icon: string; need: number; got: number }
-
-type Spec = { x: number; z: number; tier: number; col: number; idx: number; target: boolean }
-type Level = { specs: Spec[]; targets: Target[]; theme: Theme3D; maxTier: number }
-
-function buildLevel(n: number): Level {
-  const theme = THEMES[(n - 1) % THEMES.length]
-  const maxTier = Math.min(4, 2 + Math.floor((n - 1) / 4))
-  const nTargets = Math.min(3, 1 + Math.floor((n - 1) / 3))
-  const tierChoices: number[] = []
-  for (let t = 1; t <= maxTier; t++) tierChoices.push(t)
-  const targetTiers = [...tierChoices].sort(() => Math.random() - 0.5).slice(0, nTargets)
-  const targets: Target[] = targetTiers.map((t) => ({ tier: t, icon: theme.icons[t - 1], need: 3 + Math.floor(n / 4) + t, got: 0 }))
-
-  const specs: Spec[] = []
-  let col = 0
-  const R = 18 + n * 2 // world spread grows → more distance (camera zooms out to reveal it)
-  const slots = 18 + n
-  const need: Record<number, number> = {}
-  for (const tg of targets) need[tg.tier] = tg.need
-  for (let s = 0; s < slots; s++) {
-    const ang = (s / slots) * Math.PI * 2 + Math.random() * 0.4
-    const rad = 4 + Math.random() * R
-    const cx = Math.cos(ang) * rad
-    const cz = Math.sin(ang) * rad
-    // is this a target cluster (a stack of a needed tier)?
-    let tier = 1 + Math.floor(Math.random() * Math.max(1, maxTier - 1)) // mostly low (filler to grow on)
-    let target = false
-    const needyTier = targets.find((tg) => (need[tg.tier] ?? 0) > 0)
-    if (needyTier && s % 2 === 0) { tier = needyTier.tier; target = true }
-    const stack = tier <= 2 ? 2 + Math.floor(Math.random() * 4) : 1 + Math.floor(Math.random() * 2) // small = tall piles
-    for (let i = 0; i < stack; i++) {
-      specs.push({ x: cx + (Math.random() - 0.5) * 0.6, z: cz + (Math.random() - 0.5) * 0.6, tier, col, idx: i, target })
-      if (target && need[tier] != null) need[tier] = Math.max(0, need[tier] - 1)
-    }
-    col++
-  }
-  return { specs, targets, theme, maxTier }
-}
-
 const lerp = (a: number, b: number, t: number) => a + (b - a) * t
-
-// a low-poly prop for a size tier, coloured from the theme
-function makeProp(tier: number, color: string): THREE.Group {
-  const g = new THREE.Group()
-  const mat = (c: string) => new THREE.MeshLambertMaterial({ color: c })
-  const dark = new THREE.Color(color).multiplyScalar(0.7).getStyle()
-  if (tier === 1) {
-    const m = new THREE.Mesh(new THREE.SphereGeometry(0.55, 16, 12), mat(color))
-    m.position.y = 0.55; g.add(m)
-  } else if (tier === 2) {
-    const m = new THREE.Mesh(new THREE.BoxGeometry(1.1, 1.1, 1.1), mat(color))
-    m.position.y = 0.55; g.add(m)
-    const lid = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.18, 1.2), mat(dark))
-    lid.position.y = 1.12; g.add(lid)
-  } else if (tier === 3) {
-    const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.28, 1, 8), mat('#9c6b3f'))
-    trunk.position.y = 0.5; g.add(trunk)
-    const top = new THREE.Mesh(new THREE.ConeGeometry(0.95, 1.7, 8), mat(color))
-    top.position.y = 1.85; g.add(top)
-  } else {
-    const body = new THREE.Mesh(new THREE.BoxGeometry(2.2, 3.2, 2.2), mat(color))
-    body.position.y = 1.6; g.add(body)
-    const roof = new THREE.Mesh(new THREE.ConeGeometry(1.8, 1.1, 4), mat(dark))
-    roof.position.y = 3.7; roof.rotation.y = Math.PI / 4; g.add(roof)
-  }
-  // a blob contact shadow under the prop
-  const sh = new THREE.Mesh(
-    new THREE.CircleGeometry(tier === 4 ? 1.7 : tier === 3 ? 1.0 : 0.7, 20),
-    new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.22 }),
-  )
-  sh.rotation.x = -Math.PI / 2
-  sh.position.y = 0.02
-  g.add(sh)
-  return g
-}
+// an object is edible once the hole's mouth is about as wide as it (Hole.io/agar rule)
+const eatable = (size: number, R: number) => size <= R * 2 * 1.12
 
 export default function HoleGame3D({ onExit }: GameProps) {
   const { t } = useT()
-  const { reduceMotion } = useSettings()
+  const { reduceMotion, maxNumber } = useSettings()
   const [sw, setSw] = useState<SwId | null>(null)
+  const [phase, setPhase] = useState<'map' | 'play'>('map') // map (pick a level) → play
   const [level, setLevel] = useState(1)
-  const [hud, setHud] = useState({ size: 0, count: 0, tier: 1 })
+  const [prog, setProg] = useState(0) // 0..1 toward unlocking the next size
+  const [eaten, setEaten] = useState(0) // total swallowed (a big counter, the "sweep")
   const [targets, setTargets] = useState<Target[]>([])
+  const [nextIcon, setNextIcon] = useState('')
+  const [grew, setGrew] = useState(false)
+  const [met, setMet] = useState(false) // a friend popped out of a gift
+  const [boss, setBoss] = useState(false) // swallowed the giant boss
   const [done, setDone] = useState(false)
   const [party, setParty] = useState(false)
+  const [fs, setFs] = useState(false)
   const mountRef = useRef<HTMLDivElement>(null)
+  const fsRef = useRef<HTMLDivElement>(null)
   const arrowRef = useRef<HTMLDivElement>(null)
   const doneRef = useRef(false)
 
+  // full screen — the small window is too cramped
+  function toggleFs() {
+    if (!document.fullscreenElement) fsRef.current?.requestFullscreen?.()
+    else document.exitFullscreen?.()
+  }
   useEffect(() => {
-    if (!sw) return
+    const h = () => { setFs(!!document.fullscreenElement); window.setTimeout(() => window.dispatchEvent(new Event('resize')), 60) }
+    document.addEventListener('fullscreenchange', h)
+    return () => document.removeEventListener('fullscreenchange', h)
+  }, [])
+
+  useEffect(() => {
+    if (!sw || phase !== 'play') return
     const mount = mountRef.current
     if (!mount) return
     const W = () => mount.clientWidth || 360
     const H = () => mount.clientHeight || 480
-    const lvl = buildLevel(level)
+    const lvl = buildLayout(level, maxNumber)
     const swColor = SWALLOWERS.find((s) => s.id === sw)!.color
     doneRef.current = false
     setTargets(lvl.targets.map((x) => ({ ...x })))
-    setHud({ size: 0, count: 0, tier: 1 })
-    setDone(false)
-    setParty(false)
+    setProg(0); setEaten(0)
+    setNextIcon(lvl.world.icons[1] ?? lvl.world.icons[0])
+    setDone(false); setParty(false); setGrew(false); setMet(false); setBoss(false)
 
     const scene = new THREE.Scene()
-    scene.background = new THREE.Color(lvl.theme.sky)
-    scene.fog = new THREE.Fog(lvl.theme.sky, 60, 130)
-    const camera = new THREE.PerspectiveCamera(50, W() / H(), 0.1, 400)
+    scene.background = new THREE.Color(lvl.world.sky)
+    scene.fog = new THREE.Fog(lvl.world.sky, lvl.bound * 1.6, lvl.bound * 3.2)
+    const camera = new THREE.PerspectiveCamera(50, W() / H(), 0.1, 600)
     const renderer = new THREE.WebGLRenderer({ antialias: true })
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
     renderer.setSize(W(), H())
     mount.appendChild(renderer.domElement)
 
     scene.add(new THREE.AmbientLight(0xffffff, 0.82))
-    const key = new THREE.DirectionalLight(0xffffff, 0.9)
-    key.position.set(20, 40, 18)
-    scene.add(key)
-    const fill = new THREE.DirectionalLight(0xffffff, 0.28)
-    fill.position.set(-20, 14, -10)
-    scene.add(fill)
+    const key = new THREE.DirectionalLight(0xffffff, 0.9); key.position.set(20, 40, 18); scene.add(key)
+    const fill = new THREE.DirectionalLight(0xffffff, 0.28); fill.position.set(-20, 14, -10); scene.add(fill)
 
-    const ground = new THREE.Mesh(
-      new THREE.PlaneGeometry(400, 400),
-      new THREE.MeshLambertMaterial({ color: lvl.theme.ground }),
-    )
-    ground.rotation.x = -Math.PI / 2
-    scene.add(ground)
+    const ground = new THREE.Mesh(new THREE.PlaneGeometry(lvl.bound * 6, lvl.bound * 6), new THREE.MeshLambertMaterial({ color: lvl.world.ground }))
+    ground.rotation.x = -Math.PI / 2; scene.add(ground)
 
-    // the hole — a flat dark disc on the ground
+    // the visible ROAD the objects line — a darker ground-tone ribbon you follow
+    const roadCol = new THREE.Color(lvl.world.ground).multiplyScalar(0.72)
+    const roadMesh = new THREE.Mesh(new THREE.TubeGeometry(lvl.road, 100, 1.7, 6, false), new THREE.MeshLambertMaterial({ color: roadCol }))
+    roadMesh.scale.y = 0.02; roadMesh.position.y = 0.04; scene.add(roadMesh)
+
+    // the swallower — a flat dark disc (+ a face for creatures)
     const hole = new THREE.Group()
-    const disc = new THREE.Mesh(
-      new THREE.CircleGeometry(1, 40),
-      new THREE.MeshBasicMaterial({ color: sw === 'hole' ? 0x0a0a10 : new THREE.Color(swColor).multiplyScalar(0.25).getHex() }),
-    )
-    disc.rotation.x = -Math.PI / 2
-    disc.position.y = 0.04
-    hole.add(disc)
+    const disc = new THREE.Mesh(new THREE.CircleGeometry(1, 40), new THREE.MeshBasicMaterial({ color: sw === 'hole' ? 0x0a0a10 : new THREE.Color(swColor).multiplyScalar(0.25).getHex() }))
+    disc.rotation.x = -Math.PI / 2; disc.position.y = 0.05; hole.add(disc)
     if (sw !== 'hole') {
       const rim = new THREE.Mesh(new THREE.TorusGeometry(1, 0.16, 10, 36), new THREE.MeshLambertMaterial({ color: swColor }))
-      rim.rotation.x = -Math.PI / 2
-      rim.position.y = 0.12
-      hole.add(rim)
-      const eyeMat = new THREE.MeshLambertMaterial({ color: 0xffffff })
-      const pupMat = new THREE.MeshBasicMaterial({ color: 0x16210f })
+      rim.rotation.x = -Math.PI / 2; rim.position.y = 0.12; hole.add(rim)
       for (const sx of [-0.5, 0.5]) {
-        const eye = new THREE.Mesh(new THREE.SphereGeometry(0.34, 12, 10), eyeMat)
-        eye.position.set(sx, 0.7, -0.7); hole.add(eye)
-        const pup = new THREE.Mesh(new THREE.SphereGeometry(0.15, 8, 8), pupMat)
-        pup.position.set(sx, 0.72, -0.95); hole.add(pup)
+        const eye = new THREE.Mesh(new THREE.SphereGeometry(0.34, 12, 10), new THREE.MeshLambertMaterial({ color: 0xffffff })); eye.position.set(sx, 0.7, -0.7); hole.add(eye)
+        const pup = new THREE.Mesh(new THREE.SphereGeometry(0.15, 8, 8), new THREE.MeshBasicMaterial({ color: 0x16210f })); pup.position.set(sx, 0.72, -0.95); hole.add(pup)
       }
-      if (sw === 'cat' || sw === 'monster') {
-        const earMat = new THREE.MeshLambertMaterial({ color: sw === 'monster' ? '#f4d35e' : swColor })
-        for (const sx of [-0.6, 0.6]) {
-          const ear = new THREE.Mesh(new THREE.ConeGeometry(0.32, 0.7, 4), earMat)
-          ear.position.set(sx, 1.0, -0.6); hole.add(ear)
-        }
+      if (sw === 'cat' || sw === 'monster') for (const sx of [-0.6, 0.6]) {
+        const ear = new THREE.Mesh(new THREE.ConeGeometry(0.32, 0.7, 4), new THREE.MeshLambertMaterial({ color: sw === 'monster' ? '#f4d35e' : swColor })); ear.position.set(sx, 1.0, -0.6); hole.add(ear)
       }
     }
     scene.add(hole)
 
-    // build the world objects from specs
-    type Obj = { grp: THREE.Group; x: number; z: number; tier: number; col: number; idx: number; target: boolean; captured: boolean; capT: number; grew: boolean; baseY: number; dead: boolean }
+    type Obj = { grp: THREE.Group; x: number; z: number; tier: number; size: number; baseY: number; captured: boolean; capT: number; grewF: boolean; dead: boolean; mover: boolean; vx: number; vz: number; wanderT: number; kind?: 'gift' | 'ice' | 'boss'; thawed: boolean; warm: number; iceShell?: THREE.Mesh; friend?: number }
     const objs: Obj[] = lvl.specs.map((s) => {
-      const grp = makeProp(s.tier, lvl.theme.pal[s.tier - 1])
-      const baseY = s.idx * (s.tier <= 1 ? 1.0 : s.tier === 2 ? 1.2 : 0) // small props stack vertically
-      grp.position.set(s.x, baseY, s.z)
-      grp.rotation.y = Math.random() * Math.PI
+      const grp = s.make()
+      const scale = s.kind === 'boss' ? BOSS_SCALE : s.landmark ? LANDMARK_SCALE : TIER_SCALE[s.tier - 1]
+      grp.scale.setScalar(scale)
+      grp.position.set(s.x, s.baseY * scale, s.z)
+      let iceShell: THREE.Mesh | undefined
+      if (s.kind === 'ice') { // encase it in a frosty block you melt by lingering
+        iceShell = new THREE.Mesh(new THREE.BoxGeometry(1.7, 2.0, 1.7), new THREE.MeshLambertMaterial({ color: 0xbfe8ff, transparent: true, opacity: 0.55 }))
+        iceShell.position.y = 0.9; grp.add(iceShell)
+      }
       scene.add(grp)
-      return { grp, x: s.x, z: s.z, tier: s.tier, col: s.col, idx: s.idx, target: s.target, captured: false, capT: 0, grew: false, baseY, dead: false }
+      const size = s.kind === 'boss' ? BOSS_SIZE : s.landmark ? LANDMARK_SIZE : TIER_SIZE[s.tier - 1]
+      return { grp, x: s.x, z: s.z, tier: s.tier, size, baseY: s.baseY * scale, captured: false, capT: 0, grewF: false, dead: false, mover: !!s.mover, vx: 0, vz: 0, wanderT: 0, kind: s.kind, thawed: s.kind !== 'ice', warm: 0, iceShell, friend: s.friend }
     })
+    const reveals: { grp: THREE.Group; t: number }[] = [] // friends popping out of swallowed gifts
 
-    // game state
+    // a soft DUST POOF when something is swallowed (cheap THREE.Points pool)
+    const PMAX = 96
+    const pPos = new Float32Array(PMAX * 3).fill(-999)
+    const pState = Array.from({ length: PMAX }, () => ({ life: 0, vx: 0, vy: 0, vz: 0 }))
+    const pGeo = new THREE.BufferGeometry(); pGeo.setAttribute('position', new THREE.BufferAttribute(pPos, 3))
+    const points = new THREE.Points(pGeo, new THREE.PointsMaterial({ color: 0xfff4fb, size: 0.5, transparent: true, opacity: 0.75, depthWrite: false }))
+    points.frustumCulled = false; scene.add(points)
+    let pHead = 0
+    const poof = (x: number, z: number) => { for (let k = 0; k < 7; k++) { const i = pHead++ % PMAX, a = Math.random() * 6.28, s = 1 + Math.random() * 2.2; pState[i] = { life: 0.5, vx: Math.cos(a) * s, vy: 1.4 + Math.random() * 2, vz: Math.sin(a) * s }; pPos[i * 3] = x; pPos[i * 3 + 1] = 0.3; pPos[i * 3 + 2] = z } }
+
     const pos = { x: 0, z: 0 }
     const targetPos = { x: 0, z: 0 }
-    let R = 1.4
-    let tier = 1
-    let count = 0
-    let sizeNum = 0
+    let R = 0.8, eatTier = 0, totalEaten = 0, combo = 0, lastEat = -1, squash = 0
     const tg = lvl.targets.map((x) => ({ ...x }))
 
-    // pointer → ground raycast
     const ray = new THREE.Raycaster()
     const ndc = new THREE.Vector2()
     const plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0)
@@ -232,110 +164,128 @@ export default function HoleGame3D({ onExit }: GameProps) {
 
     const clock = new THREE.Clock()
     let raf = 0
-    let shake = 0
-    const colCaptured: Record<number, number> = {}
-
     const frame = () => {
       raf = requestAnimationFrame(frame)
       const dt = Math.min(0.05, clock.getDelta())
 
-      // move hole toward the finger (slow, deliberate, a bit faster as it grows)
       const dx = targetPos.x - pos.x, dz = targetPos.z - pos.z
       const d = Math.hypot(dx, dz)
-      const spd = (8 + R * 1.4) * dt
+      const spd = (7 + R * 1.3) * dt
       if (d > 0.05) { const s = Math.min(d, spd); pos.x += (dx / d) * s; pos.z += (dz / d) * s }
-      hole.position.set(pos.x, 0, pos.z)
-      hole.scale.setScalar(R)
+      pos.x = Math.max(-lvl.bound, Math.min(lvl.bound, pos.x)); pos.z = Math.max(-lvl.bound, Math.min(lvl.bound, pos.z))
+      squash = Math.max(0, squash - dt * 4) // gentle mouth "squash" pulse decays after each bite
+      hole.position.set(pos.x, 0, pos.z); hole.scale.set(R * (1 + squash * 0.1), R, R * (1 + squash * 0.1))
 
-      // capture
-      let changed = false
+      let changed = false, metGift = false, ateBoss = false
       for (const o of objs) {
         if (o.dead) continue
+        // a LIVING world: critters wander, and gently amble AWAY when the hole nears
+        // (always slower than the hole, so the child always catches them — it's tag)
+        if (o.mover && !o.captured) {
+          o.wanderT -= dt
+          if (o.wanderT <= 0) { const a = Math.random() * 6.283, sp = 0.55 + Math.random() * 0.5; o.vx = Math.cos(a) * sp; o.vz = Math.sin(a) * sp; o.wanderT = 1.6 + Math.random() * 2.2 }
+          const hx = o.x - pos.x, hz = o.z - pos.z, hd = Math.hypot(hx, hz)
+          let mvx = o.vx, mvz = o.vz
+          if (hd < R + 4 && hd > 0.001) { const fl = 1.7; mvx = (hx / hd) * fl; mvz = (hz / hd) * fl } // startled amble away
+          o.x += mvx * dt; o.z += mvz * dt
+          if (Math.hypot(o.x, o.z) > lvl.bound) { o.x = Math.max(-lvl.bound, Math.min(lvl.bound, o.x)); o.z = Math.max(-lvl.bound, Math.min(lvl.bound, o.z)); o.vx = -o.vx; o.vz = -o.vz }
+          o.grp.position.x = o.x; o.grp.position.z = o.z
+          o.grp.rotation.y = Math.atan2(mvx, mvz)
+          if (!reduceMotion) o.grp.position.y = o.baseY + Math.abs(Math.sin(clock.elapsedTime * 6 + o.x)) * 0.12 // a little hop
+        }
         if (o.captured) {
           o.capT += dt
-          const delay = o.idx * 0.16
-          if (o.capT < delay) continue // wait for the piece below to start falling (cascade)
-          if (!o.grew) {
-            o.grew = true
-            R += o.tier * 0.05
-            count += 1
-            sizeNum += o.tier
-            if (count % 3 === 0 && tier < 4) tier += 1
+          const delay = o.baseY * 0.12
+          if (o.capT < delay) continue
+          if (!o.grewF) {
+            o.grewF = true; R += o.size * 0.06; totalEaten += 1 // grow proportional to what you ate
             const x = tg.find((q) => q.tier === o.tier && q.got < q.need); if (x) x.got += 1
-            shake = Math.min(0.5, 0.12 + o.tier * 0.08)
+            if (o.kind === 'gift') { // a friend pops up out of the swallowed present
+              const fi = Math.floor(Math.random() * Math.max(1, maxNumber))
+              const fr = friendNpc(fi); fr.position.set(o.x, -1.6, o.z); scene.add(fr)
+              reveals.push({ grp: fr, t: 0 }); metGift = true; markFriendMet(fi) // → the album
+            }
+            if (o.friend != null) markFriendMet(o.friend) // swallowed an in-world friend → album
+            if (o.kind === 'boss') ateBoss = true // swallowed the giant — a triumphant capstone
             changed = true
           }
           o.grp.position.x = lerp(o.grp.position.x, pos.x, 0.14)
           o.grp.position.z = lerp(o.grp.position.z, pos.z, 0.14)
           o.grp.position.y -= dt * 7
-          o.grp.rotation.x += dt * 5
-          o.grp.rotation.z += dt * 4
-          o.grp.scale.multiplyScalar(Math.max(0, 1 - dt * 2.4))
-          if (o.grp.scale.x < 0.06 || o.grp.position.y < -3) { scene.remove(o.grp); o.dead = true }
-        } else if (o.tier <= tier) {
-          const dd = Math.hypot(o.x - pos.x, o.z - pos.z)
-          // capture bottom-up within a stack column
-          const ready = o.idx <= (colCaptured[o.col] ?? 0)
-          if (dd < R * 0.92 && ready) {
-            o.captured = true
-            o.capT = 0
-            colCaptured[o.col] = Math.max(colCaptured[o.col] ?? 0, o.idx + 1)
+          o.grp.rotation.x += dt * 5; o.grp.rotation.z += dt * 4
+          o.grp.scale.multiplyScalar(Math.max(0, 1 - dt * 2.3))
+          if (o.grp.scale.x < 0.06 || o.grp.position.y < -3) { if (!reduceMotion) poof(pos.x, pos.z); scene.remove(o.grp); o.dead = true }
+        } else if (eatable(o.size, R) && o.thawed) {
+          if (Math.hypot(o.x - pos.x, o.z - pos.z) < R * 0.95) { o.captured = true; o.capT = 0 }
+        } else if (o.kind === 'ice' && !o.thawed) {
+          // melt the frosty block by lingering near the hole's warmth, then it's edible
+          const nd = Math.hypot(o.x - pos.x, o.z - pos.z)
+          if (nd < R + 2.2) {
+            o.warm += dt
+            if (o.iceShell) { const k = Math.max(0, 1 - o.warm / 1.3); o.iceShell.scale.setScalar(0.55 + 0.45 * k); (o.iceShell.material as THREE.MeshLambertMaterial).opacity = 0.55 * k }
+            if (o.warm >= 1.3) { o.thawed = true; if (o.iceShell) { o.grp.remove(o.iceShell); o.iceShell.geometry.dispose(); (o.iceShell.material as THREE.Material).dispose(); o.iceShell = undefined } playSuccess() }
           }
-        } else if (!reduceMotion) {
-          o.grp.rotation.y += dt * 0.2 // gentle idle life
+        } else if (!reduceMotion && o.size < 3) {
+          o.grp.rotation.y += dt * 0.15 // gentle idle life on small things you can't eat yet
         }
       }
+      // friends popping out of swallowed gifts: rise, bob, then gently fade away
+      for (let i = reveals.length - 1; i >= 0; i--) {
+        const rv = reveals[i]; rv.t += dt
+        rv.grp.position.y = rv.t < 0.5 ? lerp(-1.6, 0.2, rv.t / 0.5) : 0.2 + Math.sin(rv.t * 3) * 0.12
+        rv.grp.rotation.y += dt * 1.2
+        if (rv.t > 3) rv.grp.scale.setScalar(Math.max(0, 1 - (rv.t - 3)))
+        if (rv.t > 4) { scene.remove(rv.grp); reveals.splice(i, 1) }
+      }
+      // dust poof particles: drift out + up, settle, fade
+      for (let i = 0; i < PMAX; i++) { const p = pState[i]; if (p.life > 0) { p.life -= dt; pPos[i * 3] += p.vx * dt; pPos[i * 3 + 1] += p.vy * dt; pPos[i * 3 + 2] += p.vz * dt; p.vy -= dt * 4; if (p.life <= 0) pPos[i * 3 + 1] = -999 } }
+      pGeo.attributes.position.needsUpdate = true
       if (changed) {
-        playMunch()
-        setHud({ size: sizeNum, count, tier })
+        const now = clock.elapsedTime; combo = now - lastEat < 0.5 ? combo + 1 : 0; lastEat = now; squash = 1
+        playMunch(combo) // rising pitch on a fast sweep, soft reset otherwise
+        setEaten(totalEaten)
+        if (metGift) { setMet(true); playWin(); window.setTimeout(() => setMet(false), 1900) } // a friend appeared!
+        if (ateBoss) { setBoss(true); playWin(); setParty(true); window.setTimeout(() => setBoss(false), 2400) } // swallowed the giant!
         setTargets(tg.map((x) => ({ ...x })))
-        if (count % 3 === 0) speakNumber(sizeNum)
+        // current max edible tier (by size) + progress toward unlocking the next
+        const diam = R * 2 * 1.12
+        let et = 0; for (let i = 0; i < TIER_SIZE.length; i++) if (TIER_SIZE[i] <= diam) et = i + 1
+        const nextT = Math.min(et + 1, TIER_SIZE.length)
+        setProg(Math.min(1, diam / TIER_SIZE[nextT - 1]))
+        setNextIcon(lvl.world.icons[Math.min(nextT - 1, lvl.world.icons.length - 1)])
+        if (et > eatTier) {
+          eatTier = et
+          if (!reduceMotion) { setGrew(true); window.setTimeout(() => setGrew(false), 1100) }
+          playSuccess(); speakNumber(et)
+        }
         if (tg.every((x) => x.got >= x.need) && !doneRef.current) {
-          doneRef.current = true
-          playWin(); speakNumber(level); setParty(true); setDone(true)
+          doneRef.current = true; playWin(); setParty(true); setDone(true); reachLevel(level + 1) // unlock the next on the map
         }
       }
 
-      // camera follows + zooms out as the hole grows
-      const dist = 9 + R * 2.1
-      const height = 10 + R * 2.4
-      const sx = shake > 0 ? (Math.random() - 0.5) * shake : 0
-      shake = Math.max(0, shake - dt * 2)
-      camera.position.set(pos.x + sx, height, pos.z + dist)
-      camera.lookAt(pos.x, 0, pos.z)
+      const dist = 7 + R * 1.85, height = 7.5 + R * 2.0
+      camera.position.set(pos.x, height, pos.z + dist); camera.lookAt(pos.x, 0, pos.z)
 
-      // guide arrow → nearest uncollected target (projected to screen)
+      // guide arrow → nearest still-needed target
       if (arrowRef.current) {
-        let near: Obj | null = null
-        let nd = Infinity
+        let near: Obj | null = null, nd = Infinity
         for (const o of objs) {
-          if (o.dead) continue
-          if (!tg.some((q) => q.tier === o.tier && q.got < q.need)) continue // only point at still-needed types
-          const ddx = Math.hypot(o.x - pos.x, o.z - pos.z)
-          if (ddx < nd) { nd = ddx; near = o }
+          if (o.dead || !tg.some((q) => q.tier === o.tier && q.got < q.need)) continue
+          const ddx = Math.hypot(o.x - pos.x, o.z - pos.z); if (ddx < nd) { nd = ddx; near = o }
         }
-        const vw = el.clientWidth || 1
-        const vh = el.clientHeight || 1
+        const vw = el.clientWidth || 1, vh = el.clientHeight || 1
         if (near) {
           const v = new THREE.Vector3(near.x, near.baseY + 1, near.z).project(camera)
-          const behind = v.z > 1
-          const onScreen = !behind && v.x >= -1 && v.x <= 1 && v.y >= -1 && v.y <= 1
-          if (onScreen) {
-            arrowRef.current.style.display = 'none'
-          } else {
-            const px = (v.x * 0.5 + 0.5) * vw
-            const py = (-v.y * 0.5 + 0.5) * vh
-            let ang = Math.atan2(py - vh / 2, px - vw / 2)
+          const behind = v.z > 1, onScreen = !behind && v.x >= -1 && v.x <= 1 && v.y >= -1 && v.y <= 1
+          if (onScreen) arrowRef.current.style.display = 'none'
+          else {
+            let ang = Math.atan2((-v.y * 0.5 + 0.5) * vh - vh / 2, (v.x * 0.5 + 0.5) * vw - vw / 2)
             if (behind) ang += Math.PI
-            const m = 26
-            const ex = vw / 2 + Math.cos(ang) * (vw / 2 - m)
-            const ey = vh / 2 + Math.sin(ang) * (vh / 2 - m)
+            const mar = 26, ex = vw / 2 + Math.cos(ang) * (vw / 2 - mar), ey = vh / 2 + Math.sin(ang) * (vh / 2 - mar)
             arrowRef.current.style.display = 'flex'
             arrowRef.current.style.transform = `translate(${ex - 20}px, ${ey - 20}px) rotate(${ang}rad)`
           }
-        } else {
-          arrowRef.current.style.display = 'none'
-        }
+        } else arrowRef.current.style.display = 'none'
       }
 
       renderer.render(scene, camera)
@@ -344,23 +294,19 @@ export default function HoleGame3D({ onExit }: GameProps) {
 
     const onResize = () => { camera.aspect = W() / H(); camera.updateProjectionMatrix(); renderer.setSize(W(), H()) }
     window.addEventListener('resize', onResize)
-
     return () => {
-      cancelAnimationFrame(raf)
-      window.removeEventListener('resize', onResize)
-      el.removeEventListener('pointerdown', onPointer)
-      el.removeEventListener('pointermove', onPointer)
+      cancelAnimationFrame(raf); window.removeEventListener('resize', onResize)
+      el.removeEventListener('pointerdown', onPointer); el.removeEventListener('pointermove', onPointer)
       scene.traverse((o) => {
-        const m = o as THREE.Mesh
-        if (m.geometry) m.geometry.dispose()
-        const mm = m.material as THREE.Material | THREE.Material[] | undefined
-        if (Array.isArray(mm)) mm.forEach((x) => x.dispose())
-        else if (mm) mm.dispose()
+        const me = o as THREE.Mesh
+        if (me.geometry) me.geometry.dispose()
+        const mm = me.material as THREE.Material | THREE.Material[] | undefined
+        if (Array.isArray(mm)) mm.forEach((x) => x.dispose()); else if (mm) mm.dispose()
       })
       renderer.dispose()
       if (renderer.domElement.parentNode === mount) mount.removeChild(renderer.domElement)
     }
-  }, [sw, level, reduceMotion])
+  }, [sw, phase, level, reduceMotion, maxNumber])
 
   if (!sw) {
     return (
@@ -384,31 +330,47 @@ export default function HoleGame3D({ onExit }: GameProps) {
     )
   }
 
+  if (phase === 'map') {
+    return (
+      <GameShell title={t('game.hole')} emoji="🕳️" onExit={onExit}>
+        <HoleMap onPick={(l) => { playPop(); setLevel(l); setPhase('play') }} />
+      </GameShell>
+    )
+  }
+
   return (
     <GameShell title={t('game.hole')} emoji="🕳️" onExit={onExit}>
       <Confetti active={party} />
-      <div className="hole-hud">
-        <span className="hole-level">{t('hole.level')} {level}</span>
-        <span className="hole-size">📏 {hud.size}</span>
-        <span className="hole-targets">
-          {targets.map((tgt, i) => (
-            <span key={i} className={`hole-tgt ${tgt.got >= tgt.need ? 'ok' : ''}`}>
-              {tgt.icon}<b>{Math.max(0, tgt.need - tgt.got)}</b>
-            </span>
-          ))}
-        </span>
-      </div>
-      <div className="hole3d-wrap">
-        <div className="hole3d-canvas" ref={mountRef} />
-        <div className="hole-arrow" ref={arrowRef} aria-hidden="true"><span className="arr-tip" /></div>
-        {done && (
-          <div className="hole-done">
-            <p>🎉 {t('hole.done')}</p>
-            <button className="big-button" onClick={() => { playPop(); setParty(false); setLevel((n) => n + 1) }}>
-              ➡️ {t('hole.next')}
-            </button>
-          </div>
-        )}
+      <div className="hole-fs" ref={fsRef}>
+        <div className="hole-hud">
+          <span className="hole-level">{t('hole.level')} {level}</span>
+          <span className="hole-eaten">😋 {eaten}</span>
+          <span className="hole-targets">
+            {targets.map((tgt, i) => (
+              <span key={i} className={`hole-tgt ${tgt.got >= tgt.need ? 'ok' : ''}`}>{tgt.icon}<b>{Math.max(0, tgt.need - tgt.got)}</b></span>
+            ))}
+          </span>
+        </div>
+        {/* growth indicator: fills with each bite, the next thing's icon at the end */}
+        <div className={`hole-grow ${grew ? 'pop' : ''}`}>
+          <span className="hg-bar"><span className="hg-fill" style={{ width: `${prog * 100}%` }} /></span>
+          <span className="hg-next">{nextIcon}</span>
+        </div>
+        <div className="hole3d-wrap">
+          <div className="hole3d-canvas" ref={mountRef} />
+          <div className="hole-arrow" ref={arrowRef} aria-hidden="true"><span className="arr-tip" /></div>
+          <button className="hole-fs-btn" onClick={toggleFs} aria-label={t('hole.fullscreen')}>{fs ? '✕' : '⛶'}</button>
+          {grew && <div className="hole-grew">⬆️ {t('hole.grew')}</div>}
+          {met && <div className="hole-met">🎁 {t('hole.met')}</div>}
+          {boss && <div className="hole-met hole-boss">🏆 {t('hole.boss')}</div>}
+          {done && (
+            <div className="hole-done">
+              <p>🎉 {t('hole.done')}</p>
+              <button className="big-button" onClick={() => { playPop(); setParty(false); setLevel((n) => n + 1) }}>➡️ {t('hole.next')}</button>
+              <button className="big-button hole-map-btn" onClick={() => { playPop(); setParty(false); setPhase('map') }}>🗺️ {t('hole.map')}</button>
+            </div>
+          )}
+        </div>
       </div>
       <p className="sport-hint">{t('hole.hint')}</p>
     </GameShell>

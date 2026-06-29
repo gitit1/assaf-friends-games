@@ -125,10 +125,12 @@ export function playSuccess() {
   tone({ freq: 783.99, duration: 0.26, type: 'sine', volume: 0.16, delay: 0.24 })
 }
 
-// Soft "nom" munch for eating.
-export function playMunch() {
-  tone({ freq: 180, duration: 0.13, type: 'sine', volume: 0.17 })
-  tone({ freq: 130, duration: 0.11, type: 'triangle', volume: 0.12, delay: 0.07 })
+// Soft "nom" munch for eating. `rise` (a combo count) climbs the pitch gently —
+// up to ~an octave over a fast sweep — for a satisfying chain, then resets calmly.
+export function playMunch(rise = 0) {
+  const base = 180 * Math.pow(2, Math.min(rise, 12) / 24)
+  tone({ freq: base, duration: 0.13, type: 'sine', volume: 0.17 })
+  tone({ freq: base * 0.72, duration: 0.11, type: 'triangle', volume: 0.12, delay: 0.07 })
 }
 
 // A gentle, non-punishing "try again" — soft and low, never harsh.

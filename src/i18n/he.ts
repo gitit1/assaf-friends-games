@@ -319,6 +319,16 @@ export const HE: Dict = {
   'hole.level': { text: 'שלב' },
   'hole.done': { text: 'בלעת הכול! כל הכבוד!' },
   'hole.next': { text: 'השלב הבא' },
+  'hole.grew': { text: 'גדלת!' },
+  'hole.fullscreen': { text: 'מסך מלא' },
+  'hole.met': { text: 'פגשת חבר!' },
+  'hole.boss': { text: 'בלעת את הענק!' },
+  'album.title': { text: 'אלבום החברים' },
+  'album.intro': { text: 'בלעו חברים במשחק כדי לאסוף אותם לאלבום!' },
+  'hole.map': { text: 'מפה' },
+  'hole.map.title': { text: 'בחרו שלב' },
+  'hole.world.candy': { text: 'עיר הממתקים' },
+  'hole.world.city': { text: 'העיר הגדולה' },
   'hole.hint': { text: 'הזיזו עם האצבע ובלעו! גדלים ואז בולעים דברים גדולים יותר' },
 
   // "מכולת" — shelf-sorting puzzle
