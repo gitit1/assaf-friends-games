@@ -28,6 +28,9 @@ const CANDY = ['#ff5d8f', '#ffcf3f', '#5ec8ff', '#a07bff', '#5fd98a', '#ff944d',
 const gummybear = () => { const c = pick(CANDY); const body = sph(0.34, c, 0, 0.46); body.scale.set(0.9, 1.1, 0.7); const head = sph(0.24, c, 0, 0.92); const g = grp(0.4, true, body, head); for (const x of [-0.16, 0.16]) g.add(sph(0.09, c, x, 1.12)); for (const x of [-0.34, 0.34]) g.add(sph(0.13, c, x, 0.55)); for (const x of [-0.18, 0.18]) g.add(sph(0.14, c, x, 0.18)); for (const x of [-0.08, 0.08]) g.add(sph(0.035, '#2a1020', x, 0.95, 0.2)); return g }
 const cookie = () => { const base = cyl(0.5, 0.5, 0.18, '#d6a464', 0, 0.32, 0, 18); const g = grp(0.5, true, base); for (let i = 0; i < 6; i++) g.add(sph(0.07, '#4a2a10', (Math.random() - 0.5) * 0.72, 0.42, (Math.random() - 0.5) * 0.72)); return g }
 const wrapped = () => { const c = pick(CANDY); const body = cyl(0.24, 0.24, 0.42, c, 0, 0.3, 0, 12); body.rotation.z = Math.PI / 2; const l = con(0.22, 0.3, c, -0.4, 0.3, 0); l.rotation.z = Math.PI / 2; const r = con(0.22, 0.3, c, 0.4, 0.3, 0); r.rotation.z = -Math.PI / 2; return grp(0.45, true, body, l, r) }
+// bright, obvious candies (so the child clearly sees "these are candies")
+const jellybean = () => { const c = pick(CANDY); const b = sph(0.4, c, 0, 0.4); b.scale.set(1.5, 0.95, 0.95); const g = grp(0.44, true, b); const sh = sph(0.12, '#fff', 0.12, 0.55, 0.16); sh.scale.set(1.6, 0.6, 1); g.add(sh); return g }
+const peppermint = () => { const g = grp(0.5, true); const disc = cyl(0.46, 0.46, 0.16, '#fff', 0, 0.44, 0, 22); disc.rotation.x = Math.PI / 2; g.add(disc); for (let i = 0; i < 6; i++) { const a = (i / 6) * 6.283; const st = con(0.14, 0.9, '#e2245a', 0, 0.44, 0, 3); st.rotation.set(Math.PI / 2, 0, a); st.position.set(Math.cos(a) * 0.16, 0.44, Math.sin(a) * 0.16); g.add(st) } g.add(cyl(0.12, 0.12, 0.18, '#e2245a', 0, 0.44, 0, 10)).children.at(-1)!.rotation.x = Math.PI / 2; return g }
 const lollipop = () => { const c = pick(CANDY); const stick = cyl(0.05, 0.05, 1.15, '#fff', 0, 0.57, 0, 6); const head = cyl(0.44, 0.44, 0.14, c, 0, 1.25, 0, 22); head.rotation.x = Math.PI / 2; const swirl = tor(0.27, 0.05, '#fff', 18); swirl.position.set(0, 1.25, 0.09); const swirl2 = tor(0.14, 0.05, c, 14); swirl2.position.set(0, 1.25, 0.1); return grp(0.42, false, stick, head, swirl, swirl2) }
 const cupcake = () => { const c = pick(CANDY); const wrap = cyl(0.42, 0.3, 0.52, '#caa05a', 0, 0.26); const g = grp(0.45, true, wrap); for (let i = 0; i < 5; i++) g.add(box(0.05, 0.5, 0.05, '#b07f3a', Math.cos((i / 5) * 6.28) * 0.34, 0.26, Math.sin((i / 5) * 6.28) * 0.34)); g.add(sph(0.42, c, 0, 0.64)); g.add(sph(0.32, c, 0, 0.9)); g.add(sph(0.22, c, 0, 1.12)); g.add(sph(0.11, '#e22', 0, 1.3)); return g }
 const donut = () => { const c = pick(CANDY); const base = tor(0.42, 0.2, '#e0b070'); base.rotation.x = -Math.PI / 2; base.position.y = 0.32; const ice = tor(0.42, 0.21, c); ice.rotation.x = -Math.PI / 2; ice.position.y = 0.4; const g = grp(0.55, true, base, ice); for (let i = 0; i < 7; i++) { const a = (i / 7) * 6.28; g.add(box(0.05, 0.13, 0.05, pick(CANDY), Math.cos(a) * 0.42, 0.5, Math.sin(a) * 0.42)) } return g }
@@ -112,7 +115,7 @@ const arch = () => { const c = '#cdbfa6', t = '#b3a488'; const g = grp(1.3, fals
 export { gift, friendNpc }
 
 export const WORLDS: World[] = [
-  { id: 'candy', sky: '#ffdcef', ground: '#f2b6db', tiers: [[gummybear, cookie, wrapped], [lollipop, cupcake, donut, candycane], [icecream, cakeSlice], [bigCake]], icons: ['🍬', '🍭', '🍦', '🎂'], landmark: gingerbreadHouse, movers: [gummybear, gummybear, wrapped] },
+  { id: 'candy', sky: '#ffdcef', ground: '#f2b6db', tiers: [[wrapped, jellybean, peppermint, gummybear, cookie], [lollipop, cupcake, donut, candycane], [icecream, cakeSlice], [bigCake]], icons: ['🍬', '🍭', '🍦', '🎂'], landmark: gingerbreadHouse, movers: [gummybear, jellybean, wrapped] },
   { id: 'city', sky: '#bcd6ef', ground: '#9aa9ba', tiers: [[cone, hydrant, trashcan, person, dog], [bench, lamppost, mailbox, bush], [car, tree], [bus, house]], icons: ['🚧', '🧍', '🚗', '🚌'], landmark: building, movers: [person, person, dog] },
   { id: 'beach', sky: '#bfe6ff', ground: '#f0d9a8', tiers: [[seashell, starfishB, pebbleB], [pail, beachball, crab], [sandcastle, umbrella], [boat]], icons: ['🐚', '🪣', '🏰', '⛵'], landmark: lighthouse, movers: [crab, crab, beachball] },
   { id: 'space', sky: '#10102a', ground: '#b0b4c2', tiers: [[moonrock, spacestar, bolt], [satellite, alien, crystal], [rover, capsule], [rocketS]], icons: ['🌙', '👽', '🤖', '🚀'], landmark: spacestation, movers: [alien, alien, rover] },
@@ -124,8 +127,9 @@ export function worldForLevel(n: number): World { return WORLDS[Math.floor((n - 
 
 // a dramatic SIZE LADDER: each tier ~2x the previous, so un-eatable things tower.
 // TIER_SIZE = nominal footprint (the eat gate); TIER_SCALE = visual scale applied.
-export const TIER_SIZE = [0.6, 1.3, 2.6, 5.5]
-export const TIER_SCALE = [0.5, 1.0, 1.9, 3.2]
+// tier 1 (the small "search target") is bigger now, so the child clearly SEES what to collect
+export const TIER_SIZE = [0.85, 1.5, 2.8, 5.5]
+export const TIER_SCALE = [0.75, 1.1, 1.95, 3.2]
 export const LANDMARK_SIZE = 9
 export const LANDMARK_SCALE = 3.4
 // the BOSS finale: one enormous friendly object you grow big enough to swallow last
@@ -197,10 +201,16 @@ export function buildLayout(n: number, maxFriend: number): Layout {
         const near = rr < clusterR * 0.45
         place(cx + Math.cos(a) * rr, cz + Math.sin(a) * rr, zoneTier - (near ? 1 : 0) + (Math.random() < 0.25 ? 1 : 0))
       }
-      // a stack payoff + (in outer pockets) a landmark that acts as a visible compass
-      const st = 3 + Math.floor(Math.random() * 3), stt = Math.min(zoneTier, 2), mk = pick(world.tiers[stt - 1]), step = stt <= 1 ? 0.95 : 1.35
-      for (let s = 0; s < st; s++) place(cx, cz, stt, s * step, mk)
-      if (zi >= 1 && p === 0) place(cx + 2, cz + 2, world.tiers.length, 0, world.landmark, true)
+      // several STACKS (towers) per pocket — eye-catching "wow" payoffs to sweep
+      const nStacks = 2 + Math.floor(Math.random() * 2)
+      for (let s2 = 0; s2 < nStacks; s2++) {
+        const sa = Math.random() * 6.28, sr = Math.random() * clusterR * 0.7
+        const sx = cx + Math.cos(sa) * sr, sz = cz + Math.sin(sa) * sr
+        const st = 4 + Math.floor(Math.random() * 4), stt = Math.min(zoneTier, 2), mk = pick(world.tiers[stt - 1]), step = stt <= 1 ? 0.82 : 1.4
+        for (let s = 0; s < st; s++) place(sx, sz, stt, s * step, mk)
+      }
+      // a big "WOW" structure out in the world (not at spawn) — a giant candy/building/cake
+      if (zi >= 1 && Math.random() < 0.7) place(cx + 1.5, cz + 1.5, world.tiers.length, 0, Math.random() < 0.5 ? world.landmark : pick(world.tiers[world.tiers.length - 1]), true)
     }
   })
 
