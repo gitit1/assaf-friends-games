@@ -154,97 +154,97 @@ function friendNpc(index: number): THREE.Group {
 // ---------- level layout: a bounded place with a winding breadcrumb PATH ----------
 export type Spec = { x: number; z: number; tier: number; baseY: number; make: PropMaker; landmark?: boolean; mover?: boolean; kind?: 'gift' | 'ice' | 'boss' | 'firework' | 'balloon' | 'linked'; friend?: number }
 export type Target = { tier: number; icon: string; need: number; got: number }
-export type Layout = { specs: Spec[]; targets: Target[]; world: World; bound: number; road: THREE.CatmullRomCurve3 }
+export type Gate = { r: number; open: number } // a ring barrier at radius r, opens when hole R ≥ open
+export type Layout = { specs: Spec[]; targets: Target[]; world: World; bound: number; road: THREE.CatmullRomCurve3; gates: Gate[]; waterR: number }
 
 export function buildLayout(n: number, maxFriend: number): Layout {
   const world = worldForLevel(n)
   const within = ((n - 1) % 10) + 1
   const maxTier = Math.min(world.tiers.length, 2 + Math.floor((within - 1) / 3))
-  const bound = 16 + within * 1.2 // roomier — clear space between the candies (not a packed blob)
+  const bound = 24 + within * 1.6 // a BIG world you explore (not a packed blob)
   const specs: Spec[] = []
   const place = (x: number, z: number, tier: number, baseY = 0, make?: PropMaker, landmark = false) => {
-    if (Math.hypot(x, z) < 3) return // small clear spawn zone
-    const t = Math.min(tier, world.tiers.length)
+    if (Math.hypot(x, z) < 2.5) return // small clear spawn zone
+    const t = Math.min(Math.max(1, tier), world.tiers.length)
     specs.push({ x, z, tier: t, baseY, landmark, make: make ?? pick(world.tiers[t - 1]) })
   }
 
-  // a winding ROAD from near the spawn, outward and around the compact area
-  const ctrl: THREE.Vector3[] = [new THREE.Vector3(0, 0, 0)]
-  const turns = 5 + (within % 3)
-  let a0 = Math.random() * 6.28
-  for (let i = 1; i <= turns; i++) { a0 += 1.5 + Math.random() * 1.1; const r = (i / turns) * bound * 0.92; ctrl.push(new THREE.Vector3(Math.cos(a0) * r, 0, Math.sin(a0) * r)) }
-  const road = new THREE.CatmullRomCurve3(ctrl)
+  // NESTED RING GATES (Katamari): you start confined to the inner ring; grow big enough
+  // and each fence "opens" so the world expands outward. Water lies past the last ring.
+  const gates: Gate[] = [
+    { r: bound * 0.34, open: 1.5 },
+    { r: bound * 0.62, open: 2.8 },
+    { r: bound * 0.90, open: 4.4 },
+  ]
+  const waterR = bound * 0.98
 
-  // line the road (breadcrumb: tier grows along it), SPACED OUT, with STACKS as payoffs
-  const along = 48 + within * 3
-  for (let i = 0; i < along; i++) {
-    const t = i / (along - 1)
-    const p = road.getPoint(t)
-    const tier = Math.max(1, Math.min(maxTier, 1 + Math.floor(t * maxTier + Math.random() * 0.6)))
-    place(p.x + (Math.random() - 0.5) * 4.4, p.z + (Math.random() - 0.5) * 4.4, tier)
-    if (Math.random() < 0.4) place(p.x + (Math.random() - 0.5) * 5, p.z + (Math.random() - 0.5) * 5, Math.max(1, tier - 1))
-    if (i % 9 === 4) { // a TOWER of one object (stack), every so often
-      const st = 3 + Math.floor(Math.random() * 4), tt = Math.min(tier, 2), mk = pick(world.tiers[tt - 1]), step = tt <= 1 ? 0.95 : 1.35
-      for (let s = 0; s < st; s++) place(p.x, p.z, tt, s * step, mk)
+  // POCKETS per ring-zone: themed CLUSTERS with OPEN space between them (explore + search).
+  // Object size is graded by zone (small near spawn, big out past the gates).
+  const roadPts: THREE.Vector3[] = [new THREE.Vector3(0, 0, 0)]
+  const bands = [[2.5, gates[0].r - 1.5], [gates[0].r + 1.5, gates[1].r - 1.5], [gates[1].r + 1.5, gates[2].r - 1.5]]
+  bands.forEach((band, zi) => {
+    const [rIn, rOut] = band, zoneTier = Math.min(maxTier, zi + 1), nPockets = 2 + zi
+    let ang = Math.random() * 6.28
+    for (let p = 0; p < nPockets; p++) {
+      ang += 6.28 / nPockets + (Math.random() - 0.5) * 0.7
+      const rad = rIn + Math.random() * Math.max(1.5, rOut - rIn)
+      const cx = Math.cos(ang) * rad, cz = Math.sin(ang) * rad
+      roadPts.push(new THREE.Vector3(cx * 0.82, 0, cz * 0.82))
+      // amphitheatre cluster: sqrt-random radius (denser centre), size varied
+      const clusterR = 2.2 + zi * 1.0, count = 7 + zi * 4
+      for (let i = 0; i < count; i++) {
+        const a = Math.random() * 6.28, rr = Math.sqrt(Math.random()) * clusterR
+        const near = rr < clusterR * 0.45
+        place(cx + Math.cos(a) * rr, cz + Math.sin(a) * rr, zoneTier - (near ? 1 : 0) + (Math.random() < 0.25 ? 1 : 0))
+      }
+      // a stack payoff + (in outer pockets) a landmark that acts as a visible compass
+      const st = 3 + Math.floor(Math.random() * 3), stt = Math.min(zoneTier, 2), mk = pick(world.tiers[stt - 1]), step = stt <= 1 ? 0.95 : 1.35
+      for (let s = 0; s < st; s++) place(cx, cz, stt, s * step, mk)
+      if (zi >= 1 && p === 0) place(cx + 2, cz + 2, world.tiers.length, 0, world.landmark, true)
     }
-  }
+  })
 
-  // scatter a FEW extra props (Vogel) so the field isn't empty — but with breathing room
-  const fill = 26 + within * 2
-  const g = Math.PI * (3 - Math.sqrt(5))
-  for (let i = 0; i < fill; i++) { const r = 3 + Math.sqrt((i + 1) / fill) * bound; const a = i * g; const rad = Math.min(1, r / bound); const tier = Math.max(1, Math.min(maxTier, 1 + Math.floor(rad * maxTier * 0.8 + Math.random() * 0.6))); place(Math.cos(a) * r, Math.sin(a) * r, tier) }
+  const road = new THREE.CatmullRomCurve3(roadPts.length > 2 ? roadPts : [new THREE.Vector3(0, 0, 0), new THREE.Vector3(bound * 0.5, 0, 0), new THREE.Vector3(bound * 0.88, 0, 0)])
+  const rp = (t: number) => road.getPoint(Math.max(0, Math.min(1, t)))
 
-  // a towering landmark mid-road, and the BOSS — an enormous friendly thing at the
-  // very end you finally grow big enough to swallow (the satisfying capstone)
-  const lp = road.getPoint(0.62); place(lp.x, lp.z, world.tiers.length, 0, world.landmark, true)
-  const bp = road.getPoint(1.0); specs.push({ x: bp.x, z: bp.z, tier: world.tiers.length, baseY: 0, kind: 'boss', make: world.landmark })
-  // a size-gate ARCH mid-road: towers over you until you grow big enough to swallow it
-  const ap = road.getPoint(0.42); place(ap.x, ap.z, world.tiers.length, 0, arch, true)
+  // gentle BREADCRUMB of small props along the road (leads between pockets, so a young
+  // child is never lost) — the bulk of objects stays in the pockets, to be searched out
+  const along = 30 + within * 2
+  for (let i = 0; i < along; i++) { const p = rp(i / (along - 1)); place(p.x + (Math.random() - 0.5) * 2.2, p.z + (Math.random() - 0.5) * 2.2, 1) }
 
-  // a LIVING world: wandering critters (gummy bears / people / dogs) you chase
-  const nMov = 10 + within * 2
-  for (let i = 0; i < nMov; i++) {
-    const p = road.getPoint(Math.random())
-    const x = p.x + (Math.random() - 0.5) * bound * 0.5, z = p.z + (Math.random() - 0.5) * bound * 0.5
-    if (Math.hypot(x, z) < 3) continue
-    specs.push({ x, z, tier: 1, baseY: 0, mover: true, make: pick(world.movers) })
-  }
+  // BOSS + ARCH at the far end (the size-gated capstone you finally grow to swallow)
+  { const bp = rp(1.0); specs.push({ x: bp.x, z: bp.z, tier: world.tiers.length, baseY: 0, kind: 'boss', make: world.landmark }) }
+  { const apP = rp(0.82); place(apP.x, apP.z, world.tiers.length, 0, arch, true) }
 
-  // SPECIAL objects: gifts (swallow → a friend pops out) + ice (linger to melt, then eat)
-  // gifts are plentiful (each reveals an un-met friend) so collecting really progresses
+  // living critters, gifts, ice, trick objects, friends, linked — spread along the road
+  const nMov = 8 + within
+  for (let i = 0; i < nMov; i++) { const p = rp(Math.random()); specs.push({ x: p.x + (Math.random() - 0.5) * 4, z: p.z + (Math.random() - 0.5) * 4, tier: 1, baseY: 0, mover: true, make: pick(world.movers) }) }
   const nGift = 4 + Math.floor(within / 2)
-  for (let i = 0; i < nGift; i++) { const p = road.getPoint(0.1 + Math.random() * 0.85); const x = p.x + (Math.random() - 0.5) * 4, z = p.z + (Math.random() - 0.5) * 4; if (Math.hypot(x, z) < 3) continue; specs.push({ x, z, tier: 1, baseY: 0, kind: 'gift', make: gift }) }
+  for (let i = 0; i < nGift; i++) { const p = rp(0.08 + Math.random() * 0.86); const x = p.x + (Math.random() - 0.5) * 4, z = p.z + (Math.random() - 0.5) * 4; if (Math.hypot(x, z) < 2.5) continue; specs.push({ x, z, tier: 1, baseY: 0, kind: 'gift', make: gift }) }
   const nIce = 1 + Math.floor(within / 4)
-  for (let i = 0; i < nIce; i++) { const p = road.getPoint(0.3 + Math.random() * 0.6); const x = p.x + (Math.random() - 0.5) * 5, z = p.z + (Math.random() - 0.5) * 5; if (Math.hypot(x, z) < 4) continue; specs.push({ x, z, tier: 2, baseY: 0, kind: 'ice', make: pick(world.tiers[1]) }) }
-
-  // TRICK objects (Donut County style): firework shoots up, balloon pops + sweeps treats in
+  for (let i = 0; i < nIce; i++) { const p = rp(0.3 + Math.random() * 0.6); const x = p.x + (Math.random() - 0.5) * 4, z = p.z + (Math.random() - 0.5) * 4; if (Math.hypot(x, z) < 3) continue; specs.push({ x, z, tier: 2, baseY: 0, kind: 'ice', make: pick(world.tiers[1]) }) }
   const nTrick = 2 + Math.floor(within / 3)
-  for (let i = 0; i < nTrick; i++) { const p = road.getPoint(0.1 + Math.random() * 0.85); const x = p.x + (Math.random() - 0.5) * 4, z = p.z + (Math.random() - 0.5) * 4; if (Math.hypot(x, z) < 3) continue; const fw = i % 2 === 0; specs.push({ x, z, tier: 1, baseY: 0, kind: fw ? 'firework' : 'balloon', make: fw ? firework : balloon }) }
-
-  // friends in the world: 3D characters (NPCs) + billboard signs
-  const nf = 2 + Math.floor(within / 4)
+  for (let i = 0; i < nTrick; i++) { const p = rp(0.08 + Math.random() * 0.86); const x = p.x + (Math.random() - 0.5) * 4, z = p.z + (Math.random() - 0.5) * 4; if (Math.hypot(x, z) < 2.5) continue; const fw = i % 2 === 0; specs.push({ x, z, tier: 1, baseY: 0, kind: fw ? 'firework' : 'balloon', make: fw ? firework : balloon }) }
+  const nf = 2 + Math.floor(within / 3)
   const npcMax = Math.min(maxFriend, 100)
   for (let i = 0; i < nf; i++) {
-    const p = road.getPoint(0.2 + Math.random() * 0.7); const off = () => (Math.random() - 0.5) * 4
-    const x = p.x + off(), z = p.z + off()
-    if (Math.hypot(x, z) < 3) continue
+    const p = rp(0.2 + Math.random() * 0.7); const off = () => (Math.random() - 0.5) * 4, x = p.x + off(), z = p.z + off()
+    if (Math.hypot(x, z) < 2.5) continue
     if (i % 2 === 0 && npcMax > 11) { const fi = 10 + Math.floor(Math.random() * (npcMax - 10)); specs.push({ x, z, tier: 3, baseY: 0, friend: fi, make: () => friendNpc(fi) }) }
     else { const fi = Math.floor(Math.random() * Math.max(1, maxFriend)); specs.push({ x, z, tier: 2, baseY: 0, friend: fi, make: () => friendBillboard(fi) }) }
   }
-
-  // LINKED friends: a pair side by side — swallow one and its partner slides in too
   const nLink = 1 + Math.floor(within / 5)
   for (let i = 0; i < nLink; i++) {
-    const p = road.getPoint(0.2 + Math.random() * 0.6); const a = Math.random() * 6.28
-    if (Math.hypot(p.x, p.z) < 4) continue
+    const p = rp(0.2 + Math.random() * 0.6); const a = Math.random() * 6.28
+    if (Math.hypot(p.x, p.z) < 3) continue
     const f1 = Math.floor(Math.random() * Math.max(1, maxFriend)), f2 = Math.floor(Math.random() * Math.max(1, maxFriend))
     specs.push({ x: p.x, z: p.z, tier: 2, baseY: 0, kind: 'linked', friend: f1, make: () => friendBillboard(f1) })
     specs.push({ x: p.x + Math.cos(a) * 1.3, z: p.z + Math.sin(a) * 1.3, tier: 2, baseY: 0, kind: 'linked', friend: f2, make: () => friendBillboard(f2) })
   }
 
-  // collect MANY of 1–2 abundant types (a satisfying sweep, not a hunt for 5)
+  // collect MANY (a long, explorable level)
   const nT = Math.min(2, 1 + Math.floor((within - 1) / 4))
   const tiers = Array.from({ length: maxTier }, (_, i) => i + 1).sort(() => Math.random() - 0.5).slice(0, nT)
-  const targets: Target[] = tiers.map((t) => ({ tier: t, icon: world.icons[t - 1], need: 24 + within * 4, got: 0 }))
-  return { specs, targets, world, bound, road }
+  const targets: Target[] = tiers.map((t) => ({ tier: t, icon: world.icons[t - 1], need: 22 + within * 3, got: 0 }))
+  return { specs, targets, world, bound, road, gates, waterR }
 }

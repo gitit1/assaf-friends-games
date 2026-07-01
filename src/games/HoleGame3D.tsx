@@ -80,7 +80,7 @@ export default function HoleGame3D({ onExit }: GameProps) {
 
     const scene = new THREE.Scene()
     scene.background = new THREE.Color(lvl.world.sky)
-    scene.fog = new THREE.Fog(lvl.world.sky, lvl.bound * 1.6, lvl.bound * 3.2)
+    scene.fog = new THREE.Fog(lvl.world.sky, lvl.bound * 2.4, lvl.bound * 5) // far, so the water shore stays visible
     const camera = new THREE.PerspectiveCamera(50, W() / H(), 0.1, 600)
     const renderer = new THREE.WebGLRenderer({ antialias: true })
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
@@ -91,13 +91,26 @@ export default function HoleGame3D({ onExit }: GameProps) {
     const key = new THREE.DirectionalLight(0xffffff, 0.9); key.position.set(20, 40, 18); scene.add(key)
     const fill = new THREE.DirectionalLight(0xffffff, 0.28); fill.position.set(-20, 14, -10); scene.add(fill)
 
-    const ground = new THREE.Mesh(new THREE.PlaneGeometry(lvl.bound * 6, lvl.bound * 6), new THREE.MeshLambertMaterial({ color: lvl.world.ground }))
+    // WATER all around = the visible EDGE of the world (the child sees where it ends)
+    const water = new THREE.Mesh(new THREE.PlaneGeometry(lvl.bound * 10, lvl.bound * 10), new THREE.MeshLambertMaterial({ color: 0x3a90d0 }))
+    water.rotation.x = -Math.PI / 2; water.position.y = -0.4; scene.add(water)
+    // the ground is a bounded ISLAND disc; past its shore is the sea (a hard boundary)
+    const ground = new THREE.Mesh(new THREE.CircleGeometry(lvl.bound, 72), new THREE.MeshLambertMaterial({ color: lvl.world.ground }))
     ground.rotation.x = -Math.PI / 2; scene.add(ground)
+    const shore = new THREE.Mesh(new THREE.RingGeometry(lvl.bound - 1.4, lvl.bound + 0.2, 72), new THREE.MeshLambertMaterial({ color: new THREE.Color(lvl.world.ground).lerp(new THREE.Color(0xe9dfae), 0.5) }))
+    shore.rotation.x = -Math.PI / 2; shore.position.y = 0.02; scene.add(shore)
 
     // the visible ROAD the objects line — a darker ground-tone ribbon you follow
     const roadCol = new THREE.Color(lvl.world.ground).multiplyScalar(0.72)
-    const roadMesh = new THREE.Mesh(new THREE.TubeGeometry(lvl.road, 100, 1.7, 6, false), new THREE.MeshLambertMaterial({ color: roadCol }))
+    const roadMesh = new THREE.Mesh(new THREE.TubeGeometry(lvl.road, 120, 2.0, 6, false), new THREE.MeshLambertMaterial({ color: roadCol }))
     roadMesh.scale.y = 0.02; roadMesh.position.y = 0.04; scene.add(roadMesh)
+
+    // NESTED RING FENCES = the barriers; each fades open once the hole is big enough
+    const fences = lvl.gates.map((g) => {
+      const ring = new THREE.Mesh(new THREE.TorusGeometry(g.r, 0.42, 8, 72), new THREE.MeshLambertMaterial({ color: 0xcaa46a, transparent: true, opacity: 0.95 }))
+      ring.rotation.x = -Math.PI / 2; ring.position.y = 0.45; scene.add(ring)
+      return { ring, gate: g }
+    })
 
     // the swallower — a flat dark disc (+ a face for creatures)
     const hole = new THREE.Group()
@@ -180,9 +193,15 @@ export default function HoleGame3D({ onExit }: GameProps) {
 
       const dx = targetPos.x - pos.x, dz = targetPos.z - pos.z
       const d = Math.hypot(dx, dz)
-      const spd = (3.0 + R * 0.7) * dt // calmer, slower pace
+      const spd = (3.4 + R * 0.35) * dt // calm pace, only mildly faster when big
       if (d > 0.05) { const s = Math.min(d, spd); pos.x += (dx / d) * s; pos.z += (dz / d) * s }
-      pos.x = Math.max(-lvl.bound, Math.min(lvl.bound, pos.x)); pos.z = Math.max(-lvl.bound, Math.min(lvl.bound, pos.z))
+      // PHYSICAL BOUNDARY: blocked at the first still-closed ring (grow to open it), and
+      // never past the island's shore — the hole simply stops there ("this is the end")
+      let maxDist = lvl.bound - 1.2
+      for (const g of lvl.gates) { if (R < g.open) { maxDist = Math.max(2, g.r - R * 0.5); break } }
+      const dc = Math.hypot(pos.x, pos.z)
+      if (dc > maxDist) { pos.x *= maxDist / dc; pos.z *= maxDist / dc }
+      for (const f of fences) { const closed = R < f.gate.open; f.ring.visible = closed; (f.ring.material as THREE.MeshLambertMaterial).opacity = closed ? 0.95 : 0 }
       squash = Math.max(0, squash - dt * 4) // gentle mouth "squash" pulse decays after each bite
       hole.position.set(pos.x, 0, pos.z); hole.scale.set(R * (1 + squash * 0.1), R, R * (1 + squash * 0.1))
 
@@ -213,7 +232,7 @@ export default function HoleGame3D({ onExit }: GameProps) {
           const delay = o.baseY * 0.12
           if (o.capT < delay) continue
           if (!o.grewF) {
-            o.grewF = true; R += o.size * 0.06; totalEaten += 1 // grow proportional to what you ate
+            o.grewF = true; R = Math.cbrt(R * R * R + o.size * o.size * o.size * 0.5); totalEaten += 1 // VOLUME growth (Katamari square-cube: decelerates, no more ballooning)
             const x = tg.find((q) => q.tier === o.tier && q.got < q.need); if (x) x.got += 1
             if (o.kind === 'gift') { // a friend pops up — prefer one NOT yet collected
               const cap = Math.max(1, maxNumber)
