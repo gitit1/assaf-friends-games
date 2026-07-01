@@ -2,7 +2,6 @@ import { lazy, Suspense, useEffect, useRef, useState } from 'react'
 import HomeScreen from './components/HomeScreen'
 import CategoryScreen from './components/CategoryScreen'
 import MeetFriends from './components/MeetFriends'
-import Album from './components/Album'
 import FriendWorld from './components/FriendWorld'
 import { GAMES, CATEGORIES } from './games/registry'
 import { FRIENDS, friendName } from './friends'
@@ -29,7 +28,6 @@ const VoiceTest = lazy(() => import('./components/VoiceTest'))
 type Route =
   | { kind: 'home' }
   | { kind: 'meet' }
-  | { kind: 'album' }
   | { kind: 'gallery'; id?: string }
   | { kind: 'lab' }
   | { kind: 'test' }
@@ -42,7 +40,6 @@ function parse(hash: string): Route {
   const h = hash.replace(/^#\/?/, '')
   if (h === '') return { kind: 'home' }
   if (h === 'meet') return { kind: 'meet' }
-  if (h === 'album') return { kind: 'album' }
   if (h === 'lab') return { kind: 'lab' }
   if (h === 'test') return { kind: 'test' }
   if (h === 'voicetest') return { kind: 'voicetest' }
@@ -93,8 +90,6 @@ export default function App() {
 
   if (route.kind === 'meet') {
     view = <MeetFriends onExit={home} onOpen={(i) => go(`friend/${i}`)} />
-  } else if (route.kind === 'album') {
-    view = <Album onExit={home} />
   } else if (route.kind === 'friend') {
     const i = Number(route.id)
     if (i >= 0 && i < FRIENDS.length) {

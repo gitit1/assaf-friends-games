@@ -55,14 +55,69 @@ const bus = () => { const c = pick(['#e0a83a', '#e05a5a', '#5aa0e0']); const g =
 const house = () => { const g = grp(1.6, true, box(2, 1.5, 2, '#efe2c8', 0, 0.75)); const roof = con(1.6, 1.05, pick(ROOF), 0, 2.02, 0, 4); roof.rotation.y = Math.PI / 4; g.add(roof); g.add(box(0.55, 0.95, 0.1, '#7a4a22', 0, 0.48, 1.01)); for (const x of [-0.55, 0.55]) g.add(box(0.42, 0.42, 0.06, '#9fd6f0', x, 1.0, 1.01)); return g }
 const building = () => { const h = 4 + Math.random() * 2.5; const c = pick(['#9fb0c4', '#c4b89f', '#b0a0c0', '#a0c0b0']); const g = grp(2.0, false, box(2.4, h, 2.4, c, 0, h / 2)); for (let r = 0; r < Math.floor(h / 1.0); r++) for (let cc = -1; cc <= 1; cc++) g.add(box(0.45, 0.6, 0.06, '#3a4a66', cc * 0.7, 0.85 + r * 1.0, 1.21)); g.add(box(0.7, 1, 0.06, '#5a4a3a', 0, 0.5, 1.21)); return g }
 
+// ---------- BEACH world ----------
+const SEAC = ['#ff7a5a', '#ffb03a', '#ff5d8f', '#5ec8ff', '#5fd98a']
+const seashell = () => { const c = pick(['#ffd9c0', '#ffc9e0', '#ffe6a0', '#ffe0c8']); const base = sph(0.34, c, 0, 0.26); base.scale.set(1, 0.55, 1); const g = grp(0.36, true, base); for (let i = 0; i < 5; i++) { const a = (i / 4 - 0.5) * 1.7; g.add(box(0.035, 0.34, 0.3, '#e8b894', Math.sin(a) * 0.24, 0.3, 0)) } return g }
+const starfishB = () => { const c = pick(['#ff7a4a', '#ffae3a', '#ff6a8a']); const g = grp(0.4, true); for (let i = 0; i < 5; i++) { const a = (i / 5) * 6.283 - 1.57; const arm = con(0.18, 0.62, c, Math.cos(a) * 0.26, 0.12, Math.sin(a) * 0.26, 5); arm.rotation.set(Math.PI / 2, 0, -a); g.add(arm) } g.add(sph(0.22, c, 0, 0.13)); for (let i = 0; i < 5; i++) g.add(sph(0.03, '#fff', (Math.random() - 0.5) * 0.5, 0.2, (Math.random() - 0.5) * 0.5)); return g }
+const pebbleB = () => { const o = sph(0.3, pick(['#b8b0a0', '#c8c0b0', '#a89c88', '#d0c8b8']), 0, 0.2); o.scale.set(1, 0.55, 0.78); return grp(0.3, true, o) }
+const pail = () => { const c = pick(SEAC); const g = grp(0.38, true, cyl(0.36, 0.27, 0.5, c, 0, 0.3, 0, 16)); g.add(cyl(0.37, 0.37, 0.06, '#fff', 0, 0.56, 0, 16)); const h = tor(0.34, 0.025, '#e8e8e8', 12); h.position.y = 0.62; g.add(h); return g }
+const beachball = () => { const g = grp(0.42, true, sph(0.42, '#fff', 0, 0.46)); for (let i = 0; i < 5; i++) { const a = (i / 5) * 6.283; const seg = box(0.05, 0.84, 0.26, pick(SEAC), Math.cos(a) * 0.36, 0.46, Math.sin(a) * 0.36); seg.rotation.y = -a; g.add(seg) } return g }
+const crab = () => { const c = pick(['#ff6a4a', '#ff8050', '#e0524a']); const body = sph(0.32, c, 0, 0.3); body.scale.set(1.25, 0.7, 1); const g = grp(0.42, true, body); for (const sx of [-1, 1]) { g.add(cyl(0.05, 0.05, 0.34, c, sx * 0.42, 0.3, 0.06, 6)); const claw = sph(0.13, c, sx * 0.56, 0.3, 0.18); claw.scale.set(1, 0.7, 1.2); g.add(claw) } for (const sx of [-0.13, 0.13]) { g.add(cyl(0.025, 0.025, 0.16, c, sx, 0.5, 0.22, 4)); g.add(sph(0.06, '#fff', sx, 0.58, 0.22)); g.add(sph(0.03, '#111', sx, 0.59, 0.27)) } for (let i = 0; i < 3; i++) for (const sx of [-1, 1]) { const leg = cyl(0.03, 0.03, 0.22, c, sx * 0.34, 0.16, -0.16 + i * 0.14, 4); leg.rotation.z = sx * 0.5; g.add(leg) } return g }
+const sandcastle = () => { const c = '#e8c890'; const g = grp(0.7, true, box(1.2, 0.65, 1.2, c, 0, 0.33)); for (const [x, z] of [[-0.48, -0.48], [0.48, -0.48], [-0.48, 0.48], [0.48, 0.48]] as const) { g.add(cyl(0.2, 0.22, 0.85, c, x, 0.42, z, 8)); g.add(con(0.22, 0.32, pick(SEAC), x, 1.0, z, 8)) } g.add(box(0.32, 0.5, 0.08, '#9c7848', 0, 0.25, 0.61)); g.add(con(0.16, 0.6, c, 0, 0.95, 0, 8)); return g }
+const umbrella = () => { const c = pick(SEAC); const g = grp(0.6, false, cyl(0.035, 0.035, 1.7, '#f0f0f0', 0, 0.85, 0, 6)); g.add(con(1.0, 0.55, c, 0, 1.55, 0, 14)); g.add(sph(0.08, '#fff', 0, 1.85)); return g }
+const boat = () => { const c = pick(['#e0524a', '#4a90e0', '#e0a94a']); const g = grp(0.9, false, box(1.5, 0.42, 0.7, c, 0, 0.4)); g.add(box(1.55, 0.1, 0.78, '#8a5a30', 0, 0.62)); g.add(cyl(0.04, 0.04, 1.3, '#9c6b3f', 0, 1.25, 0, 6)); g.add(box(0.05, 0.85, 0.62, '#fff', 0.22, 1.25, 0)); g.add(box(0.04, 0.22, 0.3, '#e0524a', -0.02, 1.7, 0)); return g }
+const lighthouse = () => { const g = grp(1.3, false, cyl(0.9, 1.2, 3.4, '#fff', 0, 1.7, 0, 16)); for (let i = 0; i < 3; i++) g.add(cyl(0.92 - i * 0.06, 1.05 - i * 0.06, 0.45, '#e0524a', 0, 0.55 + i * 1.15, 0, 16)); g.add(cyl(0.85, 0.85, 0.5, '#ffe9a0', 0, 3.65, 0, 12)); g.add(con(0.95, 0.7, '#3a4452', 0, 4.25, 0, 12)); return g }
+
+// ---------- SPACE world ----------
+const moonrock = () => { const o = sph(0.32, pick(['#9aa0b0', '#b0b4c0', '#888c98']), 0, 0.26); o.scale.set(1, 0.85, 0.9); const g = grp(0.32, true, o); for (let i = 0; i < 3; i++) { const cr = sph(0.07, '#70747e', (Math.random() - 0.5) * 0.4, 0.42, (Math.random() - 0.5) * 0.4); cr.scale.y = 0.4; g.add(cr) } return g }
+const spacestar = () => { const c = pick(['#ffe066', '#ffd23a', '#fff0a0']); const g = grp(0.34, true); for (let i = 0; i < 5; i++) { const a = (i / 5) * 6.283 - 1.57; const arm = con(0.13, 0.42, c, Math.cos(a) * 0.2, 0.2, Math.sin(a) * 0.2, 4); arm.rotation.set(Math.PI / 2, 0, -a); g.add(arm) } g.add(sph(0.16, c, 0, 0.2)); return g }
+const bolt = () => grp(0.24, true, cyl(0.1, 0.1, 0.38, '#c0c4d0', 0, 0.27, 0, 6), cyl(0.18, 0.18, 0.13, '#9aa0b0', 0, 0.5, 0, 6))
+const satellite = () => { const c = '#c8ccd8'; const g = grp(0.45, true, box(0.42, 0.42, 0.5, c, 0, 0.5)); for (const sx of [-1, 1]) g.add(box(0.7, 0.03, 0.42, '#3a6ad0', sx * 0.62, 0.5, 0)); g.add(cyl(0.02, 0.02, 0.4, c, 0, 0.85, 0, 4)); g.add(sph(0.12, '#9fd6f0', 0, 1.02)); return g }
+const alien = () => { const c = pick(['#7fd86a', '#6ad8c0', '#b88aff']); const body = sph(0.24, c, 0, 0.5); body.scale.set(0.9, 1.1, 0.9); const head = sph(0.22, c, 0, 0.82); const g = grp(0.32, true, body, head); for (const sx of [-0.09, 0.09]) { const eye = sph(0.08, '#111', sx, 0.86, 0.16); eye.scale.set(1, 1.4, 1); g.add(eye) } for (const sx of [-0.24, 0.24]) g.add(cyl(0.045, 0.045, 0.34, c, sx, 0.5, 0, 5)); g.add(cyl(0.02, 0.02, 0.16, c, 0, 1.04, 0, 4)); g.add(sph(0.05, '#ff5d8f', 0, 1.15)); return g }
+const crystal = () => { const c = pick(['#9ad8ff', '#c0a0ff', '#ff9ad8', '#9affc0']); const g = grp(0.3, true); for (let i = 0; i < 4; i++) { const h = 0.45 + Math.random() * 0.45; g.add(con(0.11, h, c, (Math.random() - 0.5) * 0.34, h / 2, (Math.random() - 0.5) * 0.34, 5)) } return g }
+const rover = () => { const c = '#d4d8e0'; const g = grp(0.55, true, box(0.85, 0.28, 0.55, c, 0, 0.42)); for (const [x, z] of [[-0.34, 0.3], [0.34, 0.3], [-0.34, -0.3], [0.34, -0.3]] as const) { const w = cyl(0.15, 0.15, 0.13, '#333', x, 0.18, z, 10); w.rotation.x = Math.PI / 2; g.add(w) } g.add(box(0.4, 0.02, 0.36, '#3a6ad0', -0.05, 0.58, 0)); g.add(cyl(0.02, 0.02, 0.3, c, 0.3, 0.7, 0, 4)); g.add(sph(0.09, '#9fd6f0', 0.3, 0.86)); return g }
+const capsule = () => { const c = '#e0e4ec'; const g = grp(0.55, false, cyl(0.42, 0.54, 1.0, c, 0, 0.6, 0, 14), con(0.42, 0.5, '#e0524a', 0, 1.35, 0, 14)); g.add(cyl(0.55, 0.55, 0.08, '#3a4452', 0, 0.42, 0, 14)); g.add(sph(0.15, '#3a4452', 0, 0.72, 0.42)); return g }
+const rocketS = () => { const c = '#eef0f4'; const g = grp(0.7, false, cyl(0.5, 0.62, 2.4, c, 0, 1.5, 0, 16), con(0.5, 0.85, '#e0524a', 0, 3.1, 0, 16)); for (let i = 0; i < 3; i++) { const a = (i / 3) * 6.283; g.add(box(0.1, 0.6, 0.4, '#e0524a', Math.cos(a) * 0.56, 0.45, Math.sin(a) * 0.56)) } g.add(sph(0.2, '#9fd6f0', 0, 2.0)); g.add(con(0.46, 0.5, '#ffb03a', 0, 0.08, 0, 12)); return g }
+const spacestation = () => { const c = '#c8ccd8'; const g = grp(1.3, false, cyl(0.62, 0.8, 3.3, c, 0, 1.65, 0, 16)); for (const y of [0.7, 1.6, 2.6]) { const ring = tor(1.0, 0.16, '#a8aec0', 16); ring.position.y = y; ring.rotation.x = Math.PI / 2; g.add(ring) } g.add(con(0.8, 0.95, '#3a4452', 0, 3.75, 0, 12)); g.add(sph(0.34, '#9fd6f0', 0, 3.15)); for (const sx of [-1, 1]) { g.add(cyl(0.06, 0.06, 0.55, c, sx * 0.55, 1.65, 0, 5)); g.add(box(0.55, 0.55, 0.05, '#3a6ad0', sx * 0.95, 1.65, 0)) } return g }
+
+// ---------- FARM world ----------
+const carrot = () => { const c = con(0.18, 0.7, '#ff8c2a', 0, 0.35, 0, 8); c.rotation.x = Math.PI; const g = grp(0.3, true, c); for (let i = 0; i < 3; i++) g.add(box(0.05, 0.32, 0.05, '#4aaa55', (i - 1) * 0.08, 0.8, 0)); return g }
+const egg = () => { const e = sph(0.26, '#fff5e0', 0, 0.3); e.scale.set(1, 1.3, 1); return grp(0.28, true, e) }
+const chick = () => { const c = '#ffd23a'; const g = grp(0.3, true, sph(0.26, c, 0, 0.3), sph(0.18, c, 0, 0.6)); g.add(con(0.06, 0.14, '#ff8c2a', 0, 0.6, 0.2, 6)); for (const sx of [-0.07, 0.07]) g.add(sph(0.03, '#111', sx, 0.64, 0.15)); for (const sx of [-0.1, 0.1]) g.add(cyl(0.02, 0.02, 0.12, '#ff8c2a', sx, 0.06, 0, 4)); return g }
+const haybale = () => { const c = cyl(0.45, 0.45, 0.72, '#e0c060', 0, 0.45, 0, 14); c.rotation.z = Math.PI / 2; const g = grp(0.5, true, c); for (let i = 0; i < 3; i++) { const band = cyl(0.46, 0.46, 0.03, '#c0a040', 0, 0.45, 0, 14); band.rotation.z = Math.PI / 2; band.position.x = -0.28 + i * 0.28; g.add(band) } return g }
+const chicken = () => { const c = '#fff'; const body = sph(0.32, c, 0, 0.42); body.scale.set(1, 1.1, 1.2); const g = grp(0.36, true, body, sph(0.2, c, 0.04, 0.78)); g.add(con(0.07, 0.16, '#ff8c2a', 0.04, 0.78, 0.24, 6)); g.add(box(0.04, 0.16, 0.14, '#e0524a', 0.04, 0.95, 0.02)); for (const sx of [-0.08, 0.08]) g.add(sph(0.028, '#111', 0.06, 0.82, sx)); for (const sx of [-0.12, 0.12]) g.add(cyl(0.025, 0.025, 0.18, '#ff8c2a', sx, 0.1, 0, 4)); g.add(con(0.18, 0.4, c, -0.34, 0.55, 0, 5)); return g }
+const sheep = () => { const w = '#f0f0f0'; const g = grp(0.5, true); for (let i = 0; i < 6; i++) { const a = (i / 6) * 6.283; g.add(sph(0.26, w, Math.cos(a) * 0.22, 0.55, Math.sin(a) * 0.16)) } g.add(sph(0.3, w, 0, 0.6)); g.add(sph(0.17, '#3a3a3a', 0, 0.6, 0.34)); for (const sx of [-0.07, 0.07]) g.add(sph(0.03, '#fff', sx, 0.66, 0.48)); for (const [x, z] of [[-0.16, 0.13], [0.16, 0.13], [-0.16, -0.13], [0.16, -0.13]] as const) g.add(cyl(0.05, 0.05, 0.3, '#3a3a3a', x, 0.15, z, 5)); return g }
+const pig = () => { const c = '#f7a8c0'; const body = sph(0.36, c, 0, 0.44); body.scale.set(1.3, 1, 1); const g = grp(0.5, true, body, sph(0.24, c, 0.44, 0.46)); g.add(cyl(0.1, 0.1, 0.08, '#e088a0', 0.62, 0.46, 0, 8)).children.at(-1)!.rotation.z = Math.PI / 2; for (const sx of [-0.1, 0.1]) g.add(sph(0.025, '#111', 0.5, 0.57, sx)); for (const sx of [-0.13, 0.13]) g.add(con(0.07, 0.12, c, 0.36, 0.66, sx, 4)); for (const [x, z] of [[-0.18, 0.16], [0.2, 0.16], [-0.18, -0.16], [0.2, -0.16]] as const) g.add(cyl(0.06, 0.06, 0.26, c, x, 0.13, z, 5)); return g }
+const cow = () => { const c = '#fff'; const body = sph(0.45, c, 0, 0.62); body.scale.set(1.5, 1, 1.1); const g = grp(0.72, true, body, sph(0.26, c, 0.66, 0.62)); g.add(sph(0.17, '#f7c0a8', 0.86, 0.56)); for (const sp of [[0.1, 0.3], [-0.2, -0.12], [0.32, -0.22]] as const) { const s = sph(0.18, '#3a3a3a', sp[0], 0.64, sp[1]); s.scale.set(1.3, 1, 1.1); g.add(s) } for (const [x, z] of [[-0.3, 0.22], [0.4, 0.22], [-0.3, -0.22], [0.4, -0.22]] as const) g.add(cyl(0.08, 0.08, 0.42, '#333', x, 0.21, z, 5)); for (const sx of [-0.13, 0.13]) g.add(con(0.06, 0.13, '#ddd', 0.7, 0.84, sx, 4)); return g }
+const barn = () => { const g = grp(1.8, false, box(2.4, 2.7, 2.4, '#c0392b', 0, 1.35)); const roof = con(2.05, 1.35, '#8a2a20', 0, 3.35, 0, 4); roof.rotation.y = Math.PI / 4; g.add(roof); g.add(box(0.95, 1.45, 0.1, '#fff', 0, 0.72, 1.21)); g.add(box(0.12, 1.45, 0.12, '#7a241c', 0, 0.72, 1.27)); g.add(box(0.95, 0.12, 0.12, '#7a241c', 0, 1.45, 1.27)); g.add(box(0.55, 0.55, 0.1, '#e8c060', 0, 2.45, 1.22)); g.add(box(0.62, 0.1, 0.12, '#7a241c', 0, 2.45, 1.27)); return g }
+
+// ---------- UNDERWATER world ----------
+const smallfish = () => { const c = pick(['#ff944d', '#ffcf3f', '#5ec8ff', '#ff6b9d', '#5fd98a']); const body = sph(0.3, c, 0, 0.4); body.scale.set(1.4, 1, 0.7); const g = grp(0.34, true, body); const tail = con(0.22, 0.34, c, -0.5, 0.4, 0, 3); tail.rotation.z = Math.PI / 2; g.add(tail); g.add(con(0.12, 0.2, c, 0.05, 0.6, 0, 3)); g.add(sph(0.06, '#fff', 0.3, 0.44, 0.13)); g.add(sph(0.03, '#111', 0.34, 0.44, 0.16)); return g }
+const coralbit = () => { const c = pick(['#ff7a9d', '#ffa84d', '#c08aff']); const g = grp(0.3, true); for (let i = 0; i < 3; i++) { const h = 0.4 + Math.random() * 0.3; g.add(cyl(0.06, 0.09, h, c, (Math.random() - 0.5) * 0.3, h / 2, (Math.random() - 0.5) * 0.3, 6)) } return g }
+const jellyfish = () => { const c = pick(['#ff9ad8', '#b89aff', '#9ad8ff']); const dome = new THREE.Mesh(new THREE.SphereGeometry(0.36, 14, 10, 0, 6.283, 0, 1.7), new THREE.MeshLambertMaterial({ color: c, transparent: true, opacity: 0.9 })); dome.position.y = 0.7; const g = grp(0.34, false, dome); for (let i = 0; i < 6; i++) { const a = (i / 6) * 6.283; g.add(cyl(0.02, 0.02, 0.45, c, Math.cos(a) * 0.2, 0.45, Math.sin(a) * 0.2, 4)) } return g }
+const bigfish = () => { const c = pick(['#5ec8ff', '#5fd98a', '#ffb03a', '#ff6b9d']); const body = sph(0.5, c, 0, 0.62); body.scale.set(1.5, 1, 0.7); const g = grp(0.55, true, body); const tail = con(0.36, 0.5, c, -0.82, 0.62, 0, 3); tail.rotation.z = Math.PI / 2; g.add(tail); g.add(con(0.2, 0.34, c, 0.05, 0.94, 0, 3)); g.add(sph(0.09, '#fff', 0.55, 0.68, 0.2)); g.add(sph(0.045, '#111', 0.6, 0.68, 0.24)); return g }
+const coral = () => { const c = pick(['#ff7a9d', '#ffa84d', '#c08aff', '#5fd98a']); const g = grp(0.6, false, cyl(0.12, 0.18, 0.6, c, 0, 0.3, 0, 8)); for (let i = 0; i < 5; i++) { const a = (i / 5) * 6.283; const br = cyl(0.07, 0.1, 0.7, c, Math.cos(a) * 0.24, 0.7, Math.sin(a) * 0.24, 6); br.rotation.set(0.5 * Math.sin(a), 0, -0.5 * Math.cos(a)); g.add(br) } return g }
+const chest = () => { const c = '#8a5a30'; const g = grp(0.6, true, box(1.0, 0.6, 0.7, c, 0, 0.3), box(1.0, 0.36, 0.7, '#6a4424', 0, 0.78)); for (const y of [0.3, 0.62, 0.95]) g.add(box(1.04, 0.07, 0.74, '#e0b040', 0, y, 0)); g.add(box(0.14, 0.2, 0.05, '#ffd23a', 0, 0.5, 0.36)); for (let i = 0; i < 4; i++) g.add(sph(0.06, pick(['#ffd23a', '#9ad8ff', '#ff9ad8']), -0.3 + i * 0.2, 1.0, 0.1)); return g }
+const whale = () => { const c = '#5a8ad0'; const body = sph(1.4, c, 0, 1.5); body.scale.set(1.7, 1, 1); const g = grp(1.9, false, body); const tail = con(0.9, 1.3, c, -2.5, 1.7, 0, 3); tail.rotation.z = -1.1; g.add(tail); for (const sx of [-0.45, 0.45]) { g.add(sph(0.17, '#fff', 1.9, 1.7, sx)); g.add(sph(0.08, '#111', 2.02, 1.7, sx)) } g.add(box(2.2, 0.1, 1.6, '#cfe0f5', 0.2, 0.55, 0)); for (let i = 0; i < 5; i++) g.add(cyl(0.03, 0.03, 0.5 + Math.random() * 0.4, '#bfe0ff', 0.2, 2.9, (i - 2) * 0.08, 4)); return g }
+
 // ---------- special objects (world-agnostic) ----------
 // a wrapped PRESENT — swallow it and a friend pops out (a happy surprise)
 const gift = () => { const c = pick(['#ff5d8f', '#5ec8ff', '#a07bff', '#5fd98a', '#ff944d']); const g = grp(0.5, false, box(0.72, 0.7, 0.72, c, 0, 0.37)); g.add(box(0.14, 0.72, 0.74, '#fff', 0, 0.37)); g.add(box(0.74, 0.72, 0.14, '#fff', 0, 0.37)); g.add(sph(0.12, '#fff', 0, 0.78)); for (const x of [-0.17, 0.17]) { const lo = sph(0.12, '#fff', x, 0.8); lo.scale.set(1.4, 0.7, 0.7); g.add(lo) } return g }
+// a FIREWORK rocket — swallow it and it shoots a colourful burst up out of the hole
+const firework = () => { const c = pick(['#ff5d8f', '#5ec8ff', '#a07bff', '#5fd98a', '#ff944d', '#ffcf3f']); const body = cyl(0.16, 0.2, 0.8, c, 0, 0.5, 0, 10); const nose = con(0.17, 0.34, '#fff', 0, 1.04, 0, 10); const g = grp(0.3, false, body, nose); for (const a of [0, 2.094, 4.188]) g.add(box(0.04, 0.22, 0.2, '#3a4452', Math.cos(a) * 0.18, 0.18, Math.sin(a) * 0.18)); g.add(cyl(0.018, 0.018, 0.22, '#888', 0, 0.0, 0, 4)); return g }
+// a BALLOON — swallow it and it pops, sweeping nearby treats into the hole
+const balloon = () => { const c = pick(['#ff5d8f', '#5ec8ff', '#a07bff', '#5fd98a', '#ff944d', '#ffcf3f']); const b = sph(0.42, c, 0, 1.05); b.scale.set(0.85, 1.05, 0.85); const knot = con(0.09, 0.16, c, 0, 0.62, 0, 6); const str = cyl(0.015, 0.015, 0.6, '#bbb', 0, 0.32, 0, 4); return grp(0.28, false, b, knot, str) }
+// a GATEWAY arch — towers over you until you grow big enough to swallow it (size gate)
+const arch = () => { const c = '#cdbfa6', t = '#b3a488'; const g = grp(1.3, false); for (const sx of [-1, 1]) { g.add(box(0.55, 2.7, 0.7, c, sx * 1.15, 1.35, 0)); g.add(box(0.75, 0.4, 0.9, t, sx * 1.15, 0.2, 0)) } g.add(box(3.4, 0.6, 0.7, c, 0, 2.95, 0)); g.add(box(2.9, 0.32, 0.55, t, 0, 2.62, 0.08)); for (const sx of [-1, 1]) g.add(con(0.3, 0.5, pick(['#ff5d8f', '#5ec8ff', '#5fd98a', '#ffcf3f']), sx * 1.15, 3.45, 0, 8)); return g }
 export { gift, friendNpc }
 
 export const WORLDS: World[] = [
   { id: 'candy', sky: '#ffdcef', ground: '#f2b6db', tiers: [[gummybear, cookie, wrapped], [lollipop, cupcake, donut, candycane], [icecream, cakeSlice], [bigCake]], icons: ['🍬', '🍭', '🍦', '🎂'], landmark: gingerbreadHouse, movers: [gummybear, gummybear, wrapped] },
   { id: 'city', sky: '#bcd6ef', ground: '#9aa9ba', tiers: [[cone, hydrant, trashcan, person, dog], [bench, lamppost, mailbox, bush], [car, tree], [bus, house]], icons: ['🚧', '🧍', '🚗', '🚌'], landmark: building, movers: [person, person, dog] },
+  { id: 'beach', sky: '#bfe6ff', ground: '#f0d9a8', tiers: [[seashell, starfishB, pebbleB], [pail, beachball, crab], [sandcastle, umbrella], [boat]], icons: ['🐚', '🪣', '🏰', '⛵'], landmark: lighthouse, movers: [crab, crab, beachball] },
+  { id: 'space', sky: '#10102a', ground: '#b0b4c2', tiers: [[moonrock, spacestar, bolt], [satellite, alien, crystal], [rover, capsule], [rocketS]], icons: ['🌙', '👽', '🤖', '🚀'], landmark: spacestation, movers: [alien, alien, rover] },
+  { id: 'farm', sky: '#bfe6ff', ground: '#8fc96a', tiers: [[chick, egg, carrot], [chicken, haybale], [sheep, pig], [cow]], icons: ['🐤', '🐔', '🐑', '🐮'], landmark: barn, movers: [chicken, sheep, pig] },
+  { id: 'underwater', sky: '#1a6fa0', ground: '#1f9a8a', tiers: [[smallfish, coralbit, seashell], [jellyfish, starfishB, crab], [bigfish, coral], [chest]], icons: ['🐟', '🪼', '🐠', '💎'], landmark: whale, movers: [smallfish, smallfish, jellyfish] },
 ]
 
 export function worldForLevel(n: number): World { return WORLDS[Math.floor((n - 1) / 10) % WORLDS.length] }
@@ -97,7 +152,7 @@ function friendNpc(index: number): THREE.Group {
 }
 
 // ---------- level layout: a bounded place with a winding breadcrumb PATH ----------
-export type Spec = { x: number; z: number; tier: number; baseY: number; make: PropMaker; landmark?: boolean; mover?: boolean; kind?: 'gift' | 'ice' | 'boss'; friend?: number }
+export type Spec = { x: number; z: number; tier: number; baseY: number; make: PropMaker; landmark?: boolean; mover?: boolean; kind?: 'gift' | 'ice' | 'boss' | 'firework' | 'balloon' | 'linked'; friend?: number }
 export type Target = { tier: number; icon: string; need: number; got: number }
 export type Layout = { specs: Spec[]; targets: Target[]; world: World; bound: number; road: THREE.CatmullRomCurve3 }
 
@@ -105,7 +160,7 @@ export function buildLayout(n: number, maxFriend: number): Layout {
   const world = worldForLevel(n)
   const within = ((n - 1) % 10) + 1
   const maxTier = Math.min(world.tiers.length, 2 + Math.floor((within - 1) / 3))
-  const bound = 13 + within * 0.9 // COMPACT — a packed little world, not a vast field
+  const bound = 16 + within * 1.2 // roomier — clear space between the candies (not a packed blob)
   const specs: Spec[] = []
   const place = (x: number, z: number, tier: number, baseY = 0, make?: PropMaker, landmark = false) => {
     if (Math.hypot(x, z) < 3) return // small clear spawn zone
@@ -120,22 +175,22 @@ export function buildLayout(n: number, maxFriend: number): Layout {
   for (let i = 1; i <= turns; i++) { a0 += 1.5 + Math.random() * 1.1; const r = (i / turns) * bound * 0.92; ctrl.push(new THREE.Vector3(Math.cos(a0) * r, 0, Math.sin(a0) * r)) }
   const road = new THREE.CatmullRomCurve3(ctrl)
 
-  // DENSELY line the road (breadcrumb: tier grows along it), with STACKS as payoffs
-  const along = 72 + within * 6
+  // line the road (breadcrumb: tier grows along it), SPACED OUT, with STACKS as payoffs
+  const along = 48 + within * 3
   for (let i = 0; i < along; i++) {
     const t = i / (along - 1)
     const p = road.getPoint(t)
     const tier = Math.max(1, Math.min(maxTier, 1 + Math.floor(t * maxTier + Math.random() * 0.6)))
-    place(p.x + (Math.random() - 0.5) * 3, p.z + (Math.random() - 0.5) * 3, tier)
-    if (Math.random() < 0.5) place(p.x + (Math.random() - 0.5) * 3.6, p.z + (Math.random() - 0.5) * 3.6, Math.max(1, tier - 1))
+    place(p.x + (Math.random() - 0.5) * 4.4, p.z + (Math.random() - 0.5) * 4.4, tier)
+    if (Math.random() < 0.4) place(p.x + (Math.random() - 0.5) * 5, p.z + (Math.random() - 0.5) * 5, Math.max(1, tier - 1))
     if (i % 9 === 4) { // a TOWER of one object (stack), every so often
       const st = 3 + Math.floor(Math.random() * 4), tt = Math.min(tier, 2), mk = pick(world.tiers[tt - 1]), step = tt <= 1 ? 0.95 : 1.35
       for (let s = 0; s < st; s++) place(p.x, p.z, tt, s * step, mk)
     }
   }
 
-  // fill the rest of the compact area densely (Vogel) so the WHOLE view is packed
-  const fill = 55 + within * 4
+  // scatter a FEW extra props (Vogel) so the field isn't empty — but with breathing room
+  const fill = 26 + within * 2
   const g = Math.PI * (3 - Math.sqrt(5))
   for (let i = 0; i < fill; i++) { const r = 3 + Math.sqrt((i + 1) / fill) * bound; const a = i * g; const rad = Math.min(1, r / bound); const tier = Math.max(1, Math.min(maxTier, 1 + Math.floor(rad * maxTier * 0.8 + Math.random() * 0.6))); place(Math.cos(a) * r, Math.sin(a) * r, tier) }
 
@@ -143,6 +198,8 @@ export function buildLayout(n: number, maxFriend: number): Layout {
   // very end you finally grow big enough to swallow (the satisfying capstone)
   const lp = road.getPoint(0.62); place(lp.x, lp.z, world.tiers.length, 0, world.landmark, true)
   const bp = road.getPoint(1.0); specs.push({ x: bp.x, z: bp.z, tier: world.tiers.length, baseY: 0, kind: 'boss', make: world.landmark })
+  // a size-gate ARCH mid-road: towers over you until you grow big enough to swallow it
+  const ap = road.getPoint(0.42); place(ap.x, ap.z, world.tiers.length, 0, arch, true)
 
   // a LIVING world: wandering critters (gummy bears / people / dogs) you chase
   const nMov = 10 + within * 2
@@ -154,10 +211,15 @@ export function buildLayout(n: number, maxFriend: number): Layout {
   }
 
   // SPECIAL objects: gifts (swallow → a friend pops out) + ice (linger to melt, then eat)
-  const nGift = 2 + Math.floor(within / 4)
-  for (let i = 0; i < nGift; i++) { const p = road.getPoint(0.12 + Math.random() * 0.82); const x = p.x + (Math.random() - 0.5) * 4, z = p.z + (Math.random() - 0.5) * 4; if (Math.hypot(x, z) < 3) continue; specs.push({ x, z, tier: 1, baseY: 0, kind: 'gift', make: gift }) }
+  // gifts are plentiful (each reveals an un-met friend) so collecting really progresses
+  const nGift = 4 + Math.floor(within / 2)
+  for (let i = 0; i < nGift; i++) { const p = road.getPoint(0.1 + Math.random() * 0.85); const x = p.x + (Math.random() - 0.5) * 4, z = p.z + (Math.random() - 0.5) * 4; if (Math.hypot(x, z) < 3) continue; specs.push({ x, z, tier: 1, baseY: 0, kind: 'gift', make: gift }) }
   const nIce = 1 + Math.floor(within / 4)
   for (let i = 0; i < nIce; i++) { const p = road.getPoint(0.3 + Math.random() * 0.6); const x = p.x + (Math.random() - 0.5) * 5, z = p.z + (Math.random() - 0.5) * 5; if (Math.hypot(x, z) < 4) continue; specs.push({ x, z, tier: 2, baseY: 0, kind: 'ice', make: pick(world.tiers[1]) }) }
+
+  // TRICK objects (Donut County style): firework shoots up, balloon pops + sweeps treats in
+  const nTrick = 2 + Math.floor(within / 3)
+  for (let i = 0; i < nTrick; i++) { const p = road.getPoint(0.1 + Math.random() * 0.85); const x = p.x + (Math.random() - 0.5) * 4, z = p.z + (Math.random() - 0.5) * 4; if (Math.hypot(x, z) < 3) continue; const fw = i % 2 === 0; specs.push({ x, z, tier: 1, baseY: 0, kind: fw ? 'firework' : 'balloon', make: fw ? firework : balloon }) }
 
   // friends in the world: 3D characters (NPCs) + billboard signs
   const nf = 2 + Math.floor(within / 4)
@@ -170,9 +232,19 @@ export function buildLayout(n: number, maxFriend: number): Layout {
     else { const fi = Math.floor(Math.random() * Math.max(1, maxFriend)); specs.push({ x, z, tier: 2, baseY: 0, friend: fi, make: () => friendBillboard(fi) }) }
   }
 
+  // LINKED friends: a pair side by side — swallow one and its partner slides in too
+  const nLink = 1 + Math.floor(within / 5)
+  for (let i = 0; i < nLink; i++) {
+    const p = road.getPoint(0.2 + Math.random() * 0.6); const a = Math.random() * 6.28
+    if (Math.hypot(p.x, p.z) < 4) continue
+    const f1 = Math.floor(Math.random() * Math.max(1, maxFriend)), f2 = Math.floor(Math.random() * Math.max(1, maxFriend))
+    specs.push({ x: p.x, z: p.z, tier: 2, baseY: 0, kind: 'linked', friend: f1, make: () => friendBillboard(f1) })
+    specs.push({ x: p.x + Math.cos(a) * 1.3, z: p.z + Math.sin(a) * 1.3, tier: 2, baseY: 0, kind: 'linked', friend: f2, make: () => friendBillboard(f2) })
+  }
+
   // collect MANY of 1–2 abundant types (a satisfying sweep, not a hunt for 5)
   const nT = Math.min(2, 1 + Math.floor((within - 1) / 4))
   const tiers = Array.from({ length: maxTier }, (_, i) => i + 1).sort(() => Math.random() - 0.5).slice(0, nT)
-  const targets: Target[] = tiers.map((t) => ({ tier: t, icon: world.icons[t - 1], need: 12 + within * 2, got: 0 }))
+  const targets: Target[] = tiers.map((t) => ({ tier: t, icon: world.icons[t - 1], need: 24 + within * 4, got: 0 }))
   return { specs, targets, world, bound, road }
 }

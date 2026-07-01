@@ -2,10 +2,10 @@ import { useEffect, useState } from 'react'
 import GameShell from './GameShell'
 import Friend from './Friend'
 import { FRIEND_KINDS, FRIEND_NATURAL } from './FriendArt'
-import { FRIENDS } from '../friends'
+import { FRIENDS, friendName, friendNumber, friendColorName } from '../friends'
 import { rosterCount } from '../level'
 import { useMetFriends } from '../friendsMet'
-import { playTap } from '../audio'
+import { playTap, playFriend, unlockAudio } from '../audio'
 import { useT } from '../i18n'
 
 const PER_PAGE = 10
@@ -26,6 +26,7 @@ export default function Album({ onExit }: { onExit: () => void }) {
   const metList = useMetFriends()
   const metSet = new Set(metList)
   const collected = metList.filter((i) => i < total).length
+  const [sel, setSel] = useState<number | null>(null) // tapped friend → detail card
 
   const [vw, setVw] = useState(() => (typeof window !== 'undefined' ? window.innerWidth : 360))
   useEffect(() => {
@@ -65,21 +66,39 @@ export default function Album({ onExit }: { onExit: () => void }) {
         {FRIENDS.slice(start, end).map((friend, j) => {
           const i = start + j
           const got = metSet.has(i)
+          if (got) {
+            return (
+              <button className="album-card got" key={friend.name} style={{ animationDelay: `${j * 0.04}s` }} onClick={() => { unlockAudio(); playFriend(i); setSel(i) }}>
+                <Friend index={i} scale={scale} showNumber={false} />
+                <span className="meet-name">{friend.name}</span>
+              </button>
+            )
+          }
           return (
-            <div className={`album-card ${got ? 'got' : 'locked'}`} key={friend.name} style={{ animationDelay: `${j * 0.04}s` }}>
-              {got ? (
-                <Friend index={i} scale={scale} showNumber={false} interactive />
-              ) : (
-                <span className="album-slot" aria-hidden="true">
-                  <span className="album-silhouette"><Friend index={i} scale={scale} showNumber={false} /></span>
-                  <span className="album-q">?</span>
-                </span>
-              )}
-              <span className="meet-name">{got ? friend.name : '?'}</span>
+            <div className="album-card locked" key={friend.name} style={{ animationDelay: `${j * 0.04}s` }}>
+              <span className="album-slot" aria-hidden="true">
+                <span className="album-silhouette"><Friend index={i} scale={scale} showNumber={false} /></span>
+                <span className="album-q">?</span>
+              </span>
+              <span className="meet-name">?</span>
             </div>
           )
         })}
       </div>
+
+      {/* a met friend's card: name, number, colour — tap to hear it, tap out to close */}
+      {sel != null && (
+        <div className="album-detail" onClick={() => setSel(null)}>
+          <div className="album-detail-card" onClick={(e) => e.stopPropagation()}>
+            <button className="album-detail-x" onClick={() => setSel(null)} aria-label="✕">✕</button>
+            <button className="album-detail-friend" onClick={() => { unlockAudio(); playFriend(sel) }} aria-label={friendName(sel)}>
+              <Friend index={sel} scale={scale * 1.7} showNumber={false} />
+            </button>
+            <h3 className="album-detail-name">{friendName(sel)}</h3>
+            <p className="album-detail-meta" dir="rtl">{t('album.number')} {friendNumber(sel)} · {friendColorName(sel)}</p>
+          </div>
+        </div>
+      )}
     </GameShell>
   )
 }

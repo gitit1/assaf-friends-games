@@ -1,5 +1,6 @@
 import { worldForLevel } from './world'
 import { useMaxLevel } from '../../holeProgress'
+import { UNLOCK_ALL_LEVELS } from '../../devFlags'
 import { useT } from '../../i18n'
 import { playTap } from '../../audio'
 
@@ -7,10 +8,14 @@ import { playTap } from '../../audio'
 // worlds (candy → city → …); each is a row of numbered nodes. Reached levels are
 // bright and playable, finished ones wear a ⭐, and the rest wait quietly behind a
 // 🔒 (no pressure — they open as you go). Tap a node to drop into that level.
-const LEVELS = 50
+const LEVELS = 60 // six worlds × 10 (candy, city, beach, space, farm, underwater)
 const META: Record<string, { emoji: string; key: string }> = {
   candy: { emoji: '🍭', key: 'hole.world.candy' },
   city: { emoji: '🏙️', key: 'hole.world.city' },
+  beach: { emoji: '🏖️', key: 'hole.world.beach' },
+  space: { emoji: '🚀', key: 'hole.world.space' },
+  farm: { emoji: '🌾', key: 'hole.world.farm' },
+  underwater: { emoji: '🤿', key: 'hole.world.underwater' },
 }
 
 export default function HoleMap({ onPick }: { onPick: (level: number) => void }) {
@@ -27,10 +32,10 @@ export default function HoleMap({ onPick }: { onPick: (level: number) => void })
         return (
           <div className="hm-world" key={startL}>
             <h3 className="hm-world-name">{m.emoji} {m.key ? t(m.key) : ''}</h3>
-            <div className="hm-levels" dir="ltr">
+            <div className="hm-trail">
               {Array.from({ length: 10 }, (_, i) => {
                 const lvl = startL + i
-                const locked = lvl > maxLevel
+                const locked = !UNLOCK_ALL_LEVELS && lvl > maxLevel // dev: all unlocked for testing
                 const done = lvl < maxLevel
                 const current = lvl === maxLevel
                 return (

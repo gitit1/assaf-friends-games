@@ -325,10 +325,16 @@ export const HE: Dict = {
   'hole.boss': { text: 'בלעת את הענק!' },
   'album.title': { text: 'אלבום החברים' },
   'album.intro': { text: 'בלעו חברים במשחק כדי לאסוף אותם לאלבום!' },
+  'album.number': { text: 'מספר' },
   'hole.map': { text: 'מפה' },
   'hole.map.title': { text: 'בחרו שלב' },
+  'hole.start': { text: 'התחילו במשחק' },
   'hole.world.candy': { text: 'עיר הממתקים' },
   'hole.world.city': { text: 'העיר הגדולה' },
+  'hole.world.beach': { text: 'חוף הים' },
+  'hole.world.space': { text: 'החלל' },
+  'hole.world.farm': { text: 'החווה' },
+  'hole.world.underwater': { text: 'מתחת למים' },
   'hole.hint': { text: 'הזיזו עם האצבע ובלעו! גדלים ואז בולעים דברים גדולים יותר' },
 
   // "מכולת" — shelf-sorting puzzle

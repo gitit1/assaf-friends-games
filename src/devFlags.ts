@@ -18,3 +18,11 @@ export const TOUCH_LOCK = import.meta.env.DEV && import.meta.env.VITE_TOUCH_LOCK
  * loaded (its lazy import is only reached behind this flag), so it costs nothing.
  */
 export const SHOW_3D = import.meta.env.DEV
+
+/**
+ * Dev: UNLOCK every swallow-game level, so you can jump straight into any level to
+ * test it. ON by default whenever running `npm run dev`; a production build always
+ * keeps normal progression. To test the real locked progression in dev, set
+ * `VITE_LOCK_LEVELS=true` in .env.local.
+ */
+export const UNLOCK_ALL_LEVELS = import.meta.env.DEV && import.meta.env.VITE_LOCK_LEVELS !== 'true'

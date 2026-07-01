@@ -6,7 +6,6 @@ import SettingsPanel from './SettingsPanel'
 import FullscreenButton from './FullscreenButton'
 import MuteButton from './MuteButton'
 import { rosterCount } from '../level'
-import { useMetFriends } from '../friendsMet'
 import { playTap, unlockAudio } from '../audio'
 import { stopSpeech } from '../speech'
 import { useT } from '../i18n'
@@ -32,7 +31,6 @@ type HomeScreenProps = {
 export default function HomeScreen({ onOpen, onOpenCategory }: HomeScreenProps) {
   const { t } = useT()
   const [featured] = useState<number[]>(pickThree)
-  const collected = useMetFriends().filter((i) => i < rosterCount()).length
 
   // size the greeting friends DYNAMICALLY to the card they sit in: fill ~74% of
   // its height, but never wider than ~17% of it (so 2-on-a-side + 1 always fit)
@@ -96,15 +94,6 @@ export default function HomeScreen({ onOpen, onOpenCategory }: HomeScreenProps) 
         </span>
         <span className="friend-cluster" aria-hidden="true">
           <Friend index={featured[2]} scale={friendScale(featured[2])} showNumber={false} lively />
-        </span>
-      </button>
-
-      {/* The friends album — collect them all in the swallow game */}
-      <button className="album-home-card" onClick={() => open('album')}>
-        <span className="album-home-emoji" aria-hidden="true">📖</span>
-        <span className="featured-text">
-          <span className="featured-title">{t('album.title')}</span>
-          <span className="featured-sub" dir="ltr">{collected} / {rosterCount()}</span>
         </span>
       </button>
 

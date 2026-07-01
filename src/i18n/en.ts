@@ -324,10 +324,16 @@ export const EN: Dict = {
   'hole.boss': { text: 'You swallowed the giant!' },
   'album.title': { text: 'Friends Album' },
   'album.intro': { text: 'Swallow friends in the game to collect them here!' },
+  'album.number': { text: 'Number' },
   'hole.map': { text: 'Map' },
   'hole.map.title': { text: 'Pick a level' },
+  'hole.start': { text: 'Start game' },
   'hole.world.candy': { text: 'Candy City' },
   'hole.world.city': { text: 'The Big City' },
+  'hole.world.beach': { text: 'The Beach' },
+  'hole.world.space': { text: 'Outer Space' },
+  'hole.world.farm': { text: 'The Farm' },
+  'hole.world.underwater': { text: 'Under the Sea' },
   'hole.hint': { text: 'Move with your finger and swallow! Grow, then eat bigger things' },
 
   // "Grocery" — shelf-sorting puzzle

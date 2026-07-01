@@ -7,9 +7,10 @@ import { speakNumber } from '../voice'
 import { useT } from '../i18n'
 import { useSettings } from '../settings'
 import { buildLayout, friendNpc, TIER_SIZE, TIER_SCALE, LANDMARK_SIZE, LANDMARK_SCALE, BOSS_SIZE, BOSS_SCALE, type Target } from './hole/world'
-import { markFriendMet } from '../friendsMet'
-import { reachLevel } from '../holeProgress'
+import { markFriendMet, hasMetFriend } from '../friendsMet'
+import { reachLevel, useMaxLevel } from '../holeProgress'
 import HoleMap from './hole/HoleMap'
+import Album from '../components/Album'
 import type { GameProps } from './registry'
 
 // "בולעים הכול" in REAL 3D (three.js). Drag a swallower across a DESIGNED, bounded
@@ -32,8 +33,10 @@ const eatable = (size: number, R: number) => size <= R * 2 * 1.12
 export default function HoleGame3D({ onExit }: GameProps) {
   const { t } = useT()
   const { reduceMotion, maxNumber } = useSettings()
-  const [sw, setSw] = useState<SwId | null>(null)
-  const [phase, setPhase] = useState<'map' | 'play'>('map') // map (pick a level) → play
+  const [sw, setSw] = useState<SwId>('frog') // who swallows — picked on the same page as the map
+  const [phase, setPhase] = useState<'home' | 'map' | 'play' | 'album'>('home') // launcher → map/album/play
+  const [pickerOpen, setPickerOpen] = useState(false) // swallower-choose popup
+  const maxLevel = useMaxLevel() // the last level the player reached — where "start" begins
   const [level, setLevel] = useState(1)
   const [prog, setProg] = useState(0) // 0..1 toward unlocking the next size
   const [eaten, setEaten] = useState(0) // total swallowed (a big counter, the "sweep")
@@ -113,7 +116,7 @@ export default function HoleGame3D({ onExit }: GameProps) {
     }
     scene.add(hole)
 
-    type Obj = { grp: THREE.Group; x: number; z: number; tier: number; size: number; baseY: number; captured: boolean; capT: number; grewF: boolean; dead: boolean; mover: boolean; vx: number; vz: number; wanderT: number; kind?: 'gift' | 'ice' | 'boss'; thawed: boolean; warm: number; iceShell?: THREE.Mesh; friend?: number }
+    type Obj = { grp: THREE.Group; x: number; z: number; tier: number; size: number; baseY: number; captured: boolean; capT: number; grewF: boolean; dead: boolean; mover: boolean; vx: number; vz: number; wanderT: number; kind?: 'gift' | 'ice' | 'boss' | 'firework' | 'balloon' | 'linked'; thawed: boolean; warm: number; iceShell?: THREE.Mesh; friend?: number }
     const objs: Obj[] = lvl.specs.map((s) => {
       const grp = s.make()
       const scale = s.kind === 'boss' ? BOSS_SCALE : s.landmark ? LANDMARK_SCALE : TIER_SCALE[s.tier - 1]
@@ -135,10 +138,17 @@ export default function HoleGame3D({ onExit }: GameProps) {
     const pPos = new Float32Array(PMAX * 3).fill(-999)
     const pState = Array.from({ length: PMAX }, () => ({ life: 0, vx: 0, vy: 0, vz: 0 }))
     const pGeo = new THREE.BufferGeometry(); pGeo.setAttribute('position', new THREE.BufferAttribute(pPos, 3))
-    const points = new THREE.Points(pGeo, new THREE.PointsMaterial({ color: 0xfff4fb, size: 0.5, transparent: true, opacity: 0.75, depthWrite: false }))
+    // a soft round dust sprite (a radial-gradient dot) so puffs are fluffy, not square
+    const pcv = document.createElement('canvas'); pcv.width = pcv.height = 32
+    const pcx = pcv.getContext('2d')!; const pgrad = pcx.createRadialGradient(16, 16, 0, 16, 16, 16)
+    pgrad.addColorStop(0, 'rgba(255,255,255,0.95)'); pgrad.addColorStop(1, 'rgba(255,255,255,0)')
+    pcx.fillStyle = pgrad; pcx.beginPath(); pcx.arc(16, 16, 16, 0, 6.283); pcx.fill()
+    const ptex = new THREE.CanvasTexture(pcv)
+    const points = new THREE.Points(pGeo, new THREE.PointsMaterial({ color: 0xfff4fb, size: 0.5, map: ptex, transparent: true, opacity: 0.7, depthWrite: false }))
     points.frustumCulled = false; scene.add(points)
     let pHead = 0
-    const poof = (x: number, z: number) => { for (let k = 0; k < 7; k++) { const i = pHead++ % PMAX, a = Math.random() * 6.28, s = 1 + Math.random() * 2.2; pState[i] = { life: 0.5, vx: Math.cos(a) * s, vy: 1.4 + Math.random() * 2, vz: Math.sin(a) * s }; pPos[i * 3] = x; pPos[i * 3 + 1] = 0.3; pPos[i * 3 + 2] = z } }
+    // up>1 + n high = a firework's upward shower; defaults = a small swallow dust poof
+    const poof = (x: number, z: number, up = 1, n = 7) => { for (let k = 0; k < n; k++) { const i = pHead++ % PMAX, a = Math.random() * 6.28, s = (1 + Math.random() * 2.2) * (up > 1 ? 0.7 : 1); pState[i] = { life: up > 1 ? 0.85 : 0.5, vx: Math.cos(a) * s, vy: (1.4 + Math.random() * 2) * up, vz: Math.sin(a) * s }; pPos[i * 3] = x; pPos[i * 3 + 1] = 0.3; pPos[i * 3 + 2] = z } }
 
     const pos = { x: 0, z: 0 }
     const targetPos = { x: 0, z: 0 }
@@ -170,13 +180,13 @@ export default function HoleGame3D({ onExit }: GameProps) {
 
       const dx = targetPos.x - pos.x, dz = targetPos.z - pos.z
       const d = Math.hypot(dx, dz)
-      const spd = (7 + R * 1.3) * dt
+      const spd = (3.0 + R * 0.7) * dt // calmer, slower pace
       if (d > 0.05) { const s = Math.min(d, spd); pos.x += (dx / d) * s; pos.z += (dz / d) * s }
       pos.x = Math.max(-lvl.bound, Math.min(lvl.bound, pos.x)); pos.z = Math.max(-lvl.bound, Math.min(lvl.bound, pos.z))
       squash = Math.max(0, squash - dt * 4) // gentle mouth "squash" pulse decays after each bite
       hole.position.set(pos.x, 0, pos.z); hole.scale.set(R * (1 + squash * 0.1), R, R * (1 + squash * 0.1))
 
-      let changed = false, metGift = false, ateBoss = false
+      let changed = false, metGift = false, ateBoss = false, firedFw = false, poppedBalloon = false
       for (const o of objs) {
         if (o.dead) continue
         // a LIVING world: critters wander, and gently amble AWAY when the hole nears
@@ -193,6 +203,11 @@ export default function HoleGame3D({ onExit }: GameProps) {
           o.grp.rotation.y = Math.atan2(mvx, mvz)
           if (!reduceMotion) o.grp.position.y = o.baseY + Math.abs(Math.sin(clock.elapsedTime * 6 + o.x)) * 0.12 // a little hop
         }
+        // MARK the surprises (gift / ice / friend): a gentle bob so the child spots them
+        if (!reduceMotion && !o.captured && !o.mover && (o.kind != null && o.kind !== 'boss' || o.friend != null)) {
+          o.grp.position.y = o.baseY + (Math.sin(clock.elapsedTime * 2.2 + o.x) * 0.5 + 0.5) * 0.22
+          o.grp.rotation.y += dt * 0.6
+        }
         if (o.captured) {
           o.capT += dt
           const delay = o.baseY * 0.12
@@ -200,20 +215,33 @@ export default function HoleGame3D({ onExit }: GameProps) {
           if (!o.grewF) {
             o.grewF = true; R += o.size * 0.06; totalEaten += 1 // grow proportional to what you ate
             const x = tg.find((q) => q.tier === o.tier && q.got < q.need); if (x) x.got += 1
-            if (o.kind === 'gift') { // a friend pops up out of the swallowed present
-              const fi = Math.floor(Math.random() * Math.max(1, maxNumber))
+            if (o.kind === 'gift') { // a friend pops up — prefer one NOT yet collected
+              const cap = Math.max(1, maxNumber)
+              let fi = Math.floor(Math.random() * cap)
+              for (let tr = 0; tr < 12 && hasMetFriend(fi); tr++) fi = Math.floor(Math.random() * cap)
               const fr = friendNpc(fi); fr.position.set(o.x, -1.6, o.z); scene.add(fr)
               reveals.push({ grp: fr, t: 0 }); metGift = true; markFriendMet(fi) // → the album
             }
             if (o.friend != null) markFriendMet(o.friend) // swallowed an in-world friend → album
+            if (o.kind === 'linked') { // its partner (nearest other linked) slides in too
+              let best: Obj | null = null, bd = Infinity
+              for (const q of objs) { if (q === o || q.dead || q.captured || q.kind !== 'linked') continue; const dd = Math.hypot(q.x - o.x, q.z - o.z); if (dd < bd) { bd = dd; best = q } }
+              if (best) { best.captured = true; best.capT = 0 }
+            }
             if (o.kind === 'boss') ateBoss = true // swallowed the giant — a triumphant capstone
+            if (o.kind === 'firework') firedFw = true // shoots a colourful burst up out of the hole
+            if (o.kind === 'balloon') { // pops + sweeps a few nearby treats into the hole
+              poppedBalloon = true; let pulled = 0
+              for (const q of objs) { if (pulled >= 5) break; if (q === o || q.dead || q.captured || q.kind != null || q.friend != null || q.tier > 2) continue; if (Math.hypot(q.x - o.x, q.z - o.z) < 5.5) { q.captured = true; q.capT = 0; pulled++ } }
+            }
             changed = true
           }
-          o.grp.position.x = lerp(o.grp.position.x, pos.x, 0.14)
-          o.grp.position.z = lerp(o.grp.position.z, pos.z, 0.14)
-          o.grp.position.y -= dt * 7
-          o.grp.rotation.x += dt * 5; o.grp.rotation.z += dt * 4
-          o.grp.scale.multiplyScalar(Math.max(0, 1 - dt * 2.3))
+          const fall = o.capT - delay // tip toward the hole, then ACCELERATE down (gravity feel)
+          o.grp.position.x = lerp(o.grp.position.x, pos.x, 0.16)
+          o.grp.position.z = lerp(o.grp.position.z, pos.z, 0.16)
+          o.grp.position.y -= dt * (4 + fall * 16)
+          o.grp.rotation.x += dt * (3 + fall * 5); o.grp.rotation.z += dt * 3
+          o.grp.scale.multiplyScalar(Math.max(0, 1 - dt * 2.1))
           if (o.grp.scale.x < 0.06 || o.grp.position.y < -3) { if (!reduceMotion) poof(pos.x, pos.z); scene.remove(o.grp); o.dead = true }
         } else if (eatable(o.size, R) && o.thawed) {
           if (Math.hypot(o.x - pos.x, o.z - pos.z) < R * 0.95) { o.captured = true; o.capT = 0 }
@@ -246,6 +274,8 @@ export default function HoleGame3D({ onExit }: GameProps) {
         setEaten(totalEaten)
         if (metGift) { setMet(true); playWin(); window.setTimeout(() => setMet(false), 1900) } // a friend appeared!
         if (ateBoss) { setBoss(true); playWin(); setParty(true); window.setTimeout(() => setBoss(false), 2400) } // swallowed the giant!
+        if (firedFw) { poof(pos.x, pos.z, 4, 28); setParty(true); playSuccess(); window.setTimeout(() => { if (!doneRef.current) setParty(false) }, 1300) } // firework!
+        if (poppedBalloon) { setParty(true); playPop(); window.setTimeout(() => { if (!doneRef.current) setParty(false) }, 1000) } // balloon pop
         setTargets(tg.map((x) => ({ ...x })))
         // current max edible tier (by size) + progress toward unlocking the next
         const diam = R * 2 * 1.12
@@ -303,43 +333,79 @@ export default function HoleGame3D({ onExit }: GameProps) {
         const mm = me.material as THREE.Material | THREE.Material[] | undefined
         if (Array.isArray(mm)) mm.forEach((x) => x.dispose()); else if (mm) mm.dispose()
       })
-      renderer.dispose()
+      ptex.dispose(); renderer.dispose()
       if (renderer.domElement.parentNode === mount) mount.removeChild(renderer.domElement)
     }
   }, [sw, phase, level, reduceMotion, maxNumber])
 
-  if (!sw) {
+  const swFeatures = (id: SwId) => (
+    <>
+      {id === 'frog' && (<><span className="sw-eye l" /><span className="sw-eye r" /></>)}
+      {id === 'monster' && (<><span className="sw-horn l" /><span className="sw-horn r" /><span className="sw-teeth" /></>)}
+      {id === 'cat' && (<><span className="sw-ear l" /><span className="sw-ear r" /></>)}
+    </>
+  )
+  const swColor = SWALLOWERS.find((s) => s.id === sw)!.color
+
+  if (phase === 'album') {
+    return <Album onExit={() => setPhase('home')} />
+  }
+  if (phase === 'map') {
+    // the level map — opened only via "choose a level" (not shown on the home page)
     return (
-      <GameShell title={t('game.hole')} emoji="🕳️" onExit={onExit}>
-        <p className="pet-pick-title">{t('hole.pick')}</p>
-        <div className="hole-pick">
-          {SWALLOWERS.map((s) => (
-            <button key={s.id} className="hole-pick-btn" onClick={() => { playPop(); setSw(s.id) }}>
-              <span className="sw-holder pick">
-                <span className={`sw sw-${s.id}`} style={{ ['--c' as string]: s.color }}>
-                  {s.id === 'frog' && (<><span className="sw-eye l" /><span className="sw-eye r" /></>)}
-                  {s.id === 'monster' && (<><span className="sw-horn l" /><span className="sw-horn r" /><span className="sw-teeth" /></>)}
-                  {s.id === 'cat' && (<><span className="sw-ear l" /><span className="sw-ear r" /></>)}
-                </span>
-              </span>
-              <span>{t(`hole.sw.${s.id}`)}</span>
-            </button>
-          ))}
-        </div>
+      <GameShell title={t('game.hole')} emoji="🕳️" onExit={() => setPhase('home')}>
+        <HoleMap onPick={(l) => { playPop(); setLevel(l); setPhase('play') }} />
       </GameShell>
     )
   }
-
-  if (phase === 'map') {
+  if (phase === 'home') {
+    // launcher: small icon buttons — current swallower (→ popup), album, choose-a-level
     return (
       <GameShell title={t('game.hole')} emoji="🕳️" onExit={onExit}>
-        <HoleMap onPick={(l) => { playPop(); setLevel(l); setPhase('play') }} />
+        <div className="hole-home">
+          {/* big START — begins at the last level the player reached */}
+          <button className="hole-start-big" onClick={() => { playPop(); setLevel(maxLevel); setPhase('play') }}>
+            <span className="hole-start-icon">▶️</span>
+            <span>{t('hole.start')}</span>
+            <span className="hole-start-lvl">{t('hole.level')} {maxLevel}</span>
+          </button>
+          <div className="hole-home-row">
+            <button className="hole-launch" onClick={() => { playPop(); setPickerOpen(true) }} aria-label={t('hole.pick')}>
+              <span className="sw-holder pick"><span className={`sw sw-${sw}`} style={{ ['--c' as string]: swColor }}>{swFeatures(sw)}</span></span>
+              <span className="hole-launch-lbl">{t(`hole.sw.${sw}`)}</span>
+            </button>
+            <button className="hole-launch" onClick={() => { playPop(); setPhase('album') }} aria-label={t('album.title')}>
+              <span className="hole-launch-icon">📖</span>
+              <span className="hole-launch-lbl">{t('album.title')}</span>
+            </button>
+            <button className="hole-launch" onClick={() => { playPop(); setPhase('map') }} aria-label={t('hole.map.title')}>
+              <span className="hole-launch-icon">🗺️</span>
+              <span className="hole-launch-lbl">{t('hole.map.title')}</span>
+            </button>
+          </div>
+        </div>
+        {pickerOpen && (
+          <div className="hole-pick-modal" onClick={() => setPickerOpen(false)}>
+            <div className="hole-pick-sheet" onClick={(e) => e.stopPropagation()}>
+              <button className="album-detail-x" onClick={() => setPickerOpen(false)} aria-label="✕">✕</button>
+              <p className="hole-pick-title">{t('hole.pick')}</p>
+              <div className="hole-pick compact">
+                {SWALLOWERS.map((s) => (
+                  <button key={s.id} className={`hole-pick-btn ${sw === s.id ? 'sel' : ''}`} onClick={() => { playPop(); setSw(s.id); setPickerOpen(false) }}>
+                    <span className="sw-holder pick"><span className={`sw sw-${s.id}`} style={{ ['--c' as string]: s.color }}>{swFeatures(s.id)}</span></span>
+                    <span>{t(`hole.sw.${s.id}`)}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
       </GameShell>
     )
   }
 
   return (
-    <GameShell title={t('game.hole')} emoji="🕳️" onExit={onExit}>
+    <GameShell title={t('game.hole')} emoji="🕳️" onExit={() => setPhase('map')}>
       <Confetti active={party} />
       <div className="hole-fs" ref={fsRef}>
         <div className="hole-hud">
