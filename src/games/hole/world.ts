@@ -161,7 +161,7 @@ export function buildLayout(n: number, maxFriend: number): Layout {
   const world = worldForLevel(n)
   const within = ((n - 1) % 10) + 1
   const maxTier = Math.min(world.tiers.length, 2 + Math.floor((within - 1) / 3))
-  const bound = 24 + within * 1.6 // a BIG world you explore (not a packed blob)
+  const bound = 36 + within * 2.6 // a BIG world you explore over minutes (not seconds)
   const specs: Spec[] = []
   const place = (x: number, z: number, tier: number, baseY = 0, make?: PropMaker, landmark = false) => {
     if (Math.hypot(x, z) < 2.5) return // small clear spawn zone
@@ -183,7 +183,7 @@ export function buildLayout(n: number, maxFriend: number): Layout {
   const roadPts: THREE.Vector3[] = [new THREE.Vector3(0, 0, 0)]
   const bands = [[2.5, gates[0].r - 1.5], [gates[0].r + 1.5, gates[1].r - 1.5], [gates[1].r + 1.5, gates[2].r - 1.5]]
   bands.forEach((band, zi) => {
-    const [rIn, rOut] = band, zoneTier = Math.min(maxTier, zi + 1), nPockets = 2 + zi
+    const [rIn, rOut] = band, zoneTier = Math.min(maxTier, zi + 1), nPockets = 3 + zi
     let ang = Math.random() * 6.28
     for (let p = 0; p < nPockets; p++) {
       ang += 6.28 / nPockets + (Math.random() - 0.5) * 0.7
@@ -191,7 +191,7 @@ export function buildLayout(n: number, maxFriend: number): Layout {
       const cx = Math.cos(ang) * rad, cz = Math.sin(ang) * rad
       roadPts.push(new THREE.Vector3(cx * 0.82, 0, cz * 0.82))
       // amphitheatre cluster: sqrt-random radius (denser centre), size varied
-      const clusterR = 2.2 + zi * 1.0, count = 7 + zi * 4
+      const clusterR = 3.4 + zi * 1.5, count = 11 + zi * 5
       for (let i = 0; i < count; i++) {
         const a = Math.random() * 6.28, rr = Math.sqrt(Math.random()) * clusterR
         const near = rr < clusterR * 0.45
@@ -209,16 +209,16 @@ export function buildLayout(n: number, maxFriend: number): Layout {
 
   // gentle BREADCRUMB of small props along the road (leads between pockets, so a young
   // child is never lost) — the bulk of objects stays in the pockets, to be searched out
-  const along = 30 + within * 2
-  for (let i = 0; i < along; i++) { const p = rp(i / (along - 1)); place(p.x + (Math.random() - 0.5) * 2.2, p.z + (Math.random() - 0.5) * 2.2, 1) }
+  const along = 46 + within * 3
+  for (let i = 0; i < along; i++) { const p = rp(i / (along - 1)); place(p.x + (Math.random() - 0.5) * 2.6, p.z + (Math.random() - 0.5) * 2.6, 1) }
 
   // BOSS + ARCH at the far end (the size-gated capstone you finally grow to swallow)
   { const bp = rp(1.0); specs.push({ x: bp.x, z: bp.z, tier: world.tiers.length, baseY: 0, kind: 'boss', make: world.landmark }) }
   { const apP = rp(0.82); place(apP.x, apP.z, world.tiers.length, 0, arch, true) }
 
   // living critters, gifts, ice, trick objects, friends, linked — spread along the road
-  const nMov = 8 + within
-  for (let i = 0; i < nMov; i++) { const p = rp(Math.random()); specs.push({ x: p.x + (Math.random() - 0.5) * 4, z: p.z + (Math.random() - 0.5) * 4, tier: 1, baseY: 0, mover: true, make: pick(world.movers) }) }
+  const nMov = 12 + within
+  for (let i = 0; i < nMov; i++) { const p = rp(Math.random()); specs.push({ x: p.x + (Math.random() - 0.5) * 5, z: p.z + (Math.random() - 0.5) * 5, tier: 1, baseY: 0, mover: true, make: pick(world.movers) }) }
   const nGift = 4 + Math.floor(within / 2)
   for (let i = 0; i < nGift; i++) { const p = rp(0.08 + Math.random() * 0.86); const x = p.x + (Math.random() - 0.5) * 4, z = p.z + (Math.random() - 0.5) * 4; if (Math.hypot(x, z) < 2.5) continue; specs.push({ x, z, tier: 1, baseY: 0, kind: 'gift', make: gift }) }
   const nIce = 1 + Math.floor(within / 4)
@@ -242,9 +242,9 @@ export function buildLayout(n: number, maxFriend: number): Layout {
     specs.push({ x: p.x + Math.cos(a) * 1.3, z: p.z + Math.sin(a) * 1.3, tier: 2, baseY: 0, kind: 'linked', friend: f2, make: () => friendBillboard(f2) })
   }
 
-  // collect MANY (a long, explorable level)
-  const nT = Math.min(2, 1 + Math.floor((within - 1) / 4))
-  const tiers = Array.from({ length: maxTier }, (_, i) => i + 1).sort(() => Math.random() - 0.5).slice(0, nT)
-  const targets: Target[] = tiers.map((t) => ({ tier: t, icon: world.icons[t - 1], need: 22 + within * 3, got: 0 }))
+  // collect MANY of the abundant small tier (always achievable, needs real exploring),
+  // plus a small bigger-tier goal at later levels (needs growing past the gates)
+  const targets: Target[] = [{ tier: 1, icon: world.icons[0], need: 38 + within * 4, got: 0 }]
+  if (within >= 4 && maxTier >= 2) targets.push({ tier: 2, icon: world.icons[1], need: 5 + within, got: 0 })
   return { specs, targets, world, bound, road, gates, waterR }
 }
